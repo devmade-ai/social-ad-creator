@@ -21,6 +21,7 @@ export default function ExportButtons({ canvasRef, state, onPlatformChange }) {
         width: platform.width,
         height: platform.height,
         pixelRatio: 1,
+        skipFonts: true,
       })
 
       const link = document.createElement('a')
@@ -57,6 +58,7 @@ export default function ExportButtons({ canvasRef, state, onPlatformChange }) {
           width: platform.width,
           height: platform.height,
           pixelRatio: 1,
+          skipFonts: true,
         })
 
         const response = await fetch(dataUrl)

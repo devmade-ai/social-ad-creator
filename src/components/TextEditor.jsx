@@ -18,57 +18,61 @@ export default function TextEditor({ text, onTextChange, theme }) {
     <div className="space-y-4">
       <h3 className="text-sm font-semibold text-gray-700">Text</h3>
 
-      {textLayers.map((layer) => (
-        <div key={layer.id} className="space-y-2 border-b border-gray-100 pb-3 last:border-0">
-          <div className="flex items-center justify-between">
-            <label className="text-xs font-medium text-gray-600">{layer.label}</label>
-            <button
-              onClick={() => onTextChange(layer.id, { visible: !text[layer.id].visible })}
-              className={`text-xs px-2 py-0.5 rounded ${
-                text[layer.id].visible
-                  ? 'bg-green-100 text-green-700'
-                  : 'bg-gray-100 text-gray-500'
-              }`}
-            >
-              {text[layer.id].visible ? 'Visible' : 'Hidden'}
-            </button>
-          </div>
+      {textLayers.map((layer) => {
+        const layerState = text?.[layer.id] || { content: '', visible: false, color: 'secondary' }
 
-          {layer.multiline ? (
-            <textarea
-              value={text[layer.id].content}
-              onChange={(e) => onTextChange(layer.id, { content: e.target.value })}
-              placeholder={layer.placeholder}
-              rows={2}
-              className="w-full px-2 py-1.5 text-sm border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 resize-none"
-            />
-          ) : (
-            <input
-              type="text"
-              value={text[layer.id].content}
-              onChange={(e) => onTextChange(layer.id, { content: e.target.value })}
-              placeholder={layer.placeholder}
-              className="w-full px-2 py-1.5 text-sm border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
-            />
-          )}
-
-          <div className="flex gap-1">
-            {colorOptions.map((color) => (
+        return (
+          <div key={layer.id} className="space-y-2 border-b border-gray-100 pb-3 last:border-0">
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-medium text-gray-600">{layer.label}</label>
               <button
-                key={color.id}
-                onClick={() => onTextChange(layer.id, { color: color.id })}
-                title={color.name}
-                className={`w-6 h-6 rounded border-2 ${
-                  text[layer.id].color === color.id
-                    ? 'border-blue-500'
-                    : 'border-transparent'
+                onClick={() => onTextChange(layer.id, { visible: !layerState.visible })}
+                className={`text-xs px-2 py-0.5 rounded ${
+                  layerState.visible
+                    ? 'bg-green-100 text-green-700'
+                    : 'bg-gray-100 text-gray-500'
                 }`}
-                style={{ backgroundColor: theme[color.id] }}
+              >
+                {layerState.visible ? 'Visible' : 'Hidden'}
+              </button>
+            </div>
+
+            {layer.multiline ? (
+              <textarea
+                value={layerState.content}
+                onChange={(e) => onTextChange(layer.id, { content: e.target.value })}
+                placeholder={layer.placeholder}
+                rows={2}
+                className="w-full px-2 py-1.5 text-sm border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 resize-none"
               />
-            ))}
+            ) : (
+              <input
+                type="text"
+                value={layerState.content}
+                onChange={(e) => onTextChange(layer.id, { content: e.target.value })}
+                placeholder={layer.placeholder}
+                className="w-full px-2 py-1.5 text-sm border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+              />
+            )}
+
+            <div className="flex gap-1">
+              {colorOptions.map((color) => (
+                <button
+                  key={color.id}
+                  onClick={() => onTextChange(layer.id, { color: color.id })}
+                  title={color.name}
+                  className={`w-6 h-6 rounded border-2 ${
+                    layerState.color === color.id
+                      ? 'border-blue-500'
+                      : 'border-transparent'
+                  }`}
+                  style={{ backgroundColor: theme[color.id] }}
+                />
+              ))}
+            </div>
           </div>
-        </div>
-      ))}
+        )
+      })}
     </div>
   )
 }

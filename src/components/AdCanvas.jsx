@@ -3,6 +3,8 @@ import { layouts, overlayTypes, hexToRgb } from '../config/layouts'
 import { platforms } from '../config/platforms'
 import { fonts } from '../config/fonts'
 
+const defaultTextLayer = { content: '', visible: false, color: 'secondary' }
+
 const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
   const platform = platforms.find((p) => p.id === state.platform) || platforms[0]
   const layout = layouts.find((l) => l.id === state.layout) || layouts[0]
@@ -20,6 +22,7 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
   const overlayStyle = overlayType.getCss(hexToRgb(overlayColor), state.overlay.opacity)
 
   const getTextColor = (colorKey) => themeColors[colorKey] || themeColors.secondary
+  const getTextLayer = (layerId) => state.text?.[layerId] || defaultTextLayer
 
   const containerStyle = {
     width: platform.width,
@@ -144,188 +147,204 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
     )
   }
 
-  const renderSplitThirds = () => (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', width: '100%' }}>
-      <div
-        style={{
+  const renderSplitThirds = () => {
+    const title = getTextLayer('title')
+    const tagline = getTextLayer('tagline')
+    const cta = getTextLayer('cta')
+    const footnote = getTextLayer('footnote')
+
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', height: '100%', width: '100%' }}>
+        <div
+          style={{
+            height: '33.33%',
+            width: '100%',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'center',
+            padding: '3%',
+            backgroundColor: themeColors.primary,
+          }}
+        >
+          {title.visible && title.content && (
+            <h1
+              style={{
+                fontSize: Math.round(platform.width * 0.04),
+                fontWeight: 700,
+                fontFamily: titleFont.family,
+                color: getTextColor(title.color),
+                margin: 0,
+                textAlign: 'center',
+              }}
+            >
+              {title.content}
+            </h1>
+          )}
+          {tagline.visible && tagline.content && (
+            <p
+              style={{
+                fontSize: Math.round(platform.width * 0.022),
+                fontWeight: 500,
+                fontFamily: bodyFont.family,
+                color: getTextColor(tagline.color),
+                margin: '0.3em 0 0 0',
+                textAlign: 'center',
+              }}
+            >
+              {tagline.content}
+            </p>
+          )}
+        </div>
+        {renderImageWithOverlay({
           height: '33.33%',
           width: '100%',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          alignItems: 'center',
-          padding: '3%',
-          backgroundColor: themeColors.primary,
-        }}
-      >
-        {state.text.title.visible && state.text.title.content && (
+        })}
+        <div
+          style={{
+            height: '33.33%',
+            width: '100%',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'center',
+            padding: '3%',
+            backgroundColor: themeColors.primary,
+          }}
+        >
+          {cta.visible && cta.content && (
+            <p
+              style={{
+                fontSize: Math.round(platform.width * 0.025),
+                fontWeight: 600,
+                fontFamily: bodyFont.family,
+                color: getTextColor(cta.color),
+                margin: 0,
+                textAlign: 'center',
+              }}
+            >
+              {cta.content}
+            </p>
+          )}
+          {footnote.visible && footnote.content && (
+            <p
+              style={{
+                fontSize: Math.round(platform.width * 0.015),
+                fontWeight: 400,
+                fontFamily: bodyFont.family,
+                color: getTextColor(footnote.color),
+                margin: '0.5em 0 0 0',
+                textAlign: 'center',
+                opacity: 0.8,
+              }}
+            >
+              {footnote.content}
+            </p>
+          )}
+        </div>
+      </div>
+    )
+  }
+
+  const renderTextContent = () => {
+    const title = getTextLayer('title')
+    const tagline = getTextLayer('tagline')
+    const bodyHeading = getTextLayer('bodyHeading')
+    const bodyText = getTextLayer('bodyText')
+    const cta = getTextLayer('cta')
+    const footnote = getTextLayer('footnote')
+
+    return (
+      <div style={{ maxWidth: '90%' }}>
+        {title.visible && title.content && (
           <h1
             style={{
-              fontSize: Math.round(platform.width * 0.04),
+              fontSize: Math.round(platform.width * 0.05),
               fontWeight: 700,
               fontFamily: titleFont.family,
-              color: getTextColor(state.text.title.color),
+              color: getTextColor(title.color),
               margin: 0,
-              textAlign: 'center',
+              lineHeight: 1.2,
             }}
           >
-            {state.text.title.content}
+            {title.content}
           </h1>
         )}
-        {state.text.tagline.visible && state.text.tagline.content && (
+        {tagline.visible && tagline.content && (
+          <p
+            style={{
+              fontSize: Math.round(platform.width * 0.028),
+              fontWeight: 500,
+              fontFamily: bodyFont.family,
+              color: getTextColor(tagline.color),
+              margin: '0.4em 0 0 0',
+              lineHeight: 1.3,
+            }}
+          >
+            {tagline.content}
+          </p>
+        )}
+        {bodyHeading.visible && bodyHeading.content && (
+          <p
+            style={{
+              fontSize: Math.round(platform.width * 0.026),
+              fontWeight: 600,
+              fontFamily: bodyFont.family,
+              color: getTextColor(bodyHeading.color),
+              margin: '0.8em 0 0 0',
+              lineHeight: 1.3,
+            }}
+          >
+            {bodyHeading.content}
+          </p>
+        )}
+        {bodyText.visible && bodyText.content && (
           <p
             style={{
               fontSize: Math.round(platform.width * 0.022),
-              fontWeight: 500,
+              fontWeight: 400,
               fontFamily: bodyFont.family,
-              color: getTextColor(state.text.tagline.color),
-              margin: '0.3em 0 0 0',
-              textAlign: 'center',
+              color: getTextColor(bodyText.color),
+              margin: '0.4em 0 0 0',
+              lineHeight: 1.5,
+              whiteSpace: 'pre-wrap',
             }}
           >
-            {state.text.tagline.content}
+            {bodyText.content}
           </p>
         )}
-      </div>
-      {renderImageWithOverlay({
-        height: '33.33%',
-        width: '100%',
-      })}
-      <div
-        style={{
-          height: '33.33%',
-          width: '100%',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          alignItems: 'center',
-          padding: '3%',
-          backgroundColor: themeColors.primary,
-        }}
-      >
-        {state.text.cta.visible && state.text.cta.content && (
+        {cta.visible && cta.content && (
           <p
             style={{
-              fontSize: Math.round(platform.width * 0.025),
+              fontSize: Math.round(platform.width * 0.028),
               fontWeight: 600,
               fontFamily: bodyFont.family,
-              color: getTextColor(state.text.cta.color),
-              margin: 0,
-              textAlign: 'center',
+              color: getTextColor(cta.color),
+              margin: '0.8em 0 0 0',
+              lineHeight: 1.3,
             }}
           >
-            {state.text.cta.content}
+            {cta.content}
           </p>
         )}
-        {state.text.footnote.visible && state.text.footnote.content && (
+        {footnote.visible && footnote.content && (
           <p
             style={{
               fontSize: Math.round(platform.width * 0.015),
               fontWeight: 400,
               fontFamily: bodyFont.family,
-              color: getTextColor(state.text.footnote.color),
-              margin: '0.5em 0 0 0',
-              textAlign: 'center',
+              color: getTextColor(footnote.color),
+              margin: '1em 0 0 0',
+              lineHeight: 1.3,
               opacity: 0.8,
             }}
           >
-            {state.text.footnote.content}
+            {footnote.content}
           </p>
         )}
       </div>
-    </div>
-  )
-
-  const renderTextContent = () => (
-    <div style={{ maxWidth: '90%' }}>
-      {state.text.title.visible && state.text.title.content && (
-        <h1
-          style={{
-            fontSize: Math.round(platform.width * 0.05),
-            fontWeight: 700,
-            fontFamily: titleFont.family,
-            color: getTextColor(state.text.title.color),
-            margin: 0,
-            lineHeight: 1.2,
-          }}
-        >
-          {state.text.title.content}
-        </h1>
-      )}
-      {state.text.tagline.visible && state.text.tagline.content && (
-        <p
-          style={{
-            fontSize: Math.round(platform.width * 0.028),
-            fontWeight: 500,
-            fontFamily: bodyFont.family,
-            color: getTextColor(state.text.tagline.color),
-            margin: '0.4em 0 0 0',
-            lineHeight: 1.3,
-          }}
-        >
-          {state.text.tagline.content}
-        </p>
-      )}
-      {state.text.bodyHeading.visible && state.text.bodyHeading.content && (
-        <p
-          style={{
-            fontSize: Math.round(platform.width * 0.026),
-            fontWeight: 600,
-            fontFamily: bodyFont.family,
-            color: getTextColor(state.text.bodyHeading.color),
-            margin: '0.8em 0 0 0',
-            lineHeight: 1.3,
-          }}
-        >
-          {state.text.bodyHeading.content}
-        </p>
-      )}
-      {state.text.bodyText.visible && state.text.bodyText.content && (
-        <p
-          style={{
-            fontSize: Math.round(platform.width * 0.022),
-            fontWeight: 400,
-            fontFamily: bodyFont.family,
-            color: getTextColor(state.text.bodyText.color),
-            margin: '0.4em 0 0 0',
-            lineHeight: 1.5,
-            whiteSpace: 'pre-wrap',
-          }}
-        >
-          {state.text.bodyText.content}
-        </p>
-      )}
-      {state.text.cta.visible && state.text.cta.content && (
-        <p
-          style={{
-            fontSize: Math.round(platform.width * 0.028),
-            fontWeight: 600,
-            fontFamily: bodyFont.family,
-            color: getTextColor(state.text.cta.color),
-            margin: '0.8em 0 0 0',
-            lineHeight: 1.3,
-          }}
-        >
-          {state.text.cta.content}
-        </p>
-      )}
-      {state.text.footnote.visible && state.text.footnote.content && (
-        <p
-          style={{
-            fontSize: Math.round(platform.width * 0.015),
-            fontWeight: 400,
-            fontFamily: bodyFont.family,
-            color: getTextColor(state.text.footnote.color),
-            margin: '1em 0 0 0',
-            lineHeight: 1.3,
-            opacity: 0.8,
-          }}
-        >
-          {state.text.footnote.content}
-        </p>
-      )}
-    </div>
-  )
+    )
+  }
 
   const renderLayout = () => {
     switch (layout.category) {
