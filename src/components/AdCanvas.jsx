@@ -233,17 +233,18 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
   }
 
   // Render overlay text (title, tagline, CTA on image)
+  // Uses same font sizes as renderAllText for consistency
   const renderOverlayText = () => {
     const title = getTextLayer('title')
     const tagline = getTextLayer('tagline')
     const cta = getTextLayer('cta')
 
     return (
-      <div style={{ maxWidth: '95%' }}>
+      <div style={{ maxWidth: '90%', overflow: 'hidden' }}>
         {title.visible && title.content && (
           <h1
             style={{
-              fontSize: Math.round(platform.width * 0.04 * (title.size || 1)),
+              fontSize: Math.round(platform.width * 0.05 * (title.size || 1)),
               fontWeight: 700,
               fontFamily: titleFont.family,
               color: getTextColor(title.color),
@@ -260,11 +261,11 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
         {tagline.visible && tagline.content && (
           <p
             style={{
-              fontSize: Math.round(platform.width * 0.022 * (tagline.size || 1)),
+              fontSize: Math.round(platform.width * 0.028 * (tagline.size || 1)),
               fontWeight: 500,
               fontFamily: bodyFont.family,
               color: getTextColor(tagline.color),
-              margin: '0.3em 0 0 0',
+              margin: '0.4em 0 0 0',
               lineHeight: 1.3,
               textShadow: '0 1px 2px rgba(0,0,0,0.3)',
               wordWrap: 'break-word',
@@ -277,11 +278,11 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
         {cta.visible && cta.content && (
           <p
             style={{
-              fontSize: Math.round(platform.width * 0.022 * (cta.size || 1)),
+              fontSize: Math.round(platform.width * 0.028 * (cta.size || 1)),
               fontWeight: 600,
               fontFamily: bodyFont.family,
               color: getTextColor(cta.color),
-              margin: '0.6em 0 0 0',
+              margin: '0.8em 0 0 0',
               lineHeight: 1.3,
               textShadow: '0 1px 2px rgba(0,0,0,0.3)',
               wordWrap: 'break-word',
@@ -400,15 +401,15 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
   const renderImageSection = (sizeStyle) => {
     if (layout.textOnImage) {
       return (
-        <div style={{ position: 'relative', ...sizeStyle }}>
-          {renderImage({ position: 'absolute', inset: 0 })}
+        <>
+          {renderImage({ ...sizeStyle })}
           <div
             style={{
               position: 'absolute',
               inset: 0,
               display: 'flex',
               flexDirection: 'column',
-              justifyContent: 'flex-end',
+              justifyContent: getJustifyContent(layout.textVerticalAlign),
               alignItems: getAlignItems(layout.textAlign),
               padding: '5%',
               textAlign: layout.textAlign,
@@ -416,7 +417,7 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
           >
             {renderOverlayText()}
           </div>
-        </div>
+        </>
       )
     }
     return renderImage(sizeStyle)
@@ -427,7 +428,6 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
     const { splitType, sections, imagePosition, imageProportion, textOnImage } = layout
     const isVertical = splitType === 'vertical'
     const flexDirection = isVertical ? 'row' : 'column'
-    const sizeProp = isVertical ? 'width' : 'height'
 
     const imgSize = `${imageProportion}%`
     const textSize = sections === 2
@@ -435,6 +435,7 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
       : `${(100 - imageProportion) / 2}%`
 
     const sectionElements = []
+    let textSectionCount = 0
 
     for (let i = 0; i < sections; i++) {
       const isImage =
@@ -443,22 +444,38 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
         (imagePosition === 'last' && i === sections - 1)
 
       const size = isImage ? imgSize : textSize
-      const sizeStyle = { [sizeProp]: size, height: isVertical ? '100%' : undefined, width: isVertical ? undefined : '100%' }
+      // Use flex instead of fixed width/height for proper sizing
+      const sizeStyle = {
+        flex: `0 0 ${size}`,
+        position: 'relative',
+        overflow: 'hidden',
+      }
 
       if (isImage) {
         sectionElements.push(
           <div key={i} style={sizeStyle}>
-            {renderImageSection({ width: '100%', height: '100%' })}
+            {renderImageSection({ position: 'absolute', inset: 0 })}
           </div>
         )
       } else {
-        // For text sections, decide what content to show
-        const contentRenderer = textOnImage ? renderBodyText : renderAllText
-        sectionElements.push(
-          <div key={i} style={sizeStyle}>
-            {renderTextSection({ width: '100%', height: '100%' }, contentRenderer)}
-          </div>
-        )
+        // For text sections, only render content in the first text section to avoid duplication
+        const isFirstTextSection = textSectionCount === 0
+        textSectionCount++
+
+        if (isFirstTextSection) {
+          // First text section gets the content
+          const contentRenderer = textOnImage ? renderBodyText : renderAllText
+          sectionElements.push(
+            <div key={i} style={sizeStyle}>
+              {renderTextSection({ position: 'absolute', inset: 0 }, contentRenderer)}
+            </div>
+          )
+        } else {
+          // Additional text sections are empty (just background)
+          sectionElements.push(
+            <div key={i} style={{ ...sizeStyle, backgroundColor: themeColors.primary }} />
+          )
+        }
       }
     }
 

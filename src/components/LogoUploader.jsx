@@ -1,3 +1,5 @@
+import { useCallback, useRef } from 'react'
+
 const positionOptions = [
   { id: 'top-left', name: 'Top Left' },
   { id: 'top-right', name: 'Top Right' },
@@ -22,20 +24,41 @@ export default function LogoUploader({
   size,
   onSizeChange,
 }) {
-  const handleFileChange = (e) => {
-    const file = e.target.files?.[0]
-    if (file) {
+  const fileInputRef = useRef(null)
+
+  const handleDrop = useCallback((e) => {
+    e.preventDefault()
+    const file = e.dataTransfer.files[0]
+    if (file && file.type.startsWith('image/')) {
       const reader = new FileReader()
       reader.onload = (event) => {
         onLogoChange(event.target.result)
       }
       reader.readAsDataURL(file)
     }
-  }
+  }, [onLogoChange])
 
-  const handleRemove = () => {
+  const handleDragOver = useCallback((e) => {
+    e.preventDefault()
+  }, [])
+
+  const handleFileChange = useCallback((e) => {
+    const file = e.target.files?.[0]
+    if (file && file.type.startsWith('image/')) {
+      const reader = new FileReader()
+      reader.onload = (event) => {
+        onLogoChange(event.target.result)
+      }
+      reader.readAsDataURL(file)
+    }
+  }, [onLogoChange])
+
+  const handleRemove = useCallback(() => {
     onLogoChange(null)
-  }
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ''
+    }
+  }, [onLogoChange])
 
   return (
     <div className="space-y-4">
@@ -43,8 +66,14 @@ export default function LogoUploader({
 
       {/* Upload area */}
       {!logo ? (
-        <label className="block border-2 border-dashed border-gray-300 rounded-lg p-4 text-center cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition-colors">
+        <div
+          className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition-colors"
+          onDrop={handleDrop}
+          onDragOver={handleDragOver}
+          onClick={() => fileInputRef.current?.click()}
+        >
           <input
+            ref={fileInputRef}
             type="file"
             accept="image/*"
             onChange={handleFileChange}
@@ -64,9 +93,9 @@ export default function LogoUploader({
                 d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
               />
             </svg>
-            <span className="text-xs">Click to upload logo</span>
+            <span className="text-xs">Drop logo or click to upload</span>
           </div>
-        </label>
+        </div>
       ) : (
         <div className="space-y-3">
           {/* Logo preview */}
