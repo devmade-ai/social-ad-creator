@@ -41,14 +41,15 @@ Social Ad Creator - A browser-based tool for creating social media advertisement
 
 ## Project Status
 
-Initial implementation complete. Core features working:
+Core features working:
 
-- Image upload with drag-drop
-- 16 layout templates (background, vertical columns, horizontal rows)
-- 6 text layers (title, tagline, body heading, body text, call to action, footnote)
+- Image upload with drag-drop, object fit (cover/contain), position, grayscale
+- Flexible layout system (split type, sections, proportions, text overlay on image)
+- Logo upload with position (corners, center) and size options
+- 6 text layers with font size controls (title, tagline, body heading, body text, CTA, footnote)
 - Theme system with 4 presets and custom colors
 - Overlay system (solid, gradient up/down, vignette) - applies to image in all layouts
-- 15 Google Fonts
+- 15 Google Fonts (sans-serif, serif, display categories)
 - Export to 6 platforms (LinkedIn, Facebook, Instagram, Twitter/X, TikTok)
 - Single download and ZIP batch download
 
@@ -76,18 +77,19 @@ src/
 ├── components/     # React components
 │   ├── AdCanvas.jsx       # Core rendering
 │   ├── ImageUploader.jsx  # Image upload controls
+│   ├── LogoUploader.jsx   # Logo upload and positioning
 │   ├── OverlayControls.jsx
 │   ├── TextEditor.jsx
-│   ├── LayoutSelector.jsx
+│   ├── LayoutSelector.jsx # Flexible layout configurator
 │   ├── ThemePicker.jsx
 │   ├── FontSelector.jsx
 │   ├── PlatformPreview.jsx
 │   └── ExportButtons.jsx
 ├── config/         # Configuration
-│   ├── layouts.js     # 16 layout definitions
+│   ├── layouts.js     # Overlay types and helpers
 │   ├── platforms.js   # 6 platform sizes
 │   ├── themes.js      # 4 preset themes
-│   └── fonts.js       # 5 Google Fonts
+│   └── fonts.js       # 15 Google Fonts
 ├── hooks/
 │   └── useAdState.js  # Central state management
 ├── utils/

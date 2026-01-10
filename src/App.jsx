@@ -2,6 +2,7 @@ import { useRef, useMemo, useState } from 'react'
 import { useAdState } from './hooks/useAdState'
 import AdCanvas from './components/AdCanvas'
 import ImageUploader from './components/ImageUploader'
+import LogoUploader from './components/LogoUploader'
 import OverlayControls from './components/OverlayControls'
 import TextEditor from './components/TextEditor'
 import LayoutSelector from './components/LayoutSelector'
@@ -22,6 +23,9 @@ function App() {
     setImageObjectFit,
     setImagePosition,
     setImageGrayscale,
+    setLogo,
+    setLogoPosition,
+    setLogoSize,
     setOverlay,
     setText,
     setLayout,
@@ -44,6 +48,7 @@ function App() {
 
   const sections = [
     { id: 'image', label: 'Image' },
+    { id: 'logo', label: 'Logo' },
     { id: 'layout', label: 'Layout' },
     { id: 'overlay', label: 'Overlay' },
     { id: 'text', label: 'Text' },
@@ -98,6 +103,17 @@ function App() {
               />
             )}
 
+            {activeSection === 'logo' && (
+              <LogoUploader
+                logo={state.logo}
+                onLogoChange={setLogo}
+                position={state.logoPosition}
+                onPositionChange={setLogoPosition}
+                size={state.logoSize}
+                onSizeChange={setLogoSize}
+              />
+            )}
+
             {activeSection === 'overlay' && (
               <OverlayControls
                 overlay={state.overlay}
@@ -116,7 +132,7 @@ function App() {
 
             {activeSection === 'layout' && (
               <LayoutSelector
-                selectedLayout={state.layout}
+                layout={state.layout}
                 onLayoutChange={setLayout}
               />
             )}

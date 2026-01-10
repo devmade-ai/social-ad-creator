@@ -2,6 +2,23 @@
 
 ## 2026-01-10
 
+### Flexible layout system, logo upload, and font size controls
+- **Redesigned layout system**: Replaced 16 predefined layouts with flexible configurator
+  - Split type: none (fullbleed), vertical (columns), horizontal (rows)
+  - 2 or 3 sections with adjustable proportions (20-80%)
+  - Image position: first, middle, last
+  - Text overlay on image option for split layouts
+  - Text alignment (left/center/right) and vertical alignment (top/middle/bottom)
+- **Added logo upload**: Position options (corners, center), size options (XS to XL)
+- **Added font size controls**: Per-layer size options (XS 0.6x to XL 1.5x)
+- **Text overflow protection**: Added word wrap and overflow hidden to prevent cutoff
+- **Made all text layers visible by default**: Previously only title and CTA were visible
+
+### 97a1b29 - Reorganize tabs, show all text elements, add more fonts
+
+- Tab order: Image → Logo → Layout → Overlay → Text → Theme → Fonts
+- Expanded font options from 5 to 15 fonts (sans-serif, serif, display categories)
+
 ### 821a0e4 - Fix export capturing scaled preview instead of full-size canvas
 - Exported images were appearing smaller on a larger canvas
 - Root cause: html-to-image was capturing the CSS-scaled preview instead of full-size canvas

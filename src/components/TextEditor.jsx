@@ -4,6 +4,14 @@ const colorOptions = [
   { id: 'accent', name: 'Accent' },
 ]
 
+const sizeOptions = [
+  { id: 0.6, name: 'XS' },
+  { id: 0.8, name: 'S' },
+  { id: 1, name: 'M' },
+  { id: 1.2, name: 'L' },
+  { id: 1.5, name: 'XL' },
+]
+
 const textLayers = [
   { id: 'title', label: 'Title', placeholder: 'Enter title...', multiline: false },
   { id: 'tagline', label: 'Tagline', placeholder: 'Your tagline here...', multiline: false },
@@ -19,7 +27,7 @@ export default function TextEditor({ text, onTextChange, theme }) {
       <h3 className="text-sm font-semibold text-gray-700">Text</h3>
 
       {textLayers.map((layer) => {
-        const layerState = text?.[layer.id] || { content: '', visible: false, color: 'secondary' }
+        const layerState = text?.[layer.id] || { content: '', visible: false, color: 'secondary', size: 1 }
 
         return (
           <div key={layer.id} className="space-y-2 border-b border-gray-100 pb-3 last:border-0">
@@ -55,20 +63,41 @@ export default function TextEditor({ text, onTextChange, theme }) {
               />
             )}
 
-            <div className="flex gap-1">
-              {colorOptions.map((color) => (
-                <button
-                  key={color.id}
-                  onClick={() => onTextChange(layer.id, { color: color.id })}
-                  title={color.name}
-                  className={`w-6 h-6 rounded border-2 ${
-                    layerState.color === color.id
-                      ? 'border-blue-500'
-                      : 'border-transparent'
-                  }`}
-                  style={{ backgroundColor: theme[color.id] }}
-                />
-              ))}
+            <div className="flex items-center gap-3">
+              {/* Color options */}
+              <div className="flex gap-1">
+                {colorOptions.map((color) => (
+                  <button
+                    key={color.id}
+                    onClick={() => onTextChange(layer.id, { color: color.id })}
+                    title={color.name}
+                    className={`w-6 h-6 rounded border-2 ${
+                      layerState.color === color.id
+                        ? 'border-blue-500'
+                        : 'border-transparent'
+                    }`}
+                    style={{ backgroundColor: theme[color.id] }}
+                  />
+                ))}
+              </div>
+
+              {/* Size options */}
+              <div className="flex gap-0.5 ml-auto">
+                {sizeOptions.map((size) => (
+                  <button
+                    key={size.id}
+                    onClick={() => onTextChange(layer.id, { size: size.id })}
+                    title={`Size ${size.name}`}
+                    className={`w-6 h-6 text-[10px] font-medium rounded ${
+                      layerState.size === size.id
+                        ? 'bg-blue-500 text-white'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
+                  >
+                    {size.name}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         )

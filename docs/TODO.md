@@ -8,13 +8,13 @@ Future enhancements and ideas for the Social Ad Creator.
 - [ ] Save/load designs to localStorage
 - [ ] Add more overlay types (diagonal gradient, radial from corner)
 - [ ] Add text shadow/stroke options
-- [ ] Add logo/watermark placement
+- [x] Add logo/watermark placement
 - [ ] Add animation preview for story formats
 - [ ] Add keyboard shortcuts for common actions
 - [ ] Add aspect ratio lock for custom sizes
 - [ ] Add image cropping/repositioning within frame
-- [ ] Add more font options
-- [ ] Add font size controls
+- [x] Add more font options (expanded to 15)
+- [x] Add font size controls (XS to XL per text layer)
 - [ ] Add line height/letter spacing controls
 - [ ] Add preset text styles (e.g., "Bold Statement", "Elegant Quote")
 
