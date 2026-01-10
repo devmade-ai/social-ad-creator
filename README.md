@@ -1,16 +1,92 @@
-# React + Vite
+# Social Ad Creator
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A browser-based tool for creating social media advertisements. Upload images, add text overlays, choose layouts, and export ads for multiple platforms.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- Image upload with drag-drop
+- 16 layout templates (background, vertical columns, horizontal rows)
+- 6 text layers (title, tagline, body heading, body text, call to action, footnote)
+- Theme system with 4 presets and custom colors
+- Overlay system (solid, gradient up/down, vignette)
+- 5 Google Fonts
+- Export to 6 platforms (LinkedIn, Facebook, Instagram, Twitter/X, TikTok)
+- Single download and ZIP batch download
 
-## React Compiler
+## Tech Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- Vite + React 18
+- Tailwind CSS
+- html-to-image for rendering
+- JSZip + file-saver for batch export
 
-## Expanding the ESLint configuration
+## Getting Started
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+```bash
+npm install
+npm run dev
+```
+
+## Commands
+
+```bash
+npm run dev      # Start dev server
+npm run build    # Production build
+npm run preview  # Preview production build
+npm run deploy   # Deploy to GitHub Pages
+```
+
+## Deployment to GitHub Pages
+
+### Initial Setup
+
+1. Create a GitHub repository and push your code
+
+2. In `vite.config.js`, set the base path to your repository name:
+
+   ```js
+   export default defineConfig({
+     base: '/your-repo-name/',
+     // ...
+   })
+   ```
+
+3. Install gh-pages:
+
+   ```bash
+   npm install -D gh-pages
+   ```
+
+4. Add deploy script to `package.json`:
+
+   ```json
+   {
+     "scripts": {
+       "deploy": "npm run build && gh-pages -d dist"
+     }
+   }
+   ```
+
+5. Deploy:
+
+   ```bash
+   npm run deploy
+   ```
+
+6. In your GitHub repository settings:
+   - Go to Settings > Pages
+   - Set Source to "Deploy from a branch"
+   - Set Branch to `gh-pages` and folder to `/ (root)`
+   - Save
+
+Your app will be available at `https://[username].github.io/[repo-name]/`
+
+### Subsequent Deployments
+
+Just run:
+
+```bash
+npm run deploy
+```
+
+This builds the app and pushes to the `gh-pages` branch automatically.
