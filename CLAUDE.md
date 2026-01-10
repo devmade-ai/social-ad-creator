@@ -48,7 +48,7 @@ Initial implementation complete. Core features working:
 - 6 text layers (title, tagline, body heading, body text, call to action, footnote)
 - Theme system with 4 presets and custom colors
 - Overlay system (solid, gradient up/down, vignette) - applies to image in all layouts
-- 5 Google Fonts
+- 15 Google Fonts
 - Export to 6 platforms (LinkedIn, Facebook, Instagram, Twitter/X, TikTok)
 - Single download and ZIP batch download
 

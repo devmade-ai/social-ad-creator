@@ -44,9 +44,9 @@ function App() {
 
   const sections = [
     { id: 'image', label: 'Image' },
+    { id: 'layout', label: 'Layout' },
     { id: 'overlay', label: 'Overlay' },
     { id: 'text', label: 'Text' },
-    { id: 'layout', label: 'Layout' },
     { id: 'theme', label: 'Theme' },
     { id: 'fonts', label: 'Fonts' },
   ]

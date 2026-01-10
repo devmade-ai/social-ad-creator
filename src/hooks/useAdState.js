@@ -17,11 +17,11 @@ const defaultState = {
 
   text: {
     title: { content: 'Your Title Here', visible: true, color: 'secondary' },
-    tagline: { content: '', visible: false, color: 'secondary' },
-    bodyHeading: { content: '', visible: false, color: 'secondary' },
-    bodyText: { content: '', visible: false, color: 'secondary' },
+    tagline: { content: '', visible: true, color: 'secondary' },
+    bodyHeading: { content: '', visible: true, color: 'secondary' },
+    bodyText: { content: '', visible: true, color: 'secondary' },
     cta: { content: 'Learn More', visible: true, color: 'accent' },
-    footnote: { content: '', visible: false, color: 'secondary' },
+    footnote: { content: '', visible: true, color: 'secondary' },
   },
 
   layout: 'fullbleed-center',
