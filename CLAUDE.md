@@ -42,11 +42,12 @@ Social Ad Creator - A browser-based tool for creating social media advertisement
 ## Project Status
 
 Initial implementation complete. Core features working:
+
 - Image upload with drag-drop
 - 16 layout templates (background, vertical columns, horizontal rows)
-- Text layers (title, subtitle, body)
-- Theme system with presets and custom colors
-- Overlay system with gradients and vignette
+- 6 text layers (title, tagline, body heading, body text, call to action, footnote)
+- Theme system with 4 presets and custom colors
+- Overlay system (solid, gradient up/down, vignette) - applies to image in all layouts
 - 5 Google Fonts
 - Export to 6 platforms (LinkedIn, Facebook, Instagram, Twitter/X, TikTok)
 - Single download and ZIP batch download

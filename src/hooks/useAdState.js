@@ -16,8 +16,11 @@ const defaultState = {
 
   text: {
     title: { content: 'Your Title Here', visible: true, color: 'secondary' },
-    secondary: { content: 'Subtitle or tagline', visible: true, color: 'secondary' },
-    body: { content: '', visible: false, color: 'secondary' },
+    tagline: { content: '', visible: false, color: 'secondary' },
+    bodyHeading: { content: '', visible: false, color: 'secondary' },
+    bodyText: { content: '', visible: false, color: 'secondary' },
+    cta: { content: 'Learn More', visible: true, color: 'accent' },
+    footnote: { content: '', visible: false, color: 'secondary' },
   },
 
   layout: 'fullbleed-center',

@@ -5,9 +5,12 @@ const colorOptions = [
 ]
 
 const textLayers = [
-  { id: 'title', label: 'Title', placeholder: 'Enter title...' },
-  { id: 'secondary', label: 'Subtitle', placeholder: 'Enter subtitle...' },
-  { id: 'body', label: 'Body', placeholder: 'Enter body text...' },
+  { id: 'title', label: 'Title', placeholder: 'Enter title...', multiline: false },
+  { id: 'tagline', label: 'Tagline', placeholder: 'Your tagline here...', multiline: false },
+  { id: 'bodyHeading', label: 'Body Heading', placeholder: 'Section heading...', multiline: false },
+  { id: 'bodyText', label: 'Body Text', placeholder: 'Enter body text...', multiline: true },
+  { id: 'cta', label: 'Call to Action', placeholder: 'Learn More', multiline: false },
+  { id: 'footnote', label: 'Footnote', placeholder: 'Terms apply...', multiline: false },
 ]
 
 export default function TextEditor({ text, onTextChange, theme }) {
@@ -31,7 +34,7 @@ export default function TextEditor({ text, onTextChange, theme }) {
             </button>
           </div>
 
-          {layer.id === 'body' ? (
+          {layer.multiline ? (
             <textarea
               value={text[layer.id].content}
               onChange={(e) => onTextChange(layer.id, { content: e.target.value })}

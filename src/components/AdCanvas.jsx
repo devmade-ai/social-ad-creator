@@ -31,8 +31,9 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
     backgroundColor: themeColors.primary,
   }
 
-  const renderBackgroundLayout = () => (
-    <>
+  // Reusable image with overlay component
+  const renderImageWithOverlay = (style = {}) => (
+    <div style={{ position: 'relative', ...style }}>
       {state.image && (
         <div
           style={{
@@ -52,6 +53,12 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
           background: overlayStyle,
         }}
       />
+    </div>
+  )
+
+  const renderBackgroundLayout = () => (
+    <>
+      {renderImageWithOverlay({ position: 'absolute', inset: 0 })}
       <div
         style={{
           position: 'absolute',
@@ -74,30 +81,14 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
     const textWidth = `${100 - layout.imageProportion}%`
     const isImageLeft = layout.imagePosition === 'left'
 
+    const imageSection = renderImageWithOverlay({
+      width: imageWidth,
+      height: '100%',
+    })
+
     return (
       <div style={{ display: 'flex', height: '100%', width: '100%' }}>
-        {isImageLeft && (
-          <div
-            style={{
-              width: imageWidth,
-              height: '100%',
-              position: 'relative',
-            }}
-          >
-            {state.image && (
-              <div
-                style={{
-                  position: 'absolute',
-                  inset: 0,
-                  backgroundImage: `url(${state.image})`,
-                  backgroundSize: state.imageObjectFit,
-                  backgroundPosition: state.imagePosition,
-                  backgroundRepeat: 'no-repeat',
-                }}
-              />
-            )}
-          </div>
-        )}
+        {isImageLeft && imageSection}
         <div
           style={{
             width: textWidth,
@@ -111,28 +102,7 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
         >
           {renderTextContent()}
         </div>
-        {!isImageLeft && (
-          <div
-            style={{
-              width: imageWidth,
-              height: '100%',
-              position: 'relative',
-            }}
-          >
-            {state.image && (
-              <div
-                style={{
-                  position: 'absolute',
-                  inset: 0,
-                  backgroundImage: `url(${state.image})`,
-                  backgroundSize: state.imageObjectFit,
-                  backgroundPosition: state.imagePosition,
-                  backgroundRepeat: 'no-repeat',
-                }}
-              />
-            )}
-          </div>
-        )}
+        {!isImageLeft && imageSection}
       </div>
     )
   }
@@ -142,34 +112,18 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
       return renderSplitThirds()
     }
 
-    const imageHeight = layout.bannerStyle ? `${layout.imageProportion}%` : `${layout.imageProportion}%`
+    const imageHeight = `${layout.imageProportion}%`
     const textHeight = `${100 - layout.imageProportion}%`
     const isImageTop = layout.imagePosition === 'top'
 
+    const imageSection = renderImageWithOverlay({
+      height: imageHeight,
+      width: '100%',
+    })
+
     return (
       <div style={{ display: 'flex', flexDirection: 'column', height: '100%', width: '100%' }}>
-        {isImageTop && (
-          <div
-            style={{
-              height: imageHeight,
-              width: '100%',
-              position: 'relative',
-            }}
-          >
-            {state.image && (
-              <div
-                style={{
-                  position: 'absolute',
-                  inset: 0,
-                  backgroundImage: `url(${state.image})`,
-                  backgroundSize: state.imageObjectFit,
-                  backgroundPosition: state.imagePosition,
-                  backgroundRepeat: 'no-repeat',
-                }}
-              />
-            )}
-          </div>
-        )}
+        {isImageTop && imageSection}
         <div
           style={{
             height: textHeight,
@@ -185,28 +139,7 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
         >
           {renderTextContent()}
         </div>
-        {!isImageTop && (
-          <div
-            style={{
-              height: imageHeight,
-              width: '100%',
-              position: 'relative',
-            }}
-          >
-            {state.image && (
-              <div
-                style={{
-                  position: 'absolute',
-                  inset: 0,
-                  backgroundImage: `url(${state.image})`,
-                  backgroundSize: state.imageObjectFit,
-                  backgroundPosition: state.imagePosition,
-                  backgroundRepeat: 'no-repeat',
-                }}
-              />
-            )}
-          </div>
-        )}
+        {!isImageTop && imageSection}
       </div>
     )
   }
@@ -225,7 +158,7 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
           backgroundColor: themeColors.primary,
         }}
       >
-        {state.text.title.visible && (
+        {state.text.title.visible && state.text.title.content && (
           <h1
             style={{
               fontSize: Math.round(platform.width * 0.04),
@@ -239,27 +172,25 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
             {state.text.title.content}
           </h1>
         )}
-      </div>
-      <div
-        style={{
-          height: '33.33%',
-          width: '100%',
-          position: 'relative',
-        }}
-      >
-        {state.image && (
-          <div
+        {state.text.tagline.visible && state.text.tagline.content && (
+          <p
             style={{
-              position: 'absolute',
-              inset: 0,
-              backgroundImage: `url(${state.image})`,
-              backgroundSize: state.imageObjectFit,
-              backgroundPosition: state.imagePosition,
-              backgroundRepeat: 'no-repeat',
+              fontSize: Math.round(platform.width * 0.022),
+              fontWeight: 500,
+              fontFamily: bodyFont.family,
+              color: getTextColor(state.text.tagline.color),
+              margin: '0.3em 0 0 0',
+              textAlign: 'center',
             }}
-          />
+          >
+            {state.text.tagline.content}
+          </p>
         )}
       </div>
+      {renderImageWithOverlay({
+        height: '33.33%',
+        width: '100%',
+      })}
       <div
         style={{
           height: '33.33%',
@@ -272,32 +203,33 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
           backgroundColor: themeColors.primary,
         }}
       >
-        {state.text.secondary.visible && (
+        {state.text.cta.visible && state.text.cta.content && (
           <p
             style={{
               fontSize: Math.round(platform.width * 0.025),
               fontWeight: 600,
               fontFamily: bodyFont.family,
-              color: getTextColor(state.text.secondary.color),
+              color: getTextColor(state.text.cta.color),
               margin: 0,
               textAlign: 'center',
             }}
           >
-            {state.text.secondary.content}
+            {state.text.cta.content}
           </p>
         )}
-        {state.text.body.visible && state.text.body.content && (
+        {state.text.footnote.visible && state.text.footnote.content && (
           <p
             style={{
-              fontSize: Math.round(platform.width * 0.02),
+              fontSize: Math.round(platform.width * 0.015),
               fontWeight: 400,
               fontFamily: bodyFont.family,
-              color: getTextColor(state.text.body.color),
+              color: getTextColor(state.text.footnote.color),
               margin: '0.5em 0 0 0',
               textAlign: 'center',
+              opacity: 0.8,
             }}
           >
-            {state.text.body.content}
+            {state.text.footnote.content}
           </p>
         )}
       </div>
@@ -306,7 +238,7 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
 
   const renderTextContent = () => (
     <div style={{ maxWidth: '90%' }}>
-      {state.text.title.visible && (
+      {state.text.title.visible && state.text.title.content && (
         <h1
           style={{
             fontSize: Math.round(platform.width * 0.05),
@@ -320,32 +252,76 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
           {state.text.title.content}
         </h1>
       )}
-      {state.text.secondary.visible && (
+      {state.text.tagline.visible && state.text.tagline.content && (
         <p
           style={{
-            fontSize: Math.round(platform.width * 0.03),
-            fontWeight: 600,
+            fontSize: Math.round(platform.width * 0.028),
+            fontWeight: 500,
             fontFamily: bodyFont.family,
-            color: getTextColor(state.text.secondary.color),
-            margin: '0.5em 0 0 0',
-            lineHeight: 1.4,
+            color: getTextColor(state.text.tagline.color),
+            margin: '0.4em 0 0 0',
+            lineHeight: 1.3,
           }}
         >
-          {state.text.secondary.content}
+          {state.text.tagline.content}
         </p>
       )}
-      {state.text.body.visible && state.text.body.content && (
+      {state.text.bodyHeading.visible && state.text.bodyHeading.content && (
+        <p
+          style={{
+            fontSize: Math.round(platform.width * 0.026),
+            fontWeight: 600,
+            fontFamily: bodyFont.family,
+            color: getTextColor(state.text.bodyHeading.color),
+            margin: '0.8em 0 0 0',
+            lineHeight: 1.3,
+          }}
+        >
+          {state.text.bodyHeading.content}
+        </p>
+      )}
+      {state.text.bodyText.visible && state.text.bodyText.content && (
         <p
           style={{
             fontSize: Math.round(platform.width * 0.022),
             fontWeight: 400,
             fontFamily: bodyFont.family,
-            color: getTextColor(state.text.body.color),
-            margin: '0.75em 0 0 0',
+            color: getTextColor(state.text.bodyText.color),
+            margin: '0.4em 0 0 0',
             lineHeight: 1.5,
+            whiteSpace: 'pre-wrap',
           }}
         >
-          {state.text.body.content}
+          {state.text.bodyText.content}
+        </p>
+      )}
+      {state.text.cta.visible && state.text.cta.content && (
+        <p
+          style={{
+            fontSize: Math.round(platform.width * 0.028),
+            fontWeight: 600,
+            fontFamily: bodyFont.family,
+            color: getTextColor(state.text.cta.color),
+            margin: '0.8em 0 0 0',
+            lineHeight: 1.3,
+          }}
+        >
+          {state.text.cta.content}
+        </p>
+      )}
+      {state.text.footnote.visible && state.text.footnote.content && (
+        <p
+          style={{
+            fontSize: Math.round(platform.width * 0.015),
+            fontWeight: 400,
+            fontFamily: bodyFont.family,
+            color: getTextColor(state.text.footnote.color),
+            margin: '1em 0 0 0',
+            lineHeight: 1.3,
+            opacity: 0.8,
+          }}
+        >
+          {state.text.footnote.content}
         </p>
       )}
     </div>
