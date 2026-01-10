@@ -16,7 +16,14 @@ export default function ExportButtons({ canvasRef, state, onPlatformChange }) {
 
     setIsExporting(true)
 
+    // Store original transform and temporarily remove scale for capture
+    const originalTransform = canvasRef.current.style.transform
+    canvasRef.current.style.transform = 'scale(1)'
+
     try {
+      // Wait for reflow
+      await new Promise((resolve) => setTimeout(resolve, 50))
+
       const dataUrl = await toPng(canvasRef.current, {
         width: platform.width,
         height: platform.height,
@@ -32,6 +39,8 @@ export default function ExportButtons({ canvasRef, state, onPlatformChange }) {
       console.error('Export failed:', error)
       alert('Export failed. Please try again.')
     } finally {
+      // Restore original transform
+      canvasRef.current.style.transform = originalTransform
       setIsExporting(false)
     }
   }, [canvasRef, state.platform])
@@ -54,12 +63,22 @@ export default function ExportButtons({ canvasRef, state, onPlatformChange }) {
         // Wait for render
         await new Promise((resolve) => setTimeout(resolve, 100))
 
+        // Store original transform and temporarily remove scale for capture
+        const originalTransform = canvasRef.current.style.transform
+        canvasRef.current.style.transform = 'scale(1)'
+
+        // Wait for reflow
+        await new Promise((resolve) => setTimeout(resolve, 50))
+
         const dataUrl = await toPng(canvasRef.current, {
           width: platform.width,
           height: platform.height,
           pixelRatio: 1,
           skipFonts: true,
         })
+
+        // Restore transform immediately after capture
+        canvasRef.current.style.transform = originalTransform
 
         const response = await fetch(dataUrl)
         const blob = await response.blob()
