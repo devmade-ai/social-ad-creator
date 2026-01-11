@@ -1,9 +1,10 @@
-import { useState, useCallback } from 'react'
+import { useCallback } from 'react'
 import { presetThemes } from '../config/themes'
+import { useHistory } from './useHistory'
 
 const defaultTheme = presetThemes[0] // Dark theme
 
-const defaultState = {
+export const defaultState = {
   image: null,
   imageObjectFit: 'cover',
   imagePosition: 'center',
@@ -70,7 +71,7 @@ const defaultState = {
 }
 
 export function useAdState() {
-  const [state, setState] = useState(defaultState)
+  const { state, setState, undo, redo, canUndo, canRedo, resetHistory } = useHistory(defaultState)
 
   const setImage = useCallback((image) => {
     setState((prev) => ({ ...prev, image }))
@@ -177,5 +178,10 @@ export function useAdState() {
     setFonts,
     setPlatform,
     resetState,
+    undo,
+    redo,
+    canUndo,
+    canRedo,
+    resetHistory,
   }
 }

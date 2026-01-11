@@ -43,7 +43,7 @@ Future enhancements and ideas for the Social Ad Creator.
 
 ## Potential Improvements
 
-- [ ] Add undo/redo functionality
+- [x] Add undo/redo functionality (with Ctrl+Z / Ctrl+Y shortcuts)
 - [ ] Save/load designs to localStorage
 - [ ] Add more overlay types (diagonal gradient, radial from corner)
 - [ ] Add text shadow/stroke options

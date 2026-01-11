@@ -1,4 +1,4 @@
-import { useRef, useMemo, useState } from 'react'
+import { useRef, useMemo, useState, useEffect } from 'react'
 import { useAdState } from './hooks/useAdState'
 import AdCanvas from './components/AdCanvas'
 import ImageUploader from './components/ImageUploader'
@@ -33,9 +33,40 @@ function App() {
     setThemePreset,
     setFonts,
     setPlatform,
+    undo,
+    redo,
+    canUndo,
+    canRedo,
   } = useAdState()
 
   const platform = platforms.find((p) => p.id === state.platform) || platforms[0]
+
+  // Keyboard shortcuts for undo/redo
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      // Skip if user is typing in an input
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+        return
+      }
+
+      if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
+        if (e.shiftKey) {
+          e.preventDefault()
+          redo()
+        } else {
+          e.preventDefault()
+          undo()
+        }
+      }
+      if ((e.ctrlKey || e.metaKey) && e.key === 'y') {
+        e.preventDefault()
+        redo()
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [undo, redo])
 
   // Calculate scale to fit preview in container
   const previewScale = useMemo(() => {
@@ -63,8 +94,36 @@ function App() {
       ))}
 
       {/* Header */}
-      <header className="bg-white border-b border-gray-200 px-4 py-3">
+      <header className="bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between">
         <h1 className="text-xl font-bold text-gray-800">Social Ad Creator</h1>
+        <div className="flex gap-1">
+          <button
+            onClick={undo}
+            disabled={!canUndo}
+            title="Undo (Ctrl+Z)"
+            className={`px-3 py-1.5 text-sm rounded flex items-center gap-1 ${
+              canUndo
+                ? 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                : 'bg-gray-50 text-gray-300 cursor-not-allowed'
+            }`}
+          >
+            <span>↶</span>
+            <span className="hidden sm:inline">Undo</span>
+          </button>
+          <button
+            onClick={redo}
+            disabled={!canRedo}
+            title="Redo (Ctrl+Y)"
+            className={`px-3 py-1.5 text-sm rounded flex items-center gap-1 ${
+              canRedo
+                ? 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                : 'bg-gray-50 text-gray-300 cursor-not-allowed'
+            }`}
+          >
+            <span>↷</span>
+            <span className="hidden sm:inline">Redo</span>
+          </button>
+        </div>
       </header>
 
       <div className="flex flex-col lg:flex-row">
