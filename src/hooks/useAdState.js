@@ -38,21 +38,23 @@ export const defaultState = {
   logoPosition: 'bottom-right',
   logoSize: 0.15, // 15% of canvas width
 
-  // New flexible layout system
+  // Nested grid layout system
+  // type: 'fullbleed' = single layer, 'rows' = horizontal sections, 'columns' = vertical sections
+  // Each section can optionally be subdivided in the perpendicular direction
   layout: {
-    splitType: 'none', // 'none' | 'vertical' | 'horizontal'
-    sections: 2, // 2 or 3
-    // Image can span multiple cells as a layer (array of cell indices)
-    // Empty array = no image, [0] = first cell, [0,1] = spans first two, etc.
-    imageCells: [0], // which cells the image covers
+    type: 'fullbleed', // 'fullbleed' | 'rows' | 'columns'
+    // Structure defines each primary section (row or column depending on type)
+    // size = percentage of total height (rows) or width (columns)
+    // subdivisions = how many cells in this section (1 = no split)
+    // subSizes = percentage widths (rows) or heights (columns) for each subdivision
+    structure: [
+      { size: 100, subdivisions: 1, subSizes: [100] },
+    ],
+    imageCell: 0, // flat cell index where image appears (single cell, no spanning)
     textAlign: 'center', // 'left' | 'center' | 'right' - global fallback
     textVerticalAlign: 'center', // 'start' | 'center' | 'end' - global fallback
-    // Per-cell alignment overrides (index 0 = first section, etc.)
-    cellAlignments: [
-      { textAlign: null, textVerticalAlign: null }, // null = use global
-      { textAlign: null, textVerticalAlign: null },
-      { textAlign: null, textVerticalAlign: null },
-    ],
+    // Per-cell alignment overrides (flat cell index)
+    cellAlignments: [],
   },
 
   theme: {

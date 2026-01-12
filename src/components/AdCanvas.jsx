@@ -35,6 +35,34 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
     backgroundColor: themeColors.primary,
   }
 
+  // Calculate total cell count and build cell map from structure
+  const cellInfo = useMemo(() => {
+    const structure = layout.structure || [{ size: 100, subdivisions: 1, subSizes: [100] }]
+    const cells = []
+    let cellIndex = 0
+
+    structure.forEach((section, sectionIndex) => {
+      const subdivisions = section.subdivisions || 1
+      for (let subIndex = 0; subIndex < subdivisions; subIndex++) {
+        cells.push({
+          index: cellIndex,
+          sectionIndex,
+          subIndex,
+          sectionSize: section.size,
+          subSize: section.subSizes?.[subIndex] || (100 / subdivisions),
+        })
+        cellIndex++
+      }
+    })
+
+    return { cells, totalCells: cellIndex }
+  }, [layout.structure])
+
+  const imageCell = layout.imageCell ?? 0
+
+  // Check if a cell is the image cell
+  const isImageCell = (cellIndex) => cellIndex === imageCell
+
   // Logo position styles
   const getLogoPositionStyle = () => {
     const logoWidth = platform.width * (state.logoSize || 0.15)
@@ -77,7 +105,7 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
     )
   }
 
-  // Render image with overlay
+  // Render image with overlay (for fullbleed or image cells)
   const renderImage = (style = {}) => (
     <div style={{ position: 'relative', backgroundColor: themeColors.primary, ...style }}>
       {state.image && (
@@ -131,26 +159,19 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
     return cellAlign !== null && cellAlign !== undefined ? cellAlign : layout.textVerticalAlign
   }
 
-  // Get imageCells array with default
-  const imageCells = layout.imageCells || [0]
-
-  // Check if a cell has image overlay
-  const cellHasImage = (index) => imageCells.includes(index)
-
-  // Find the first cell without image (for auto text placement)
+  // Find the first non-image cell for auto text placement
   const getFirstNonImageCellIndex = () => {
-    for (let i = 0; i < layout.sections; i++) {
-      if (!cellHasImage(i)) return i
+    for (let i = 0; i < cellInfo.totalCells; i++) {
+      if (!isImageCell(i)) return i
     }
-    return -1 // All cells have image
+    return -1 // All cells have image (only possible with 1 cell)
   }
 
-  // Get text groups assigned to a specific cell
-  // Returns array of group IDs that should render in this cell
+  // Get text groups for a specific cell
   const getGroupsForCell = (cellIndex, onImageLayer) => {
     const groups = []
     const groupIds = ['titleGroup', 'bodyGroup', 'cta', 'footnote']
-    const hasImage = cellHasImage(cellIndex)
+    const hasImage = isImageCell(cellIndex)
 
     for (const groupId of groupIds) {
       const assignedCell = textGroups[groupId]?.cell
@@ -162,31 +183,25 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
         }
       } else {
         // Auto assignment based on layout
-        if (layout.splitType === 'none') {
+        if (layout.type === 'fullbleed') {
           // Fullbleed: all groups on the single layer
           groups.push(groupId)
         } else {
-          // Split layout: distribute based on image coverage
+          // Grid layout: distribute based on image placement
           const firstNonImageCell = getFirstNonImageCellIndex()
-          const allCellsHaveImage = firstNonImageCell === -1
+          const onlyOneCell = cellInfo.totalCells === 1
 
-          if (allCellsHaveImage) {
-            // All cells have image: put text on first image cell
-            if (cellIndex === imageCells[0] && onImageLayer) {
-              groups.push(groupId)
-            }
+          if (onlyOneCell) {
+            // Single cell: all text goes here
+            if (onImageLayer) groups.push(groupId)
           } else if (hasImage && onImageLayer) {
-            // Cell has image: titleGroup and cta go on image
+            // Image cell gets: titleGroup and cta
             if (groupId === 'titleGroup' || groupId === 'cta') {
               groups.push(groupId)
             }
           } else if (!hasImage && !onImageLayer && cellIndex === firstNonImageCell) {
-            // First non-image cell gets remaining groups
+            // First non-image cell gets: bodyGroup and footnote
             if (groupId === 'bodyGroup' || groupId === 'footnote') {
-              groups.push(groupId)
-            }
-            // If no cells have image, first cell gets all
-            if (imageCells.length === 0) {
               groups.push(groupId)
             }
           }
@@ -342,9 +357,9 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
   }
 
   // Render text groups for a specific cell
-  const renderTextGroupsForCell = (cellIndex, isImageCell) => {
-    const groups = getGroupsForCell(cellIndex, isImageCell)
-    const withShadow = isImageCell
+  const renderTextGroupsForCell = (cellIndex, isOnImage) => {
+    const groups = getGroupsForCell(cellIndex, isOnImage)
+    const withShadow = isOnImage
 
     return (
       <div style={{ maxWidth: '90%', overflow: 'hidden' }}>
@@ -356,7 +371,7 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
     )
   }
 
-  // Render all text content (for fullbleed - all groups)
+  // Render all text content (for fullbleed)
   const renderAllText = () => {
     return (
       <div style={{ maxWidth: '90%', overflow: 'hidden' }}>
@@ -389,78 +404,11 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
     </>
   )
 
-  // Calculate the bounding box for image cells (for spanning image across multiple cells)
-  const getImageSpanBounds = () => {
-    if (imageCells.length === 0) return null
-    const { splitType, sections } = layout
-    const isVertical = splitType === 'vertical'
-    const cellSize = 100 / sections
-
-    const minCell = Math.min(...imageCells)
-    const maxCell = Math.max(...imageCells)
-
-    if (isVertical) {
-      // Columns: left/right positioning
-      return {
-        left: `${minCell * cellSize}%`,
-        right: `${(sections - maxCell - 1) * cellSize}%`,
-        top: 0,
-        bottom: 0,
-      }
-    } else {
-      // Rows: top/bottom positioning
-      return {
-        top: `${minCell * cellSize}%`,
-        bottom: `${(sections - maxCell - 1) * cellSize}%`,
-        left: 0,
-        right: 0,
-      }
-    }
-  }
-
-  // Render the spanning image layer (positioned absolutely over image cells)
-  const renderSpanningImage = () => {
-    const bounds = getImageSpanBounds()
-    if (!bounds) return null
-
-    return (
-      <div
-        style={{
-          position: 'absolute',
-          ...bounds,
-          overflow: 'hidden',
-          zIndex: 1,
-        }}
-      >
-        {state.image && (
-          <div
-            style={{
-              position: 'absolute',
-              inset: 0,
-              backgroundImage: `url(${state.image})`,
-              backgroundSize: state.imageObjectFit,
-              backgroundPosition: state.imagePosition,
-              backgroundRepeat: 'no-repeat',
-              filter: state.imageGrayscale ? 'grayscale(100%)' : 'none',
-            }}
-          />
-        )}
-        <div
-          style={{
-            position: 'absolute',
-            inset: 0,
-            background: overlayStyle,
-          }}
-        />
-      </div>
-    )
-  }
-
-  // Render cell content for split layout (without image - image is rendered separately as spanning layer)
-  const renderCellContentSplit = (cellIndex) => {
+  // Render a single cell content
+  const renderCellContent = (cellIndex) => {
     const cellTextAlign = getCellTextAlign(cellIndex)
     const cellVerticalAlign = getCellVerticalAlign(cellIndex)
-    const hasImage = cellHasImage(cellIndex)
+    const hasImage = isImageCell(cellIndex)
     const textGroupsOnImage = hasImage ? getGroupsForCell(cellIndex, true) : []
     const textGroupsOnBackground = getGroupsForCell(cellIndex, false)
 
@@ -470,6 +418,9 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
         {!hasImage && (
           <div style={{ position: 'absolute', inset: 0, backgroundColor: themeColors.primary }} />
         )}
+
+        {/* Image for image cells */}
+        {hasImage && renderImage({ position: 'absolute', inset: 0 })}
 
         {/* Text on image layer */}
         {hasImage && textGroupsOnImage.length > 0 && (
@@ -511,53 +462,74 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
     )
   }
 
-  // Render split layout (vertical or horizontal)
-  const renderSplitLayout = () => {
-    const { splitType, sections } = layout
-    const isVertical = splitType === 'vertical'
-    const flexDirection = isVertical ? 'row' : 'column'
+  // Render nested grid layout (rows or columns with optional subdivisions)
+  const renderGridLayout = () => {
+    const { type, structure } = layout
+    const isRows = type === 'rows'
+    const sections = structure || [{ size: 100, subdivisions: 1, subSizes: [100] }]
 
-    // Equal sizing for all cells
-    const cellSize = `${100 / sections}%`
-
-    const sectionElements = []
-
-    for (let i = 0; i < sections; i++) {
-      const sizeStyle = {
-        flex: `0 0 ${cellSize}`,
-        position: 'relative',
-        overflow: 'hidden',
-      }
-
-      sectionElements.push(
-        <div key={i} style={sizeStyle}>
-          {renderCellContentSplit(i)}
-        </div>
-      )
-    }
+    let cellIndex = 0
 
     return (
-      <div style={{ position: 'relative', height: '100%', width: '100%' }}>
-        {/* Background layer */}
-        <div style={{ position: 'absolute', inset: 0, backgroundColor: themeColors.primary }} />
+      <div
+        style={{
+          position: 'relative',
+          height: '100%',
+          width: '100%',
+          display: 'flex',
+          flexDirection: isRows ? 'column' : 'row',
+        }}
+      >
+        {sections.map((section, sectionIndex) => {
+          const sectionSize = section.size || 100
+          const subdivisions = section.subdivisions || 1
+          const subSizes = section.subSizes || [100]
 
-        {/* Spanning image layer */}
-        {renderSpanningImage()}
+          // Build cells for this section
+          const sectionCells = []
+          for (let subIndex = 0; subIndex < subdivisions; subIndex++) {
+            const currentCellIndex = cellIndex
+            cellIndex++
 
-        {/* Cell grid for text positioning */}
-        <div style={{ position: 'relative', display: 'flex', flexDirection, height: '100%', width: '100%', zIndex: 2 }}>
-          {sectionElements}
-        </div>
+            sectionCells.push(
+              <div
+                key={`cell-${currentCellIndex}`}
+                style={{
+                  flex: `0 0 ${subSizes[subIndex] || (100 / subdivisions)}%`,
+                  position: 'relative',
+                  overflow: 'hidden',
+                }}
+              >
+                {renderCellContent(currentCellIndex)}
+              </div>
+            )
+          }
+
+          return (
+            <div
+              key={`section-${sectionIndex}`}
+              style={{
+                flex: `0 0 ${sectionSize}%`,
+                display: 'flex',
+                flexDirection: isRows ? 'row' : 'column', // Subdivisions go perpendicular
+                position: 'relative',
+                overflow: 'hidden',
+              }}
+            >
+              {sectionCells}
+            </div>
+          )
+        })}
       </div>
     )
   }
 
   // Main render logic
   const renderLayout = () => {
-    if (layout.splitType === 'none') {
+    if (layout.type === 'fullbleed' || !layout.type) {
       return renderFullbleed()
     }
-    return renderSplitLayout()
+    return renderGridLayout()
   }
 
   return (

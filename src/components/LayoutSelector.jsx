@@ -5,33 +5,25 @@ import {
   presetIcons,
   getPresetsByCategory,
   getSuggestedLayouts,
-  flipLayoutHorizontal,
-  flipLayoutVertical,
-  rotateLayout,
 } from '../config/layoutPresets'
 import { defaultState } from '../hooks/useAdState'
 
-const splitTypes = [
-  { id: 'none', name: 'Full Image', icon: '[]' },
-  { id: 'vertical', name: 'Columns', icon: '||' },
-  { id: 'horizontal', name: 'Rows', icon: '=' },
-]
-
-const sectionCounts = [
-  { id: 2, name: '2' },
-  { id: 3, name: '3' },
+const layoutTypes = [
+  { id: 'fullbleed', name: 'Full Image', icon: '□' },
+  { id: 'rows', name: 'Rows', icon: '☰' },
+  { id: 'columns', name: 'Columns', icon: '|||' },
 ]
 
 const textAlignOptions = [
-  { id: 'left', name: 'Left', icon: '<' },
-  { id: 'center', name: 'Center', icon: '|' },
-  { id: 'right', name: 'Right', icon: '>' },
+  { id: 'left', name: 'Left', icon: '◀' },
+  { id: 'center', name: 'Center', icon: '●' },
+  { id: 'right', name: 'Right', icon: '▶' },
 ]
 
 const verticalAlignOptions = [
-  { id: 'start', name: 'Top', icon: '^' },
-  { id: 'center', name: 'Middle', icon: '-' },
-  { id: 'end', name: 'Bottom', icon: 'v' },
+  { id: 'start', name: 'Top', icon: '▲' },
+  { id: 'center', name: 'Middle', icon: '●' },
+  { id: 'end', name: 'Bottom', icon: '▼' },
 ]
 
 const textGroupDefs = [
@@ -40,6 +32,42 @@ const textGroupDefs = [
   { id: 'cta', name: 'Call to Action' },
   { id: 'footnote', name: 'Footnote' },
 ]
+
+// Helper to count total cells in structure
+function getTotalCells(structure) {
+  if (!structure) return 1
+  return structure.reduce((sum, section) => sum + (section.subdivisions || 1), 0)
+}
+
+// Helper to get cell info for display
+function getCellInfo(layout) {
+  const { type, structure } = layout
+  if (type === 'fullbleed' || !structure) {
+    return [{ index: 0, label: 'Full', sectionIndex: 0, subIndex: 0 }]
+  }
+
+  const cells = []
+  let cellIndex = 0
+  const isRows = type === 'rows'
+
+  structure.forEach((section, sectionIndex) => {
+    const subdivisions = section.subdivisions || 1
+    for (let subIndex = 0; subIndex < subdivisions; subIndex++) {
+      let label
+      if (subdivisions === 1) {
+        label = isRows ? `Row ${sectionIndex + 1}` : `Col ${sectionIndex + 1}`
+      } else {
+        const subLabel = isRows ? `Col ${subIndex + 1}` : `Row ${subIndex + 1}`
+        const sectionLabel = isRows ? `R${sectionIndex + 1}` : `C${sectionIndex + 1}`
+        label = `${sectionLabel}-${subLabel}`
+      }
+      cells.push({ index: cellIndex, label, sectionIndex, subIndex })
+      cellIndex++
+    }
+  })
+
+  return cells
+}
 
 // SVG Preview Icon Component
 function PresetIcon({ presetId, isActive }) {
@@ -55,7 +83,6 @@ function PresetIcon({ presetId, isActive }) {
       {iconData.elements.map((el, i) => {
         const Element = el.type
         const props = { ...el.props }
-        // Adjust colors when active
         if (isActive) {
           if (props.fill === '#3b82f6') props.fill = '#ffffff'
           if (props.fill === '#e5e7eb') props.fill = 'rgba(255,255,255,0.4)'
@@ -63,6 +90,77 @@ function PresetIcon({ presetId, isActive }) {
         return <Element key={i} {...props} />
       })}
     </svg>
+  )
+}
+
+// Visual grid preview for cell selection
+function GridPreview({ layout, imageCell, onSelectCell }) {
+  const { type, structure } = layout
+
+  if (type === 'fullbleed' || !structure) {
+    return (
+      <div
+        className="w-full aspect-[4/3] bg-blue-500 rounded cursor-pointer border-2 border-blue-600"
+        onClick={() => onSelectCell(0)}
+        title="Image covers full area"
+      >
+        <div className="w-full h-full flex items-center justify-center text-white text-xs font-medium">
+          Image
+        </div>
+      </div>
+    )
+  }
+
+  const isRows = type === 'rows'
+  let cellIndex = 0
+
+  return (
+    <div
+      className={`w-full aspect-[4/3] rounded overflow-hidden border border-gray-300 flex ${isRows ? 'flex-col' : 'flex-row'}`}
+    >
+      {structure.map((section, sectionIndex) => {
+        const sectionSize = section.size || (100 / structure.length)
+        const subdivisions = section.subdivisions || 1
+        const subSizes = section.subSizes || Array(subdivisions).fill(100 / subdivisions)
+
+        const sectionCells = []
+        for (let subIndex = 0; subIndex < subdivisions; subIndex++) {
+          const currentCellIndex = cellIndex
+          const isImage = currentCellIndex === imageCell
+          cellIndex++
+
+          sectionCells.push(
+            <div
+              key={`cell-${currentCellIndex}`}
+              className={`relative cursor-pointer transition-colors ${
+                isImage
+                  ? 'bg-blue-500 hover:bg-blue-600'
+                  : 'bg-gray-200 hover:bg-gray-300'
+              }`}
+              style={{ flex: `0 0 ${subSizes[subIndex]}%` }}
+              onClick={() => onSelectCell(currentCellIndex)}
+              title={isImage ? 'Image cell (click another to move)' : 'Click to place image here'}
+            >
+              <div className={`absolute inset-0 flex items-center justify-center text-[10px] font-medium ${
+                isImage ? 'text-white' : 'text-gray-500'
+              }`}>
+                {isImage ? '📷' : currentCellIndex}
+              </div>
+            </div>
+          )
+        }
+
+        return (
+          <div
+            key={`section-${sectionIndex}`}
+            className={`flex ${isRows ? 'flex-row' : 'flex-col'}`}
+            style={{ flex: `0 0 ${sectionSize}%` }}
+          >
+            {sectionCells}
+          </div>
+        )
+      })}
+    </div>
   )
 }
 
@@ -74,11 +172,14 @@ export default function LayoutSelector({
   imageAspectRatio,
   platform,
 }) {
-  const { splitType, sections, imageCells = [], textAlign, textVerticalAlign, cellAlignments = [] } = layout
+  const { type = 'fullbleed', structure = [], imageCell = 0, textAlign, textVerticalAlign, cellAlignments = [] } = layout
   const [activeCategory, setActiveCategory] = useState('all')
   const [showFineTune, setShowFineTune] = useState(false)
 
-  // Get suggested layouts based on image and platform
+  const totalCells = useMemo(() => getTotalCells(structure), [structure])
+  const cellInfoList = useMemo(() => getCellInfo(layout), [layout])
+
+  // Get suggested layouts
   const suggestedIds = useMemo(() => {
     return getSuggestedLayouts(imageAspectRatio, platform)
   }, [imageAspectRatio, platform])
@@ -87,7 +188,6 @@ export default function LayoutSelector({
     return layoutPresets.filter(p => suggestedIds.includes(p.id))
   }, [suggestedIds])
 
-  // Get presets for current category
   const displayPresets = useMemo(() => {
     if (activeCategory === 'all') return layoutPresets
     if (activeCategory === 'suggested') return suggestedPresets
@@ -104,48 +204,101 @@ export default function LayoutSelector({
     onLayoutChange({ cellAlignments: newAlignments })
   }
 
-  // Get current alignment for a cell (falls back to global)
+  // Get current alignment for a cell
   const getCellAlignment = (cellIndex, prop) => {
     const cellAlign = cellAlignments?.[cellIndex]?.[prop]
     if (cellAlign !== null && cellAlign !== undefined) return cellAlign
     return prop === 'textAlign' ? textAlign : textVerticalAlign
   }
 
-  // Check if a cell has image
-  const cellHasImage = (index) => imageCells.includes(index)
-
-  // Toggle image on a cell
-  const toggleImageCell = (index) => {
-    const newImageCells = cellHasImage(index)
-      ? imageCells.filter(i => i !== index)
-      : [...imageCells, index].sort((a, b) => a - b)
-    onLayoutChange({ imageCells: newImageCells })
-  }
-
-  // Get cell label
-  const getCellLabel = (index) => {
-    const isVertical = splitType === 'vertical'
-    const hasImage = cellHasImage(index)
-    const posLabel = isVertical ? `Col ${index + 1}` : `Row ${index + 1}`
-    return hasImage ? `${posLabel} [img]` : posLabel
-  }
-
-  // Handle section count change - reset imageCells if needed
-  const handleSectionChange = (count) => {
-    const updates = { sections: count }
-    // Remove any imageCells that are out of range
-    const validImageCells = imageCells.filter(i => i < count)
-    if (validImageCells.length !== imageCells.length) {
-      updates.imageCells = validImageCells.length > 0 ? validImageCells : [0]
+  // Change layout type
+  const handleTypeChange = (newType) => {
+    if (newType === 'fullbleed') {
+      onLayoutChange({
+        type: 'fullbleed',
+        structure: [{ size: 100, subdivisions: 1, subSizes: [100] }],
+        imageCell: 0,
+      })
+    } else {
+      // Default to 2 equal sections
+      onLayoutChange({
+        type: newType,
+        structure: [
+          { size: 50, subdivisions: 1, subSizes: [100] },
+          { size: 50, subdivisions: 1, subSizes: [100] },
+        ],
+        imageCell: 0,
+      })
     }
-    onLayoutChange(updates)
+  }
+
+  // Add a section
+  const addSection = () => {
+    if (type === 'fullbleed') return
+    const newStructure = [...structure]
+    const newSize = 100 / (newStructure.length + 1)
+    // Redistribute sizes evenly
+    newStructure.forEach(s => s.size = newSize)
+    newStructure.push({ size: newSize, subdivisions: 1, subSizes: [100] })
+    onLayoutChange({ structure: newStructure })
+  }
+
+  // Remove a section
+  const removeSection = (index) => {
+    if (structure.length <= 1) return
+    const newStructure = structure.filter((_, i) => i !== index)
+    // Redistribute sizes
+    const newSize = 100 / newStructure.length
+    newStructure.forEach(s => s.size = newSize)
+    // Adjust imageCell if needed
+    const newTotalCells = getTotalCells(newStructure)
+    const newImageCell = imageCell >= newTotalCells ? 0 : imageCell
+    onLayoutChange({ structure: newStructure, imageCell: newImageCell })
+  }
+
+  // Update section size
+  const updateSectionSize = (index, size) => {
+    const newStructure = [...structure]
+    newStructure[index] = { ...newStructure[index], size }
+    onLayoutChange({ structure: newStructure })
+  }
+
+  // Toggle subdivision in a section
+  const toggleSubdivision = (sectionIndex) => {
+    const newStructure = [...structure]
+    const section = newStructure[sectionIndex]
+    if (section.subdivisions === 1) {
+      // Add subdivision
+      newStructure[sectionIndex] = { ...section, subdivisions: 2, subSizes: [50, 50] }
+    } else {
+      // Remove subdivision
+      newStructure[sectionIndex] = { ...section, subdivisions: 1, subSizes: [100] }
+    }
+    // Recalculate imageCell if it was in removed subdivision
+    const newTotalCells = getTotalCells(newStructure)
+    const newImageCell = imageCell >= newTotalCells ? 0 : imageCell
+    onLayoutChange({ structure: newStructure, imageCell: newImageCell })
+  }
+
+  // Update subdivision sizes
+  const updateSubSize = (sectionIndex, subIndex, size) => {
+    const newStructure = [...structure]
+    const section = newStructure[sectionIndex]
+    const newSubSizes = [...(section.subSizes || [])]
+    newSubSizes[subIndex] = size
+    newStructure[sectionIndex] = { ...section, subSizes: newSubSizes }
+    onLayoutChange({ structure: newStructure })
+  }
+
+  // Select image cell
+  const selectImageCell = (cellIndex) => {
+    onLayoutChange({ imageCell: cellIndex })
   }
 
   // Apply a preset
   const applyPreset = (preset) => {
     onLayoutChange(preset.layout)
     if (onTextGroupsChange) {
-      // Apply all text group settings at once
       onTextGroupsChange(preset.textGroups)
     }
   }
@@ -153,35 +306,13 @@ export default function LayoutSelector({
   // Check if current layout matches a preset
   const getActivePreset = () => {
     return layoutPresets.find(preset => {
-      const layoutMatch =
-        preset.layout.splitType === splitType &&
-        preset.layout.sections === sections &&
-        JSON.stringify(preset.layout.imageCells) === JSON.stringify(imageCells)
-      return layoutMatch
+      return JSON.stringify(preset.layout) === JSON.stringify(layout)
     })
   }
 
   const activePreset = getActivePreset()
 
-  // Quick actions
-  const handleFlip = () => {
-    if (splitType === 'vertical') {
-      const result = flipLayoutHorizontal(layout, textGroups)
-      onLayoutChange(result.layout)
-      if (onTextGroupsChange) onTextGroupsChange(result.textGroups)
-    } else if (splitType === 'horizontal') {
-      const result = flipLayoutVertical(layout, textGroups)
-      onLayoutChange(result.layout)
-      if (onTextGroupsChange) onTextGroupsChange(result.textGroups)
-    }
-  }
-
-  const handleRotate = () => {
-    if (splitType !== 'none') {
-      onLayoutChange(rotateLayout(layout))
-    }
-  }
-
+  // Reset to default
   const handleReset = () => {
     onLayoutChange(defaultState.layout)
     if (onTextGroupsChange) {
@@ -189,7 +320,7 @@ export default function LayoutSelector({
     }
   }
 
-  // Category tabs including "suggested" if we have suggestions
+  // Category tabs
   const categoryTabs = [
     { id: 'all', name: 'All' },
     ...(suggestedPresets.length > 0 ? [{ id: 'suggested', name: 'Suggested' }] : []),
@@ -200,46 +331,127 @@ export default function LayoutSelector({
     <div className="space-y-4">
       <h3 className="text-sm font-semibold text-gray-700">Layout</h3>
 
-      {/* Quick Actions */}
-      <div className="flex gap-1">
-        <button
-          onClick={handleFlip}
-          disabled={splitType === 'none'}
-          title={splitType === 'vertical' ? 'Flip left/right' : 'Flip top/bottom'}
-          className={`flex-1 px-2 py-1.5 text-xs rounded flex items-center justify-center gap-1 ${
-            splitType === 'none'
-              ? 'bg-gray-50 text-gray-300 cursor-not-allowed'
-              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-          }`}
-        >
-          <span>{splitType === 'horizontal' ? '↕' : '↔'}</span>
-          <span>Flip</span>
-        </button>
-        <button
-          onClick={handleRotate}
-          disabled={splitType === 'none'}
-          title="Switch between columns and rows"
-          className={`flex-1 px-2 py-1.5 text-xs rounded flex items-center justify-center gap-1 ${
-            splitType === 'none'
-              ? 'bg-gray-50 text-gray-300 cursor-not-allowed'
-              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-          }`}
-        >
-          <span>↻</span>
-          <span>Rotate</span>
-        </button>
-        <button
-          onClick={handleReset}
-          title="Reset to default layout"
-          className="flex-1 px-2 py-1.5 text-xs rounded bg-gray-100 text-gray-600 hover:bg-gray-200 flex items-center justify-center gap-1"
-        >
-          <span>⟲</span>
-          <span>Reset</span>
-        </button>
+      {/* Layout Type Selector */}
+      <div>
+        <label className="block text-xs font-medium text-gray-600 mb-1">Type</label>
+        <div className="flex gap-1">
+          {layoutTypes.map((lt) => (
+            <button
+              key={lt.id}
+              onClick={() => handleTypeChange(lt.id)}
+              className={`flex-1 px-2 py-2 text-xs rounded flex flex-col items-center gap-1 ${
+                type === lt.id
+                  ? 'bg-blue-500 text-white'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
+            >
+              <span className="text-base">{lt.icon}</span>
+              <span>{lt.name}</span>
+            </button>
+          ))}
+        </div>
       </div>
 
-      {/* Category Tabs */}
+      {/* Visual Grid Preview & Image Cell Selector */}
       <div>
+        <label className="block text-xs font-medium text-gray-600 mb-1">
+          Image Position <span className="text-gray-400 font-normal">(click to move)</span>
+        </label>
+        <GridPreview
+          layout={layout}
+          imageCell={imageCell}
+          onSelectCell={selectImageCell}
+        />
+      </div>
+
+      {/* Structure Controls (for rows/columns) */}
+      {type !== 'fullbleed' && (
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <label className="text-xs font-medium text-gray-600">
+              {type === 'rows' ? 'Rows' : 'Columns'}
+            </label>
+            <button
+              onClick={addSection}
+              className="px-2 py-1 text-xs bg-gray-100 hover:bg-gray-200 rounded"
+              disabled={structure.length >= 4}
+            >
+              + Add
+            </button>
+          </div>
+
+          {structure.map((section, sectionIndex) => (
+            <div key={sectionIndex} className="p-2 bg-gray-50 rounded space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-medium text-gray-600">
+                  {type === 'rows' ? `Row ${sectionIndex + 1}` : `Col ${sectionIndex + 1}`}
+                </span>
+                <div className="flex gap-1">
+                  <button
+                    onClick={() => toggleSubdivision(sectionIndex)}
+                    className={`px-2 py-0.5 text-[10px] rounded ${
+                      section.subdivisions > 1
+                        ? 'bg-blue-500 text-white'
+                        : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
+                    }`}
+                    title={section.subdivisions > 1 ? 'Remove split' : 'Split this section'}
+                  >
+                    {section.subdivisions > 1 ? 'Merged' : 'Split'}
+                  </button>
+                  {structure.length > 1 && (
+                    <button
+                      onClick={() => removeSection(sectionIndex)}
+                      className="px-2 py-0.5 text-[10px] bg-red-100 text-red-600 hover:bg-red-200 rounded"
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Section size slider */}
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] text-gray-500 w-8">Size</span>
+                <input
+                  type="range"
+                  min="20"
+                  max="80"
+                  value={section.size}
+                  onChange={(e) => updateSectionSize(sectionIndex, Number(e.target.value))}
+                  className="flex-1 h-1"
+                />
+                <span className="text-[10px] text-gray-500 w-8">{Math.round(section.size)}%</span>
+              </div>
+
+              {/* Subdivision sizes */}
+              {section.subdivisions > 1 && (
+                <div className="pl-2 border-l-2 border-gray-200">
+                  <span className="text-[10px] text-gray-400">
+                    {type === 'rows' ? 'Column widths' : 'Row heights'}
+                  </span>
+                  {section.subSizes?.map((subSize, subIndex) => (
+                    <div key={subIndex} className="flex items-center gap-2 mt-1">
+                      <span className="text-[10px] text-gray-500 w-6">{subIndex + 1}</span>
+                      <input
+                        type="range"
+                        min="20"
+                        max="80"
+                        value={subSize}
+                        onChange={(e) => updateSubSize(sectionIndex, subIndex, Number(e.target.value))}
+                        className="flex-1 h-1"
+                      />
+                      <span className="text-[10px] text-gray-500 w-8">{Math.round(subSize)}%</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Quick Start Presets */}
+      <div className="border-t border-gray-200 pt-3">
         <div className="flex flex-wrap gap-1 mb-2">
           {categoryTabs.map((cat) => (
             <button
@@ -256,18 +468,7 @@ export default function LayoutSelector({
             </button>
           ))}
         </div>
-      </div>
 
-      {/* Quick Start Presets Grid */}
-      <div>
-        <label className="block text-xs font-medium text-gray-600 mb-1">
-          Quick Start
-          {activeCategory === 'suggested' && (
-            <span className="ml-1 text-[10px] text-blue-500 font-normal">
-              Based on your image
-            </span>
-          )}
-        </label>
         <div className="grid grid-cols-3 gap-1.5">
           {displayPresets.map((preset) => (
             <button
@@ -285,9 +486,6 @@ export default function LayoutSelector({
             </button>
           ))}
         </div>
-        {displayPresets.length === 0 && (
-          <p className="text-xs text-gray-400 text-center py-4">No presets in this category</p>
-        )}
       </div>
 
       {/* Fine-tune Toggle */}
@@ -296,7 +494,7 @@ export default function LayoutSelector({
           onClick={() => setShowFineTune(!showFineTune)}
           className="flex items-center justify-between w-full text-xs font-medium text-gray-500 hover:text-gray-700"
         >
-          <span>Fine-tune Controls</span>
+          <span>Alignment & Text Placement</span>
           <span className="transform transition-transform" style={{ transform: showFineTune ? 'rotate(180deg)' : '' }}>
             ▼
           </span>
@@ -305,75 +503,8 @@ export default function LayoutSelector({
 
       {showFineTune && (
         <div className="space-y-4 pt-2">
-          {/* Split Type */}
-          <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1">Split Type</label>
-            <div className="flex gap-1">
-              {splitTypes.map((type) => (
-                <button
-                  key={type.id}
-                  onClick={() => onLayoutChange({ splitType: type.id })}
-                  className={`flex-1 px-2 py-2 text-xs rounded flex flex-col items-center gap-1 ${
-                    splitType === type.id
-                      ? 'bg-blue-500 text-white'
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                  }`}
-                >
-                  <span className="text-base font-mono">{type.icon}</span>
-                  <span>{type.name}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Only show split options when not 'none' */}
-          {splitType !== 'none' && (
-            <>
-              {/* Number of Sections */}
-              <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">Sections</label>
-                <div className="flex gap-1">
-                  {sectionCounts.map((count) => (
-                    <button
-                      key={count.id}
-                      onClick={() => handleSectionChange(count.id)}
-                      className={`flex-1 px-3 py-2 text-sm rounded ${
-                        sections === count.id
-                          ? 'bg-blue-500 text-white'
-                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                      }`}
-                    >
-                      {count.name}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Image Layer Cells */}
-              <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">Image covers</label>
-                <p className="text-[10px] text-gray-400 mb-2">Select which cells the image spans</p>
-                <div className="flex gap-1">
-                  {Array.from({ length: sections }).map((_, i) => (
-                    <button
-                      key={i}
-                      onClick={() => toggleImageCell(i)}
-                      className={`flex-1 px-2 py-2 text-xs rounded ${
-                        cellHasImage(i)
-                          ? 'bg-blue-500 text-white'
-                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                      }`}
-                    >
-                      {splitType === 'vertical' ? `Col ${i + 1}` : `Row ${i + 1}`}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </>
-          )}
-
-          {/* Global Text Alignment - shown only when no split */}
-          {splitType === 'none' && (
+          {/* Global Text Alignment - shown only when fullbleed */}
+          {type === 'fullbleed' && (
             <>
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">Text Align</label>
@@ -417,13 +548,15 @@ export default function LayoutSelector({
             </>
           )}
 
-          {/* Per-Cell Alignment - shown when split layout */}
-          {splitType !== 'none' && (
-            <div className="space-y-3 pt-2 border-t border-gray-200">
+          {/* Per-Cell Alignment - shown when not fullbleed */}
+          {type !== 'fullbleed' && cellInfoList.length > 0 && (
+            <div className="space-y-3">
               <label className="block text-xs font-semibold text-gray-700">Cell Alignment</label>
-              {Array.from({ length: sections }).map((_, cellIndex) => (
-                <div key={cellIndex} className="space-y-2 p-2 bg-gray-50 rounded">
-                  <span className="text-xs font-medium text-gray-600">{getCellLabel(cellIndex)}</span>
+              {cellInfoList.map((cell) => (
+                <div key={cell.index} className="space-y-2 p-2 bg-gray-50 rounded">
+                  <span className="text-xs font-medium text-gray-600">
+                    {cell.label} {cell.index === imageCell ? '[img]' : ''}
+                  </span>
                   <div className="flex gap-2">
                     <div className="flex-1">
                       <label className="block text-[10px] text-gray-500 mb-1">Horizontal</label>
@@ -431,10 +564,10 @@ export default function LayoutSelector({
                         {textAlignOptions.map((align) => (
                           <button
                             key={align.id}
-                            onClick={() => updateCellAlignment(cellIndex, { textAlign: align.id })}
+                            onClick={() => updateCellAlignment(cell.index, { textAlign: align.id })}
                             title={align.name}
                             className={`flex-1 px-1 py-1 text-xs rounded ${
-                              getCellAlignment(cellIndex, 'textAlign') === align.id
+                              getCellAlignment(cell.index, 'textAlign') === align.id
                                 ? 'bg-blue-500 text-white'
                                 : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
                             }`}
@@ -450,10 +583,10 @@ export default function LayoutSelector({
                         {verticalAlignOptions.map((align) => (
                           <button
                             key={align.id}
-                            onClick={() => updateCellAlignment(cellIndex, { textVerticalAlign: align.id })}
+                            onClick={() => updateCellAlignment(cell.index, { textVerticalAlign: align.id })}
                             title={align.name}
                             className={`flex-1 px-1 py-1 text-xs rounded ${
-                              getCellAlignment(cellIndex, 'textVerticalAlign') === align.id
+                              getCellAlignment(cell.index, 'textVerticalAlign') === align.id
                                 ? 'bg-blue-500 text-white'
                                 : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
                             }`}
@@ -469,8 +602,8 @@ export default function LayoutSelector({
             </div>
           )}
 
-          {/* Text Group Cell Assignment - shown when split layout */}
-          {splitType !== 'none' && onTextGroupsChange && (
+          {/* Text Group Cell Assignment - shown when not fullbleed */}
+          {type !== 'fullbleed' && onTextGroupsChange && (
             <div className="space-y-3 pt-2 border-t border-gray-200">
               <label className="block text-xs font-semibold text-gray-700">Text Placement</label>
               <p className="text-[10px] text-gray-400">Assign text groups to cells</p>
@@ -488,9 +621,9 @@ export default function LayoutSelector({
                       className="text-xs px-2 py-1 border border-gray-200 rounded bg-white"
                     >
                       <option value="auto">Auto</option>
-                      {Array.from({ length: sections }).map((_, i) => (
-                        <option key={i} value={i}>
-                          {getCellLabel(i)}
+                      {cellInfoList.map((cell) => (
+                        <option key={cell.index} value={cell.index}>
+                          {cell.label} {cell.index === imageCell ? '[img]' : ''}
                         </option>
                       ))}
                     </select>
@@ -499,6 +632,14 @@ export default function LayoutSelector({
               })}
             </div>
           )}
+
+          {/* Reset button */}
+          <button
+            onClick={handleReset}
+            className="w-full px-3 py-2 text-xs bg-gray-100 text-gray-600 hover:bg-gray-200 rounded"
+          >
+            Reset to Default
+          </button>
         </div>
       )}
     </div>
