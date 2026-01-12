@@ -2,34 +2,42 @@
 
 ## Current Session
 
-Implemented major layout and positioning overhaul.
+Enhanced layout system with comprehensive improvements to presets and quick-start functionality.
 
 ### Changes Made
 
-1. **Moved Overlay to Image Tab** - Overlay controls now in ImageUploader, removed standalone Overlay tab
+1. **Expanded Layout Presets** (6 → 17 presets)
+   - Image Focus: Full Bleed Hero, Hero Top/Bottom Text, Large Image Left/Right/Top/Bottom
+   - Balanced: 50-50 splits (left/right/top/bottom), Image Sandwich
+   - Text Focus: Left/Right Accent Strip, Top/Bottom Image Banner, Center Text Focus
 
-2. **Per-Cell Text Alignment** - Each cell in split layouts can have its own horizontal/vertical alignment
-   - Added `cellAlignments` array to layout state
-   - LayoutSelector shows alignment controls per cell
+2. **Visual SVG Preview Icons**
+   - Replaced Unicode icons with clear SVG diagrams
+   - Blue areas show image placement, gray areas show text placement
+   - Icons adapt colors when preset is active
 
-3. **Text Element Grouping** - Text elements organized into logical groups:
-   - Title + Tagline (move together)
-   - Body Heading + Body Text (move together)
-   - CTA (independent)
-   - Footnote (independent)
+3. **Category Organization**
+   - Presets organized into: All, Suggested, Image Focus, Text Focus, Balanced
+   - Tab-based navigation for easy browsing
+   - "Suggested" category shows recommendations based on image aspect ratio
 
-4. **Text Groups Assignable to Cells** - Each text group can be assigned to any cell via dropdown in Layout tab
-   - Auto mode distributes based on image coverage
-   - Manual assignment overrides auto behavior
+4. **Smart Layout Suggestions**
+   - Analyzes uploaded image aspect ratio (landscape/portrait/square)
+   - Considers platform type (story formats prioritize horizontal splits)
+   - Suggests 4 best-fit layouts automatically
 
-5. **Image as Layer Over Cells** - Complete architecture change:
-   - Replaced `imagePosition`/`imageProportion`/`textOnImage` with `imageCells` array
-   - Image can now span any combination of cells
-   - Cells are equal-sized; image renders as overlay on selected cells
-   - Text renders on image cells (with shadow) or background cells (no shadow)
+5. **Quick Actions**
+   - Flip: Swaps image/text positions horizontally or vertically
+   - Rotate: Converts between columns and rows layouts
+   - Reset: Returns to default layout settings
 
-### Architecture Notes
+6. **Improved UX**
+   - Collapsible "Fine-tune Controls" section for advanced options
+   - Better preset naming (e.g., "Left Image" → "Image Left / Text Right")
+   - Hover tooltips with detailed descriptions
 
-- `layout.imageCells` - Array of cell indices where image appears (e.g., `[0]`, `[0,1]`, `[0,2]`)
-- `state.textGroups` - Object mapping group IDs to cell assignments
-- `renderCellContent()` - Unified cell renderer handling both image and text layers
+### Files Modified
+
+- `src/config/layoutPresets.js` - Complete rewrite with categories, icons, helpers
+- `src/components/LayoutSelector.jsx` - New UI with categories, SVG icons, quick actions
+- `src/App.jsx` - Added image aspect ratio calculation and props passing

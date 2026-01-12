@@ -15,6 +15,7 @@ import { fonts } from './config/fonts'
 function App() {
   const canvasRef = useRef(null)
   const [activeSection, setActiveSection] = useState('image')
+  const [imageAspectRatio, setImageAspectRatio] = useState(null)
 
   const {
     state,
@@ -40,6 +41,20 @@ function App() {
   } = useAdState()
 
   const platform = platforms.find((p) => p.id === state.platform) || platforms[0]
+
+  // Calculate image aspect ratio when image changes
+  useEffect(() => {
+    if (!state.image) {
+      setImageAspectRatio(null)
+      return
+    }
+
+    const img = new Image()
+    img.onload = () => {
+      setImageAspectRatio(img.width / img.height)
+    }
+    img.src = state.image
+  }, [state.image])
 
   // Keyboard shortcuts for undo/redo
   useEffect(() => {
@@ -189,6 +204,8 @@ function App() {
                 onLayoutChange={setLayout}
                 textGroups={state.textGroups}
                 onTextGroupsChange={setTextGroups}
+                imageAspectRatio={imageAspectRatio}
+                platform={state.platform}
               />
             )}
 
