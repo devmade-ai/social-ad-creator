@@ -1,10 +1,11 @@
-import { useCallback, useRef, useMemo } from 'react'
+import { useCallback, useRef, useMemo, useState } from 'react'
 import { overlayTypes } from '../config/layouts'
 import {
   layoutPresets,
   presetIcons,
   getSuggestedLayouts,
 } from '../config/layoutPresets'
+import { sampleImages } from '../config/sampleImages'
 
 const overlayColorOptions = [
   { id: 'primary', name: 'Primary' },
@@ -57,6 +58,32 @@ export default function ImageUploader({
   platform,
 }) {
   const fileInputRef = useRef(null)
+  const [loadingSample, setLoadingSample] = useState(null)
+  const [sampleError, setSampleError] = useState(null)
+
+  // Load a sample image
+  const loadSampleImage = useCallback(async (sample) => {
+    setLoadingSample(sample.id)
+    setSampleError(null)
+    try {
+      const response = await fetch(sample.file)
+      if (!response.ok) throw new Error('Image not found')
+      const blob = await response.blob()
+      const reader = new FileReader()
+      reader.onload = (event) => {
+        onImageChange(event.target.result)
+        setLoadingSample(null)
+      }
+      reader.onerror = () => {
+        setSampleError('Failed to load image')
+        setLoadingSample(null)
+      }
+      reader.readAsDataURL(blob)
+    } catch {
+      setSampleError(`Add ${sample.name} to public/samples/`)
+      setLoadingSample(null)
+    }
+  }, [onImageChange])
 
   // Get suggested layout presets
   const suggestedIds = useMemo(() => {
@@ -152,6 +179,49 @@ export default function ImageUploader({
           onChange={handleFileSelect}
         />
       </div>
+
+      {/* Sample Images - shown when no image uploaded */}
+      {!image && (
+        <div className="space-y-2">
+          <label className="block text-xs font-medium text-gray-600">
+            Or try a sample
+          </label>
+          <div className="grid grid-cols-5 gap-1">
+            {sampleImages.map((sample) => (
+              <button
+                key={sample.id}
+                onClick={() => loadSampleImage(sample)}
+                disabled={loadingSample === sample.id}
+                title={sample.name}
+                className={`aspect-square rounded overflow-hidden border-2 transition-colors ${
+                  loadingSample === sample.id
+                    ? 'border-blue-400 opacity-50'
+                    : 'border-gray-200 hover:border-blue-400'
+                }`}
+              >
+                <img
+                  src={sample.file}
+                  alt={sample.name}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    e.target.style.display = 'none'
+                    e.target.nextSibling.style.display = 'flex'
+                  }}
+                />
+                <div
+                  className="w-full h-full bg-gray-100 items-center justify-center text-gray-400 text-[8px] text-center p-0.5"
+                  style={{ display: 'none' }}
+                >
+                  {sample.name}
+                </div>
+              </button>
+            ))}
+          </div>
+          {sampleError && (
+            <p className="text-xs text-amber-600">{sampleError}</p>
+          )}
+        </div>
+      )}
 
       {/* Quick Layout Presets - shown when layout controls available */}
       {onLayoutChange && suggestedPresets.length > 0 && (

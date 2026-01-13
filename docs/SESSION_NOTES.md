@@ -2,39 +2,28 @@
 
 ## Current Session
 
-Extended the sub-tab pattern to the Text tab, added more theme presets, and updated documentation.
+Added sample images feature to the Image tab for quick testing without uploading.
 
 ### Changes Made
 
-1. **Text Tab Sub-tabs**
-   - Split Text tab into 3 sub-tabs: Content, Style, Placement
-   - Content: Text input fields with visibility toggles
-   - Style: Color and size controls for each text layer
-   - Placement: Assign text groups to layout cells (mirrors Layout > Placement)
-
-2. **Theme Presets Expanded**
-   - Increased from 4 to 12 preset themes
-   - Categories: Core (Dark, Light), Professional (Corporate, Minimal, Slate), Vibrant (Vibrant, Sunset, Ocean), Nature (Forest, Earth), Bold (Neon, Candy)
-
-3. **Documentation Updates**
-   - TODO.md reorganized with clear sections (Completed, In Progress, Potential, Technical)
-   - Added new planned features:
-     - Image tab: quick presets with overlays, sample images
-     - Layout tab: per-cell/section overlay controls
-     - Padding & spacing controls
-     - Consider merging Logo and Image tabs
-
-### Previous Session Changes (kept for context)
-
-- Layout Tab sub-tabs (Presets, Structure, Alignment, Placement)
-- Structure sub-tab with contextual section/cell selection
-- Responsive preview canvas with ResizeObserver
-- Unified cell selector pattern across tabs
+1. **Sample Images Feature**
+   - Created `src/config/sampleImages.js` with 5 devMade sample images
+   - Added sample image selector grid in ImageUploader (shown when no image uploaded)
+   - Images load from `public/samples/` directory
+   - Graceful fallback when images not yet added to folder
 
 ### Files Modified
 
-- `src/components/TextEditor.jsx` - Added sub-tabs and placement controls
-- `src/config/themes.js` - Expanded to 12 presets
-- `src/App.jsx` - Pass additional props to TextEditor
-- `docs/TODO.md` - Reorganized and added new ideas
+- `src/config/sampleImages.js` - New config for sample images
+- `src/components/ImageUploader.jsx` - Added sample image selector UI
+- `docs/TODO.md` - Marked sample images complete
 - `docs/SESSION_NOTES.md` - This file
+
+### User Action Required
+
+Add the sample images to `public/samples/`:
+- `tree-cube.png`
+- `globe-tech.png`
+- `circuit-tree.png`
+- `circuit-spiral.png`
+- `dm-cube.png`

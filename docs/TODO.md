@@ -37,7 +37,7 @@ Future enhancements and ideas for the Social Ad Creator.
 ### Image Tab Enhancements
 
 - [ ] Quick presets with overlay combinations (e.g., "Dramatic Dark", "Light & Airy", "Vintage")
-- [ ] Sample/placeholder images for quick testing
+- [x] Sample images for quick testing (5 devMade samples in public/samples/)
 - [ ] Image filters beyond grayscale (sepia, blur, contrast)
 
 ### Layout Tab Enhancements
