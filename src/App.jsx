@@ -176,6 +176,11 @@ function App() {
                 overlay={state.overlay}
                 onOverlayChange={setOverlay}
                 theme={state.theme}
+                layout={state.layout}
+                onLayoutChange={setLayout}
+                onTextGroupsChange={setTextGroups}
+                imageAspectRatio={imageAspectRatio}
+                platform={state.platform}
               />
             )}
 

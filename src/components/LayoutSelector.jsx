@@ -173,7 +173,8 @@ export default function LayoutSelector({
   platform,
 }) {
   const { type = 'fullbleed', structure = [], imageCell = 0, textAlign, textVerticalAlign, cellAlignments = [] } = layout
-  const [activeCategory, setActiveCategory] = useState('all')
+  // Default to 'suggested' if there are suggested presets, otherwise 'all'
+  const [activeCategory, setActiveCategory] = useState('suggested')
   const [showFineTune, setShowFineTune] = useState(false)
 
   const totalCells = useMemo(() => getTotalCells(structure), [structure])
@@ -190,7 +191,10 @@ export default function LayoutSelector({
 
   const displayPresets = useMemo(() => {
     if (activeCategory === 'all') return layoutPresets
-    if (activeCategory === 'suggested') return suggestedPresets
+    if (activeCategory === 'suggested') {
+      // Fall back to showing popular presets if no suggestions available
+      return suggestedPresets.length > 0 ? suggestedPresets : layoutPresets.slice(0, 6)
+    }
     return getPresetsByCategory(activeCategory)
   }, [activeCategory, suggestedPresets])
 
@@ -256,37 +260,112 @@ export default function LayoutSelector({
     onLayoutChange({ structure: newStructure, imageCell: newImageCell })
   }
 
-  // Update section size
-  const updateSectionSize = (index, size) => {
+  // Update section size with proportional balancing
+  const updateSectionSize = (index, newSize) => {
     const newStructure = [...structure]
-    newStructure[index] = { ...newStructure[index], size }
+    const oldSize = newStructure[index].size
+    const sizeDiff = newSize - oldSize
+
+    // Proportionally adjust other sections
+    const otherIndices = structure.map((_, i) => i).filter(i => i !== index)
+    const otherTotalSize = otherIndices.reduce((sum, i) => sum + structure[i].size, 0)
+
+    if (otherTotalSize > 0 && otherIndices.length > 0) {
+      // Distribute the difference proportionally among other sections
+      otherIndices.forEach(i => {
+        const proportion = structure[i].size / otherTotalSize
+        const adjustment = sizeDiff * proportion
+        newStructure[i] = {
+          ...newStructure[i],
+          size: Math.max(10, Math.min(90, structure[i].size - adjustment))
+        }
+      })
+    }
+
+    newStructure[index] = { ...newStructure[index], size: newSize }
+
+    // Normalize to ensure total is 100%
+    const total = newStructure.reduce((sum, s) => sum + s.size, 0)
+    if (Math.abs(total - 100) > 0.1) {
+      const scale = 100 / total
+      newStructure.forEach((s, i) => {
+        newStructure[i] = { ...s, size: s.size * scale }
+      })
+    }
+
     onLayoutChange({ structure: newStructure })
   }
 
-  // Toggle subdivision in a section
-  const toggleSubdivision = (sectionIndex) => {
+  // Add subdivision to a section (up to 3)
+  const addSubdivision = (sectionIndex) => {
     const newStructure = [...structure]
     const section = newStructure[sectionIndex]
-    if (section.subdivisions === 1) {
-      // Add subdivision
-      newStructure[sectionIndex] = { ...section, subdivisions: 2, subSizes: [50, 50] }
-    } else {
-      // Remove subdivision
-      newStructure[sectionIndex] = { ...section, subdivisions: 1, subSizes: [100] }
-    }
+    const currentSubs = section.subdivisions || 1
+
+    if (currentSubs >= 3) return
+
+    const newSubs = currentSubs + 1
+    // Distribute sizes evenly
+    const evenSize = 100 / newSubs
+    const newSubSizes = Array(newSubs).fill(evenSize)
+
+    newStructure[sectionIndex] = { ...section, subdivisions: newSubs, subSizes: newSubSizes }
+    onLayoutChange({ structure: newStructure })
+  }
+
+  // Remove subdivision from a section (minimum 1)
+  const removeSubdivision = (sectionIndex) => {
+    const newStructure = [...structure]
+    const section = newStructure[sectionIndex]
+    const currentSubs = section.subdivisions || 1
+
+    if (currentSubs <= 1) return
+
+    const newSubs = currentSubs - 1
+    // Distribute sizes evenly
+    const evenSize = 100 / newSubs
+    const newSubSizes = Array(newSubs).fill(evenSize)
+
+    newStructure[sectionIndex] = { ...section, subdivisions: newSubs, subSizes: newSubSizes }
+
     // Recalculate imageCell if it was in removed subdivision
     const newTotalCells = getTotalCells(newStructure)
     const newImageCell = imageCell >= newTotalCells ? 0 : imageCell
     onLayoutChange({ structure: newStructure, imageCell: newImageCell })
   }
 
-  // Update subdivision sizes
-  const updateSubSize = (sectionIndex, subIndex, size) => {
+  // Update subdivision sizes with proportional balancing
+  const updateSubSize = (sectionIndex, subIndex, newSize) => {
     const newStructure = [...structure]
     const section = newStructure[sectionIndex]
-    const newSubSizes = [...(section.subSizes || [])]
-    newSubSizes[subIndex] = size
-    newStructure[sectionIndex] = { ...section, subSizes: newSubSizes }
+    const subSizes = [...(section.subSizes || [])]
+    const oldSize = subSizes[subIndex]
+    const sizeDiff = newSize - oldSize
+
+    // Proportionally adjust other subdivisions
+    const otherIndices = subSizes.map((_, i) => i).filter(i => i !== subIndex)
+    const otherTotalSize = otherIndices.reduce((sum, i) => sum + subSizes[i], 0)
+
+    if (otherTotalSize > 0 && otherIndices.length > 0) {
+      otherIndices.forEach(i => {
+        const proportion = subSizes[i] / otherTotalSize
+        const adjustment = sizeDiff * proportion
+        subSizes[i] = Math.max(10, Math.min(90, subSizes[i] - adjustment))
+      })
+    }
+
+    subSizes[subIndex] = newSize
+
+    // Normalize to ensure total is 100%
+    const total = subSizes.reduce((sum, s) => sum + s, 0)
+    if (Math.abs(total - 100) > 0.1) {
+      const scale = 100 / total
+      subSizes.forEach((s, i) => {
+        subSizes[i] = s * scale
+      })
+    }
+
+    newStructure[sectionIndex] = { ...section, subSizes }
     onLayoutChange({ structure: newStructure })
   }
 
@@ -386,22 +465,40 @@ export default function LayoutSelector({
                 <span className="text-xs font-medium text-gray-600">
                   {type === 'rows' ? `Row ${sectionIndex + 1}` : `Col ${sectionIndex + 1}`}
                 </span>
-                <div className="flex gap-1">
+                <div className="flex items-center gap-1">
+                  {/* Subdivision controls: - count + */}
+                  <span className="text-[10px] text-gray-500 mr-1">Split:</span>
                   <button
-                    onClick={() => toggleSubdivision(sectionIndex)}
-                    className={`px-2 py-0.5 text-[10px] rounded ${
-                      section.subdivisions > 1
-                        ? 'bg-blue-500 text-white'
+                    onClick={() => removeSubdivision(sectionIndex)}
+                    disabled={(section.subdivisions || 1) <= 1}
+                    className={`w-5 h-5 text-[10px] rounded ${
+                      (section.subdivisions || 1) <= 1
+                        ? 'bg-gray-100 text-gray-300 cursor-not-allowed'
                         : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
                     }`}
-                    title={section.subdivisions > 1 ? 'Remove split' : 'Split this section'}
+                    title="Remove split"
                   >
-                    {section.subdivisions > 1 ? 'Merged' : 'Split'}
+                    −
+                  </button>
+                  <span className="text-[10px] text-gray-600 w-4 text-center font-medium">
+                    {section.subdivisions || 1}
+                  </span>
+                  <button
+                    onClick={() => addSubdivision(sectionIndex)}
+                    disabled={(section.subdivisions || 1) >= 3}
+                    className={`w-5 h-5 text-[10px] rounded ${
+                      (section.subdivisions || 1) >= 3
+                        ? 'bg-gray-100 text-gray-300 cursor-not-allowed'
+                        : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
+                    }`}
+                    title="Add split"
+                  >
+                    +
                   </button>
                   {structure.length > 1 && (
                     <button
                       onClick={() => removeSection(sectionIndex)}
-                      className="px-2 py-0.5 text-[10px] bg-red-100 text-red-600 hover:bg-red-200 rounded"
+                      className="px-2 py-0.5 text-[10px] bg-red-100 text-red-600 hover:bg-red-200 rounded ml-1"
                     >
                       ✕
                     </button>

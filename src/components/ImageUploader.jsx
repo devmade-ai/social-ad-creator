@@ -1,5 +1,10 @@
-import { useCallback, useRef } from 'react'
+import { useCallback, useRef, useMemo } from 'react'
 import { overlayTypes } from '../config/layouts'
+import {
+  layoutPresets,
+  presetIcons,
+  getSuggestedLayouts,
+} from '../config/layoutPresets'
 
 const overlayColorOptions = [
   { id: 'primary', name: 'Primary' },
@@ -7,8 +12,76 @@ const overlayColorOptions = [
   { id: 'accent', name: 'Accent' },
 ]
 
-export default function ImageUploader({ image, onImageChange, objectFit, onObjectFitChange, position, onPositionChange, grayscale, onGrayscaleChange, overlay, onOverlayChange, theme }) {
+// SVG Preview Icon Component (compact version)
+function PresetIcon({ presetId, isActive }) {
+  const iconData = presetIcons[presetId]
+  if (!iconData) return <span className="text-base">?</span>
+
+  return (
+    <svg
+      viewBox={iconData.viewBox}
+      className="w-8 h-6"
+      style={{ display: 'block' }}
+    >
+      {iconData.elements.map((el, i) => {
+        const Element = el.type
+        const props = { ...el.props }
+        if (isActive) {
+          if (props.fill === '#3b82f6') props.fill = '#ffffff'
+          if (props.fill === '#e5e7eb') props.fill = 'rgba(255,255,255,0.4)'
+          if (props.fill === '#d1d5db') props.fill = 'rgba(255,255,255,0.3)'
+        }
+        return <Element key={i} {...props} />
+      })}
+    </svg>
+  )
+}
+
+export default function ImageUploader({
+  image,
+  onImageChange,
+  objectFit,
+  onObjectFitChange,
+  position,
+  onPositionChange,
+  grayscale,
+  onGrayscaleChange,
+  overlay,
+  onOverlayChange,
+  theme,
+  // New props for layout presets
+  layout,
+  onLayoutChange,
+  onTextGroupsChange,
+  imageAspectRatio,
+  platform,
+}) {
   const fileInputRef = useRef(null)
+
+  // Get suggested layout presets
+  const suggestedIds = useMemo(() => {
+    return getSuggestedLayouts(imageAspectRatio, platform)
+  }, [imageAspectRatio, platform])
+
+  const suggestedPresets = useMemo(() => {
+    return layoutPresets.filter(p => suggestedIds.includes(p.id))
+  }, [suggestedIds])
+
+  // Check if current layout matches a preset
+  const getActivePreset = () => {
+    if (!layout) return null
+    return layoutPresets.find(preset => {
+      return JSON.stringify(preset.layout) === JSON.stringify(layout)
+    })
+  }
+
+  const activePreset = getActivePreset()
+
+  // Apply a preset
+  const applyPreset = (preset) => {
+    if (onLayoutChange) onLayoutChange(preset.layout)
+    if (onTextGroupsChange) onTextGroupsChange(preset.textGroups)
+  }
 
   const handleDrop = useCallback((e) => {
     e.preventDefault()
@@ -79,6 +152,32 @@ export default function ImageUploader({ image, onImageChange, objectFit, onObjec
           onChange={handleFileSelect}
         />
       </div>
+
+      {/* Quick Layout Presets - shown when layout controls available */}
+      {onLayoutChange && suggestedPresets.length > 0 && (
+        <div className="space-y-2">
+          <label className="block text-xs font-medium text-gray-600">
+            Quick Layout {image ? '(suggested)' : ''}
+          </label>
+          <div className="flex flex-wrap gap-1">
+            {suggestedPresets.map((preset) => (
+              <button
+                key={preset.id}
+                onClick={() => applyPreset(preset)}
+                title={preset.description}
+                className={`px-1.5 py-1.5 text-xs rounded flex flex-col items-center gap-0.5 transition-colors ${
+                  activePreset?.id === preset.id
+                    ? 'bg-blue-500 text-white'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                <PresetIcon presetId={preset.id} isActive={activePreset?.id === preset.id} />
+                <span className="text-[8px] leading-tight text-center max-w-[50px] truncate">{preset.name}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {image && (
         <>
