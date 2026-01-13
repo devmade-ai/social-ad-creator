@@ -65,8 +65,8 @@ Future enhancements and ideas for the Social Ad Creator.
 
 - [x] Remove "type" from presets (unnecessary complexity)
 - [x] Default presets filter to "All" instead of "Suggested"
-- [ ] Consolidate placement sub-tabs: move image placement to unified "Placement" tab
-- [ ] Merge text alignments and placements into same tab
+- [x] Consolidate placement sub-tabs: move image placement to unified "Placement" tab
+- [x] Merge text alignments and placements into same tab
 - [ ] Use standard alignment icons (not custom/unusual ones)
 - [ ] Better cell assignment UX - current dropdown naming is confusing
 - [ ] Improve cell references - "row then column" naming isn't user-friendly
@@ -83,7 +83,7 @@ Future enhancements and ideas for the Social Ad Creator.
 
 ### Text Tab
 
-- [ ] Remove sub-tabs - simplify to single tab (content and style together)
+- [x] Remove sub-tabs - simplify to single tab (content and style together)
 
 ---
 
