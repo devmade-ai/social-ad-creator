@@ -1,4 +1,4 @@
-import { useRef, useMemo, useState, useEffect } from 'react'
+import { useRef, useMemo, useState, useEffect, useCallback } from 'react'
 import { useAdState } from './hooks/useAdState'
 import AdCanvas from './components/AdCanvas'
 import ImageUploader from './components/ImageUploader'
@@ -14,8 +14,10 @@ import { fonts } from './config/fonts'
 
 function App() {
   const canvasRef = useRef(null)
+  const previewContainerRef = useRef(null)
   const [activeSection, setActiveSection] = useState('image')
   const [imageAspectRatio, setImageAspectRatio] = useState(null)
+  const [containerWidth, setContainerWidth] = useState(600)
 
   const {
     state,
@@ -83,14 +85,32 @@ function App() {
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [undo, redo])
 
-  // Calculate scale to fit preview in container
+  // Track container width for responsive preview
+  useEffect(() => {
+    const container = previewContainerRef.current
+    if (!container) return
+
+    const resizeObserver = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        // Use contentBoxSize if available, otherwise fallback to contentRect
+        const width = entry.contentBoxSize?.[0]?.inlineSize ?? entry.contentRect.width
+        setContainerWidth(width)
+      }
+    })
+
+    resizeObserver.observe(container)
+    return () => resizeObserver.disconnect()
+  }, [])
+
+  // Calculate scale to fit preview in container (responsive to container width)
   const previewScale = useMemo(() => {
-    const maxWidth = 600
-    const maxHeight = 500
+    // Use container width with some padding, and a reasonable max height
+    const maxWidth = Math.max(containerWidth - 32, 200) // 32px padding, min 200px
+    const maxHeight = Math.min(window.innerHeight * 0.6, 600) // 60% viewport or 600px max
     const scaleX = maxWidth / platform.width
     const scaleY = maxHeight / platform.height
     return Math.min(scaleX, scaleY, 1)
-  }, [platform])
+  }, [platform, containerWidth])
 
   const sections = [
     { id: 'image', label: 'Image' },
@@ -200,6 +220,9 @@ function App() {
                 text={state.text}
                 onTextChange={setText}
                 theme={state.theme}
+                textGroups={state.textGroups}
+                onTextGroupsChange={setTextGroups}
+                layout={state.layout}
               />
             )}
 
@@ -242,6 +265,7 @@ function App() {
 
             {/* Canvas Preview */}
             <div
+              ref={previewContainerRef}
               className="mt-4 bg-gray-50 rounded-lg overflow-hidden flex items-center justify-center"
               style={{
                 minHeight: platform.height * previewScale + 40,

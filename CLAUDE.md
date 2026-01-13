@@ -45,10 +45,11 @@ Social Ad Creator - A browser-based tool for creating social media advertisement
 Core features working:
 
 - Image upload with drag-drop, object fit (cover/contain), position, grayscale, overlay controls
-- Flexible layout system:
-  - Split type (none/columns/rows) with 2-3 sections
-  - Image can span any combination of cells (imageCells array)
-  - Per-cell horizontal and vertical alignment
+- Flexible layout system with sub-tab organization:
+  - **Presets tab**: Quick layout selection with smart suggestions based on image aspect ratio
+  - **Structure tab**: Fine-tune rows/columns with contextual cell/section selection
+  - **Alignment tab**: Per-cell text alignment (horizontal/vertical)
+  - **Placement tab**: Assign text groups to specific cells
 - Text groups with cell assignment:
   - Title + Tagline (paired)
   - Body Heading + Body Text (paired)
@@ -60,6 +61,7 @@ Core features working:
 - 15 Google Fonts (sans-serif, serif, display categories)
 - Export to 6 platforms (LinkedIn, Facebook, Instagram, Twitter/X, TikTok)
 - Single download and ZIP batch download
+- Responsive preview that adapts to device width
 
 ## Tech Stack
 
@@ -87,18 +89,19 @@ src/
 │   ├── ImageUploader.jsx  # Image upload + overlay controls
 │   ├── LogoUploader.jsx   # Logo upload and positioning
 │   ├── TextEditor.jsx     # Text layer editing
-│   ├── LayoutSelector.jsx # Layout, cell alignment, text placement
+│   ├── LayoutSelector.jsx # Layout with sub-tabs (Presets, Structure, Alignment, Placement)
 │   ├── ThemePicker.jsx
 │   ├── FontSelector.jsx
 │   ├── PlatformPreview.jsx
 │   └── ExportButtons.jsx
 ├── config/         # Configuration
-│   ├── layouts.js     # Overlay types and helpers
-│   ├── platforms.js   # 6 platform sizes
-│   ├── themes.js      # 4 preset themes
-│   └── fonts.js       # 15 Google Fonts
+│   ├── layouts.js        # Overlay types and helpers
+│   ├── layoutPresets.js  # 17 layout presets with SVG icons and categories
+│   ├── platforms.js      # 6 platform sizes
+│   ├── themes.js         # 4 preset themes
+│   └── fonts.js          # 15 Google Fonts
 ├── hooks/
-│   └── useAdState.js  # Central state (includes textGroups, layout.imageCells)
+│   └── useAdState.js  # Central state (includes textGroups, layout)
 ├── utils/
 │   └── export.js      # Export utilities
 ├── App.jsx
@@ -109,11 +112,15 @@ src/
 
 ```js
 layout: {
-  splitType: 'none' | 'vertical' | 'horizontal',
-  sections: 2 | 3,
-  imageCells: [0],  // Array of cell indices where image appears
-  textAlign, textVerticalAlign,  // Global defaults
-  cellAlignments: [{textAlign, textVerticalAlign}, ...]  // Per-cell overrides
+  type: 'fullbleed' | 'rows' | 'columns',
+  structure: [
+    { size: 50, subdivisions: 1, subSizes: [100] },  // Section with optional subdivisions
+    { size: 50, subdivisions: 2, subSizes: [50, 50] }
+  ],
+  imageCell: 0,  // Which cell the image appears in
+  textAlign: 'center',
+  textVerticalAlign: 'center',
+  cellAlignments: [{ textAlign, textVerticalAlign }, ...]  // Per-cell overrides
 }
 
 textGroups: {
@@ -123,3 +130,26 @@ textGroups: {
   footnote: { cell: null }
 }
 ```
+
+## Layout Tab Sub-tabs
+
+The Layout tab uses a sub-tab architecture for better organization:
+
+1. **Presets** - Quick start with 17 pre-built layouts
+   - Categories: Suggested, All, Image Focus, Text Focus, Balanced
+   - Smart suggestions based on image aspect ratio and platform
+   - Visual SVG preview icons
+
+2. **Structure** - Fine-tune the layout grid
+   - Click section labels (R1, R2 or C1, C2) to edit row/column size
+   - Click cells to edit subdivision sizes
+   - Contextual controls based on selection
+
+3. **Alignment** - Per-cell text alignment
+   - Click cell to select (or none for all cells)
+   - Horizontal: left, center, right
+   - Vertical: top, middle, bottom
+
+4. **Placement** - Assign text groups to cells
+   - Click cell then toggle text groups
+   - Visual feedback shows assigned groups

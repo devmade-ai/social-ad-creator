@@ -2,42 +2,39 @@
 
 ## Current Session
 
-Enhanced layout system with comprehensive improvements to presets and quick-start functionality.
+Extended the sub-tab pattern to the Text tab, added more theme presets, and updated documentation.
 
 ### Changes Made
 
-1. **Expanded Layout Presets** (6 → 17 presets)
-   - Image Focus: Full Bleed Hero, Hero Top/Bottom Text, Large Image Left/Right/Top/Bottom
-   - Balanced: 50-50 splits (left/right/top/bottom), Image Sandwich
-   - Text Focus: Left/Right Accent Strip, Top/Bottom Image Banner, Center Text Focus
+1. **Text Tab Sub-tabs**
+   - Split Text tab into 3 sub-tabs: Content, Style, Placement
+   - Content: Text input fields with visibility toggles
+   - Style: Color and size controls for each text layer
+   - Placement: Assign text groups to layout cells (mirrors Layout > Placement)
 
-2. **Visual SVG Preview Icons**
-   - Replaced Unicode icons with clear SVG diagrams
-   - Blue areas show image placement, gray areas show text placement
-   - Icons adapt colors when preset is active
+2. **Theme Presets Expanded**
+   - Increased from 4 to 12 preset themes
+   - Categories: Core (Dark, Light), Professional (Corporate, Minimal, Slate), Vibrant (Vibrant, Sunset, Ocean), Nature (Forest, Earth), Bold (Neon, Candy)
 
-3. **Category Organization**
-   - Presets organized into: All, Suggested, Image Focus, Text Focus, Balanced
-   - Tab-based navigation for easy browsing
-   - "Suggested" category shows recommendations based on image aspect ratio
+3. **Documentation Updates**
+   - TODO.md reorganized with clear sections (Completed, In Progress, Potential, Technical)
+   - Added new planned features:
+     - Image tab: quick presets with overlays, sample images
+     - Layout tab: per-cell/section overlay controls
+     - Padding & spacing controls
+     - Consider merging Logo and Image tabs
 
-4. **Smart Layout Suggestions**
-   - Analyzes uploaded image aspect ratio (landscape/portrait/square)
-   - Considers platform type (story formats prioritize horizontal splits)
-   - Suggests 4 best-fit layouts automatically
+### Previous Session Changes (kept for context)
 
-5. **Quick Actions**
-   - Flip: Swaps image/text positions horizontally or vertically
-   - Rotate: Converts between columns and rows layouts
-   - Reset: Returns to default layout settings
-
-6. **Improved UX**
-   - Collapsible "Fine-tune Controls" section for advanced options
-   - Better preset naming (e.g., "Left Image" → "Image Left / Text Right")
-   - Hover tooltips with detailed descriptions
+- Layout Tab sub-tabs (Presets, Structure, Alignment, Placement)
+- Structure sub-tab with contextual section/cell selection
+- Responsive preview canvas with ResizeObserver
+- Unified cell selector pattern across tabs
 
 ### Files Modified
 
-- `src/config/layoutPresets.js` - Complete rewrite with categories, icons, helpers
-- `src/components/LayoutSelector.jsx` - New UI with categories, SVG icons, quick actions
-- `src/App.jsx` - Added image aspect ratio calculation and props passing
+- `src/components/TextEditor.jsx` - Added sub-tabs and placement controls
+- `src/config/themes.js` - Expanded to 12 presets
+- `src/App.jsx` - Pass additional props to TextEditor
+- `docs/TODO.md` - Reorganized and added new ideas
+- `docs/SESSION_NOTES.md` - This file
