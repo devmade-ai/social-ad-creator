@@ -67,13 +67,12 @@ Future enhancements and ideas for the Social Ad Creator.
 - [x] Default presets filter to "All" instead of "Suggested"
 - [x] Consolidate placement sub-tabs: move image placement to unified "Placement" tab
 - [x] Merge text alignments and placements into same tab
-- [ ] Use standard alignment icons (not custom/unusual ones)
-- [ ] Better cell assignment UX - current dropdown naming is confusing
-- [ ] Improve cell references - "row then column" naming isn't user-friendly
-- [ ] Make cell selector smaller on wider devices (doesn't need to be so large)
-- [ ] Cell selector should match selected platform's aspect ratio/shape for consistency
+- [x] Use standard alignment icons (SVG-based, clear visual indicators)
+- [x] Improve cell references - simple numbers (1, 2, 3) instead of row/column naming
+- [x] Make cell selector smaller on wider devices (max-width constrained)
+- [x] Cell selector matches selected platform's aspect ratio
+- [x] Make sub-tabs more prominent - larger, bolder styling
 - [ ] Use fixed units for padding (px or rem) instead of percentages for consistency across cell sizes
-- [ ] Make sub-tabs more prominent - they are the main navigation where most edits happen
 
 #### Placement Tab Enhancements
 

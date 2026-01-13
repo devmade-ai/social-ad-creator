@@ -7,6 +7,7 @@ import {
   getSuggestedLayouts,
 } from '../config/layoutPresets'
 import { overlayTypes } from '../config/layouts'
+import { platforms } from '../config/platforms'
 import { defaultState } from '../hooks/useAdState'
 
 const layoutTypes = [
@@ -15,16 +16,57 @@ const layoutTypes = [
   { id: 'columns', name: 'Cols', icon: '|||' },
 ]
 
+// Alignment icon components
+const AlignLeftIcon = () => (
+  <svg width="14" height="10" viewBox="0 0 14 10" fill="currentColor">
+    <rect x="0" y="0" width="10" height="2" />
+    <rect x="0" y="4" width="14" height="2" />
+    <rect x="0" y="8" width="8" height="2" />
+  </svg>
+)
+const AlignCenterIcon = () => (
+  <svg width="14" height="10" viewBox="0 0 14 10" fill="currentColor">
+    <rect x="2" y="0" width="10" height="2" />
+    <rect x="0" y="4" width="14" height="2" />
+    <rect x="3" y="8" width="8" height="2" />
+  </svg>
+)
+const AlignRightIcon = () => (
+  <svg width="14" height="10" viewBox="0 0 14 10" fill="currentColor">
+    <rect x="4" y="0" width="10" height="2" />
+    <rect x="0" y="4" width="14" height="2" />
+    <rect x="6" y="8" width="8" height="2" />
+  </svg>
+)
+const AlignTopIcon = () => (
+  <svg width="10" height="14" viewBox="0 0 10 14" fill="currentColor">
+    <rect x="0" y="0" width="10" height="2" />
+    <rect x="3" y="4" width="4" height="10" opacity="0.4" />
+  </svg>
+)
+const AlignMiddleIcon = () => (
+  <svg width="10" height="14" viewBox="0 0 10 14" fill="currentColor">
+    <rect x="0" y="6" width="10" height="2" />
+    <rect x="3" y="2" width="4" height="10" opacity="0.4" />
+  </svg>
+)
+const AlignBottomIcon = () => (
+  <svg width="10" height="14" viewBox="0 0 10 14" fill="currentColor">
+    <rect x="0" y="12" width="10" height="2" />
+    <rect x="3" y="0" width="4" height="10" opacity="0.4" />
+  </svg>
+)
+
 const textAlignOptions = [
-  { id: 'left', name: 'Left', icon: '◀' },
-  { id: 'center', name: 'Center', icon: '●' },
-  { id: 'right', name: 'Right', icon: '▶' },
+  { id: 'left', name: 'Left', Icon: AlignLeftIcon },
+  { id: 'center', name: 'Center', Icon: AlignCenterIcon },
+  { id: 'right', name: 'Right', Icon: AlignRightIcon },
 ]
 
 const verticalAlignOptions = [
-  { id: 'start', name: 'Top', icon: '▲' },
-  { id: 'center', name: 'Middle', icon: '●' },
-  { id: 'end', name: 'Bottom', icon: '▼' },
+  { id: 'start', name: 'Top', Icon: AlignTopIcon },
+  { id: 'center', name: 'Middle', Icon: AlignMiddleIcon },
+  { id: 'end', name: 'Bottom', Icon: AlignBottomIcon },
 ]
 
 const textGroupDefs = [
@@ -59,25 +101,22 @@ function getTotalCells(structure) {
 function getCellInfo(layout) {
   const { type, structure } = layout
   if (type === 'fullbleed' || !structure) {
-    return [{ index: 0, label: 'Full', sectionIndex: 0, subIndex: 0 }]
+    return [{ index: 0, label: 'All', sectionIndex: 0, subIndex: 0 }]
   }
 
   const cells = []
   let cellIndex = 0
-  const isRows = type === 'rows'
 
   structure.forEach((section, sectionIndex) => {
     const subdivisions = section.subdivisions || 1
     for (let subIndex = 0; subIndex < subdivisions; subIndex++) {
-      let label
-      if (subdivisions === 1) {
-        label = isRows ? `Row ${sectionIndex + 1}` : `Col ${sectionIndex + 1}`
-      } else {
-        const subLabel = isRows ? `Col ${subIndex + 1}` : `Row ${subIndex + 1}`
-        const sectionLabel = isRows ? `R${sectionIndex + 1}` : `C${sectionIndex + 1}`
-        label = `${sectionLabel}-${subLabel}`
-      }
-      cells.push({ index: cellIndex, label, sectionIndex, subIndex })
+      // Simple numbered labels
+      cells.push({
+        index: cellIndex,
+        label: `${cellIndex + 1}`,
+        sectionIndex,
+        subIndex
+      })
       cellIndex++
     }
   })
@@ -117,6 +156,7 @@ function CellGrid({
   mode = 'image', // 'image' | 'alignment' | 'placement'
   onSelectCell,
   textGroups = {},
+  aspectRatio = 1, // width / height
 }) {
   const { type, structure } = layout
 
@@ -133,24 +173,31 @@ function CellGrid({
     return cellMap
   }, [textGroups])
 
+  // Dynamic aspect ratio style
+  const containerStyle = {
+    aspectRatio: aspectRatio,
+    maxWidth: aspectRatio >= 1 ? '180px' : `${180 * aspectRatio}px`,
+  }
+
   if (type === 'fullbleed' || !structure) {
     const isSelected = selectedCell === 0
     return (
       <div
-        className={`w-full aspect-[4/3] rounded cursor-pointer border-2 transition-all ${
+        className={`rounded cursor-pointer border-2 transition-all ${
           mode === 'image'
             ? 'bg-blue-500 border-blue-600'
             : isSelected
               ? 'bg-purple-500 border-purple-600'
               : 'bg-gray-200 border-gray-300 hover:bg-gray-300'
         }`}
+        style={containerStyle}
         onClick={() => onSelectCell(0)}
         title={mode === 'image' ? 'Image covers full area' : 'Click to select'}
       >
         <div className={`w-full h-full flex items-center justify-center text-xs font-medium ${
           mode === 'image' || isSelected ? 'text-white' : 'text-gray-500'
         }`}>
-          {mode === 'image' ? '📷 Image' : isSelected ? '✓ Selected' : 'All'}
+          {mode === 'image' ? '📷' : isSelected ? '✓' : 'All'}
         </div>
       </div>
     )
@@ -161,7 +208,8 @@ function CellGrid({
 
   return (
     <div
-      className={`w-full aspect-[4/3] rounded overflow-hidden border border-gray-300 flex ${isRows ? 'flex-col' : 'flex-row'}`}
+      className={`rounded overflow-hidden border border-gray-300 flex ${isRows ? 'flex-col' : 'flex-row'}`}
+      style={containerStyle}
     >
       {structure.map((section, sectionIndex) => {
         const sectionSize = section.size || (100 / structure.length)
@@ -390,6 +438,12 @@ export default function LayoutSelector({
 
   const totalCells = useMemo(() => getTotalCells(structure), [structure])
   const cellInfoList = useMemo(() => getCellInfo(layout), [layout])
+
+  // Calculate platform aspect ratio for cell selector
+  const platformAspectRatio = useMemo(() => {
+    const p = platforms.find(pl => pl.id === platform) || platforms[0]
+    return p.width / p.height
+  }, [platform])
 
   // Get suggested layouts
   const suggestedIds = useMemo(() => {
@@ -924,6 +978,7 @@ export default function LayoutSelector({
                 imageCell={imageCell}
                 mode="image"
                 onSelectCell={(idx) => onLayoutChange({ imageCell: idx })}
+                aspectRatio={platformAspectRatio}
               />
             </div>
 
@@ -943,13 +998,13 @@ export default function LayoutSelector({
                               key={align.id}
                               onClick={() => updateAllCellsAlignment({ textAlign: align.id })}
                               title={align.name}
-                              className={`flex-1 px-2 py-1.5 text-sm rounded ${
+                              className={`flex-1 px-2 py-2 rounded flex items-center justify-center ${
                                 isActive
                                   ? 'bg-blue-500 text-white'
                                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                               }`}
                             >
-                              {align.icon}
+                              <align.Icon />
                             </button>
                           )
                         })}
@@ -965,13 +1020,13 @@ export default function LayoutSelector({
                               key={align.id}
                               onClick={() => updateAllCellsAlignment({ textVerticalAlign: align.id })}
                               title={align.name}
-                              className={`flex-1 px-2 py-1.5 text-sm rounded ${
+                              className={`flex-1 px-2 py-2 rounded flex items-center justify-center ${
                                 isActive
                                   ? 'bg-blue-500 text-white'
                                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                               }`}
                             >
-                              {align.icon}
+                              <align.Icon />
                             </button>
                           )
                         })}
@@ -1078,6 +1133,7 @@ export default function LayoutSelector({
                     selectedCell={selectedCell}
                     mode="alignment"
                     onSelectCell={handleCellSelect}
+                    aspectRatio={platformAspectRatio}
                   />
                 </div>
 
@@ -1302,6 +1358,7 @@ export default function LayoutSelector({
                     selectedCell={selectedCell}
                     mode="alignment"
                     onSelectCell={handleCellSelect}
+                    aspectRatio={platformAspectRatio}
                   />
                 </div>
 
@@ -1389,8 +1446,8 @@ export default function LayoutSelector({
     <div className="space-y-3">
       <h3 className="text-sm font-semibold text-gray-700">Layout</h3>
 
-      {/* Sub-tabs */}
-      <div className="flex gap-0.5 bg-gray-100 p-0.5 rounded-lg">
+      {/* Sub-tabs - prominent navigation */}
+      <div className="flex gap-1 bg-gray-100 p-1 rounded-lg">
         {subTabs.map((tab) => (
           <button
             key={tab.id}
@@ -1404,14 +1461,13 @@ export default function LayoutSelector({
                 setStructureSelection(null)
               }
             }}
-            className={`flex-1 px-1.5 py-1.5 text-[10px] rounded-md transition-colors flex flex-col items-center gap-0.5 ${
+            className={`flex-1 px-2 py-2 text-xs font-medium rounded-md transition-all ${
               activeSubTab === tab.id
-                ? 'bg-white text-blue-600 shadow-sm'
-                : 'text-gray-500 hover:text-gray-700'
+                ? 'bg-blue-500 text-white shadow-sm'
+                : 'text-gray-600 hover:bg-gray-200 hover:text-gray-800'
             }`}
           >
-            <span className="text-xs">{tab.icon}</span>
-            <span>{tab.name}</span>
+            {tab.name}
           </button>
         ))}
       </div>
