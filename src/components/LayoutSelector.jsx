@@ -243,6 +243,120 @@ function CellGrid({
   )
 }
 
+// Structure grid with clickable section labels and cells
+function StructureGrid({
+  layout,
+  imageCell,
+  structureSelection, // { type: 'section', index } | { type: 'cell', cellIndex, sectionIndex, subIndex } | null
+  onSelectSection,
+  onSelectCell,
+}) {
+  const { type, structure } = layout
+
+  if (type === 'fullbleed' || !structure) {
+    return (
+      <div className="w-full aspect-[4/3] rounded border-2 border-gray-300 bg-gray-100 flex items-center justify-center">
+        <span className="text-xs text-gray-500">Single cell layout</span>
+      </div>
+    )
+  }
+
+  const isRows = type === 'rows'
+  let cellIndex = 0
+
+  return (
+    <div className={`w-full aspect-[4/3] flex ${isRows ? 'flex-row' : 'flex-col'}`}>
+      {/* Section labels */}
+      <div className={`flex ${isRows ? 'flex-col w-8' : 'flex-row h-6'} shrink-0`}>
+        {structure.map((section, sectionIndex) => {
+          const sectionSize = section.size || (100 / structure.length)
+          const isSelected = structureSelection?.type === 'section' && structureSelection.index === sectionIndex
+          return (
+            <div
+              key={`label-${sectionIndex}`}
+              className={`flex items-center justify-center cursor-pointer text-[10px] font-medium transition-colors rounded-l ${
+                isSelected
+                  ? 'bg-purple-500 text-white'
+                  : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
+              }`}
+              style={{ flex: `0 0 ${sectionSize}%` }}
+              onClick={() => onSelectSection(sectionIndex)}
+              title={`Click to edit ${isRows ? 'row' : 'column'} ${sectionIndex + 1}`}
+            >
+              {isRows ? `R${sectionIndex + 1}` : `C${sectionIndex + 1}`}
+            </div>
+          )
+        })}
+      </div>
+
+      {/* Grid cells */}
+      <div className={`flex-1 rounded-r overflow-hidden border border-gray-300 flex ${isRows ? 'flex-col' : 'flex-row'}`}>
+        {structure.map((section, sectionIndex) => {
+          const sectionSize = section.size || (100 / structure.length)
+          const subdivisions = section.subdivisions || 1
+          const subSizes = section.subSizes || Array(subdivisions).fill(100 / subdivisions)
+          const isSectionSelected = structureSelection?.type === 'section' && structureSelection.index === sectionIndex
+
+          const sectionCells = []
+          for (let subIndex = 0; subIndex < subdivisions; subIndex++) {
+            const currentCellIndex = cellIndex
+            const isImage = currentCellIndex === imageCell
+            const isCellSelected = structureSelection?.type === 'cell' && structureSelection.cellIndex === currentCellIndex
+            cellIndex++
+
+            let bgClass, textClass
+            if (isCellSelected) {
+              bgClass = 'bg-purple-500 hover:bg-purple-600'
+              textClass = 'text-white'
+            } else if (isSectionSelected) {
+              bgClass = 'bg-purple-200 hover:bg-purple-300'
+              textClass = 'text-purple-700'
+            } else if (isImage) {
+              bgClass = 'bg-blue-400 hover:bg-blue-500'
+              textClass = 'text-white'
+            } else {
+              bgClass = 'bg-gray-100 hover:bg-gray-200'
+              textClass = 'text-gray-500'
+            }
+
+            sectionCells.push(
+              <div
+                key={`cell-${currentCellIndex}`}
+                className={`relative cursor-pointer transition-colors ${bgClass} ${
+                  subdivisions > 1 ? 'border border-gray-200' : ''
+                }`}
+                style={{ flex: `0 0 ${subSizes[subIndex]}%` }}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onSelectCell(currentCellIndex, sectionIndex, subIndex)
+                }}
+                title={subdivisions > 1
+                  ? `Click to resize this ${isRows ? 'column' : 'row'}`
+                  : `Click to edit ${isRows ? 'row' : 'column'} ${sectionIndex + 1}`
+                }
+              >
+                <div className={`absolute inset-0 flex items-center justify-center text-[10px] font-medium ${textClass}`}>
+                  {isImage ? '📷' : (subdivisions > 1 ? `${Math.round(subSizes[subIndex])}%` : '')}
+                </div>
+              </div>
+            )
+          }
+
+          return (
+            <div
+              key={`section-${sectionIndex}`}
+              className={`flex ${isRows ? 'flex-row' : 'flex-col'}`}
+              style={{ flex: `0 0 ${sectionSize}%` }}
+            >
+              {sectionCells}
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
 export default function LayoutSelector({
   layout,
   onLayoutChange,
@@ -257,6 +371,8 @@ export default function LayoutSelector({
   const [activeSubTab, setActiveSubTab] = useState('presets')
   // Cell selection state for alignment/placement tabs (null = all cells)
   const [selectedCell, setSelectedCell] = useState(null)
+  // Structure selection state: { type: 'section', index } | { type: 'cell', cellIndex, sectionIndex, subIndex } | null
+  const [structureSelection, setStructureSelection] = useState(null)
   // Preset category state
   const [activeCategory, setActiveCategory] = useState('suggested')
 
@@ -577,6 +693,12 @@ export default function LayoutSelector({
         )
 
       case 'structure':
+        // Get info about current selection
+        const selectedSection = structureSelection?.type === 'section' ? structure[structureSelection.index] : null
+        const selectedSectionIndex = structureSelection?.type === 'section' ? structureSelection.index : null
+        const selectedCellInfo = structureSelection?.type === 'cell' ? structureSelection : null
+        const selectedCellSection = selectedCellInfo ? structure[selectedCellInfo.sectionIndex] : null
+
         return (
           <div className="space-y-3">
             {/* Layout Type */}
@@ -586,7 +708,10 @@ export default function LayoutSelector({
                 {layoutTypes.map((lt) => (
                   <button
                     key={lt.id}
-                    onClick={() => handleTypeChange(lt.id)}
+                    onClick={() => {
+                      handleTypeChange(lt.id)
+                      setStructureSelection(null)
+                    }}
                     className={`flex-1 px-2 py-2 text-xs rounded flex flex-col items-center gap-0.5 ${
                       type === lt.id
                         ? 'bg-blue-500 text-white'
@@ -600,129 +725,207 @@ export default function LayoutSelector({
               </div>
             </div>
 
-            {/* Structure Controls */}
-            {type !== 'fullbleed' && (
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <label className="text-xs font-medium text-gray-600">
-                    {type === 'rows' ? 'Rows' : 'Columns'}
-                  </label>
-                  <button
-                    onClick={addSection}
-                    className="px-2 py-1 text-xs bg-gray-100 hover:bg-gray-200 rounded"
-                    disabled={structure.length >= 4}
-                  >
-                    + Add
-                  </button>
-                </div>
-
-                {structure.map((section, sectionIndex) => (
-                  <div key={sectionIndex} className="p-2 bg-gray-50 rounded space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-medium text-gray-600">
-                        {type === 'rows' ? `Row ${sectionIndex + 1}` : `Col ${sectionIndex + 1}`}
-                      </span>
-                      <div className="flex items-center gap-1">
-                        <span className="text-[10px] text-gray-500 mr-1">Split:</span>
-                        <button
-                          onClick={() => removeSubdivision(sectionIndex)}
-                          disabled={(section.subdivisions || 1) <= 1}
-                          className={`w-5 h-5 text-[10px] rounded ${
-                            (section.subdivisions || 1) <= 1
-                              ? 'bg-gray-100 text-gray-300 cursor-not-allowed'
-                              : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
-                          }`}
-                        >
-                          −
-                        </button>
-                        <span className="text-[10px] text-gray-600 w-4 text-center font-medium">
-                          {section.subdivisions || 1}
-                        </span>
-                        <button
-                          onClick={() => addSubdivision(sectionIndex)}
-                          disabled={(section.subdivisions || 1) >= 3}
-                          className={`w-5 h-5 text-[10px] rounded ${
-                            (section.subdivisions || 1) >= 3
-                              ? 'bg-gray-100 text-gray-300 cursor-not-allowed'
-                              : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
-                          }`}
-                        >
-                          +
-                        </button>
-                        {structure.length > 1 && (
-                          <button
-                            onClick={() => removeSection(sectionIndex)}
-                            className="px-2 py-0.5 text-[10px] bg-red-100 text-red-600 hover:bg-red-200 rounded ml-1"
-                          >
-                            ✕
-                          </button>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Section size slider */}
-                    <div className="flex items-center gap-2">
-                      <span className="text-[10px] text-gray-500 w-8">Size</span>
-                      <input
-                        type="range"
-                        min="20"
-                        max="80"
-                        value={section.size}
-                        onChange={(e) => updateSectionSize(sectionIndex, Number(e.target.value))}
-                        className="flex-1 h-1"
-                      />
-                      <span className="text-[10px] text-gray-500 w-8">{Math.round(section.size)}%</span>
-                    </div>
-
-                    {/* Subdivision sizes */}
-                    {section.subdivisions > 1 && (
-                      <div className="pl-2 border-l-2 border-gray-200">
-                        <span className="text-[10px] text-gray-400">
-                          {type === 'rows' ? 'Column widths' : 'Row heights'}
-                        </span>
-                        {section.subSizes?.map((subSize, subIndex) => (
-                          <div key={subIndex} className="flex items-center gap-2 mt-1">
-                            <span className="text-[10px] text-gray-500 w-6">{subIndex + 1}</span>
-                            <input
-                              type="range"
-                              min="20"
-                              max="80"
-                              value={subSize}
-                              onChange={(e) => updateSubSize(sectionIndex, subIndex, Number(e.target.value))}
-                              className="flex-1 h-1"
-                            />
-                            <span className="text-[10px] text-gray-500 w-8">{Math.round(subSize)}%</span>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {type === 'fullbleed' && (
+            {type === 'fullbleed' ? (
               <div className="text-xs text-gray-500 text-center py-4">
                 Full image layout has a single cell.
                 <br />
                 Switch to Rows or Columns for more structure options.
               </div>
-            )}
+            ) : (
+              <>
+                {/* Structure Grid */}
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">
+                    Select to Edit <span className="text-gray-400 font-normal">(click label or cell)</span>
+                  </label>
+                  <StructureGrid
+                    layout={layout}
+                    imageCell={imageCell}
+                    structureSelection={structureSelection}
+                    onSelectSection={(index) => {
+                      if (structureSelection?.type === 'section' && structureSelection.index === index) {
+                        setStructureSelection(null)
+                      } else {
+                        setStructureSelection({ type: 'section', index })
+                      }
+                    }}
+                    onSelectCell={(cellIndex, sectionIndex, subIndex) => {
+                      const section = structure[sectionIndex]
+                      // If only 1 subdivision, selecting cell = selecting section
+                      if ((section.subdivisions || 1) === 1) {
+                        if (structureSelection?.type === 'section' && structureSelection.index === sectionIndex) {
+                          setStructureSelection(null)
+                        } else {
+                          setStructureSelection({ type: 'section', index: sectionIndex })
+                        }
+                      } else {
+                        if (structureSelection?.type === 'cell' && structureSelection.cellIndex === cellIndex) {
+                          setStructureSelection(null)
+                        } else {
+                          setStructureSelection({ type: 'cell', cellIndex, sectionIndex, subIndex })
+                        }
+                      }
+                    }}
+                  />
+                </div>
 
-            {/* Preview */}
-            <div className="pt-2 border-t border-gray-200">
-              <label className="block text-xs font-medium text-gray-600 mb-1">Preview</label>
-              <CellGrid
-                layout={layout}
-                imageCell={imageCell}
-                mode="image"
-                onSelectCell={(idx) => onLayoutChange({ imageCell: idx })}
-              />
-            </div>
+                {/* Selection Info & Controls */}
+                {structureSelection === null ? (
+                  <div className="space-y-2">
+                    <div className="text-xs text-center py-2 bg-gray-50 rounded text-gray-500">
+                      Click a {type === 'rows' ? 'row label (R1, R2...)' : 'column label (C1, C2...)'} to adjust its size,
+                      <br />or click a cell to adjust subdivision sizes
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-gray-600">{structure.length} {type === 'rows' ? 'rows' : 'columns'}</span>
+                      <button
+                        onClick={addSection}
+                        disabled={structure.length >= 4}
+                        className={`px-2 py-1 text-xs rounded ${
+                          structure.length >= 4
+                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                            : 'bg-blue-500 text-white hover:bg-blue-600'
+                        }`}
+                      >
+                        + Add {type === 'rows' ? 'Row' : 'Column'}
+                      </button>
+                    </div>
+                  </div>
+                ) : structureSelection.type === 'section' ? (
+                  <div className="space-y-3 p-3 bg-purple-50 rounded-lg">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-medium text-purple-700">
+                        {type === 'rows' ? `Row ${selectedSectionIndex + 1}` : `Column ${selectedSectionIndex + 1}`}
+                      </span>
+                      <button
+                        onClick={() => setStructureSelection(null)}
+                        className="text-[10px] text-purple-500 hover:text-purple-700"
+                      >
+                        ✕ Deselect
+                      </button>
+                    </div>
+
+                    {/* Section size (height for rows, width for columns) */}
+                    <div>
+                      <label className="block text-[10px] text-purple-600 mb-1">
+                        {type === 'rows' ? 'Height' : 'Width'}
+                      </label>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="range"
+                          min="20"
+                          max="80"
+                          value={selectedSection.size}
+                          onChange={(e) => updateSectionSize(selectedSectionIndex, Number(e.target.value))}
+                          className="flex-1 h-1.5 accent-purple-500"
+                        />
+                        <span className="text-xs text-purple-700 w-10 text-right">{Math.round(selectedSection.size)}%</span>
+                      </div>
+                    </div>
+
+                    {/* Subdivisions */}
+                    <div>
+                      <label className="block text-[10px] text-purple-600 mb-1">
+                        Split into {type === 'rows' ? 'columns' : 'rows'}
+                      </label>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => removeSubdivision(selectedSectionIndex)}
+                          disabled={(selectedSection.subdivisions || 1) <= 1}
+                          className={`w-8 h-8 text-sm rounded ${
+                            (selectedSection.subdivisions || 1) <= 1
+                              ? 'bg-purple-100 text-purple-300 cursor-not-allowed'
+                              : 'bg-purple-200 text-purple-700 hover:bg-purple-300'
+                          }`}
+                        >
+                          −
+                        </button>
+                        <span className="text-sm font-medium text-purple-700 w-8 text-center">
+                          {selectedSection.subdivisions || 1}
+                        </span>
+                        <button
+                          onClick={() => addSubdivision(selectedSectionIndex)}
+                          disabled={(selectedSection.subdivisions || 1) >= 3}
+                          className={`w-8 h-8 text-sm rounded ${
+                            (selectedSection.subdivisions || 1) >= 3
+                              ? 'bg-purple-100 text-purple-300 cursor-not-allowed'
+                              : 'bg-purple-200 text-purple-700 hover:bg-purple-300'
+                          }`}
+                        >
+                          +
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Delete section */}
+                    {structure.length > 1 && (
+                      <button
+                        onClick={() => {
+                          removeSection(selectedSectionIndex)
+                          setStructureSelection(null)
+                        }}
+                        className="w-full px-3 py-1.5 text-xs bg-red-100 text-red-600 hover:bg-red-200 rounded"
+                      >
+                        Delete {type === 'rows' ? 'Row' : 'Column'}
+                      </button>
+                    )}
+                  </div>
+                ) : (
+                  // Cell selected (subdivision size)
+                  <div className="space-y-3 p-3 bg-purple-50 rounded-lg">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-medium text-purple-700">
+                        {type === 'rows'
+                          ? `Row ${selectedCellInfo.sectionIndex + 1}, Column ${selectedCellInfo.subIndex + 1}`
+                          : `Column ${selectedCellInfo.sectionIndex + 1}, Row ${selectedCellInfo.subIndex + 1}`
+                        }
+                      </span>
+                      <button
+                        onClick={() => setStructureSelection(null)}
+                        className="text-[10px] text-purple-500 hover:text-purple-700"
+                      >
+                        ✕ Deselect
+                      </button>
+                    </div>
+
+                    {/* Cell size (width for cells in rows, height for cells in columns) */}
+                    <div>
+                      <label className="block text-[10px] text-purple-600 mb-1">
+                        {type === 'rows' ? 'Width' : 'Height'}
+                      </label>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="range"
+                          min="20"
+                          max="80"
+                          value={selectedCellSection?.subSizes?.[selectedCellInfo.subIndex] || 50}
+                          onChange={(e) => updateSubSize(selectedCellInfo.sectionIndex, selectedCellInfo.subIndex, Number(e.target.value))}
+                          className="flex-1 h-1.5 accent-purple-500"
+                        />
+                        <span className="text-xs text-purple-700 w-10 text-right">
+                          {Math.round(selectedCellSection?.subSizes?.[selectedCellInfo.subIndex] || 50)}%
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Quick link to edit parent section */}
+                    <button
+                      onClick={() => setStructureSelection({ type: 'section', index: selectedCellInfo.sectionIndex })}
+                      className="w-full px-3 py-1.5 text-xs bg-purple-200 text-purple-700 hover:bg-purple-300 rounded"
+                    >
+                      Edit Parent {type === 'rows' ? 'Row' : 'Column'}
+                    </button>
+                  </div>
+                )}
+              </>
+            )}
 
             {/* Reset */}
             <button
-              onClick={handleReset}
+              onClick={() => {
+                handleReset()
+                setStructureSelection(null)
+              }}
               className="w-full px-3 py-2 text-xs bg-gray-100 text-gray-600 hover:bg-gray-200 rounded"
             >
               Reset to Default
@@ -942,9 +1145,12 @@ export default function LayoutSelector({
             key={tab.id}
             onClick={() => {
               setActiveSubTab(tab.id)
-              // Reset cell selection when switching tabs
+              // Reset selections when switching tabs
               if (tab.id !== 'alignment' && tab.id !== 'placement') {
                 setSelectedCell(null)
+              }
+              if (tab.id !== 'structure') {
+                setStructureSelection(null)
               }
             }}
             className={`flex-1 px-1.5 py-1.5 text-[10px] rounded-md transition-colors flex flex-col items-center gap-0.5 ${
