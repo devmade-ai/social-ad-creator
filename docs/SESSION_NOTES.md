@@ -43,11 +43,6 @@ Implemented all remaining "In Progress / Planned" features from TODO.md.
 - `docs/TODO.md` - Marked features complete
 - `docs/SESSION_NOTES.md` - This file
 
-### User Action Required
+### Completed
 
-Add sample images to `public/samples/`:
-- `tree-cube.png`
-- `globe-tech.png`
-- `circuit-tree.png`
-- `circuit-spiral.png`
-- `dm-cube.png`
+Sample images added to `public/samples/` (9 devMade branded images).
