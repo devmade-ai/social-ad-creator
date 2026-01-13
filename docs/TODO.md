@@ -76,9 +76,9 @@ Future enhancements and ideas for the Social Ad Creator.
 
 #### Placement Tab Enhancements
 
-- [ ] Separate text into individual elements instead of groups (Title, Tagline, Body Heading, Body Text, CTA, Footnote)
-- [ ] Per-element editing: color and text content inline
-- [ ] Image in placement area with quick controls: contain/cover toggle, grayscale toggle, overlay %
+- [x] Separate text into individual elements instead of groups (Title, Tagline, Body Heading, Body Text, CTA, Footnote)
+- [x] Per-element editing: visibility, color, text content inline
+- [x] Image quick controls: contain/cover toggle, grayscale toggle, overlay slider
 
 ### Text Tab
 

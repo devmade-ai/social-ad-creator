@@ -223,12 +223,18 @@ function App() {
                 onLayoutChange={setLayout}
                 textGroups={state.textGroups}
                 onTextGroupsChange={setTextGroups}
+                text={state.text}
+                onTextChange={setText}
                 imageAspectRatio={imageAspectRatio}
                 platform={state.platform}
                 overlay={state.overlay}
                 theme={state.theme}
                 padding={state.padding}
                 onPaddingChange={setPadding}
+                imageObjectFit={state.imageObjectFit}
+                onImageObjectFitChange={setImageObjectFit}
+                imageFilters={state.imageFilters}
+                onImageFiltersChange={setImageFilters}
               />
             )}
 

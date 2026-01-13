@@ -413,17 +413,39 @@ function StructureGrid({
   )
 }
 
+// Individual text element definitions for placement
+const textElementDefs = [
+  { id: 'title', label: 'Title', placeholder: 'Title text...' },
+  { id: 'tagline', label: 'Tagline', placeholder: 'Tagline...' },
+  { id: 'bodyHeading', label: 'Body Heading', placeholder: 'Heading...' },
+  { id: 'bodyText', label: 'Body Text', placeholder: 'Body text...' },
+  { id: 'cta', label: 'CTA', placeholder: 'Call to action...' },
+  { id: 'footnote', label: 'Footnote', placeholder: 'Footnote...' },
+]
+
+const colorOptions = [
+  { id: 'primary', name: 'Primary' },
+  { id: 'secondary', name: 'Secondary' },
+  { id: 'accent', name: 'Accent' },
+]
+
 export default function LayoutSelector({
   layout,
   onLayoutChange,
   textGroups = {},
   onTextGroupsChange,
+  text = {},
+  onTextChange,
   imageAspectRatio,
   platform,
   overlay,
   theme,
   padding = { global: 5, cellOverrides: {} },
   onPaddingChange,
+  imageObjectFit = 'cover',
+  onImageObjectFitChange,
+  imageFilters = {},
+  onImageFiltersChange,
 }) {
   const { type = 'fullbleed', structure = [], imageCell = 0, textAlign, textVerticalAlign, cellAlignments = [], cellOverlays = {} } = layout
 
@@ -968,120 +990,199 @@ export default function LayoutSelector({
       case 'placement':
         return (
           <div className="space-y-4">
-            {/* Image Position */}
+            {/* Image Section */}
             <div className="space-y-2">
-              <label className="block text-xs font-medium text-gray-600">
-                Image Position <span className="text-gray-400 font-normal">(click to move)</span>
-              </label>
-              <CellGrid
-                layout={layout}
-                imageCell={imageCell}
-                mode="image"
-                onSelectCell={(idx) => onLayoutChange({ imageCell: idx })}
-                aspectRatio={platformAspectRatio}
-              />
+              <label className="block text-xs font-medium text-gray-600">Image</label>
+              <div className="flex gap-3">
+                {/* Cell selector */}
+                <CellGrid
+                  layout={layout}
+                  imageCell={imageCell}
+                  mode="image"
+                  onSelectCell={(idx) => onLayoutChange({ imageCell: idx })}
+                  aspectRatio={platformAspectRatio}
+                />
+                {/* Quick controls */}
+                <div className="flex-1 space-y-2">
+                  {/* Fit toggle */}
+                  <div className="flex gap-1">
+                    <button
+                      onClick={() => onImageObjectFitChange?.('cover')}
+                      className={`flex-1 px-2 py-1.5 text-[10px] rounded ${
+                        imageObjectFit === 'cover'
+                          ? 'bg-blue-500 text-white'
+                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      }`}
+                    >
+                      Cover
+                    </button>
+                    <button
+                      onClick={() => onImageObjectFitChange?.('contain')}
+                      className={`flex-1 px-2 py-1.5 text-[10px] rounded ${
+                        imageObjectFit === 'contain'
+                          ? 'bg-blue-500 text-white'
+                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      }`}
+                    >
+                      Contain
+                    </button>
+                  </div>
+                  {/* Grayscale toggle */}
+                  <button
+                    onClick={() => onImageFiltersChange?.({ grayscale: !imageFilters.grayscale })}
+                    className={`w-full px-2 py-1.5 text-[10px] rounded ${
+                      imageFilters.grayscale
+                        ? 'bg-blue-500 text-white'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
+                  >
+                    {imageFilters.grayscale ? 'Grayscale On' : 'Grayscale Off'}
+                  </button>
+                  {/* Overlay slider */}
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] text-gray-500">Overlay</span>
+                    <input
+                      type="range"
+                      min="0"
+                      max="100"
+                      value={overlay?.opacity || 0}
+                      onChange={(e) => {
+                        const opacity = parseInt(e.target.value)
+                        onLayoutChange({ cellOverlays: { ...cellOverlays, [imageCell]: { enabled: opacity > 0, opacity } } })
+                      }}
+                      className="flex-1 h-1 accent-blue-500"
+                    />
+                    <span className="text-[10px] text-gray-500 w-6">{overlay?.opacity || 0}%</span>
+                  </div>
+                </div>
+              </div>
             </div>
 
+            {/* Text Alignment */}
             {type !== 'fullbleed' && (
-              <>
-                {/* Text Alignment */}
-                <div className="space-y-2 pt-3 border-t border-gray-200">
-                  <label className="block text-xs font-medium text-gray-600">Text Alignment</label>
-                  <div className="flex gap-4">
-                    <div className="flex-1">
-                      <span className="text-[10px] text-gray-400 block mb-1">Horizontal</span>
-                      <div className="flex gap-1">
-                        {textAlignOptions.map((align) => {
-                          const isActive = textAlign === align.id
-                          return (
-                            <button
-                              key={align.id}
-                              onClick={() => updateAllCellsAlignment({ textAlign: align.id })}
-                              title={align.name}
-                              className={`flex-1 px-2 py-2 rounded flex items-center justify-center ${
-                                isActive
-                                  ? 'bg-blue-500 text-white'
-                                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                              }`}
-                            >
-                              <align.Icon />
-                            </button>
-                          )
-                        })}
-                      </div>
+              <div className="space-y-2 pt-3 border-t border-gray-200">
+                <label className="block text-xs font-medium text-gray-600">Text Alignment</label>
+                <div className="flex gap-4">
+                  <div className="flex-1">
+                    <span className="text-[10px] text-gray-400 block mb-1">Horizontal</span>
+                    <div className="flex gap-1">
+                      {textAlignOptions.map((align) => {
+                        const isActive = textAlign === align.id
+                        return (
+                          <button
+                            key={align.id}
+                            onClick={() => updateAllCellsAlignment({ textAlign: align.id })}
+                            title={align.name}
+                            className={`flex-1 px-2 py-2 rounded flex items-center justify-center ${
+                              isActive
+                                ? 'bg-blue-500 text-white'
+                                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                            }`}
+                          >
+                            <align.Icon />
+                          </button>
+                        )
+                      })}
                     </div>
-                    <div className="flex-1">
-                      <span className="text-[10px] text-gray-400 block mb-1">Vertical</span>
-                      <div className="flex gap-1">
-                        {verticalAlignOptions.map((align) => {
-                          const isActive = textVerticalAlign === align.id
-                          return (
-                            <button
-                              key={align.id}
-                              onClick={() => updateAllCellsAlignment({ textVerticalAlign: align.id })}
-                              title={align.name}
-                              className={`flex-1 px-2 py-2 rounded flex items-center justify-center ${
-                                isActive
-                                  ? 'bg-blue-500 text-white'
-                                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                              }`}
-                            >
-                              <align.Icon />
-                            </button>
-                          )
-                        })}
-                      </div>
+                  </div>
+                  <div className="flex-1">
+                    <span className="text-[10px] text-gray-400 block mb-1">Vertical</span>
+                    <div className="flex gap-1">
+                      {verticalAlignOptions.map((align) => {
+                        const isActive = textVerticalAlign === align.id
+                        return (
+                          <button
+                            key={align.id}
+                            onClick={() => updateAllCellsAlignment({ textVerticalAlign: align.id })}
+                            title={align.name}
+                            className={`flex-1 px-2 py-2 rounded flex items-center justify-center ${
+                              isActive
+                                ? 'bg-blue-500 text-white'
+                                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                            }`}
+                          >
+                            <align.Icon />
+                          </button>
+                        )
+                      })}
                     </div>
                   </div>
                 </div>
+              </div>
+            )}
 
-                {/* Text Group Placement */}
-                {onTextGroupsChange && (
-                  <div className="space-y-2 pt-3 border-t border-gray-200">
-                    <label className="block text-xs font-medium text-gray-600">Text Placement</label>
-                    {textGroupDefs.map((group) => {
-                      const currentCell = textGroups?.[group.id]?.cell
-                      return (
-                        <div
-                          key={group.id}
-                          className="flex items-center justify-between gap-2 p-2 bg-gray-50 rounded"
-                        >
-                          <span className="text-xs text-gray-600">{group.name}</span>
-                          <div className="flex gap-1">
+            {/* Individual Text Elements */}
+            <div className="space-y-2 pt-3 border-t border-gray-200">
+              <label className="block text-xs font-medium text-gray-600">Text Elements</label>
+              {textElementDefs.map((element) => {
+                const elementState = text?.[element.id] || { content: '', visible: false, color: 'secondary' }
+                // Map element to its group for cell placement
+                const groupId = element.id === 'title' || element.id === 'tagline' ? 'titleGroup'
+                  : element.id === 'bodyHeading' || element.id === 'bodyText' ? 'bodyGroup'
+                  : element.id
+                const currentCell = textGroups?.[groupId]?.cell
+
+                return (
+                  <div key={element.id} className="p-2 bg-gray-50 rounded space-y-1.5">
+                    {/* Row 1: Label, visibility, color */}
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] font-medium text-gray-600 w-16">{element.label}</span>
+                      <button
+                        onClick={() => onTextChange?.(element.id, { visible: !elementState.visible })}
+                        className={`px-1.5 py-0.5 text-[9px] rounded ${
+                          elementState.visible
+                            ? 'bg-green-100 text-green-700'
+                            : 'bg-gray-200 text-gray-500'
+                        }`}
+                      >
+                        {elementState.visible ? 'On' : 'Off'}
+                      </button>
+                      <div className="flex gap-0.5 ml-auto">
+                        {colorOptions.map((color) => (
+                          <button
+                            key={color.id}
+                            onClick={() => onTextChange?.(element.id, { color: color.id })}
+                            title={color.name}
+                            className={`w-4 h-4 rounded border ${
+                              elementState.color === color.id
+                                ? 'border-blue-500 ring-1 ring-blue-500'
+                                : 'border-gray-300'
+                            }`}
+                            style={{ backgroundColor: theme?.[color.id] || '#888' }}
+                          />
+                        ))}
+                      </div>
+                      {/* Cell placement (only show if not fullbleed and multiple cells) */}
+                      {type !== 'fullbleed' && cellInfoList.length > 1 && (
+                        <div className="flex gap-0.5">
+                          {cellInfoList.map((cell) => (
                             <button
-                              onClick={() => onTextGroupsChange?.({ [group.id]: { cell: null } })}
-                              className={`px-2 py-1 text-[10px] rounded ${
-                                currentCell === null || currentCell === undefined
+                              key={cell.index}
+                              onClick={() => onTextGroupsChange?.({ [groupId]: { cell: cell.index } })}
+                              className={`w-5 h-5 text-[9px] rounded ${
+                                currentCell === cell.index
                                   ? 'bg-blue-500 text-white'
                                   : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
                               }`}
                             >
-                              Auto
+                              {cell.index + 1}
                             </button>
-                            {cellInfoList.map((cell) => (
-                              <button
-                                key={cell.index}
-                                onClick={() => onTextGroupsChange?.({ [group.id]: { cell: cell.index } })}
-                                className={`px-2 py-1 text-[10px] rounded ${
-                                  currentCell === cell.index
-                                    ? 'bg-blue-500 text-white'
-                                    : cell.index === imageCell
-                                      ? 'bg-blue-100 text-blue-600 hover:bg-blue-200'
-                                      : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
-                                }`}
-                              >
-                                {cell.index + 1}
-                                {cell.index === imageCell && ' 📷'}
-                              </button>
-                            ))}
-                          </div>
+                          ))}
                         </div>
-                      )
-                    })}
+                      )}
+                    </div>
+                    {/* Row 2: Text input */}
+                    <input
+                      type="text"
+                      value={elementState.content}
+                      onChange={(e) => onTextChange?.(element.id, { content: e.target.value })}
+                      placeholder={element.placeholder}
+                      className="w-full px-2 py-1 text-[11px] border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    />
                   </div>
-                )}
-              </>
-            )}
+                )
+              })}
+            </div>
           </div>
         )
 
