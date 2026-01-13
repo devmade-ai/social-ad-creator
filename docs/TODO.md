@@ -2,80 +2,98 @@
 
 Future enhancements and ideas for the Social Ad Creator.
 
-## Layout & Positioning Overhaul (Completed)
+## Completed Features
 
-### 1. Per-Cell Text Alignment
+### Layout & Positioning Overhaul
 
-- [x] Add horizontal alignment (left/center/right) per layout cell
-- [x] Add vertical alignment (top/center/bottom) per layout cell
-- [x] Update layout config structure to store alignment per cell
-- [x] Update AdCanvas to apply per-cell alignment styles
-
-### 2. Move Overlay to Image Tab
-
-- [x] Move OverlayControls component into ImageUploader tab
-- [x] Update tab structure in App.jsx
-- [x] Remove standalone Overlay tab
-
-### 3. Text Element Grouping & Positioning
-
-- [x] Decouple CTA from title/subtitle group (can position independently)
-- [x] Keep title + subtitle as moveable pair
-- [x] Keep body heading + body text as moveable pair
-- [x] Footer can position independently
-- [x] Add position selector per text group (which cell/row/column)
-
-### 4. Image as Layer Over Cells
-
-- [x] Change image from dedicated section to overlay spanning selected cells
-- [x] Add cell selection UI for image placement (checkboxes for rows/columns)
-- [x] Update AdCanvas to render image over selected grid cells
-- [x] Handle z-index stacking with text overlays
-
-### 5. Text Elements in Cells
-
-- [x] Add cell assignment selector per text group
-- [x] Allow text groups to be placed in any column/row
-- [x] Update rendering to position text within assigned cells
-- [x] Handle multiple text groups in same cell (stacking)
-
-### 6. Layout Tab Sub-tabs (Completed)
-
-- [x] Split Layout tab into sub-tabs (Presets, Structure, Alignment, Placement)
-- [x] Add unified cell selector grid component
+- [x] Per-cell text alignment (horizontal + vertical)
+- [x] Move overlay controls to Image tab
+- [x] Text element grouping (Title+Tagline, Body+Heading, CTA, Footnote)
+- [x] Image as layer over cells with cell selection
+- [x] Text groups assignable to any cell
+- [x] Layout Tab sub-tabs (Presets, Structure, Alignment, Placement)
+- [x] Unified cell selector grid component
 - [x] Structure tab with contextual section/cell selection
-- [x] Alignment tab with per-cell editing
-- [x] Placement tab with text group assignment
+
+### Text Tab Improvements
+
+- [x] Sub-tabs for Text tab (Content, Style, Placement)
+- [x] Text placement controls accessible from Text tab
+- [x] Separated content editing from styling
+
+### Theme System
+
+- [x] Expanded to 12 preset themes (Dark, Light, Corporate, Minimal, Slate, Vibrant, Sunset, Ocean, Forest, Earth, Neon, Candy)
+
+### Responsive & Display
+
+- [x] Responsive preview canvas that adapts to device width
+- [x] Undo/redo functionality (Ctrl+Z / Ctrl+Y)
 
 ---
 
-## Responsive & Display (Completed)
+## In Progress / Planned
 
-- [x] Responsive preview canvas that adapts to device width
-- [x] Add undo/redo functionality (with Ctrl+Z / Ctrl+Y shortcuts)
+### Image Tab Enhancements
+
+- [ ] Quick presets with overlay combinations (e.g., "Dramatic Dark", "Light & Airy", "Vintage")
+- [ ] Sample/placeholder images for quick testing
+- [ ] Image filters beyond grayscale (sepia, blur, contrast)
+
+### Layout Tab Enhancements
+
+- [ ] Per-cell/section overlay controls (apply overlays to specific cells)
+- [ ] Allow overlays on rows/columns independently
+- [ ] Consider overlay intensity per cell
+
+### Padding & Spacing
+
+- [ ] Investigate consistent padding controls
+- [ ] Global padding setting
+- [ ] Per-cell padding overrides
+- [ ] Text margin controls
+
+### Tab Consolidation
+
+- [ ] Consider merging Logo and Image tabs
+- [ ] Unified media controls (position, size, fit options)
+- [ ] Similar sub-tab pattern for combined tab
 
 ---
 
 ## Potential Improvements
 
+### Content & Presets
+
 - [ ] Save/load designs to localStorage
-- [ ] Add more overlay types (diagonal gradient, radial from corner)
-- [ ] Add text shadow/stroke options
-- [x] Add logo/watermark placement
-- [ ] Add animation preview for story formats
-- [ ] Add keyboard shortcuts for common actions
-- [ ] Add aspect ratio lock for custom sizes
-- [ ] Add image cropping/repositioning within frame
-- [x] Add more font options (expanded to 15)
-- [x] Add font size controls (XS to XL per text layer)
-- [ ] Add line height/letter spacing controls
 - [ ] Add preset text styles (e.g., "Bold Statement", "Elegant Quote")
+- [ ] Template gallery with complete designs
+
+### Visual Effects
+
+- [ ] More overlay types (diagonal gradient, radial from corner)
+- [ ] Text shadow/stroke options
+- [ ] Animation preview for story formats
+
+### Typography
+
+- [ ] Line height controls
+- [ ] Letter spacing controls
+- [ ] Text transform (uppercase, capitalize)
+
+### Usability
+
+- [ ] Keyboard shortcuts for common actions
+- [ ] Aspect ratio lock for custom sizes
+- [ ] Image cropping/repositioning within frame
+
+---
 
 ## Technical Improvements
 
-- [ ] Add loading states during export
-- [ ] Add error boundaries
-- [ ] Add proper TypeScript types
-- [ ] Add unit tests for config utilities
+- [ ] Loading states during export
+- [ ] Error boundaries
+- [ ] TypeScript migration
+- [ ] Unit tests for config utilities
 - [ ] Optimize re-renders with React.memo
-- [ ] Add PWA support for offline use
+- [ ] PWA support for offline use

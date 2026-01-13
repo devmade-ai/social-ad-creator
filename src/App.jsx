@@ -220,6 +220,9 @@ function App() {
                 text={state.text}
                 onTextChange={setText}
                 theme={state.theme}
+                textGroups={state.textGroups}
+                onTextGroupsChange={setTextGroups}
+                layout={state.layout}
               />
             )}
 
