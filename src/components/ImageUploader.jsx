@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useRef, useState, memo } from 'react'
 import { overlayTypes, imagePresets } from '../config/layouts'
 import { sampleImages } from '../config/sampleImages'
 
@@ -56,7 +56,7 @@ function Section({ title, children, defaultOpen = true, badge = null }) {
   )
 }
 
-export default function ImageUploader({
+export default memo(function ImageUploader({
   image,
   onImageChange,
   objectFit,
@@ -525,4 +525,4 @@ export default function ImageUploader({
       )}
     </div>
   )
-}
+})

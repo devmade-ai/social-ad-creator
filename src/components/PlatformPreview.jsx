@@ -1,6 +1,7 @@
+import { memo } from 'react'
 import { platforms } from '../config/platforms'
 
-export default function PlatformPreview({ selectedPlatform, onPlatformChange }) {
+export default memo(function PlatformPreview({ selectedPlatform, onPlatformChange }) {
   const platform = platforms.find((p) => p.id === selectedPlatform) || platforms[0]
 
   return (
@@ -29,4 +30,4 @@ export default function PlatformPreview({ selectedPlatform, onPlatformChange }) 
       </div>
     </div>
   )
-}
+})

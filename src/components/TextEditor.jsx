@@ -1,3 +1,5 @@
+import { memo } from 'react'
+
 const colorOptions = [
   { id: 'primary', name: 'Primary' },
   { id: 'secondary', name: 'Secondary' },
@@ -28,7 +30,7 @@ const textLayers = [
   { id: 'footnote', label: 'Footnote', placeholder: 'Terms apply...', multiline: false },
 ]
 
-export default function TextEditor({
+export default memo(function TextEditor({
   text,
   onTextChange,
   theme,
@@ -171,4 +173,4 @@ export default function TextEditor({
       </div>
     </div>
   )
-}
+})

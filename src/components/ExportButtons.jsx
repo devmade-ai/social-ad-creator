@@ -1,10 +1,10 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, memo } from 'react'
 import { toPng } from 'html-to-image'
 import JSZip from 'jszip'
 import { saveAs } from 'file-saver'
 import { platforms } from '../config/platforms'
 
-export default function ExportButtons({ canvasRef, state, onPlatformChange }) {
+export default memo(function ExportButtons({ canvasRef, state, onPlatformChange }) {
   const [isExporting, setIsExporting] = useState(false)
   const [exportProgress, setExportProgress] = useState(null)
 
@@ -127,4 +127,4 @@ export default function ExportButtons({ canvasRef, state, onPlatformChange }) {
       )}
     </div>
   )
-}
+})

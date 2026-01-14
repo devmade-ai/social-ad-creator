@@ -80,11 +80,7 @@ Future enhancements and ideas for the Social Ad Creator.
 - [x] Bold/italic text options per text element
 - [x] Letter spacing controls (Tight, Normal, Wide, Wider)
 
----
-
-## In Progress / Planned
-
-### Layout Tab
+### Layout Tab (continued)
 
 - [x] Use fixed units for padding (px) instead of percentages for consistency across cell sizes
 
@@ -112,7 +108,7 @@ Future enhancements and ideas for the Social Ad Creator.
 ## Technical Improvements
 
 - [x] Error boundaries for graceful error handling
+- [x] Optimize re-renders with React.memo
 - [ ] TypeScript migration
 - [ ] Unit tests for config utilities
-- [ ] Optimize re-renders with React.memo
 - [ ] PWA support for offline use
