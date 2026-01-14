@@ -11,13 +11,13 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
   const textGroups = state.textGroups || {}
   const titleFont = fonts.find((f) => f.id === state.fonts.title) || fonts[0]
   const bodyFont = fonts.find((f) => f.id === state.fonts.body) || fonts[0]
-  const paddingConfig = state.padding || { global: 5, cellOverrides: {} }
+  const paddingConfig = state.padding || { global: 20, cellOverrides: {} }
 
-  // Get padding for a specific cell (returns percentage string like "5%")
+  // Get padding for a specific cell (returns px string like "20px")
   const getCellPadding = (cellIndex) => {
     const override = paddingConfig.cellOverrides?.[cellIndex]
     const value = override !== undefined ? override : paddingConfig.global
-    return `${value}%`
+    return `${value}px`
   }
 
   const themeColors = useMemo(() => ({

@@ -86,7 +86,7 @@ Future enhancements and ideas for the Social Ad Creator.
 
 ### Layout Tab
 
-- [ ] Use fixed units for padding (px or rem) instead of percentages for consistency across cell sizes
+- [x] Use fixed units for padding (px) instead of percentages for consistency across cell sizes
 
 ---
 

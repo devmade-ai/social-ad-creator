@@ -78,9 +78,9 @@ export const defaultState = {
     body: 'inter',
   },
 
-  // Padding settings (percentage of canvas size)
+  // Padding settings (in pixels)
   padding: {
-    global: 5, // 5% padding for all cells
+    global: 20, // 20px padding for all cells
     cellOverrides: {}, // { cellIndex: paddingValue } for per-cell overrides
   },
 
