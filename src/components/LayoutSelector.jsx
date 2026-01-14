@@ -124,13 +124,13 @@ function UnifiedCellGrid({
   size = 'normal', // 'normal' | 'large' | 'small'
 }) {
   const { type, structure } = layout
-
-  // Normalize structure - treat fullbleed as single-cell grid
-  const normalizedStructure = (!structure || structure.length === 0)
-    ? [{ size: 100, subdivisions: 1, subSizes: [100] }]
-    : structure
   const isFullbleed = type === 'fullbleed'
   const isRows = type === 'rows'
+
+  // Normalize structure - treat fullbleed as single-cell grid
+  const normalizedStructure = (isFullbleed || !structure || structure.length === 0)
+    ? [{ size: 100, subdivisions: 1, subSizes: [100] }]
+    : structure
   const showSectionLabels = mode === 'structure' && !isFullbleed && normalizedStructure.length > 1
 
   // Get cells that have text elements assigned (for visual feedback)
@@ -148,19 +148,25 @@ function UnifiedCellGrid({
 
   // Size configurations
   const sizeConfig = {
-    small: { maxWidth: 60, minHeight: 40 },
+    small: { width: 60, height: 40 },
     normal: { maxWidth: 180, minHeight: 100 },
     large: { maxWidth: 280, minHeight: 160 },
   }
-  const { maxWidth: maxWidthPx, minHeight: minHeightPx } = sizeConfig[size] || sizeConfig.normal
+  const config = sizeConfig[size] || sizeConfig.normal
 
-  // Dynamic aspect ratio style - use minHeight to ensure visibility
-  const containerStyle = {
-    aspectRatio: aspectRatio,
-    maxWidth: `${maxWidthPx}px`,
-    minHeight: `${minHeightPx}px`,
-    width: '100%',
-  }
+  // Dynamic aspect ratio style - small uses fixed dimensions, others use flexible
+  const containerStyle = size === 'small'
+    ? {
+        width: `${config.width}px`,
+        height: `${config.height}px`,
+        flexShrink: 0,
+      }
+    : {
+        aspectRatio: aspectRatio,
+        maxWidth: `${config.maxWidth}px`,
+        minHeight: `${config.minHeight}px`,
+        width: '100%',
+      }
 
   // Render cell content based on mode
   const getCellContent = (cellIndex, isImage, isSelected, isSectionSelected, subdivisions, subSize) => {
