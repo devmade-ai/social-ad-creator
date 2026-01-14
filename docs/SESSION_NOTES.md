@@ -33,9 +33,17 @@ Redesigned Placement tab and unified cell grid components across all Layout sub-
    - Added `textAlign` and `textVerticalAlign` to each text group
    - Groups now store: `{ cell, textAlign, textVerticalAlign }`
 
+6. **Documentation Improvements**
+   - Added clear Documentation section to CLAUDE.md with table of documents
+   - Defined when and what to update for each document
+   - Updated Key State Structure to reflect new textGroups with alignment
+   - Updated Layout Tab Sub-tabs section (Placement now has per-group alignment)
+
 ### Files Modified
 
 - `src/hooks/useAdState.js` - Extended textGroups state with alignment properties
 - `src/components/LayoutSelector.jsx` - New UnifiedCellGrid component, redesigned all sub-tabs
 - `src/components/ImageUploader.jsx` - Removed Style Presets section
 - `src/components/AdCanvas.jsx` - Per-group alignment rendering
+- `CLAUDE.md` - Added Documentation section, updated state structure
+- `docs/TODO.md` - Marked session items as completed

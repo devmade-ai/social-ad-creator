@@ -11,14 +11,27 @@
 1. **User-first design** - Align with how real people will use the tool (top priority)
 2. **Simplicity** - Simple flow, clear guidance, non-overwhelming visuals, accurate interpretation
 3. **Document WHY** - Explain decisions and how they align with tool goals
-4. **Keep docs updated** - HISTORY.md, CALCULATIONS.md, BUSINESS_GUIDE.md, CLAUDE.md as relevant
-5. **Testability** - Ensure correctness and alignment with usage goals can be verified
-6. **Know the purpose** - Always be aware of what the tool is for
-7. **Logical checkpoints** - Stop at sensible points, document progress in docs/SESSION_NOTES.md
-8. **Follow conventions** - Best practices and consistent patterns
-9. **Capture ideas** - Add lower priority items and improvements I notice to docs/TODO.md so they persist between sessions (AI-managed, user can review)
-10. **Repeatable process** - Follow consistent steps to ensure all the above
-11. **Document user actions** - When manual user action is required (external dashboards, credentials, etc.), add detailed instructions to docs/USER_ACTIONS.md
+4. **Testability** - Ensure correctness and alignment with usage goals can be verified
+5. **Know the purpose** - Always be aware of what the tool is for
+6. **Follow conventions** - Best practices and consistent patterns
+7. **Repeatable process** - Follow consistent steps to ensure all the above
+
+## Documentation
+
+Keep these documents up to date:
+
+| Document | Purpose | When to Update |
+|----------|---------|----------------|
+| `CLAUDE.md` | AI preferences, project overview, architecture, state structure | When project architecture changes, state structure changes, or preferences evolve |
+| `docs/SESSION_NOTES.md` | Track current session progress | At session start (clear previous), during session (note changes), at end (summarize) |
+| `docs/TODO.md` | Backlog of ideas and improvements | When noticing potential improvements, when completing features (mark done) |
+| `docs/USER_ACTIONS.md` | Manual actions requiring user intervention | When tasks need external dashboards, credentials, or manual configuration |
+
+**Documentation Guidelines:**
+- `SESSION_NOTES.md`: Keep lean - remove previous session notes once no longer relevant
+- `TODO.md`: AI-managed backlog - user can review; mark items complete, don't delete them
+- `USER_ACTIONS.md`: Clear when actions are completed; keep empty if no pending actions
+- `CLAUDE.md`: Update Project Status and Key State Structure when features change
 
 ## AI Notes
 
@@ -124,10 +137,12 @@ layout: {
 }
 
 textGroups: {
-  titleGroup: { cell: null },   // null = auto, number = specific cell
-  bodyGroup: { cell: null },
-  cta: { cell: null },
-  footnote: { cell: null }
+  titleGroup: { cell: null, textAlign: null, textVerticalAlign: null },
+  bodyGroup: { cell: null, textAlign: null, textVerticalAlign: null },
+  cta: { cell: null, textAlign: null, textVerticalAlign: null },
+  footnote: { cell: null, textAlign: null, textVerticalAlign: null }
+  // cell: null = auto, number = specific cell
+  // textAlign/textVerticalAlign: null = use global, string = custom per-group
 }
 ```
 
@@ -145,11 +160,17 @@ The Layout tab uses a sub-tab architecture for better organization:
    - Click cells to edit subdivision sizes
    - Contextual controls based on selection
 
-3. **Alignment** - Per-cell text alignment
-   - Click cell to select (or none for all cells)
-   - Horizontal: left, center, right
-   - Vertical: top, middle, bottom
+3. **Overlay** - Per-cell overlay controls
+   - Click cell to select (or global)
+   - Enable/disable overlay per cell
+   - Custom overlay type and intensity per cell
 
-4. **Placement** - Assign text groups to cells
-   - Click cell then toggle text groups
-   - Visual feedback shows assigned groups
+4. **Spacing** - Global and per-cell padding
+   - Global padding for all cells
+   - Click cell for custom padding overrides
+
+5. **Placement** - Assign text groups to cells with per-group alignment
+   - Image cell selector with quick controls (fit, grayscale, overlay)
+   - Per-group cell selectors (Title+Tagline, Body, CTA, Footnote)
+   - Per-group horizontal/vertical alignment (amber = custom, blue = global)
+   - Global alignment section as fallback for groups without custom alignment
