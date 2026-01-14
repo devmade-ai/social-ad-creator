@@ -1,11 +1,4 @@
 import { useState, useMemo } from 'react'
-import {
-  layoutPresets,
-  presetCategories,
-  presetIcons,
-  getPresetsByCategory,
-  getSuggestedLayouts,
-} from '../config/layoutPresets'
 import { overlayTypes } from '../config/layouts'
 import { platforms } from '../config/platforms'
 import { defaultState } from '../hooks/useAdState'
@@ -78,7 +71,6 @@ const textGroupDefs = [
 
 // Sub-tabs for the Layout section
 const subTabs = [
-  { id: 'presets', name: 'Presets', icon: '⊞' },
   { id: 'structure', name: 'Structure', icon: '⊟' },
   { id: 'placement', name: 'Placement', icon: '◫' },
   { id: 'overlay', name: 'Overlay', icon: '◐' },
@@ -124,30 +116,6 @@ function getCellInfo(layout) {
   return cells
 }
 
-// SVG Preview Icon Component
-function PresetIcon({ presetId, isActive }) {
-  const iconData = presetIcons[presetId]
-  if (!iconData) return <span className="text-base">?</span>
-
-  return (
-    <svg
-      viewBox={iconData.viewBox}
-      className="w-10 h-7"
-      style={{ display: 'block' }}
-    >
-      {iconData.elements.map((el, i) => {
-        const Element = el.type
-        const props = { ...el.props }
-        if (isActive) {
-          if (props.fill === '#3b82f6') props.fill = '#ffffff'
-          if (props.fill === '#e5e7eb') props.fill = 'rgba(255,255,255,0.4)'
-        }
-        return <Element key={i} {...props} />
-      })}
-    </svg>
-  )
-}
-
 // Visual grid preview for cell selection - supports multiple modes
 function CellGrid({
   layout,
@@ -157,6 +125,7 @@ function CellGrid({
   onSelectCell,
   textGroups = {},
   aspectRatio = 1, // width / height
+  size = 'normal', // 'normal' | 'large'
 }) {
   const { type, structure } = layout
 
@@ -173,10 +142,14 @@ function CellGrid({
     return cellMap
   }, [textGroups])
 
+  // Size configurations
+  const maxWidthPx = size === 'large' ? 280 : 180
+
   // Dynamic aspect ratio style
   const containerStyle = {
     aspectRatio: aspectRatio,
-    maxWidth: aspectRatio >= 1 ? '180px' : `${180 * aspectRatio}px`,
+    maxWidth: aspectRatio >= 1 ? `${maxWidthPx}px` : `${maxWidthPx * aspectRatio}px`,
+    width: '100%',
   }
 
   if (type === 'fullbleed' || !structure) {
@@ -307,13 +280,18 @@ function StructureGrid({
   onSelectSection,
   onSelectCell,
   aspectRatio = 1, // width / height
+  size = 'normal', // 'normal' | 'large'
 }) {
   const { type, structure } = layout
+
+  // Size configurations
+  const maxWidthPx = size === 'large' ? 280 : 180
 
   // Dynamic aspect ratio style - matches CellGrid
   const containerStyle = {
     aspectRatio: aspectRatio,
-    maxWidth: aspectRatio >= 1 ? '180px' : `${180 * aspectRatio}px`,
+    maxWidth: aspectRatio >= 1 ? `${maxWidthPx}px` : `${maxWidthPx * aspectRatio}px`,
+    width: '100%',
   }
 
   if (type === 'fullbleed' || !structure) {
@@ -460,13 +438,11 @@ export default function LayoutSelector({
   const { type = 'fullbleed', structure = [], imageCell = 0, textAlign, textVerticalAlign, cellAlignments = [], cellOverlays = {} } = layout
 
   // Sub-tab state
-  const [activeSubTab, setActiveSubTab] = useState('presets')
+  const [activeSubTab, setActiveSubTab] = useState('structure')
   // Cell selection state for alignment/placement tabs (null = all cells)
   const [selectedCell, setSelectedCell] = useState(null)
   // Structure selection state: { type: 'section', index } | { type: 'cell', cellIndex, sectionIndex, subIndex } | null
   const [structureSelection, setStructureSelection] = useState(null)
-  // Preset category state
-  const [activeCategory, setActiveCategory] = useState('all')
 
   const totalCells = useMemo(() => getTotalCells(structure), [structure])
   const cellInfoList = useMemo(() => getCellInfo(layout), [layout])
@@ -476,23 +452,6 @@ export default function LayoutSelector({
     const p = platforms.find(pl => pl.id === platform) || platforms[0]
     return p.width / p.height
   }, [platform])
-
-  // Get suggested layouts
-  const suggestedIds = useMemo(() => {
-    return getSuggestedLayouts(imageAspectRatio, platform)
-  }, [imageAspectRatio, platform])
-
-  const suggestedPresets = useMemo(() => {
-    return layoutPresets.filter(p => suggestedIds.includes(p.id))
-  }, [suggestedIds])
-
-  const displayPresets = useMemo(() => {
-    if (activeCategory === 'all') return layoutPresets
-    if (activeCategory === 'suggested') {
-      return suggestedPresets.length > 0 ? suggestedPresets : layoutPresets.slice(0, 6)
-    }
-    return getPresetsByCategory(activeCategory)
-  }, [activeCategory, suggestedPresets])
 
   // Helper to update a specific cell's alignment
   const updateCellAlignment = (cellIndex, updates) => {
@@ -677,24 +636,6 @@ export default function LayoutSelector({
     onLayoutChange({ structure: newStructure })
   }
 
-  // Apply a preset
-  const applyPreset = (preset) => {
-    onLayoutChange(preset.layout)
-    if (onTextGroupsChange) {
-      onTextGroupsChange(preset.textGroups)
-    }
-    setSelectedCell(null)
-  }
-
-  // Check if current layout matches a preset
-  const getActivePreset = () => {
-    return layoutPresets.find(preset => {
-      return JSON.stringify(preset.layout) === JSON.stringify(layout)
-    })
-  }
-
-  const activePreset = getActivePreset()
-
   // Reset to default
   const handleReset = () => {
     onLayoutChange(defaultState.layout)
@@ -704,58 +645,9 @@ export default function LayoutSelector({
     setSelectedCell(null)
   }
 
-  // Category tabs for presets
-  const categoryTabs = [
-    ...(suggestedPresets.length > 0 ? [{ id: 'suggested', name: 'Suggested' }] : []),
-    { id: 'all', name: 'All' },
-    ...presetCategories.map(c => ({ id: c.id, name: c.name })),
-  ]
-
   // Render sub-tab content
   const renderSubTabContent = () => {
     switch (activeSubTab) {
-      case 'presets':
-        return (
-          <div className="space-y-3">
-            {/* Category Tabs */}
-            <div className="flex flex-wrap gap-1">
-              {categoryTabs.map((cat) => (
-                <button
-                  key={cat.id}
-                  onClick={() => setActiveCategory(cat.id)}
-                  className={`px-2 py-1 text-[10px] rounded-full ${
-                    activeCategory === cat.id
-                      ? 'bg-blue-500 text-white'
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                  }`}
-                >
-                  {cat.name}
-                  {cat.id === 'suggested' && <span className="ml-1">★</span>}
-                </button>
-              ))}
-            </div>
-
-            {/* Preset Grid */}
-            <div className="grid grid-cols-3 gap-1.5">
-              {displayPresets.map((preset) => (
-                <button
-                  key={preset.id}
-                  onClick={() => applyPreset(preset)}
-                  title={preset.description}
-                  className={`px-1.5 py-2 text-xs rounded flex flex-col items-center gap-1 transition-colors ${
-                    activePreset?.id === preset.id
-                      ? 'bg-blue-500 text-white'
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                  }`}
-                >
-                  <PresetIcon presetId={preset.id} isActive={activePreset?.id === preset.id} />
-                  <span className="text-[9px] leading-tight text-center line-clamp-2">{preset.name}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-        )
-
       case 'structure':
         // Get info about current selection
         const selectedSection = structureSelection?.type === 'section' ? structure[structureSelection.index] : null
@@ -799,15 +691,17 @@ export default function LayoutSelector({
               <>
                 {/* Structure Grid */}
                 <div className="space-y-2">
-                  <label className="block text-xs font-medium text-gray-600">
+                  <label className="block text-xs font-medium text-gray-600 text-center">
                     Select Cell <span className="text-gray-400 font-normal">(to configure structure)</span>
                   </label>
-                  <StructureGrid
-                    layout={layout}
-                    imageCell={imageCell}
-                    structureSelection={structureSelection}
-                    aspectRatio={platformAspectRatio}
-                    onSelectSection={(index) => {
+                  <div className="flex justify-center">
+                    <StructureGrid
+                      layout={layout}
+                      imageCell={imageCell}
+                      structureSelection={structureSelection}
+                      aspectRatio={platformAspectRatio}
+                      size="large"
+                      onSelectSection={(index) => {
                       if (structureSelection?.type === 'section' && structureSelection.index === index) {
                         setStructureSelection(null)
                       } else {
@@ -832,6 +726,7 @@ export default function LayoutSelector({
                       }
                     }}
                   />
+                  </div>
                   {/* Selection indicator - consistent with other tabs */}
                   <div className="text-xs text-center py-1 bg-gray-50 rounded">
                     {structureSelection === null ? (
@@ -1012,18 +907,21 @@ export default function LayoutSelector({
             {/* Cell Selector - consistent with other tabs */}
             {type !== 'fullbleed' && cellInfoList.length > 1 && (
               <div className="space-y-2">
-                <label className="block text-xs font-medium text-gray-600">
+                <label className="block text-xs font-medium text-gray-600 text-center">
                   Select Cell <span className="text-gray-400 font-normal">(to configure placement)</span>
                 </label>
-                <CellGrid
-                  layout={layout}
-                  imageCell={imageCell}
-                  selectedCell={selectedCell}
-                  mode="placement"
-                  onSelectCell={handleCellSelect}
-                  textGroups={textGroups}
-                  aspectRatio={platformAspectRatio}
-                />
+                <div className="flex justify-center">
+                  <CellGrid
+                    layout={layout}
+                    imageCell={imageCell}
+                    selectedCell={selectedCell}
+                    mode="placement"
+                    onSelectCell={handleCellSelect}
+                    textGroups={textGroups}
+                    aspectRatio={platformAspectRatio}
+                    size="large"
+                  />
+                </div>
                 {/* Selection indicator */}
                 <div className="text-xs text-center py-1 bg-gray-50 rounded">
                   {selectedCell === null ? (
@@ -1272,18 +1170,21 @@ export default function LayoutSelector({
             ) : (
               <>
                 {/* Cell Selector Grid */}
-                <div>
-                  <label className="block text-xs font-medium text-gray-600 mb-1">
+                <div className="space-y-2">
+                  <label className="block text-xs font-medium text-gray-600 text-center">
                     Select Cell <span className="text-gray-400 font-normal">(to configure overlay)</span>
                   </label>
-                  <CellGrid
-                    layout={layout}
-                    imageCell={imageCell}
-                    selectedCell={selectedCell}
-                    mode="alignment"
-                    onSelectCell={handleCellSelect}
-                    aspectRatio={platformAspectRatio}
-                  />
+                  <div className="flex justify-center">
+                    <CellGrid
+                      layout={layout}
+                      imageCell={imageCell}
+                      selectedCell={selectedCell}
+                      mode="alignment"
+                      onSelectCell={handleCellSelect}
+                      aspectRatio={platformAspectRatio}
+                      size="large"
+                    />
+                  </div>
                 </div>
 
                 {/* Selection indicator */}
@@ -1498,18 +1399,21 @@ export default function LayoutSelector({
             {/* Per-cell padding */}
             {type !== 'fullbleed' && cellInfoList.length > 1 && (
               <div className="pt-3 border-t border-gray-200 space-y-3">
-                <div>
-                  <label className="block text-xs font-medium text-gray-600 mb-1">
+                <div className="space-y-2">
+                  <label className="block text-xs font-medium text-gray-600 text-center">
                     Cell Padding <span className="text-gray-400 font-normal">(overrides global)</span>
                   </label>
-                  <CellGrid
-                    layout={layout}
-                    imageCell={imageCell}
-                    selectedCell={selectedCell}
-                    mode="alignment"
-                    onSelectCell={handleCellSelect}
-                    aspectRatio={platformAspectRatio}
-                  />
+                  <div className="flex justify-center">
+                    <CellGrid
+                      layout={layout}
+                      imageCell={imageCell}
+                      selectedCell={selectedCell}
+                      mode="alignment"
+                      onSelectCell={handleCellSelect}
+                      aspectRatio={platformAspectRatio}
+                      size="large"
+                    />
+                  </div>
                 </div>
 
                 {/* Selected cell padding */}

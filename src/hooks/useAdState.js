@@ -5,6 +5,8 @@ import { useHistory } from './useHistory'
 const defaultTheme = presetThemes[0] // Dark theme
 
 export const defaultState = {
+  // Track active style preset (null = custom/no preset)
+  activeStylePreset: null,
   image: null,
   imageObjectFit: 'cover',
   imagePosition: 'center',
@@ -181,6 +183,61 @@ export function useAdState() {
     setState(defaultState)
   }, [])
 
+  // Apply a complete style preset (theme, fonts, layout, overlay, filters, textGroups)
+  // Preserves: image, logo, text content, platform
+  const applyStylePreset = useCallback((preset) => {
+    if (!preset || !preset.settings) return
+
+    const { settings } = preset
+
+    setState((prev) => ({
+      ...prev,
+      activeStylePreset: preset.id,
+      // Apply theme
+      theme: settings.theme ? {
+        preset: settings.theme.preset,
+        primary: settings.theme.primary,
+        secondary: settings.theme.secondary,
+        accent: settings.theme.accent,
+      } : prev.theme,
+      // Apply fonts
+      fonts: settings.fonts ? {
+        title: settings.fonts.title,
+        body: settings.fonts.body,
+      } : prev.fonts,
+      // Apply layout
+      layout: settings.layout ? {
+        ...settings.layout,
+      } : prev.layout,
+      // Apply overlay
+      overlay: settings.overlay ? {
+        type: settings.overlay.type,
+        color: settings.overlay.color,
+        opacity: settings.overlay.opacity,
+      } : prev.overlay,
+      // Apply image filters
+      imageFilters: settings.imageFilters ? {
+        grayscale: settings.imageFilters.grayscale,
+        sepia: settings.imageFilters.sepia,
+        blur: settings.imageFilters.blur,
+        contrast: settings.imageFilters.contrast,
+        brightness: settings.imageFilters.brightness,
+      } : prev.imageFilters,
+      // Apply text groups
+      textGroups: settings.textGroups ? {
+        titleGroup: { cell: settings.textGroups.titleGroup?.cell ?? null },
+        bodyGroup: { cell: settings.textGroups.bodyGroup?.cell ?? null },
+        cta: { cell: settings.textGroups.cta?.cell ?? null },
+        footnote: { cell: settings.textGroups.footnote?.cell ?? null },
+      } : prev.textGroups,
+    }))
+  }, [])
+
+  // Clear style preset tracking (called when user customizes something)
+  const clearStylePreset = useCallback(() => {
+    setState((prev) => ({ ...prev, activeStylePreset: null }))
+  }, [])
+
   return {
     state,
     setImage,
@@ -200,6 +257,8 @@ export function useAdState() {
     setPadding,
     setPlatform,
     resetState,
+    applyStylePreset,
+    clearStylePreset,
     undo,
     redo,
     canUndo,
