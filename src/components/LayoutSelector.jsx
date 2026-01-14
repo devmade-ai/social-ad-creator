@@ -125,6 +125,7 @@ function CellGrid({
   onSelectCell,
   textGroups = {},
   aspectRatio = 1, // width / height
+  size = 'normal', // 'normal' | 'large'
 }) {
   const { type, structure } = layout
 
@@ -141,10 +142,14 @@ function CellGrid({
     return cellMap
   }, [textGroups])
 
+  // Size configurations
+  const maxWidthPx = size === 'large' ? 280 : 180
+
   // Dynamic aspect ratio style
   const containerStyle = {
     aspectRatio: aspectRatio,
-    maxWidth: aspectRatio >= 1 ? '180px' : `${180 * aspectRatio}px`,
+    maxWidth: aspectRatio >= 1 ? `${maxWidthPx}px` : `${maxWidthPx * aspectRatio}px`,
+    width: '100%',
   }
 
   if (type === 'fullbleed' || !structure) {
@@ -275,13 +280,18 @@ function StructureGrid({
   onSelectSection,
   onSelectCell,
   aspectRatio = 1, // width / height
+  size = 'normal', // 'normal' | 'large'
 }) {
   const { type, structure } = layout
+
+  // Size configurations
+  const maxWidthPx = size === 'large' ? 280 : 180
 
   // Dynamic aspect ratio style - matches CellGrid
   const containerStyle = {
     aspectRatio: aspectRatio,
-    maxWidth: aspectRatio >= 1 ? '180px' : `${180 * aspectRatio}px`,
+    maxWidth: aspectRatio >= 1 ? `${maxWidthPx}px` : `${maxWidthPx * aspectRatio}px`,
+    width: '100%',
   }
 
   if (type === 'fullbleed' || !structure) {
@@ -681,15 +691,17 @@ export default function LayoutSelector({
               <>
                 {/* Structure Grid */}
                 <div className="space-y-2">
-                  <label className="block text-xs font-medium text-gray-600">
+                  <label className="block text-xs font-medium text-gray-600 text-center">
                     Select Cell <span className="text-gray-400 font-normal">(to configure structure)</span>
                   </label>
-                  <StructureGrid
-                    layout={layout}
-                    imageCell={imageCell}
-                    structureSelection={structureSelection}
-                    aspectRatio={platformAspectRatio}
-                    onSelectSection={(index) => {
+                  <div className="flex justify-center">
+                    <StructureGrid
+                      layout={layout}
+                      imageCell={imageCell}
+                      structureSelection={structureSelection}
+                      aspectRatio={platformAspectRatio}
+                      size="large"
+                      onSelectSection={(index) => {
                       if (structureSelection?.type === 'section' && structureSelection.index === index) {
                         setStructureSelection(null)
                       } else {
@@ -714,6 +726,7 @@ export default function LayoutSelector({
                       }
                     }}
                   />
+                  </div>
                   {/* Selection indicator - consistent with other tabs */}
                   <div className="text-xs text-center py-1 bg-gray-50 rounded">
                     {structureSelection === null ? (
@@ -894,18 +907,21 @@ export default function LayoutSelector({
             {/* Cell Selector - consistent with other tabs */}
             {type !== 'fullbleed' && cellInfoList.length > 1 && (
               <div className="space-y-2">
-                <label className="block text-xs font-medium text-gray-600">
+                <label className="block text-xs font-medium text-gray-600 text-center">
                   Select Cell <span className="text-gray-400 font-normal">(to configure placement)</span>
                 </label>
-                <CellGrid
-                  layout={layout}
-                  imageCell={imageCell}
-                  selectedCell={selectedCell}
-                  mode="placement"
-                  onSelectCell={handleCellSelect}
-                  textGroups={textGroups}
-                  aspectRatio={platformAspectRatio}
-                />
+                <div className="flex justify-center">
+                  <CellGrid
+                    layout={layout}
+                    imageCell={imageCell}
+                    selectedCell={selectedCell}
+                    mode="placement"
+                    onSelectCell={handleCellSelect}
+                    textGroups={textGroups}
+                    aspectRatio={platformAspectRatio}
+                    size="large"
+                  />
+                </div>
                 {/* Selection indicator */}
                 <div className="text-xs text-center py-1 bg-gray-50 rounded">
                   {selectedCell === null ? (
@@ -1154,18 +1170,21 @@ export default function LayoutSelector({
             ) : (
               <>
                 {/* Cell Selector Grid */}
-                <div>
-                  <label className="block text-xs font-medium text-gray-600 mb-1">
+                <div className="space-y-2">
+                  <label className="block text-xs font-medium text-gray-600 text-center">
                     Select Cell <span className="text-gray-400 font-normal">(to configure overlay)</span>
                   </label>
-                  <CellGrid
-                    layout={layout}
-                    imageCell={imageCell}
-                    selectedCell={selectedCell}
-                    mode="alignment"
-                    onSelectCell={handleCellSelect}
-                    aspectRatio={platformAspectRatio}
-                  />
+                  <div className="flex justify-center">
+                    <CellGrid
+                      layout={layout}
+                      imageCell={imageCell}
+                      selectedCell={selectedCell}
+                      mode="alignment"
+                      onSelectCell={handleCellSelect}
+                      aspectRatio={platformAspectRatio}
+                      size="large"
+                    />
+                  </div>
                 </div>
 
                 {/* Selection indicator */}
@@ -1380,18 +1399,21 @@ export default function LayoutSelector({
             {/* Per-cell padding */}
             {type !== 'fullbleed' && cellInfoList.length > 1 && (
               <div className="pt-3 border-t border-gray-200 space-y-3">
-                <div>
-                  <label className="block text-xs font-medium text-gray-600 mb-1">
+                <div className="space-y-2">
+                  <label className="block text-xs font-medium text-gray-600 text-center">
                     Cell Padding <span className="text-gray-400 font-normal">(overrides global)</span>
                   </label>
-                  <CellGrid
-                    layout={layout}
-                    imageCell={imageCell}
-                    selectedCell={selectedCell}
-                    mode="alignment"
-                    onSelectCell={handleCellSelect}
-                    aspectRatio={platformAspectRatio}
-                  />
+                  <div className="flex justify-center">
+                    <CellGrid
+                      layout={layout}
+                      imageCell={imageCell}
+                      selectedCell={selectedCell}
+                      mode="alignment"
+                      onSelectCell={handleCellSelect}
+                      aspectRatio={platformAspectRatio}
+                      size="large"
+                    />
+                  </div>
                 </div>
 
                 {/* Selected cell padding */}
