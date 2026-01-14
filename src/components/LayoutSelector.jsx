@@ -990,9 +990,38 @@ export default function LayoutSelector({
       case 'placement':
         return (
           <div className="space-y-4">
+            {/* Cell Selector - consistent with other tabs */}
+            {type !== 'fullbleed' && cellInfoList.length > 1 && (
+              <div className="space-y-2">
+                <label className="block text-xs font-medium text-gray-600">
+                  Select Cell <span className="text-gray-400 font-normal">(to configure placement)</span>
+                </label>
+                <CellGrid
+                  layout={layout}
+                  imageCell={imageCell}
+                  selectedCell={selectedCell}
+                  mode="placement"
+                  onSelectCell={handleCellSelect}
+                  textGroups={textGroups}
+                  aspectRatio={platformAspectRatio}
+                />
+                {/* Selection indicator */}
+                <div className="text-xs text-center py-1 bg-gray-50 rounded">
+                  {selectedCell === null ? (
+                    <span className="text-gray-600">Select a cell to configure text placement</span>
+                  ) : (
+                    <span className="text-purple-600">
+                      Editing: <strong>{cellInfoList.find(c => c.index === selectedCell)?.label || `Cell ${selectedCell}`}</strong>
+                      {selectedCell === imageCell && <span className="text-blue-500 ml-1">(image)</span>}
+                    </span>
+                  )}
+                </div>
+              </div>
+            )}
+
             {/* Image Section */}
             <div className="space-y-2">
-              <label className="block text-xs font-medium text-gray-600">Image</label>
+              <label className="block text-xs font-medium text-gray-600">Image Cell</label>
               <div className="flex gap-3">
                 {/* Cell selector */}
                 <CellGrid
