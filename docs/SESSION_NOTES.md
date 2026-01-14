@@ -2,47 +2,48 @@
 
 ## Current Session
 
-Implemented all remaining "In Progress / Planned" features from TODO.md.
+Redesigned Placement tab and unified cell grid components across all Layout sub-tabs.
 
 ### Changes Made
 
-1. **Image Style Presets**
-   - 8 presets: None, Dramatic Dark, Light & Airy, Vintage, Cinematic, Soft Focus, Noir, Warm Glow
-   - Each preset combines overlay settings + image filters
-   - Added to `src/config/layouts.js`
+1. **Per-Group Text Placement with Individual Cell Selectors**
+   - Each text group (Title+Tagline, Body, CTA, Footnote) now has its own:
+     - Cell selector grid (like the image cell selector)
+     - Horizontal and vertical alignment controls
+   - Alignment is per-group with fallback to global settings
+   - Amber color indicates custom alignment, blue indicates using global
+   - Reset to global button appears when custom alignment is set
 
-2. **Image Filters**
-   - Replaced `imageGrayscale` with comprehensive `imageFilters` object
-   - Controls: grayscale (toggle), sepia (%), blur (px), contrast (%), brightness (%)
-   - Sliders in Image tab under "Image Filters" section
+2. **Unified Cell Grid Component**
+   - Created single `UnifiedCellGrid` component that replaces both `CellGrid` and `StructureGrid`
+   - Supports multiple modes: 'structure', 'image', 'textGroup', 'cell'
+   - Shows section labels (R1, R2, C1, C2) only in Structure tab for rows/columns editing
+   - Consistent visual appearance across all Layout sub-tabs
 
-3. **Per-Cell Overlay Controls**
-   - Added `cellOverlays` to layout state
-   - New "Overlay" sub-tab in Layout tab
-   - Enable/disable overlay per cell, or customize type/color/opacity per cell
+3. **Fullbleed Treated as Single-Cell Grid**
+   - Removed special-casing for fullbleed layout type
+   - Fullbleed now behaves like a single-cell grid with the same UI options
+   - All sub-tabs (Structure, Placement, Overlay, Spacing) work consistently for all layout types
 
-4. **Padding & Spacing Controls**
-   - Added `padding` to state with global setting and per-cell overrides
-   - New "Spacing" sub-tab in Layout tab
-   - Global padding slider (0-15%)
-   - Per-cell custom padding
+4. **Removed Style Presets from Image Tab**
+   - Removed the "Quick Style Presets" section from ImageUploader
+   - Simplifies the Image tab
 
-5. **Merged Logo and Image Tabs**
-   - Combined into unified "Media" tab
-   - Logo section appears at bottom of Image tab
-   - Removed LogoUploader.jsx (functionality merged into ImageUploader.jsx)
+5. **Updated textGroups State Structure**
+   - Added `textAlign` and `textVerticalAlign` to each text group
+   - Groups now store: `{ cell, textAlign, textVerticalAlign }`
+
+6. **Documentation Improvements**
+   - Added clear Documentation section to CLAUDE.md with table of documents
+   - Defined when and what to update for each document
+   - Updated Key State Structure to reflect new textGroups with alignment
+   - Updated Layout Tab Sub-tabs section (Placement now has per-group alignment)
 
 ### Files Modified
 
-- `src/config/layouts.js` - Added imagePresets config
-- `src/hooks/useAdState.js` - Added imageFilters, padding, renamed setImageGrayscale to setImageFilters
-- `src/components/ImageUploader.jsx` - Added presets, filters, logo controls
-- `src/components/AdCanvas.jsx` - Dynamic image filters, per-cell overlays, per-cell padding
-- `src/components/LayoutSelector.jsx` - Added Overlay and Spacing sub-tabs
-- `src/App.jsx` - Updated props, removed LogoUploader import, renamed tab to "Media"
-- `docs/TODO.md` - Marked features complete
-- `docs/SESSION_NOTES.md` - This file
-
-### Completed
-
-Sample images added to `public/samples/` (9 devMade branded images).
+- `src/hooks/useAdState.js` - Extended textGroups state with alignment properties
+- `src/components/LayoutSelector.jsx` - New UnifiedCellGrid component, redesigned all sub-tabs
+- `src/components/ImageUploader.jsx` - Removed Style Presets section
+- `src/components/AdCanvas.jsx` - Per-group alignment rendering
+- `CLAUDE.md` - Added Documentation section, updated state structure
+- `docs/TODO.md` - Marked session items as completed

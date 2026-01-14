@@ -14,6 +14,10 @@ Future enhancements and ideas for the Social Ad Creator.
 - [x] Layout Tab sub-tabs (Presets, Structure, Alignment, Placement)
 - [x] Unified cell selector grid component
 - [x] Structure tab with contextual section/cell selection
+- [x] Per-group text placement with individual cell selectors
+- [x] Per-group alignment (horizontal/vertical) with global fallback
+- [x] Fullbleed treated as single-cell grid (consistent with rows/columns)
+- [x] Removed Quick Style Presets from Image tab
 
 ### Text Tab Improvements
 

@@ -33,13 +33,14 @@ export const defaultState = {
     footnote: { content: '*Terms and conditions apply', visible: true, color: 'secondary', size: 1, bold: false, italic: false, letterSpacing: 0 },
   },
 
-  // Text group positioning (which cell each group appears in)
-  // null = auto (follows default behavior), number = specific cell index
+  // Text group positioning and alignment (which cell each group appears in)
+  // cell: null = auto (follows default behavior), number = specific cell index
+  // textAlign/textVerticalAlign: null = use global, string = override
   textGroups: {
-    titleGroup: { cell: null },    // title + tagline
-    bodyGroup: { cell: null },     // bodyHeading + bodyText
-    cta: { cell: null },           // independent
-    footnote: { cell: null },      // independent
+    titleGroup: { cell: null, textAlign: null, textVerticalAlign: null },    // title + tagline
+    bodyGroup: { cell: null, textAlign: null, textVerticalAlign: null },     // bodyHeading + bodyText
+    cta: { cell: null, textAlign: null, textVerticalAlign: null },           // independent
+    footnote: { cell: null, textAlign: null, textVerticalAlign: null },      // independent
   },
 
   logo: null,
@@ -225,10 +226,26 @@ export function useAdState() {
       } : prev.imageFilters,
       // Apply text groups
       textGroups: settings.textGroups ? {
-        titleGroup: { cell: settings.textGroups.titleGroup?.cell ?? null },
-        bodyGroup: { cell: settings.textGroups.bodyGroup?.cell ?? null },
-        cta: { cell: settings.textGroups.cta?.cell ?? null },
-        footnote: { cell: settings.textGroups.footnote?.cell ?? null },
+        titleGroup: {
+          cell: settings.textGroups.titleGroup?.cell ?? null,
+          textAlign: settings.textGroups.titleGroup?.textAlign ?? null,
+          textVerticalAlign: settings.textGroups.titleGroup?.textVerticalAlign ?? null,
+        },
+        bodyGroup: {
+          cell: settings.textGroups.bodyGroup?.cell ?? null,
+          textAlign: settings.textGroups.bodyGroup?.textAlign ?? null,
+          textVerticalAlign: settings.textGroups.bodyGroup?.textVerticalAlign ?? null,
+        },
+        cta: {
+          cell: settings.textGroups.cta?.cell ?? null,
+          textAlign: settings.textGroups.cta?.textAlign ?? null,
+          textVerticalAlign: settings.textGroups.cta?.textVerticalAlign ?? null,
+        },
+        footnote: {
+          cell: settings.textGroups.footnote?.cell ?? null,
+          textAlign: settings.textGroups.footnote?.textAlign ?? null,
+          textVerticalAlign: settings.textGroups.footnote?.textVerticalAlign ?? null,
+        },
       } : prev.textGroups,
     }))
   }, [])
