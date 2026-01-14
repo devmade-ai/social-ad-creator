@@ -12,6 +12,13 @@ const sizeOptions = [
   { id: 1.5, name: 'XL' },
 ]
 
+const letterSpacingOptions = [
+  { id: -1, name: 'Tight' },
+  { id: 0, name: 'Normal' },
+  { id: 1, name: 'Wide' },
+  { id: 2, name: 'Wider' },
+]
+
 const textLayers = [
   { id: 'title', label: 'Title', placeholder: 'Enter title...', multiline: false },
   { id: 'tagline', label: 'Tagline', placeholder: 'Your tagline here...', multiline: false },
@@ -32,7 +39,7 @@ export default function TextEditor({
 
       <div className="space-y-3">
         {textLayers.map((layer) => {
-          const layerState = text?.[layer.id] || { content: '', visible: false, color: 'secondary', size: 1 }
+          const layerState = text?.[layer.id] || { content: '', visible: false, color: 'secondary', size: 1, bold: false, italic: false, letterSpacing: 0 }
 
           return (
             <div key={layer.id} className="space-y-1.5 border-b border-gray-100 pb-3 last:border-0">
@@ -70,7 +77,7 @@ export default function TextEditor({
                 />
               )}
 
-              {/* Style: color + size inline */}
+              {/* Row 1: Color + Size */}
               <div className="flex items-center gap-3">
                 {/* Color options */}
                 <div className="flex items-center gap-1">
@@ -105,6 +112,55 @@ export default function TextEditor({
                       }`}
                     >
                       {size.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Row 2: Bold/Italic + Letter Spacing */}
+              <div className="flex items-center gap-3">
+                {/* Bold/Italic toggles */}
+                <div className="flex items-center gap-1">
+                  <span className="text-[10px] text-gray-400">Style:</span>
+                  <button
+                    onClick={() => onTextChange(layer.id, { bold: !layerState.bold })}
+                    title="Bold"
+                    className={`w-6 h-5 text-[10px] font-bold rounded ${
+                      layerState.bold
+                        ? 'bg-blue-500 text-white'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
+                  >
+                    B
+                  </button>
+                  <button
+                    onClick={() => onTextChange(layer.id, { italic: !layerState.italic })}
+                    title="Italic"
+                    className={`w-6 h-5 text-[10px] italic rounded ${
+                      layerState.italic
+                        ? 'bg-blue-500 text-white'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
+                  >
+                    I
+                  </button>
+                </div>
+
+                {/* Letter spacing */}
+                <div className="flex items-center gap-0.5 ml-auto">
+                  <span className="text-[10px] text-gray-400">Spacing:</span>
+                  {letterSpacingOptions.map((opt) => (
+                    <button
+                      key={opt.id}
+                      onClick={() => onTextChange(layer.id, { letterSpacing: opt.id })}
+                      title={opt.name}
+                      className={`px-1.5 h-5 text-[9px] rounded ${
+                        layerState.letterSpacing === opt.id
+                          ? 'bg-blue-500 text-white'
+                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      }`}
+                    >
+                      {opt.name.charAt(0)}
                     </button>
                   ))}
                 </div>

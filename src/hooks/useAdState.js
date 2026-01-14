@@ -23,12 +23,12 @@ export const defaultState = {
   },
 
   text: {
-    title: { content: 'Your Title Here', visible: true, color: 'secondary', size: 1 },
-    tagline: { content: 'Elevate your brand today', visible: true, color: 'secondary', size: 1 },
-    bodyHeading: { content: 'Why Choose Us', visible: true, color: 'secondary', size: 1 },
-    bodyText: { content: 'Transform your business with innovative solutions designed for success.', visible: true, color: 'secondary', size: 1 },
-    cta: { content: 'Learn More', visible: true, color: 'accent', size: 1 },
-    footnote: { content: '*Terms and conditions apply', visible: true, color: 'secondary', size: 1 },
+    title: { content: 'Your Title Here', visible: true, color: 'secondary', size: 1, bold: true, italic: false, letterSpacing: 0 },
+    tagline: { content: 'Elevate your brand today', visible: true, color: 'secondary', size: 1, bold: false, italic: false, letterSpacing: 0 },
+    bodyHeading: { content: 'Why Choose Us', visible: true, color: 'secondary', size: 1, bold: true, italic: false, letterSpacing: 0 },
+    bodyText: { content: 'Transform your business with innovative solutions designed for success.', visible: true, color: 'secondary', size: 1, bold: false, italic: false, letterSpacing: 0 },
+    cta: { content: 'Learn More', visible: true, color: 'accent', size: 1, bold: true, italic: false, letterSpacing: 0 },
+    footnote: { content: '*Terms and conditions apply', visible: true, color: 'secondary', size: 1, bold: false, italic: false, letterSpacing: 0 },
   },
 
   // Text group positioning (which cell each group appears in)

@@ -75,6 +75,11 @@ Future enhancements and ideas for the Social Ad Creator.
 - [x] Remove Quick Layout from Image tab (belongs in Layout tab)
 - [x] Clear visual hierarchy for first-time users
 
+### Typography
+
+- [x] Bold/italic text options per text element
+- [x] Letter spacing controls (Tight, Normal, Wide, Wider)
+
 ---
 
 ## In Progress / Planned
@@ -82,11 +87,6 @@ Future enhancements and ideas for the Social Ad Creator.
 ### Layout Tab
 
 - [ ] Use fixed units for padding (px or rem) instead of percentages for consistency across cell sizes
-
-### Typography
-
-- [ ] Bold/italic text options
-- [ ] Letter spacing controls
 
 ---
 
