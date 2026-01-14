@@ -2,48 +2,42 @@
 
 ## Current Session
 
-Redesigned Placement tab and unified cell grid components across all Layout sub-tabs.
+Reverted from per-group text alignment to cell-level alignment to fix text overlapping issues.
+
+### Problem
+
+Per-group alignment caused text elements to overlap because each group was rendered in its own absolutely positioned container (`position: absolute, inset: 0`), making all groups stack at the same position.
+
+### Solution
+
+Reverted to cell-level alignment where all text groups within a cell share a single alignment container. Text flows naturally within each cell.
 
 ### Changes Made
 
-1. **Per-Group Text Placement with Individual Cell Selectors**
-   - Each text group (Title+Tagline, Body, CTA, Footnote) now has its own:
-     - Cell selector grid (like the image cell selector)
-     - Horizontal and vertical alignment controls
-   - Alignment is per-group with fallback to global settings
-   - Amber color indicates custom alignment, blue indicates using global
-   - Reset to global button appears when custom alignment is set
+1. **AdCanvas.jsx**
+   - Removed `getGroupTextAlign` and `getGroupVerticalAlign` functions
+   - Removed `renderGroupWithAlignment` function
+   - Updated `renderTextGroupsForCell` to render all groups in a single flex container with cell-level alignment
+   - Updated `renderFullbleed` to use single alignment container for all text groups
 
-2. **Unified Cell Grid Component**
-   - Created single `UnifiedCellGrid` component that replaces both `CellGrid` and `StructureGrid`
-   - Supports multiple modes: 'structure', 'image', 'textGroup', 'cell'
-   - Shows section labels (R1, R2, C1, C2) only in Structure tab for rows/columns editing
-   - Consistent visual appearance across all Layout sub-tabs
+2. **LayoutSelector.jsx**
+   - Simplified Placement tab to only show cell selectors (no per-group alignment controls)
+   - Text Group Placement section now uses a 2-column grid layout
+   - Removed per-group alignment buttons (amber/blue distinction no longer needed)
+   - Global Text Alignment section controls alignment for all cells
 
-3. **Fullbleed Treated as Single-Cell Grid**
-   - Removed special-casing for fullbleed layout type
-   - Fullbleed now behaves like a single-cell grid with the same UI options
-   - All sub-tabs (Structure, Placement, Overlay, Spacing) work consistently for all layout types
+3. **useAdState.js**
+   - Simplified textGroups structure: removed `textAlign` and `textVerticalAlign` from each group
+   - Text groups now only store `{ cell }` property
+   - Updated `applyStylePreset` to match simplified structure
 
-4. **Removed Style Presets from Image Tab**
-   - Removed the "Quick Style Presets" section from ImageUploader
-   - Simplifies the Image tab
-
-5. **Updated textGroups State Structure**
-   - Added `textAlign` and `textVerticalAlign` to each text group
-   - Groups now store: `{ cell, textAlign, textVerticalAlign }`
-
-6. **Documentation Improvements**
-   - Added clear Documentation section to CLAUDE.md with table of documents
-   - Defined when and what to update for each document
-   - Updated Key State Structure to reflect new textGroups with alignment
-   - Updated Layout Tab Sub-tabs section (Placement now has per-group alignment)
+4. **CLAUDE.md**
+   - Updated Key State Structure documentation
+   - Updated Layout Tab Sub-tabs section for Placement
 
 ### Files Modified
 
-- `src/hooks/useAdState.js` - Extended textGroups state with alignment properties
-- `src/components/LayoutSelector.jsx` - New UnifiedCellGrid component, redesigned all sub-tabs
-- `src/components/ImageUploader.jsx` - Removed Style Presets section
-- `src/components/AdCanvas.jsx` - Per-group alignment rendering
-- `CLAUDE.md` - Added Documentation section, updated state structure
-- `docs/TODO.md` - Marked session items as completed
+- `src/components/AdCanvas.jsx`
+- `src/components/LayoutSelector.jsx`
+- `src/hooks/useAdState.js`
+- `CLAUDE.md`

@@ -836,17 +836,10 @@ export default function LayoutSelector({
         )
 
       case 'placement':
-        // Helper to get effective alignment for a text group
-        const getGroupAlignment = (groupId, prop) => {
-          const groupAlign = textGroups?.[groupId]?.[prop]
-          if (groupAlign !== null && groupAlign !== undefined) return groupAlign
-          return prop === 'textAlign' ? textAlign : textVerticalAlign
-        }
-
-        // Helper to update a text group's alignment
-        const updateGroupAlignment = (groupId, updates) => {
+        // Helper to update a text group's cell
+        const updateGroupCell = (groupId, cell) => {
           onTextGroupsChange?.({
-            [groupId]: { ...textGroups?.[groupId], ...updates }
+            [groupId]: { ...textGroups?.[groupId], cell }
           })
         }
 
@@ -915,105 +908,50 @@ export default function LayoutSelector({
               </div>
             </div>
 
-            {/* Text Group Sections - each with its own cell selector and alignment */}
-            {textGroupDefs.map((group) => {
-              const groupState = textGroups?.[group.id] || { cell: null, textAlign: null, textVerticalAlign: null }
-              const currentCell = groupState.cell
-              const hasCustomAlign = groupState.textAlign !== null || groupState.textVerticalAlign !== null
+            {/* Text Group Cell Placement */}
+            <div className="space-y-2 pt-3 border-t border-gray-200">
+              <label className="block text-xs font-medium text-gray-600">Text Group Placement</label>
+              <div className="grid grid-cols-2 gap-3">
+                {textGroupDefs.map((group) => {
+                  const currentCell = textGroups?.[group.id]?.cell
 
-              return (
-                <div key={group.id} className="space-y-2 pt-3 border-t border-gray-200">
-                  <label className="block text-xs font-medium text-gray-600">{group.name}</label>
-                  <div className="flex gap-3">
-                    {/* Cell selector for this text group */}
-                    <div className="space-y-1">
-                      <UnifiedCellGrid
-                        layout={layout}
-                        imageCell={imageCell}
-                        mode="textGroup"
-                        highlightCell={currentCell}
-                        onSelectCell={(idx) => updateGroupAlignment(group.id, { cell: idx })}
-                        aspectRatio={platformAspectRatio}
-                        size="small"
-                      />
-                      <span className="text-[9px] text-gray-400 block text-center">
-                        {currentCell !== null ? `Cell ${currentCell + 1}` : 'Auto'}
-                      </span>
-                    </div>
-
-                    {/* Alignment controls for this text group */}
-                    <div className="flex-1 space-y-2">
-                      <div className="flex gap-3">
-                        <div className="flex-1">
-                          <span className="text-[9px] text-gray-400 block mb-1">Horizontal</span>
-                          <div className="flex gap-0.5">
-                            {textAlignOptions.map((align) => {
-                              const isActive = getGroupAlignment(group.id, 'textAlign') === align.id
-                              const isCustom = groupState.textAlign === align.id
-                              return (
-                                <button
-                                  key={align.id}
-                                  onClick={() => updateGroupAlignment(group.id, { textAlign: align.id })}
-                                  title={align.name}
-                                  className={`flex-1 px-1.5 py-1.5 rounded flex items-center justify-center ${
-                                    isActive
-                                      ? isCustom
-                                        ? 'bg-amber-500 text-white'
-                                        : 'bg-blue-500 text-white'
-                                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                                  }`}
-                                >
-                                  <align.Icon />
-                                </button>
-                              )
-                            })}
-                          </div>
-                        </div>
-                        <div className="flex-1">
-                          <span className="text-[9px] text-gray-400 block mb-1">Vertical</span>
-                          <div className="flex gap-0.5">
-                            {verticalAlignOptions.map((align) => {
-                              const isActive = getGroupAlignment(group.id, 'textVerticalAlign') === align.id
-                              const isCustom = groupState.textVerticalAlign === align.id
-                              return (
-                                <button
-                                  key={align.id}
-                                  onClick={() => updateGroupAlignment(group.id, { textVerticalAlign: align.id })}
-                                  title={align.name}
-                                  className={`flex-1 px-1.5 py-1.5 rounded flex items-center justify-center ${
-                                    isActive
-                                      ? isCustom
-                                        ? 'bg-amber-500 text-white'
-                                        : 'bg-blue-500 text-white'
-                                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                                  }`}
-                                >
-                                  <align.Icon />
-                                </button>
-                              )
-                            })}
-                          </div>
+                  return (
+                    <div key={group.id} className="space-y-1">
+                      <span className="text-[10px] text-gray-500 block">{group.name}</span>
+                      <div className="flex items-center gap-2">
+                        <UnifiedCellGrid
+                          layout={layout}
+                          imageCell={imageCell}
+                          mode="textGroup"
+                          highlightCell={currentCell}
+                          onSelectCell={(idx) => updateGroupCell(group.id, idx)}
+                          aspectRatio={platformAspectRatio}
+                          size="small"
+                        />
+                        <div className="flex flex-col text-[9px]">
+                          <span className="text-gray-400">
+                            {currentCell !== null ? `Cell ${currentCell + 1}` : 'Auto'}
+                          </span>
+                          {currentCell !== null && (
+                            <button
+                              onClick={() => updateGroupCell(group.id, null)}
+                              className="text-gray-400 hover:text-gray-600"
+                            >
+                              Reset
+                            </button>
+                          )}
                         </div>
                       </div>
-                      {/* Reset to global button */}
-                      {hasCustomAlign && (
-                        <button
-                          onClick={() => updateGroupAlignment(group.id, { textAlign: null, textVerticalAlign: null })}
-                          className="w-full px-2 py-1 text-[9px] text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded"
-                        >
-                          Reset to global
-                        </button>
-                      )}
                     </div>
-                  </div>
-                </div>
-              )
-            })}
+                  )
+                })}
+              </div>
+            </div>
 
-            {/* Global Alignment (Default) */}
+            {/* Global Text Alignment */}
             <div className="space-y-2 pt-3 border-t border-gray-200">
               <label className="block text-xs font-medium text-gray-600">
-                Global Alignment <span className="text-gray-400 font-normal">(default)</span>
+                Text Alignment <span className="text-gray-400 font-normal">(all cells)</span>
               </label>
               <div className="flex gap-4">
                 <div className="flex-1">

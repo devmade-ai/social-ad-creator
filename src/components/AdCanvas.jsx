@@ -205,17 +205,6 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
     return cellAlign !== null && cellAlign !== undefined ? cellAlign : layout.textVerticalAlign
   }
 
-  // Get group-specific alignment with fallback to global
-  const getGroupTextAlign = (groupId) => {
-    const groupAlign = textGroups[groupId]?.textAlign
-    return groupAlign !== null && groupAlign !== undefined ? groupAlign : layout.textAlign
-  }
-
-  const getGroupVerticalAlign = (groupId) => {
-    const groupAlign = textGroups[groupId]?.textVerticalAlign
-    return groupAlign !== null && groupAlign !== undefined ? groupAlign : layout.textVerticalAlign
-  }
-
   // Find the first non-image cell for auto text placement
   const getFirstNonImageCellIndex = () => {
     for (let i = 0; i < cellInfo.totalCells; i++) {
@@ -425,14 +414,24 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
     )
   }
 
-  // Render a single text group with its alignment
-  const renderGroupWithAlignment = (groupId, renderFn, withShadow, padding) => {
-    const textAlign = getGroupTextAlign(groupId)
-    const verticalAlign = getGroupVerticalAlign(groupId)
+  // Render text groups for a specific cell - all groups share cell alignment
+  const renderTextGroupsForCell = (cellIndex, isOnImage) => {
+    const groups = getGroupsForCell(cellIndex, isOnImage)
+    const withShadow = isOnImage
+    const padding = getCellPadding(cellIndex)
+    const textAlign = getCellTextAlign(cellIndex)
+    const verticalAlign = getCellVerticalAlign(cellIndex)
+
+    // Group render functions mapping
+    const groupRenderFns = {
+      titleGroup: renderTitleGroup,
+      bodyGroup: renderBodyGroup,
+      cta: renderCta,
+      footnote: renderFootnote,
+    }
 
     return (
       <div
-        key={groupId}
         style={{
           display: 'flex',
           flexDirection: 'column',
@@ -448,51 +447,48 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
         }}
       >
         <div style={{ maxWidth: '90%', overflow: 'hidden' }}>
-          {renderFn(withShadow)}
+          {groups.map(groupId => (
+            <div key={groupId}>
+              {groupRenderFns[groupId](withShadow)}
+            </div>
+          ))}
         </div>
       </div>
     )
   }
 
-  // Render text groups for a specific cell - each group with its own alignment
-  const renderTextGroupsForCell = (cellIndex, isOnImage) => {
-    const groups = getGroupsForCell(cellIndex, isOnImage)
-    const withShadow = isOnImage
-    const padding = getCellPadding(cellIndex)
-
-    // Group render functions mapping
-    const groupRenderFns = {
-      titleGroup: renderTitleGroup,
-      bodyGroup: renderBodyGroup,
-      cta: renderCta,
-      footnote: renderFootnote,
-    }
-
-    return (
-      <>
-        {groups.map(groupId => renderGroupWithAlignment(groupId, groupRenderFns[groupId], withShadow, padding))}
-      </>
-    )
-  }
-
-  // Render fullbleed layout (no split) - each group with its own alignment
+  // Render fullbleed layout (no split) - all groups share cell alignment
   const renderFullbleed = () => {
     const padding = getCellPadding(0)
-
-    const groupRenderFns = {
-      titleGroup: renderTitleGroup,
-      bodyGroup: renderBodyGroup,
-      cta: renderCta,
-      footnote: renderFootnote,
-    }
+    const textAlign = getCellTextAlign(0)
+    const verticalAlign = getCellVerticalAlign(0)
 
     return (
       <>
         {renderImage({ position: 'absolute', inset: 0 })}
-        {/* Each group gets its own alignment container */}
-        {Object.keys(groupRenderFns).map(groupId =>
-          renderGroupWithAlignment(groupId, groupRenderFns[groupId], true, padding)
-        )}
+        {/* All groups share one alignment container */}
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: getJustifyContent(verticalAlign),
+            alignItems: getAlignItems(textAlign),
+            padding,
+            textAlign,
+            width: '100%',
+            height: '100%',
+            position: 'absolute',
+            inset: 0,
+            overflow: 'hidden',
+          }}
+        >
+          <div style={{ maxWidth: '90%', overflow: 'hidden' }}>
+            {renderTitleGroup(true)}
+            {renderBodyGroup(true)}
+            {renderCta(true)}
+            {renderFootnote(true)}
+          </div>
+        </div>
       </>
     )
   }
