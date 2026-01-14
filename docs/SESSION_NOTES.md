@@ -2,52 +2,55 @@
 
 ## Current Session
 
-Fixed per-element cell placement to provide consistency between image and text placement.
+Fixed layout presets and restored missing features in the Placement tab.
+
+### Issues Fixed
+
+1. **Layout Presets Text Placement Bug**
+   - Presets used old `textGroups` format but state uses `textCells` format
+   - Result: preset icons showed correct layout, but text ended up in wrong cells
+   - Fixed by converting all presets in `layoutPresets.js` to use `textCells` format
+
+2. **Missing Presets Tab**
+   - Presets tab was removed in previous sessions
+   - Restored with category filters (All, Suggested, Image Focus, Text Focus, Balanced, Grid)
+   - Added `applyLayoutPreset` function to properly apply layout + textCells
+
+3. **Missing Per-Cell Alignment**
+   - Per-cell text alignment controls were removed
+   - Added cell selector with per-cell alignment controls in Placement tab
+   - Select a cell to set its alignment, or leave unselected for global
+
+4. **Missing Text Editing Options**
+   - Text visibility and color controls were removed from Placement tab
+   - Restored visibility toggle and color picker for each text element
 
 ### Changes Made
 
-1. **Per-Element Cell Placement**
-   - Changed from grouped text placement (titleGroup, bodyGroup) to individual element placement
-   - Each text element (title, tagline, bodyHeading, bodyText, cta, footnote) can be placed in any cell
-   - State changed from `textGroups` to `textCells` with flat structure
+**layoutPresets.js**:
+- Converted all 20 presets from `textGroups` to `textCells` format
+- `titleGroup: { cell: 1 }` became `title: 1, tagline: 1`
+- `bodyGroup: { cell: 1 }` became `bodyHeading: 1, bodyText: 1`
 
-2. **Simplified Placement Tab**
-   - Clean row layout: element label + cell selector + status + reset button
-   - Image and all text elements have consistent cell selector UI
-   - Global Text Alignment section at bottom
+**useAdState.js**:
+- Added `applyLayoutPreset(preset)` function for layout presets
 
-3. **Cell-Level Alignment**
-   - All text elements within a cell share alignment (prevents overlap)
-   - Global alignment controls in Placement tab apply to all cells
+**LayoutSelector.jsx**:
+- Restored Presets tab with category filters and preset grid
+- Updated Placement tab with:
+  - Per-cell alignment (cell selector + H/V alignment controls)
+  - Image cell assignment
+  - Text element controls (visibility, cell assignment, color)
+- Removed unused helper functions
 
-### State Structure Change
-
-Before (grouped):
-```js
-textGroups: {
-  titleGroup: { cell: null },
-  bodyGroup: { cell: null },
-  cta: { cell: null },
-  footnote: { cell: null }
-}
-```
-
-After (per-element):
-```js
-textCells: {
-  title: null,
-  tagline: null,
-  bodyHeading: null,
-  bodyText: null,
-  cta: null,
-  footnote: null
-}
-```
+**App.jsx**:
+- Added `applyLayoutPreset` to useAdState destructure
+- Passed `onApplyLayoutPreset` prop to LayoutSelector
 
 ### Files Modified
 
-- `src/hooks/useAdState.js` - Changed textGroups to textCells
-- `src/components/LayoutSelector.jsx` - Per-element cell selectors in Placement tab
-- `src/components/AdCanvas.jsx` - Per-element rendering logic
-- `src/App.jsx` - Updated props
-- `CLAUDE.md` - Updated state documentation
+- `src/config/layoutPresets.js`
+- `src/hooks/useAdState.js`
+- `src/components/LayoutSelector.jsx`
+- `src/App.jsx`
+- `CLAUDE.md`

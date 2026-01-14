@@ -242,6 +242,28 @@ export function useAdState() {
     setState((prev) => ({ ...prev, activeStylePreset: null }))
   }, [])
 
+  // Apply a layout preset (layout structure + text cell placements)
+  const applyLayoutPreset = useCallback((preset) => {
+    if (!preset) return
+
+    setState((prev) => ({
+      ...prev,
+      // Apply layout settings
+      layout: {
+        ...preset.layout,
+      },
+      // Apply text cell placements
+      textCells: preset.textCells ? {
+        title: preset.textCells.title ?? null,
+        tagline: preset.textCells.tagline ?? null,
+        bodyHeading: preset.textCells.bodyHeading ?? null,
+        bodyText: preset.textCells.bodyText ?? null,
+        cta: preset.textCells.cta ?? null,
+        footnote: preset.textCells.footnote ?? null,
+      } : prev.textCells,
+    }))
+  }, [])
+
   return {
     state,
     setImage,
@@ -263,6 +285,7 @@ export function useAdState() {
     resetState,
     applyStylePreset,
     clearStylePreset,
+    applyLayoutPreset,
     undo,
     redo,
     canUndo,

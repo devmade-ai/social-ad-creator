@@ -6,6 +6,8 @@
 2. **Gather context from documentation** (CLAUDE.md, relevant docs/)
 3. **Then proceed with the task**
 
+### REMINDER: READ AND FOLLOW THE FUCKING PROCESS EVERY TIME
+
 ## Principles
 
 1. **User-first design** - Align with how real people will use the tool (top priority)
@@ -15,6 +17,8 @@
 5. **Know the purpose** - Always be aware of what the tool is for
 6. **Follow conventions** - Best practices and consistent patterns
 7. **Repeatable process** - Follow consistent steps to ensure all the above
+
+### REMINDER: READ AND FOLLOW THE FUCKING PRINCIPLES EVERY TIME
 
 ## Documentation
 
@@ -27,11 +31,16 @@ Keep these documents up to date:
 | `docs/TODO.md` | Backlog of ideas and improvements | When noticing potential improvements, when completing features (mark done) |
 | `docs/USER_ACTIONS.md` | Manual actions requiring user intervention | When tasks need external dashboards, credentials, or manual configuration |
 
+### REMINDER: READ AND FOLLOW THE FUCKING DOCUMENTATION EVERY TIME
+
 **Documentation Guidelines:**
+
 - `SESSION_NOTES.md`: Keep lean - remove previous session notes once no longer relevant
 - `TODO.md`: AI-managed backlog - user can review; mark items complete, don't delete them
 - `USER_ACTIONS.md`: Clear when actions are completed; keep empty if no pending actions
 - `CLAUDE.md`: Update Project Status and Key State Structure when features change
+
+### REMINDER: READ AND FOLLOW THE FUCKING  DOCUMENTATION GUIDELINES EVERY TIME
 
 ## AI Notes
 
@@ -42,6 +51,8 @@ Keep these documents up to date:
 - Commit and push changes before ending a session
 - Keep SESSION_NOTES.md lean - remove previous session notes once no longer relevant
 - Clean up completed or obsolete docs/files and remove references to them
+
+### REMINDER: READ AND FOLLOW THE FUCKING AI NOTES EVERY TIME
 
 ---
 
@@ -150,26 +161,30 @@ textCells: {
 
 The Layout tab uses a sub-tab architecture for better organization:
 
-1. **Presets** - Quick start with 17 pre-built layouts
-   - Categories: Suggested, All, Image Focus, Text Focus, Balanced
+1. **Presets** - Quick start with 20 pre-built layouts
+   - Categories: All, Suggested, Image Focus, Text Focus, Balanced, Grid
    - Smart suggestions based on image aspect ratio and platform
    - Visual SVG preview icons
+   - Applies both layout structure AND text cell placements
 
 2. **Structure** - Fine-tune the layout grid
+   - Layout type selector (Full/Rows/Columns)
    - Click section labels (R1, R2 or C1, C2) to edit row/column size
    - Click cells to edit subdivision sizes
    - Contextual controls based on selection
 
-3. **Overlay** - Per-cell overlay controls
-   - Click cell to select (or global)
+3. **Placement** - Per-cell alignment and text element controls
+   - Cell selector for per-cell alignment (select cell or set global)
+   - Horizontal and vertical alignment per cell
+   - Image cell assignment
+   - Text element controls: visibility toggle, cell assignment, color picker
+   - Individual text elements: Title, Tagline, Body Heading, Body Text, CTA, Footnote
+
+4. **Overlay** - Per-cell overlay controls
+   - Click cell to select
    - Enable/disable overlay per cell
    - Custom overlay type and intensity per cell
 
-4. **Spacing** - Global and per-cell padding
+5. **Spacing** - Global and per-cell padding
    - Global padding for all cells
    - Click cell for custom padding overrides
-
-5. **Placement** - Assign text groups to cells
-   - Image cell selector with quick controls (fit, grayscale, overlay)
-   - Per-group cell selectors (Title+Tagline, Body, CTA, Footnote)
-   - Global text alignment controls (horizontal/vertical)

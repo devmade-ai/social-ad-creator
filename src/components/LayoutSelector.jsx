@@ -2,6 +2,13 @@ import { useState, useMemo } from 'react'
 import { overlayTypes } from '../config/layouts'
 import { platforms } from '../config/platforms'
 import { defaultState } from '../hooks/useAdState'
+import {
+  layoutPresets,
+  presetCategories,
+  presetIcons,
+  getPresetsByCategory,
+  getSuggestedLayouts,
+} from '../config/layoutPresets'
 
 const layoutTypes = [
   { id: 'fullbleed', name: 'Full', icon: '□' },
@@ -64,11 +71,37 @@ const verticalAlignOptions = [
 
 // Sub-tabs for the Layout section
 const subTabs = [
+  { id: 'presets', name: 'Presets', icon: '⊞' },
   { id: 'structure', name: 'Structure', icon: '⊟' },
   { id: 'placement', name: 'Placement', icon: '◫' },
   { id: 'overlay', name: 'Overlay', icon: '◐' },
   { id: 'spacing', name: 'Spacing', icon: '⊡' },
 ]
+
+// SVG Preview Icon Component for presets
+function PresetIcon({ presetId, isActive }) {
+  const iconData = presetIcons[presetId]
+  if (!iconData) return <span className="text-base">?</span>
+
+  return (
+    <svg
+      viewBox={iconData.viewBox}
+      className="w-10 h-7"
+      style={{ display: 'block' }}
+    >
+      {iconData.elements.map((el, i) => {
+        const Element = el.type
+        const props = { ...el.props }
+        if (isActive) {
+          if (props.fill === '#3b82f6') props.fill = '#ffffff'
+          if (props.fill === '#e5e7eb') props.fill = 'rgba(255,255,255,0.4)'
+          if (props.fill === '#d1d5db') props.fill = 'rgba(255,255,255,0.25)'
+        }
+        return <Element key={i} {...props} />
+      })}
+    </svg>
+  )
+}
 
 const overlayColorOptions = [
   { id: 'primary', name: 'Primary' },
@@ -366,21 +399,19 @@ export default function LayoutSelector({
   theme,
   padding = { global: 5, cellOverrides: {} },
   onPaddingChange,
-  imageObjectFit = 'cover',
-  onImageObjectFitChange,
-  imageFilters = {},
-  onImageFiltersChange,
+  onApplyLayoutPreset,
 }) {
   const { type = 'fullbleed', structure = [], imageCell = 0, textAlign, textVerticalAlign, cellAlignments = [], cellOverlays = {} } = layout
 
   // Sub-tab state
-  const [activeSubTab, setActiveSubTab] = useState('structure')
+  const [activeSubTab, setActiveSubTab] = useState('presets')
+  // Preset category filter
+  const [presetCategory, setPresetCategory] = useState('all')
   // Cell selection state for alignment/placement tabs (null = all cells)
   const [selectedCell, setSelectedCell] = useState(null)
   // Structure selection state: { type: 'section', index } | { type: 'cell', cellIndex, sectionIndex, subIndex } | null
   const [structureSelection, setStructureSelection] = useState(null)
 
-  const totalCells = useMemo(() => getTotalCells(structure), [structure])
   const cellInfoList = useMemo(() => getCellInfo(layout), [layout])
 
   // Calculate platform aspect ratio for cell selector
@@ -388,35 +419,6 @@ export default function LayoutSelector({
     const p = platforms.find(pl => pl.id === platform) || platforms[0]
     return p.width / p.height
   }, [platform])
-
-  // Helper to update a specific cell's alignment
-  const updateCellAlignment = (cellIndex, updates) => {
-    const newAlignments = [...(cellAlignments || [])]
-    while (newAlignments.length <= cellIndex) {
-      newAlignments.push({ textAlign: null, textVerticalAlign: null })
-    }
-    newAlignments[cellIndex] = { ...newAlignments[cellIndex], ...updates }
-    onLayoutChange({ cellAlignments: newAlignments })
-  }
-
-  // Update all cells' alignment
-  const updateAllCellsAlignment = (updates) => {
-    // Update global alignment
-    onLayoutChange(updates)
-    // Also update all cell alignments to match
-    const newAlignments = cellInfoList.map((_, idx) => ({
-      ...(cellAlignments?.[idx] || {}),
-      ...updates,
-    }))
-    onLayoutChange({ cellAlignments: newAlignments, ...updates })
-  }
-
-  // Get current alignment for a cell
-  const getCellAlignment = (cellIndex, prop) => {
-    const cellAlign = cellAlignments?.[cellIndex]?.[prop]
-    if (cellAlign !== null && cellAlign !== undefined) return cellAlign
-    return prop === 'textAlign' ? textAlign : textVerticalAlign
-  }
 
   // Handle cell selection for alignment/placement tabs
   const handleCellSelect = (cellIndex) => {
@@ -581,9 +583,93 @@ export default function LayoutSelector({
     setSelectedCell(null)
   }
 
+  // Get filtered presets based on category
+  const filteredPresets = useMemo(() => {
+    if (presetCategory === 'all') return layoutPresets
+    if (presetCategory === 'suggested') {
+      const suggestedIds = getSuggestedLayouts(imageAspectRatio, platform)
+      return layoutPresets.filter(p => suggestedIds.includes(p.id))
+    }
+    return getPresetsByCategory(presetCategory)
+  }, [presetCategory, imageAspectRatio, platform])
+
   // Render sub-tab content
   const renderSubTabContent = () => {
     switch (activeSubTab) {
+      case 'presets':
+        return (
+          <div className="space-y-3">
+            {/* Category Filter */}
+            <div className="flex flex-wrap gap-1">
+              <button
+                onClick={() => setPresetCategory('all')}
+                className={`px-2 py-1 text-xs rounded ${
+                  presetCategory === 'all'
+                    ? 'bg-blue-500 text-white'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                All
+              </button>
+              <button
+                onClick={() => setPresetCategory('suggested')}
+                className={`px-2 py-1 text-xs rounded ${
+                  presetCategory === 'suggested'
+                    ? 'bg-blue-500 text-white'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                Suggested
+              </button>
+              {presetCategories.map((cat) => (
+                <button
+                  key={cat.id}
+                  onClick={() => setPresetCategory(cat.id)}
+                  className={`px-2 py-1 text-xs rounded ${
+                    presetCategory === cat.id
+                      ? 'bg-blue-500 text-white'
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
+                >
+                  {cat.name}
+                </button>
+              ))}
+            </div>
+
+            {/* Preset Grid */}
+            <div className="grid grid-cols-3 gap-2">
+              {filteredPresets.map((preset) => {
+                const isActive = layout.type === preset.layout.type &&
+                  layout.imageCell === preset.layout.imageCell &&
+                  JSON.stringify(layout.structure) === JSON.stringify(preset.layout.structure)
+                return (
+                  <button
+                    key={preset.id}
+                    onClick={() => onApplyLayoutPreset?.(preset)}
+                    className={`p-2 rounded-lg border-2 transition-all flex flex-col items-center gap-1 ${
+                      isActive
+                        ? 'border-blue-500 bg-blue-500 text-white'
+                        : 'border-gray-200 bg-white hover:border-blue-300 hover:bg-blue-50'
+                    }`}
+                    title={preset.description}
+                  >
+                    <PresetIcon presetId={preset.id} isActive={isActive} />
+                    <span className="text-[10px] font-medium leading-tight text-center">
+                      {preset.name}
+                    </span>
+                  </button>
+                )
+              })}
+            </div>
+
+            {filteredPresets.length === 0 && (
+              <p className="text-xs text-gray-500 text-center py-4">
+                No presets match the current filter
+              </p>
+            )}
+          </div>
+        )
+
       case 'structure':
         // Get info about current selection
         const selectedSection = structureSelection?.type === 'section' ? structure[structureSelection.index] : null
@@ -841,65 +927,72 @@ export default function LayoutSelector({
         )
 
       case 'placement':
+        // Get alignment for selected cell or global
+        const getAlignmentForCell = (cellIndex, prop) => {
+          if (cellIndex === null) {
+            return prop === 'textAlign' ? textAlign : textVerticalAlign
+          }
+          const cellAlign = cellAlignments?.[cellIndex]?.[prop]
+          if (cellAlign !== null && cellAlign !== undefined) return cellAlign
+          return prop === 'textAlign' ? textAlign : textVerticalAlign
+        }
+
+        // Update alignment for selected cell or global
+        const setAlignmentForCell = (cellIndex, prop, value) => {
+          if (cellIndex === null) {
+            // Update global alignment
+            onLayoutChange({ [prop]: value })
+          } else {
+            // Update per-cell alignment
+            const newAlignments = [...(cellAlignments || [])]
+            while (newAlignments.length <= cellIndex) {
+              newAlignments.push({ textAlign: null, textVerticalAlign: null })
+            }
+            newAlignments[cellIndex] = { ...newAlignments[cellIndex], [prop]: value }
+            onLayoutChange({ cellAlignments: newAlignments })
+          }
+        }
+
         return (
           <div className="space-y-3">
-            {/* Image Cell */}
-            <div className="flex items-center gap-2 py-2 border-b border-gray-200">
-              <span className="text-xs font-medium text-gray-600 w-24">📷 Image</span>
-              <UnifiedCellGrid
-                layout={layout}
-                imageCell={imageCell}
-                mode="image"
-                onSelectCell={(idx) => onLayoutChange({ imageCell: idx })}
-                aspectRatio={platformAspectRatio}
-                size="small"
-              />
-              <span className="text-[9px] text-gray-400">Cell {imageCell + 1}</span>
-            </div>
-
-            {/* Text Elements - each with cell selector */}
-            {textElementDefs.map((element) => {
-              const currentCell = textCells?.[element.id]
-              return (
-                <div key={element.id} className="flex items-center gap-2 py-1">
-                  <span className="text-xs text-gray-600 w-24">{element.label}</span>
-                  <UnifiedCellGrid
-                    layout={layout}
-                    imageCell={imageCell}
-                    mode="textGroup"
-                    highlightCell={currentCell}
-                    onSelectCell={(idx) => onTextCellsChange?.({ [element.id]: idx })}
-                    aspectRatio={platformAspectRatio}
-                    size="small"
-                  />
-                  <span className="text-[9px] text-gray-400 w-12">
-                    {currentCell !== null ? `Cell ${currentCell + 1}` : 'Auto'}
+            {/* Cell Alignment Section */}
+            <div className="space-y-2">
+              <label className="block text-xs font-medium text-gray-600 text-center">
+                Cell Alignment <span className="text-gray-400 font-normal">(select cell or set global)</span>
+              </label>
+              <div className="flex justify-center">
+                <UnifiedCellGrid
+                  layout={layout}
+                  imageCell={imageCell}
+                  selectedCell={selectedCell}
+                  mode="cell"
+                  onSelectCell={handleCellSelect}
+                  aspectRatio={platformAspectRatio}
+                  size="large"
+                />
+              </div>
+              <div className="text-xs text-center py-1 bg-gray-50 rounded">
+                {selectedCell === null ? (
+                  <span className="text-gray-600">Global alignment (all cells)</span>
+                ) : (
+                  <span className="text-purple-600">
+                    Cell {selectedCell + 1} alignment
+                    {selectedCell === imageCell && <span className="text-blue-500 ml-1">(image)</span>}
                   </span>
-                  {currentCell !== null && (
-                    <button
-                      onClick={() => onTextCellsChange?.({ [element.id]: null })}
-                      className="text-[9px] text-gray-400 hover:text-gray-600"
-                    >
-                      ×
-                    </button>
-                  )}
-                </div>
-              )
-            })}
+                )}
+              </div>
 
-            {/* Global Text Alignment */}
-            <div className="space-y-2 pt-3 border-t border-gray-200">
-              <label className="block text-xs font-medium text-gray-600">Text Alignment</label>
+              {/* Alignment Controls */}
               <div className="flex gap-4">
                 <div className="flex-1">
                   <span className="text-[9px] text-gray-400 block mb-1">Horizontal</span>
                   <div className="flex gap-1">
                     {textAlignOptions.map((align) => {
-                      const isActive = textAlign === align.id
+                      const isActive = getAlignmentForCell(selectedCell, 'textAlign') === align.id
                       return (
                         <button
                           key={align.id}
-                          onClick={() => onLayoutChange({ textAlign: align.id })}
+                          onClick={() => setAlignmentForCell(selectedCell, 'textAlign', align.id)}
                           title={align.name}
                           className={`flex-1 px-2 py-2 rounded flex items-center justify-center ${
                             isActive
@@ -917,11 +1010,11 @@ export default function LayoutSelector({
                   <span className="text-[9px] text-gray-400 block mb-1">Vertical</span>
                   <div className="flex gap-1">
                     {verticalAlignOptions.map((align) => {
-                      const isActive = textVerticalAlign === align.id
+                      const isActive = getAlignmentForCell(selectedCell, 'textVerticalAlign') === align.id
                       return (
                         <button
                           key={align.id}
-                          onClick={() => onLayoutChange({ textVerticalAlign: align.id })}
+                          onClick={() => setAlignmentForCell(selectedCell, 'textVerticalAlign', align.id)}
                           title={align.name}
                           className={`flex-1 px-2 py-2 rounded flex items-center justify-center ${
                             isActive
@@ -936,6 +1029,97 @@ export default function LayoutSelector({
                   </div>
                 </div>
               </div>
+            </div>
+
+            {/* Image Cell Assignment */}
+            <div className="pt-3 border-t border-gray-200">
+              <div className="flex items-center gap-2 py-2">
+                <span className="text-xs font-medium text-gray-600 w-24">📷 Image</span>
+                <UnifiedCellGrid
+                  layout={layout}
+                  imageCell={imageCell}
+                  mode="image"
+                  onSelectCell={(idx) => onLayoutChange({ imageCell: idx })}
+                  aspectRatio={platformAspectRatio}
+                  size="small"
+                />
+                <span className="text-[9px] text-gray-400">Cell {imageCell + 1}</span>
+              </div>
+            </div>
+
+            {/* Text Elements - cell assignment + visibility + color */}
+            <div className="pt-3 border-t border-gray-200 space-y-2">
+              <label className="block text-xs font-medium text-gray-600">Text Elements</label>
+              {textElementDefs.map((element) => {
+                const currentCell = textCells?.[element.id]
+                const textData = text?.[element.id] || {}
+                const isVisible = textData.visible !== false
+                const colorValue = textData.color || 'secondary'
+
+                return (
+                  <div key={element.id} className="flex items-center gap-2 py-1">
+                    {/* Visibility Toggle */}
+                    <button
+                      onClick={() => onTextChange?.(element.id, { visible: !isVisible })}
+                      className={`w-5 h-5 rounded flex items-center justify-center text-[10px] ${
+                        isVisible
+                          ? 'bg-green-100 text-green-600'
+                          : 'bg-gray-100 text-gray-400'
+                      }`}
+                      title={isVisible ? 'Visible - click to hide' : 'Hidden - click to show'}
+                    >
+                      {isVisible ? '✓' : '○'}
+                    </button>
+
+                    {/* Label */}
+                    <span className={`text-xs w-20 ${isVisible ? 'text-gray-600' : 'text-gray-400'}`}>
+                      {element.label}
+                    </span>
+
+                    {/* Cell Selector */}
+                    <UnifiedCellGrid
+                      layout={layout}
+                      imageCell={imageCell}
+                      mode="textGroup"
+                      highlightCell={currentCell}
+                      onSelectCell={(idx) => onTextCellsChange?.({ [element.id]: idx })}
+                      aspectRatio={platformAspectRatio}
+                      size="small"
+                    />
+
+                    {/* Cell Label */}
+                    <span className="text-[9px] text-gray-400 w-10">
+                      {currentCell !== null ? `Cell ${currentCell + 1}` : 'Auto'}
+                    </span>
+
+                    {/* Color Picker */}
+                    <div className="flex gap-0.5">
+                      {colorOptions.map((color) => (
+                        <button
+                          key={color.id}
+                          onClick={() => onTextChange?.(element.id, { color: color.id })}
+                          className={`w-4 h-4 rounded-full border ${
+                            colorValue === color.id ? 'ring-2 ring-blue-400 ring-offset-1' : 'border-gray-300'
+                          }`}
+                          style={{ backgroundColor: theme?.[color.id] || '#666' }}
+                          title={color.name}
+                        />
+                      ))}
+                    </div>
+
+                    {/* Reset Cell */}
+                    {currentCell !== null && (
+                      <button
+                        onClick={() => onTextCellsChange?.({ [element.id]: null })}
+                        className="text-[9px] text-gray-400 hover:text-gray-600"
+                        title="Reset to auto"
+                      >
+                        ×
+                      </button>
+                    )}
+                  </div>
+                )
+              })}
             </div>
           </div>
         )

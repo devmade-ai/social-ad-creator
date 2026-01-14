@@ -39,6 +39,7 @@ function App() {
     setPadding,
     setPlatform,
     applyStylePreset,
+    applyLayoutPreset,
     undo,
     redo,
     canUndo,
@@ -234,10 +235,7 @@ function App() {
                   theme={state.theme}
                   padding={state.padding}
                   onPaddingChange={setPadding}
-                  imageObjectFit={state.imageObjectFit}
-                  onImageObjectFitChange={setImageObjectFit}
-                  imageFilters={state.imageFilters}
-                  onImageFiltersChange={setImageFilters}
+                  onApplyLayoutPreset={applyLayoutPreset}
                 />
               )}
             </ErrorBoundary>

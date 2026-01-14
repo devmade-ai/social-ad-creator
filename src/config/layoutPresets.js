@@ -176,11 +176,13 @@ export const layoutPresets = [
       textVerticalAlign: 'center',
       cellAlignments: [],
     },
-    textGroups: {
-      titleGroup: { cell: null },
-      bodyGroup: { cell: null },
-      cta: { cell: null },
-      footnote: { cell: null },
+    textCells: {
+      title: null,
+      tagline: null,
+      bodyHeading: null,
+      bodyText: null,
+      cta: null,
+      footnote: null,
     },
   },
   {
@@ -196,11 +198,13 @@ export const layoutPresets = [
       textVerticalAlign: 'start',
       cellAlignments: [],
     },
-    textGroups: {
-      titleGroup: { cell: null },
-      bodyGroup: { cell: null },
-      cta: { cell: null },
-      footnote: { cell: null },
+    textCells: {
+      title: null,
+      tagline: null,
+      bodyHeading: null,
+      bodyText: null,
+      cta: null,
+      footnote: null,
     },
   },
   {
@@ -216,11 +220,13 @@ export const layoutPresets = [
       textVerticalAlign: 'end',
       cellAlignments: [],
     },
-    textGroups: {
-      titleGroup: { cell: null },
-      bodyGroup: { cell: null },
-      cta: { cell: null },
-      footnote: { cell: null },
+    textCells: {
+      title: null,
+      tagline: null,
+      bodyHeading: null,
+      bodyText: null,
+      cta: null,
+      footnote: null,
     },
   },
   {
@@ -242,11 +248,13 @@ export const layoutPresets = [
         { textAlign: 'left', textVerticalAlign: 'center' },
       ],
     },
-    textGroups: {
-      titleGroup: { cell: 1 },
-      bodyGroup: { cell: 1 },
-      cta: { cell: 1 },
-      footnote: { cell: 1 },
+    textCells: {
+      title: 1,
+      tagline: 1,
+      bodyHeading: 1,
+      bodyText: 1,
+      cta: 1,
+      footnote: 1,
     },
   },
   {
@@ -268,11 +276,13 @@ export const layoutPresets = [
         { textAlign: 'center', textVerticalAlign: 'center' },
       ],
     },
-    textGroups: {
-      titleGroup: { cell: 0 },
-      bodyGroup: { cell: 0 },
-      cta: { cell: 0 },
-      footnote: { cell: 0 },
+    textCells: {
+      title: 0,
+      tagline: 0,
+      bodyHeading: 0,
+      bodyText: 0,
+      cta: 0,
+      footnote: 0,
     },
   },
   {
@@ -294,11 +304,13 @@ export const layoutPresets = [
         { textAlign: 'center', textVerticalAlign: 'center' },
       ],
     },
-    textGroups: {
-      titleGroup: { cell: 1 },
-      bodyGroup: { cell: 1 },
-      cta: { cell: 1 },
-      footnote: { cell: 1 },
+    textCells: {
+      title: 1,
+      tagline: 1,
+      bodyHeading: 1,
+      bodyText: 1,
+      cta: 1,
+      footnote: 1,
     },
   },
   {
@@ -320,11 +332,13 @@ export const layoutPresets = [
         { textAlign: 'center', textVerticalAlign: 'center' },
       ],
     },
-    textGroups: {
-      titleGroup: { cell: 0 },
-      bodyGroup: { cell: 0 },
-      cta: { cell: 0 },
-      footnote: { cell: 0 },
+    textCells: {
+      title: 0,
+      tagline: 0,
+      bodyHeading: 0,
+      bodyText: 0,
+      cta: 0,
+      footnote: 0,
     },
   },
 
@@ -348,11 +362,13 @@ export const layoutPresets = [
         { textAlign: 'left', textVerticalAlign: 'center' },
       ],
     },
-    textGroups: {
-      titleGroup: { cell: 1 },
-      bodyGroup: { cell: 1 },
-      cta: { cell: 1 },
-      footnote: { cell: 1 },
+    textCells: {
+      title: 1,
+      tagline: 1,
+      bodyHeading: 1,
+      bodyText: 1,
+      cta: 1,
+      footnote: 1,
     },
   },
   {
@@ -374,11 +390,13 @@ export const layoutPresets = [
         { textAlign: 'center', textVerticalAlign: 'center' },
       ],
     },
-    textGroups: {
-      titleGroup: { cell: 0 },
-      bodyGroup: { cell: 0 },
-      cta: { cell: 0 },
-      footnote: { cell: 0 },
+    textCells: {
+      title: 0,
+      tagline: 0,
+      bodyHeading: 0,
+      bodyText: 0,
+      cta: 0,
+      footnote: 0,
     },
   },
   {
@@ -400,11 +418,13 @@ export const layoutPresets = [
         { textAlign: 'center', textVerticalAlign: 'start' },
       ],
     },
-    textGroups: {
-      titleGroup: { cell: 1 },
-      bodyGroup: { cell: 1 },
-      cta: { cell: 1 },
-      footnote: { cell: 1 },
+    textCells: {
+      title: 1,
+      tagline: 1,
+      bodyHeading: 1,
+      bodyText: 1,
+      cta: 1,
+      footnote: 1,
     },
   },
   {
@@ -426,11 +446,13 @@ export const layoutPresets = [
         { textAlign: 'center', textVerticalAlign: 'center' },
       ],
     },
-    textGroups: {
-      titleGroup: { cell: 0 },
-      bodyGroup: { cell: 0 },
-      cta: { cell: 0 },
-      footnote: { cell: 0 },
+    textCells: {
+      title: 0,
+      tagline: 0,
+      bodyHeading: 0,
+      bodyText: 0,
+      cta: 0,
+      footnote: 0,
     },
   },
   {
@@ -454,11 +476,13 @@ export const layoutPresets = [
         { textAlign: 'center', textVerticalAlign: 'center' },
       ],
     },
-    textGroups: {
-      titleGroup: { cell: 0 },
-      bodyGroup: { cell: 2 },
-      cta: { cell: 2 },
-      footnote: { cell: 2 },
+    textCells: {
+      title: 0,
+      tagline: 0,
+      bodyHeading: 2,
+      bodyText: 2,
+      cta: 2,
+      footnote: 2,
     },
   },
 
@@ -482,11 +506,13 @@ export const layoutPresets = [
         { textAlign: 'left', textVerticalAlign: 'center' },
       ],
     },
-    textGroups: {
-      titleGroup: { cell: 1 },
-      bodyGroup: { cell: 1 },
-      cta: { cell: 1 },
-      footnote: { cell: 1 },
+    textCells: {
+      title: 1,
+      tagline: 1,
+      bodyHeading: 1,
+      bodyText: 1,
+      cta: 1,
+      footnote: 1,
     },
   },
   {
@@ -508,11 +534,13 @@ export const layoutPresets = [
         { textAlign: 'center', textVerticalAlign: 'center' },
       ],
     },
-    textGroups: {
-      titleGroup: { cell: 0 },
-      bodyGroup: { cell: 0 },
-      cta: { cell: 0 },
-      footnote: { cell: 0 },
+    textCells: {
+      title: 0,
+      tagline: 0,
+      bodyHeading: 0,
+      bodyText: 0,
+      cta: 0,
+      footnote: 0,
     },
   },
   {
@@ -534,11 +562,13 @@ export const layoutPresets = [
         { textAlign: 'center', textVerticalAlign: 'start' },
       ],
     },
-    textGroups: {
-      titleGroup: { cell: 1 },
-      bodyGroup: { cell: 1 },
-      cta: { cell: 1 },
-      footnote: { cell: 1 },
+    textCells: {
+      title: 1,
+      tagline: 1,
+      bodyHeading: 1,
+      bodyText: 1,
+      cta: 1,
+      footnote: 1,
     },
   },
   {
@@ -560,11 +590,13 @@ export const layoutPresets = [
         { textAlign: 'center', textVerticalAlign: 'center' },
       ],
     },
-    textGroups: {
-      titleGroup: { cell: 0 },
-      bodyGroup: { cell: 0 },
-      cta: { cell: 0 },
-      footnote: { cell: 0 },
+    textCells: {
+      title: 0,
+      tagline: 0,
+      bodyHeading: 0,
+      bodyText: 0,
+      cta: 0,
+      footnote: 0,
     },
   },
 
@@ -589,11 +621,13 @@ export const layoutPresets = [
         { textAlign: 'center', textVerticalAlign: 'center' },
       ],
     },
-    textGroups: {
-      titleGroup: { cell: 0 },
-      bodyGroup: { cell: 1 },
-      cta: { cell: 2 },
-      footnote: { cell: 2 },
+    textCells: {
+      title: 1,
+      tagline: 1,
+      bodyHeading: 2,
+      bodyText: 2,
+      cta: 2,
+      footnote: 2,
     },
   },
   {
@@ -616,11 +650,13 @@ export const layoutPresets = [
         { textAlign: 'center', textVerticalAlign: 'center' },
       ],
     },
-    textGroups: {
-      titleGroup: { cell: 0 },
-      bodyGroup: { cell: 1 },
-      cta: { cell: 2 },
-      footnote: { cell: 2 },
+    textCells: {
+      title: 0,
+      tagline: 0,
+      bodyHeading: 1,
+      bodyText: 1,
+      cta: 1,
+      footnote: 1,
     },
   },
   {
@@ -643,11 +679,13 @@ export const layoutPresets = [
         { textAlign: 'left', textVerticalAlign: 'center' },
       ],
     },
-    textGroups: {
-      titleGroup: { cell: 1 },
-      bodyGroup: { cell: 2 },
-      cta: { cell: 2 },
-      footnote: { cell: 2 },
+    textCells: {
+      title: 1,
+      tagline: 1,
+      bodyHeading: 2,
+      bodyText: 2,
+      cta: 2,
+      footnote: 2,
     },
   },
   {
@@ -670,11 +708,13 @@ export const layoutPresets = [
         { textAlign: 'center', textVerticalAlign: 'center' },
       ],
     },
-    textGroups: {
-      titleGroup: { cell: 0 },
-      bodyGroup: { cell: 1 },
-      cta: { cell: 1 },
-      footnote: { cell: 1 },
+    textCells: {
+      title: 0,
+      tagline: 0,
+      bodyHeading: 1,
+      bodyText: 1,
+      cta: 1,
+      footnote: 1,
     },
   },
 ]
