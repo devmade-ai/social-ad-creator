@@ -1,11 +1,4 @@
 import { useState, useMemo } from 'react'
-import {
-  layoutPresets,
-  presetCategories,
-  presetIcons,
-  getPresetsByCategory,
-  getSuggestedLayouts,
-} from '../config/layoutPresets'
 import { overlayTypes } from '../config/layouts'
 import { platforms } from '../config/platforms'
 import { defaultState } from '../hooks/useAdState'
@@ -78,7 +71,6 @@ const textGroupDefs = [
 
 // Sub-tabs for the Layout section
 const subTabs = [
-  { id: 'presets', name: 'Presets', icon: '⊞' },
   { id: 'structure', name: 'Structure', icon: '⊟' },
   { id: 'placement', name: 'Placement', icon: '◫' },
   { id: 'overlay', name: 'Overlay', icon: '◐' },
@@ -122,30 +114,6 @@ function getCellInfo(layout) {
   })
 
   return cells
-}
-
-// SVG Preview Icon Component
-function PresetIcon({ presetId, isActive }) {
-  const iconData = presetIcons[presetId]
-  if (!iconData) return <span className="text-base">?</span>
-
-  return (
-    <svg
-      viewBox={iconData.viewBox}
-      className="w-10 h-7"
-      style={{ display: 'block' }}
-    >
-      {iconData.elements.map((el, i) => {
-        const Element = el.type
-        const props = { ...el.props }
-        if (isActive) {
-          if (props.fill === '#3b82f6') props.fill = '#ffffff'
-          if (props.fill === '#e5e7eb') props.fill = 'rgba(255,255,255,0.4)'
-        }
-        return <Element key={i} {...props} />
-      })}
-    </svg>
-  )
 }
 
 // Visual grid preview for cell selection - supports multiple modes
@@ -460,13 +428,11 @@ export default function LayoutSelector({
   const { type = 'fullbleed', structure = [], imageCell = 0, textAlign, textVerticalAlign, cellAlignments = [], cellOverlays = {} } = layout
 
   // Sub-tab state
-  const [activeSubTab, setActiveSubTab] = useState('presets')
+  const [activeSubTab, setActiveSubTab] = useState('structure')
   // Cell selection state for alignment/placement tabs (null = all cells)
   const [selectedCell, setSelectedCell] = useState(null)
   // Structure selection state: { type: 'section', index } | { type: 'cell', cellIndex, sectionIndex, subIndex } | null
   const [structureSelection, setStructureSelection] = useState(null)
-  // Preset category state
-  const [activeCategory, setActiveCategory] = useState('all')
 
   const totalCells = useMemo(() => getTotalCells(structure), [structure])
   const cellInfoList = useMemo(() => getCellInfo(layout), [layout])
@@ -476,23 +442,6 @@ export default function LayoutSelector({
     const p = platforms.find(pl => pl.id === platform) || platforms[0]
     return p.width / p.height
   }, [platform])
-
-  // Get suggested layouts
-  const suggestedIds = useMemo(() => {
-    return getSuggestedLayouts(imageAspectRatio, platform)
-  }, [imageAspectRatio, platform])
-
-  const suggestedPresets = useMemo(() => {
-    return layoutPresets.filter(p => suggestedIds.includes(p.id))
-  }, [suggestedIds])
-
-  const displayPresets = useMemo(() => {
-    if (activeCategory === 'all') return layoutPresets
-    if (activeCategory === 'suggested') {
-      return suggestedPresets.length > 0 ? suggestedPresets : layoutPresets.slice(0, 6)
-    }
-    return getPresetsByCategory(activeCategory)
-  }, [activeCategory, suggestedPresets])
 
   // Helper to update a specific cell's alignment
   const updateCellAlignment = (cellIndex, updates) => {
@@ -677,24 +626,6 @@ export default function LayoutSelector({
     onLayoutChange({ structure: newStructure })
   }
 
-  // Apply a preset
-  const applyPreset = (preset) => {
-    onLayoutChange(preset.layout)
-    if (onTextGroupsChange) {
-      onTextGroupsChange(preset.textGroups)
-    }
-    setSelectedCell(null)
-  }
-
-  // Check if current layout matches a preset
-  const getActivePreset = () => {
-    return layoutPresets.find(preset => {
-      return JSON.stringify(preset.layout) === JSON.stringify(layout)
-    })
-  }
-
-  const activePreset = getActivePreset()
-
   // Reset to default
   const handleReset = () => {
     onLayoutChange(defaultState.layout)
@@ -704,58 +635,9 @@ export default function LayoutSelector({
     setSelectedCell(null)
   }
 
-  // Category tabs for presets
-  const categoryTabs = [
-    ...(suggestedPresets.length > 0 ? [{ id: 'suggested', name: 'Suggested' }] : []),
-    { id: 'all', name: 'All' },
-    ...presetCategories.map(c => ({ id: c.id, name: c.name })),
-  ]
-
   // Render sub-tab content
   const renderSubTabContent = () => {
     switch (activeSubTab) {
-      case 'presets':
-        return (
-          <div className="space-y-3">
-            {/* Category Tabs */}
-            <div className="flex flex-wrap gap-1">
-              {categoryTabs.map((cat) => (
-                <button
-                  key={cat.id}
-                  onClick={() => setActiveCategory(cat.id)}
-                  className={`px-2 py-1 text-[10px] rounded-full ${
-                    activeCategory === cat.id
-                      ? 'bg-blue-500 text-white'
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                  }`}
-                >
-                  {cat.name}
-                  {cat.id === 'suggested' && <span className="ml-1">★</span>}
-                </button>
-              ))}
-            </div>
-
-            {/* Preset Grid */}
-            <div className="grid grid-cols-3 gap-1.5">
-              {displayPresets.map((preset) => (
-                <button
-                  key={preset.id}
-                  onClick={() => applyPreset(preset)}
-                  title={preset.description}
-                  className={`px-1.5 py-2 text-xs rounded flex flex-col items-center gap-1 transition-colors ${
-                    activePreset?.id === preset.id
-                      ? 'bg-blue-500 text-white'
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                  }`}
-                >
-                  <PresetIcon presetId={preset.id} isActive={activePreset?.id === preset.id} />
-                  <span className="text-[9px] leading-tight text-center line-clamp-2">{preset.name}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-        )
-
       case 'structure':
         // Get info about current selection
         const selectedSection = structureSelection?.type === 'section' ? structure[structureSelection.index] : null

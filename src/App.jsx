@@ -9,6 +9,7 @@ import FontSelector from './components/FontSelector'
 import PlatformPreview from './components/PlatformPreview'
 import ExportButtons from './components/ExportButtons'
 import ErrorBoundary from './components/ErrorBoundary'
+import StylePresetSelector from './components/StylePresetSelector'
 import { platforms } from './config/platforms'
 import { fonts } from './config/fonts'
 
@@ -37,6 +38,7 @@ function App() {
     setFonts,
     setPadding,
     setPlatform,
+    applyStylePreset,
     undo,
     redo,
     canUndo,
@@ -262,7 +264,15 @@ function App() {
         </aside>
 
         {/* Preview Area */}
-        <main className="flex-1 p-4 lg:p-6">
+        <main className="flex-1 p-4 lg:p-6 space-y-4">
+          {/* Style Presets - Top Level */}
+          <ErrorBoundary title="Style presets error" message="Failed to load style presets.">
+            <StylePresetSelector
+              activePresetId={state.activeStylePreset}
+              onSelectPreset={applyStylePreset}
+            />
+          </ErrorBoundary>
+
           <div className="bg-white rounded-lg shadow-sm p-4 lg:p-6">
             {/* Platform Selector */}
             <PlatformPreview
