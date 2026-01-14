@@ -33,14 +33,15 @@ export const defaultState = {
     footnote: { content: '*Terms and conditions apply', visible: true, color: 'secondary', size: 1, bold: false, italic: false, letterSpacing: 0 },
   },
 
-  // Text group positioning and alignment (which cell each group appears in)
-  // cell: null = auto (follows default behavior), number = specific cell index
-  // textAlign/textVerticalAlign: null = use global, string = override
-  textGroups: {
-    titleGroup: { cell: null, textAlign: null, textVerticalAlign: null },    // title + tagline
-    bodyGroup: { cell: null, textAlign: null, textVerticalAlign: null },     // bodyHeading + bodyText
-    cta: { cell: null, textAlign: null, textVerticalAlign: null },           // independent
-    footnote: { cell: null, textAlign: null, textVerticalAlign: null },      // independent
+  // Per-element cell placement (which cell each text element appears in)
+  // null = auto (follows default behavior), number = specific cell index
+  textCells: {
+    title: null,
+    tagline: null,
+    bodyHeading: null,
+    bodyText: null,
+    cta: null,
+    footnote: null,
   },
 
   logo: null,
@@ -135,10 +136,10 @@ export function useAdState() {
     }))
   }, [])
 
-  const setTextGroups = useCallback((updates) => {
+  const setTextCells = useCallback((updates) => {
     setState((prev) => ({
       ...prev,
-      textGroups: { ...prev.textGroups, ...updates },
+      textCells: { ...prev.textCells, ...updates },
     }))
   }, [])
 
@@ -224,29 +225,15 @@ export function useAdState() {
         contrast: settings.imageFilters.contrast,
         brightness: settings.imageFilters.brightness,
       } : prev.imageFilters,
-      // Apply text groups
-      textGroups: settings.textGroups ? {
-        titleGroup: {
-          cell: settings.textGroups.titleGroup?.cell ?? null,
-          textAlign: settings.textGroups.titleGroup?.textAlign ?? null,
-          textVerticalAlign: settings.textGroups.titleGroup?.textVerticalAlign ?? null,
-        },
-        bodyGroup: {
-          cell: settings.textGroups.bodyGroup?.cell ?? null,
-          textAlign: settings.textGroups.bodyGroup?.textAlign ?? null,
-          textVerticalAlign: settings.textGroups.bodyGroup?.textVerticalAlign ?? null,
-        },
-        cta: {
-          cell: settings.textGroups.cta?.cell ?? null,
-          textAlign: settings.textGroups.cta?.textAlign ?? null,
-          textVerticalAlign: settings.textGroups.cta?.textVerticalAlign ?? null,
-        },
-        footnote: {
-          cell: settings.textGroups.footnote?.cell ?? null,
-          textAlign: settings.textGroups.footnote?.textAlign ?? null,
-          textVerticalAlign: settings.textGroups.footnote?.textVerticalAlign ?? null,
-        },
-      } : prev.textGroups,
+      // Apply text cell placements
+      textCells: settings.textCells ? {
+        title: settings.textCells.title ?? null,
+        tagline: settings.textCells.tagline ?? null,
+        bodyHeading: settings.textCells.bodyHeading ?? null,
+        bodyText: settings.textCells.bodyText ?? null,
+        cta: settings.textCells.cta ?? null,
+        footnote: settings.textCells.footnote ?? null,
+      } : prev.textCells,
     }))
   }, [])
 
@@ -266,7 +253,7 @@ export function useAdState() {
     setLogoSize,
     setOverlay,
     setText,
-    setTextGroups,
+    setTextCells,
     setLayout,
     setTheme,
     setThemePreset,

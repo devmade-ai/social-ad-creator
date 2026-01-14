@@ -31,7 +31,7 @@ function App() {
     setLogoSize,
     setOverlay,
     setText,
-    setTextGroups,
+    setTextCells,
     setLayout,
     setTheme,
     setThemePreset,
@@ -224,8 +224,8 @@ function App() {
                 <LayoutSelector
                   layout={state.layout}
                   onLayoutChange={setLayout}
-                  textGroups={state.textGroups}
-                  onTextGroupsChange={setTextGroups}
+                  textCells={state.textCells}
+                  onTextCellsChange={setTextCells}
                   text={state.text}
                   onTextChange={setText}
                   imageAspectRatio={imageAspectRatio}

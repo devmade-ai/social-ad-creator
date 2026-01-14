@@ -136,13 +136,13 @@ layout: {
   cellAlignments: [{ textAlign, textVerticalAlign }, ...]  // Per-cell overrides
 }
 
-textGroups: {
-  titleGroup: { cell: null, textAlign: null, textVerticalAlign: null },
-  bodyGroup: { cell: null, textAlign: null, textVerticalAlign: null },
-  cta: { cell: null, textAlign: null, textVerticalAlign: null },
-  footnote: { cell: null, textAlign: null, textVerticalAlign: null }
-  // cell: null = auto, number = specific cell
-  // textAlign/textVerticalAlign: null = use global, string = custom per-group
+textCells: {
+  title: null,      // null = auto, number = specific cell index
+  tagline: null,
+  bodyHeading: null,
+  bodyText: null,
+  cta: null,
+  footnote: null
 }
 ```
 
@@ -169,8 +169,7 @@ The Layout tab uses a sub-tab architecture for better organization:
    - Global padding for all cells
    - Click cell for custom padding overrides
 
-5. **Placement** - Assign text groups to cells with per-group alignment
+5. **Placement** - Assign text groups to cells
    - Image cell selector with quick controls (fit, grayscale, overlay)
    - Per-group cell selectors (Title+Tagline, Body, CTA, Footnote)
-   - Per-group horizontal/vertical alignment (amber = custom, blue = global)
-   - Global alignment section as fallback for groups without custom alignment
+   - Global text alignment controls (horizontal/vertical)
