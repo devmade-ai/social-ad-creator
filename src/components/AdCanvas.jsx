@@ -8,7 +8,7 @@ const defaultTextLayer = { content: '', visible: false, color: 'secondary', size
 const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
   const platform = platforms.find((p) => p.id === state.platform) || platforms[0]
   const layout = state.layout
-  const textGroups = state.textGroups || {}
+  const textCells = state.textCells || {}
   const titleFont = fonts.find((f) => f.id === state.fonts.title) || fonts[0]
   const bodyFont = fonts.find((f) => f.id === state.fonts.body) || fonts[0]
   const paddingConfig = state.padding || { global: 20, cellOverrides: {} }
@@ -213,25 +213,25 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
     return -1 // All cells have image (only possible with 1 cell)
   }
 
-  // Get text groups for a specific cell
-  const getGroupsForCell = (cellIndex, onImageLayer) => {
-    const groups = []
-    const groupIds = ['titleGroup', 'bodyGroup', 'cta', 'footnote']
+  // Get text elements for a specific cell
+  const getElementsForCell = (cellIndex, onImageLayer) => {
+    const elements = []
+    const elementIds = ['title', 'tagline', 'bodyHeading', 'bodyText', 'cta', 'footnote']
     const hasImage = isImageCell(cellIndex)
 
-    for (const groupId of groupIds) {
-      const assignedCell = textGroups[groupId]?.cell
+    for (const elementId of elementIds) {
+      const assignedCell = textCells[elementId]
 
       if (assignedCell !== null && assignedCell !== undefined) {
         // Explicitly assigned to a cell
         if (assignedCell === cellIndex) {
-          groups.push(groupId)
+          elements.push(elementId)
         }
       } else {
         // Auto assignment based on layout
         if (layout.type === 'fullbleed') {
-          // Fullbleed: all groups on the single layer
-          groups.push(groupId)
+          // Fullbleed: all elements on the single layer
+          elements.push(elementId)
         } else {
           // Grid layout: distribute based on image placement
           const firstNonImageCell = getFirstNonImageCellIndex()
@@ -239,196 +239,126 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
 
           if (onlyOneCell) {
             // Single cell: all text goes here
-            if (onImageLayer) groups.push(groupId)
+            if (onImageLayer) elements.push(elementId)
           } else if (hasImage && onImageLayer) {
-            // Image cell gets: titleGroup and cta
-            if (groupId === 'titleGroup' || groupId === 'cta') {
-              groups.push(groupId)
+            // Image cell gets: title, tagline, cta
+            if (['title', 'tagline', 'cta'].includes(elementId)) {
+              elements.push(elementId)
             }
           } else if (!hasImage && !onImageLayer && cellIndex === firstNonImageCell) {
-            // First non-image cell gets: bodyGroup and footnote
-            if (groupId === 'bodyGroup' || groupId === 'footnote') {
-              groups.push(groupId)
+            // First non-image cell gets: bodyHeading, bodyText, footnote
+            if (['bodyHeading', 'bodyText', 'footnote'].includes(elementId)) {
+              elements.push(elementId)
             }
           }
         }
       }
     }
-    return groups
+    return elements
   }
 
-  // Render title group (title + tagline)
-  const renderTitleGroup = (withShadow = false) => {
-    const title = getTextLayer('title')
-    const tagline = getTextLayer('tagline')
-    const shadowStyle = withShadow ? { textShadow: '0 2px 4px rgba(0,0,0,0.3)' } : {}
-    const taglineShadow = withShadow ? { textShadow: '0 1px 2px rgba(0,0,0,0.3)' } : {}
+  // Render a single text element
+  const renderTextElement = (elementId, withShadow = false) => {
+    const layer = getTextLayer(elementId)
+    if (!layer.visible || !layer.content) return null
 
-    return (
-      <>
-        {title.visible && title.content && (
-          <h1
-            style={{
-              fontSize: Math.round(platform.width * 0.05 * (title.size || 1)),
-              fontWeight: title.bold !== false ? 700 : 400,
-              fontStyle: title.italic ? 'italic' : 'normal',
-              letterSpacing: `${title.letterSpacing || 0}px`,
-              fontFamily: titleFont.family,
-              color: getTextColor(title.color),
-              margin: 0,
-              lineHeight: 1.2,
-              wordWrap: 'break-word',
-              overflowWrap: 'break-word',
-              ...shadowStyle,
-            }}
-          >
-            {title.content}
-          </h1>
-        )}
-        {tagline.visible && tagline.content && (
-          <p
-            style={{
-              fontSize: Math.round(platform.width * 0.028 * (tagline.size || 1)),
-              fontWeight: tagline.bold ? 700 : 500,
-              fontStyle: tagline.italic ? 'italic' : 'normal',
-              letterSpacing: `${tagline.letterSpacing || 0}px`,
-              fontFamily: bodyFont.family,
-              color: getTextColor(tagline.color),
-              margin: '0.4em 0 0 0',
-              lineHeight: 1.3,
-              wordWrap: 'break-word',
-              overflowWrap: 'break-word',
-              ...taglineShadow,
-            }}
-          >
-            {tagline.content}
-          </p>
-        )}
-      </>
-    )
-  }
-
-  // Render body group (body heading + body text)
-  const renderBodyGroup = (withShadow = false) => {
-    const bodyHeading = getTextLayer('bodyHeading')
-    const bodyTextLayer = getTextLayer('bodyText')
     const shadowStyle = withShadow ? { textShadow: '0 1px 2px rgba(0,0,0,0.3)' } : {}
+    const titleShadow = withShadow ? { textShadow: '0 2px 4px rgba(0,0,0,0.3)' } : {}
+
+    // Element-specific styling
+    const elementStyles = {
+      title: {
+        tag: 'h1',
+        fontSize: Math.round(platform.width * 0.05 * (layer.size || 1)),
+        fontWeight: layer.bold !== false ? 700 : 400,
+        fontFamily: titleFont.family,
+        margin: 0,
+        lineHeight: 1.2,
+        shadow: titleShadow,
+      },
+      tagline: {
+        tag: 'p',
+        fontSize: Math.round(platform.width * 0.028 * (layer.size || 1)),
+        fontWeight: layer.bold ? 700 : 500,
+        fontFamily: bodyFont.family,
+        margin: '0.4em 0 0 0',
+        lineHeight: 1.3,
+        shadow: shadowStyle,
+      },
+      bodyHeading: {
+        tag: 'p',
+        fontSize: Math.round(platform.width * 0.026 * (layer.size || 1)),
+        fontWeight: layer.bold !== false ? 600 : 400,
+        fontFamily: bodyFont.family,
+        margin: '0.8em 0 0 0',
+        lineHeight: 1.3,
+        shadow: shadowStyle,
+      },
+      bodyText: {
+        tag: 'p',
+        fontSize: Math.round(platform.width * 0.022 * (layer.size || 1)),
+        fontWeight: layer.bold ? 700 : 400,
+        fontFamily: bodyFont.family,
+        margin: '0.4em 0 0 0',
+        lineHeight: 1.5,
+        whiteSpace: 'pre-wrap',
+        shadow: shadowStyle,
+      },
+      cta: {
+        tag: 'p',
+        fontSize: Math.round(platform.width * 0.028 * (layer.size || 1)),
+        fontWeight: layer.bold !== false ? 600 : 400,
+        fontFamily: bodyFont.family,
+        margin: '0.8em 0 0 0',
+        lineHeight: 1.3,
+        shadow: shadowStyle,
+      },
+      footnote: {
+        tag: 'p',
+        fontSize: Math.round(platform.width * 0.015 * (layer.size || 1)),
+        fontWeight: layer.bold ? 700 : 400,
+        fontFamily: bodyFont.family,
+        margin: '1em 0 0 0',
+        lineHeight: 1.3,
+        opacity: 0.8,
+        shadow: shadowStyle,
+      },
+    }
+
+    const style = elementStyles[elementId] || elementStyles.bodyText
+    const Tag = style.tag
 
     return (
-      <>
-        {bodyHeading.visible && bodyHeading.content && (
-          <p
-            style={{
-              fontSize: Math.round(platform.width * 0.026 * (bodyHeading.size || 1)),
-              fontWeight: bodyHeading.bold !== false ? 600 : 400,
-              fontStyle: bodyHeading.italic ? 'italic' : 'normal',
-              letterSpacing: `${bodyHeading.letterSpacing || 0}px`,
-              fontFamily: bodyFont.family,
-              color: getTextColor(bodyHeading.color),
-              margin: '0.8em 0 0 0',
-              lineHeight: 1.3,
-              wordWrap: 'break-word',
-              overflowWrap: 'break-word',
-              ...shadowStyle,
-            }}
-          >
-            {bodyHeading.content}
-          </p>
-        )}
-        {bodyTextLayer.visible && bodyTextLayer.content && (
-          <p
-            style={{
-              fontSize: Math.round(platform.width * 0.022 * (bodyTextLayer.size || 1)),
-              fontWeight: bodyTextLayer.bold ? 700 : 400,
-              fontStyle: bodyTextLayer.italic ? 'italic' : 'normal',
-              letterSpacing: `${bodyTextLayer.letterSpacing || 0}px`,
-              fontFamily: bodyFont.family,
-              color: getTextColor(bodyTextLayer.color),
-              margin: '0.4em 0 0 0',
-              lineHeight: 1.5,
-              whiteSpace: 'pre-wrap',
-              wordWrap: 'break-word',
-              overflowWrap: 'break-word',
-              ...shadowStyle,
-            }}
-          >
-            {bodyTextLayer.content}
-          </p>
-        )}
-      </>
-    )
-  }
-
-  // Render CTA
-  const renderCta = (withShadow = false) => {
-    const cta = getTextLayer('cta')
-    const shadowStyle = withShadow ? { textShadow: '0 1px 2px rgba(0,0,0,0.3)' } : {}
-
-    if (!cta.visible || !cta.content) return null
-    return (
-      <p
+      <Tag
+        key={elementId}
         style={{
-          fontSize: Math.round(platform.width * 0.028 * (cta.size || 1)),
-          fontWeight: cta.bold !== false ? 600 : 400,
-          fontStyle: cta.italic ? 'italic' : 'normal',
-          letterSpacing: `${cta.letterSpacing || 0}px`,
-          fontFamily: bodyFont.family,
-          color: getTextColor(cta.color),
-          margin: '0.8em 0 0 0',
-          lineHeight: 1.3,
+          fontSize: style.fontSize,
+          fontWeight: style.fontWeight,
+          fontStyle: layer.italic ? 'italic' : 'normal',
+          letterSpacing: `${layer.letterSpacing || 0}px`,
+          fontFamily: style.fontFamily,
+          color: getTextColor(layer.color),
+          margin: style.margin,
+          lineHeight: style.lineHeight,
+          opacity: style.opacity,
+          whiteSpace: style.whiteSpace,
           wordWrap: 'break-word',
           overflowWrap: 'break-word',
-          ...shadowStyle,
+          ...style.shadow,
         }}
       >
-        {cta.content}
-      </p>
+        {layer.content}
+      </Tag>
     )
   }
 
-  // Render footnote
-  const renderFootnote = (withShadow = false) => {
-    const footnote = getTextLayer('footnote')
-    const shadowStyle = withShadow ? { textShadow: '0 1px 2px rgba(0,0,0,0.3)' } : {}
-
-    if (!footnote.visible || !footnote.content) return null
-    return (
-      <p
-        style={{
-          fontSize: Math.round(platform.width * 0.015 * (footnote.size || 1)),
-          fontWeight: footnote.bold ? 700 : 400,
-          fontStyle: footnote.italic ? 'italic' : 'normal',
-          letterSpacing: `${footnote.letterSpacing || 0}px`,
-          fontFamily: bodyFont.family,
-          color: getTextColor(footnote.color),
-          margin: '1em 0 0 0',
-          lineHeight: 1.3,
-          opacity: 0.8,
-          wordWrap: 'break-word',
-          overflowWrap: 'break-word',
-          ...shadowStyle,
-        }}
-      >
-        {footnote.content}
-      </p>
-    )
-  }
-
-  // Render text groups for a specific cell - all groups share cell alignment
-  const renderTextGroupsForCell = (cellIndex, isOnImage) => {
-    const groups = getGroupsForCell(cellIndex, isOnImage)
+  // Render text elements for a specific cell - all elements share cell alignment
+  const renderTextElementsForCell = (cellIndex, isOnImage) => {
+    const elements = getElementsForCell(cellIndex, isOnImage)
     const withShadow = isOnImage
     const padding = getCellPadding(cellIndex)
     const textAlign = getCellTextAlign(cellIndex)
     const verticalAlign = getCellVerticalAlign(cellIndex)
-
-    // Group render functions mapping
-    const groupRenderFns = {
-      titleGroup: renderTitleGroup,
-      bodyGroup: renderBodyGroup,
-      cta: renderCta,
-      footnote: renderFootnote,
-    }
 
     return (
       <div
@@ -447,26 +377,23 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
         }}
       >
         <div style={{ maxWidth: '90%', overflow: 'hidden' }}>
-          {groups.map(groupId => (
-            <div key={groupId}>
-              {groupRenderFns[groupId](withShadow)}
-            </div>
-          ))}
+          {elements.map(elementId => renderTextElement(elementId, withShadow))}
         </div>
       </div>
     )
   }
 
-  // Render fullbleed layout (no split) - all groups share cell alignment
+  // Render fullbleed layout (no split) - all elements share cell alignment
   const renderFullbleed = () => {
     const padding = getCellPadding(0)
     const textAlign = getCellTextAlign(0)
     const verticalAlign = getCellVerticalAlign(0)
+    const allElements = ['title', 'tagline', 'bodyHeading', 'bodyText', 'cta', 'footnote']
 
     return (
       <>
         {renderImage({ position: 'absolute', inset: 0 })}
-        {/* All groups share one alignment container */}
+        {/* All elements share one alignment container */}
         <div
           style={{
             display: 'flex',
@@ -483,10 +410,7 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
           }}
         >
           <div style={{ maxWidth: '90%', overflow: 'hidden' }}>
-            {renderTitleGroup(true)}
-            {renderBodyGroup(true)}
-            {renderCta(true)}
-            {renderFootnote(true)}
+            {allElements.map(elementId => renderTextElement(elementId, true))}
           </div>
         </div>
       </>
@@ -496,8 +420,8 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
   // Render a single cell content
   const renderCellContent = (cellIndex) => {
     const hasImage = isImageCell(cellIndex)
-    const textGroupsOnImage = hasImage ? getGroupsForCell(cellIndex, true) : []
-    const textGroupsOnBackground = getGroupsForCell(cellIndex, false)
+    const textElementsOnImage = hasImage ? getElementsForCell(cellIndex, true) : []
+    const textElementsOnBackground = getElementsForCell(cellIndex, false)
     const cellOverlay = getCellOverlay(cellIndex, hasImage)
 
     return (
@@ -521,17 +445,17 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
           />
         )}
 
-        {/* Text on image layer - each group has its own alignment */}
-        {hasImage && textGroupsOnImage.length > 0 && (
+        {/* Text on image layer */}
+        {hasImage && textElementsOnImage.length > 0 && (
           <div style={{ position: 'absolute', inset: 0, zIndex: 2 }}>
-            {renderTextGroupsForCell(cellIndex, true)}
+            {renderTextElementsForCell(cellIndex, true)}
           </div>
         )}
 
-        {/* Text on background (non-image cells) - each group has its own alignment */}
-        {!hasImage && textGroupsOnBackground.length > 0 && (
+        {/* Text on background (non-image cells) */}
+        {!hasImage && textElementsOnBackground.length > 0 && (
           <div style={{ position: 'absolute', inset: 0, zIndex: 1 }}>
-            {renderTextGroupsForCell(cellIndex, false)}
+            {renderTextElementsForCell(cellIndex, false)}
           </div>
         )}
       </>

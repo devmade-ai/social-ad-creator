@@ -136,12 +136,13 @@ layout: {
   cellAlignments: [{ textAlign, textVerticalAlign }, ...]  // Per-cell overrides
 }
 
-textGroups: {
-  titleGroup: { cell: null },  // title + tagline
-  bodyGroup: { cell: null },   // bodyHeading + bodyText
-  cta: { cell: null },         // independent
-  footnote: { cell: null }     // independent
-  // cell: null = auto, number = specific cell index
+textCells: {
+  title: null,      // null = auto, number = specific cell index
+  tagline: null,
+  bodyHeading: null,
+  bodyText: null,
+  cta: null,
+  footnote: null
 }
 ```
 

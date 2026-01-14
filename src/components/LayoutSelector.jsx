@@ -62,13 +62,6 @@ const verticalAlignOptions = [
   { id: 'end', name: 'Bottom', Icon: AlignBottomIcon },
 ]
 
-const textGroupDefs = [
-  { id: 'titleGroup', name: 'Title + Tagline', short: 'Title', elements: ['title', 'tagline'] },
-  { id: 'bodyGroup', name: 'Body Text', short: 'Body', elements: ['bodyHeading', 'bodyText'] },
-  { id: 'cta', name: 'CTA', short: 'CTA', elements: ['cta'] },
-  { id: 'footnote', name: 'Footnote', short: 'Note', elements: ['footnote'] },
-]
-
 // Sub-tabs for the Layout section
 const subTabs = [
   { id: 'structure', name: 'Structure', icon: '⊟' },
@@ -116,7 +109,7 @@ function getCellInfo(layout) {
 }
 
 // Unified grid component for all cell selection needs
-// Supports: structure editing (with section labels), image placement, text group placement, overlay/spacing selection
+// Supports: structure editing (with section labels), image placement, text element placement, overlay/spacing selection
 function UnifiedCellGrid({
   layout,
   imageCell,
@@ -125,8 +118,8 @@ function UnifiedCellGrid({
   onSelectCell,
   onSelectSection, // Only used when mode='structure'
   structureSelection, // Only used when mode='structure': { type: 'section', index } | { type: 'cell', cellIndex, sectionIndex, subIndex } | null
-  highlightCell = null, // For text group mode - which cell this group is assigned to
-  textGroups = {}, // For showing text group assignments
+  highlightCell = null, // For text group mode - which cell this element is assigned to
+  textCells = {}, // For showing text element assignments
   aspectRatio = 1,
   size = 'normal', // 'normal' | 'large' | 'small'
 }) {
@@ -140,18 +133,18 @@ function UnifiedCellGrid({
   const isRows = type === 'rows'
   const showSectionLabels = mode === 'structure' && !isFullbleed && normalizedStructure.length > 1
 
-  // Get cells that have text groups assigned (for visual feedback)
-  const textGroupCells = useMemo(() => {
+  // Get cells that have text elements assigned (for visual feedback)
+  const textElementCells = useMemo(() => {
     const cellMap = {}
-    textGroupDefs.forEach(group => {
-      const cell = textGroups?.[group.id]?.cell
+    textElementDefs.forEach(element => {
+      const cell = textCells?.[element.id]
       if (cell !== null && cell !== undefined) {
         if (!cellMap[cell]) cellMap[cell] = []
-        cellMap[cell].push(group.short)
+        cellMap[cell].push(element.label.substring(0, 4)) // Short label
       }
     })
     return cellMap
-  }, [textGroups])
+  }, [textCells])
 
   // Size configurations
   const maxWidthPx = size === 'large' ? 280 : size === 'small' ? 100 : 180
@@ -205,7 +198,7 @@ function UnifiedCellGrid({
       }
     } else {
       // Default 'cell' mode (for overlay, spacing, etc.)
-      const assignedGroups = textGroupCells[cellIndex]
+      const assignedGroups = textElementCells[cellIndex]
       if (isSelected) {
         bgClass = 'bg-purple-500 hover:bg-purple-600'
         textClass = 'text-white'
@@ -351,8 +344,8 @@ const colorOptions = [
 export default function LayoutSelector({
   layout,
   onLayoutChange,
-  textGroups = {},
-  onTextGroupsChange,
+  textCells = {},
+  onTextCellsChange,
   text = {},
   onTextChange,
   imageAspectRatio,
@@ -570,8 +563,8 @@ export default function LayoutSelector({
   // Reset to default
   const handleReset = () => {
     onLayoutChange(defaultState.layout)
-    if (onTextGroupsChange) {
-      onTextGroupsChange(defaultState.textGroups)
+    if (onTextCellsChange) {
+      onTextCellsChange(defaultState.textCells)
     }
     setSelectedCell(null)
   }
@@ -836,123 +829,55 @@ export default function LayoutSelector({
         )
 
       case 'placement':
-        // Helper to update a text group's cell
-        const updateGroupCell = (groupId, cell) => {
-          onTextGroupsChange?.({
-            [groupId]: { ...textGroups?.[groupId], cell }
-          })
-        }
-
         return (
-          <div className="space-y-4">
-            {/* Image Cell Section */}
-            <div className="space-y-2">
-              <label className="block text-xs font-medium text-gray-600">📷 Image Cell</label>
-              <div className="flex gap-3">
-                <UnifiedCellGrid
-                  layout={layout}
-                  imageCell={imageCell}
-                  mode="image"
-                  onSelectCell={(idx) => onLayoutChange({ imageCell: idx })}
-                  aspectRatio={platformAspectRatio}
-                />
-                <div className="flex-1 space-y-2">
-                  <div className="flex gap-1">
+          <div className="space-y-3">
+            {/* Image Cell */}
+            <div className="flex items-center gap-2 py-2 border-b border-gray-200">
+              <span className="text-xs font-medium text-gray-600 w-24">📷 Image</span>
+              <UnifiedCellGrid
+                layout={layout}
+                imageCell={imageCell}
+                mode="image"
+                onSelectCell={(idx) => onLayoutChange({ imageCell: idx })}
+                aspectRatio={platformAspectRatio}
+                size="small"
+              />
+              <span className="text-[9px] text-gray-400">Cell {imageCell + 1}</span>
+            </div>
+
+            {/* Text Elements - each with cell selector */}
+            {textElementDefs.map((element) => {
+              const currentCell = textCells?.[element.id]
+              return (
+                <div key={element.id} className="flex items-center gap-2 py-1">
+                  <span className="text-xs text-gray-600 w-24">{element.label}</span>
+                  <UnifiedCellGrid
+                    layout={layout}
+                    imageCell={imageCell}
+                    mode="textGroup"
+                    highlightCell={currentCell}
+                    onSelectCell={(idx) => onTextCellsChange?.({ [element.id]: idx })}
+                    aspectRatio={platformAspectRatio}
+                    size="small"
+                  />
+                  <span className="text-[9px] text-gray-400 w-12">
+                    {currentCell !== null ? `Cell ${currentCell + 1}` : 'Auto'}
+                  </span>
+                  {currentCell !== null && (
                     <button
-                      onClick={() => onImageObjectFitChange?.('cover')}
-                      className={`flex-1 px-2 py-1.5 text-[10px] rounded ${
-                        imageObjectFit === 'cover'
-                          ? 'bg-blue-500 text-white'
-                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                      }`}
+                      onClick={() => onTextCellsChange?.({ [element.id]: null })}
+                      className="text-[9px] text-gray-400 hover:text-gray-600"
                     >
-                      Cover
+                      ×
                     </button>
-                    <button
-                      onClick={() => onImageObjectFitChange?.('contain')}
-                      className={`flex-1 px-2 py-1.5 text-[10px] rounded ${
-                        imageObjectFit === 'contain'
-                          ? 'bg-blue-500 text-white'
-                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                      }`}
-                    >
-                      Contain
-                    </button>
-                  </div>
-                  <button
-                    onClick={() => onImageFiltersChange?.({ grayscale: !imageFilters.grayscale })}
-                    className={`w-full px-2 py-1.5 text-[10px] rounded ${
-                      imageFilters.grayscale
-                        ? 'bg-blue-500 text-white'
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                    }`}
-                  >
-                    {imageFilters.grayscale ? 'Grayscale On' : 'Grayscale Off'}
-                  </button>
-                  <div className="flex items-center gap-2">
-                    <span className="text-[10px] text-gray-500">Overlay</span>
-                    <input
-                      type="range"
-                      min="0"
-                      max="100"
-                      value={overlay?.opacity || 0}
-                      onChange={(e) => {
-                        const opacity = parseInt(e.target.value)
-                        onLayoutChange({ cellOverlays: { ...cellOverlays, [imageCell]: { enabled: opacity > 0, opacity } } })
-                      }}
-                      className="flex-1 h-1 accent-blue-500"
-                    />
-                    <span className="text-[10px] text-gray-500 w-6">{overlay?.opacity || 0}%</span>
-                  </div>
+                  )}
                 </div>
-              </div>
-            </div>
-
-            {/* Text Group Cell Placement */}
-            <div className="space-y-2 pt-3 border-t border-gray-200">
-              <label className="block text-xs font-medium text-gray-600">Text Group Placement</label>
-              <div className="grid grid-cols-2 gap-3">
-                {textGroupDefs.map((group) => {
-                  const currentCell = textGroups?.[group.id]?.cell
-
-                  return (
-                    <div key={group.id} className="space-y-1">
-                      <span className="text-[10px] text-gray-500 block">{group.name}</span>
-                      <div className="flex items-center gap-2">
-                        <UnifiedCellGrid
-                          layout={layout}
-                          imageCell={imageCell}
-                          mode="textGroup"
-                          highlightCell={currentCell}
-                          onSelectCell={(idx) => updateGroupCell(group.id, idx)}
-                          aspectRatio={platformAspectRatio}
-                          size="small"
-                        />
-                        <div className="flex flex-col text-[9px]">
-                          <span className="text-gray-400">
-                            {currentCell !== null ? `Cell ${currentCell + 1}` : 'Auto'}
-                          </span>
-                          {currentCell !== null && (
-                            <button
-                              onClick={() => updateGroupCell(group.id, null)}
-                              className="text-gray-400 hover:text-gray-600"
-                            >
-                              Reset
-                            </button>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
-            </div>
+              )
+            })}
 
             {/* Global Text Alignment */}
             <div className="space-y-2 pt-3 border-t border-gray-200">
-              <label className="block text-xs font-medium text-gray-600">
-                Text Alignment <span className="text-gray-400 font-normal">(all cells)</span>
-              </label>
+              <label className="block text-xs font-medium text-gray-600">Text Alignment</label>
               <div className="flex gap-4">
                 <div className="flex-1">
                   <span className="text-[9px] text-gray-400 block mb-1">Horizontal</span>
