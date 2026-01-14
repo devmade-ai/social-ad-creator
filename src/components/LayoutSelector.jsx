@@ -306,12 +306,22 @@ function StructureGrid({
   structureSelection, // { type: 'section', index } | { type: 'cell', cellIndex, sectionIndex, subIndex } | null
   onSelectSection,
   onSelectCell,
+  aspectRatio = 1, // width / height
 }) {
   const { type, structure } = layout
 
+  // Dynamic aspect ratio style - matches CellGrid
+  const containerStyle = {
+    aspectRatio: aspectRatio,
+    maxWidth: aspectRatio >= 1 ? '180px' : `${180 * aspectRatio}px`,
+  }
+
   if (type === 'fullbleed' || !structure) {
     return (
-      <div className="w-full aspect-[4/3] rounded border-2 border-gray-300 bg-gray-100 flex items-center justify-center">
+      <div
+        className="rounded border-2 border-gray-300 bg-gray-100 flex items-center justify-center"
+        style={containerStyle}
+      >
         <span className="text-xs text-gray-500">Single cell layout</span>
       </div>
     )
@@ -321,7 +331,7 @@ function StructureGrid({
   let cellIndex = 0
 
   return (
-    <div className={`w-full aspect-[4/3] flex ${isRows ? 'flex-row' : 'flex-col'}`}>
+    <div className={`flex ${isRows ? 'flex-row' : 'flex-col'}`} style={containerStyle}>
       {/* Section labels */}
       <div className={`flex ${isRows ? 'flex-col w-8' : 'flex-row h-6'} shrink-0`}>
         {structure.map((section, sectionIndex) => {
@@ -788,14 +798,15 @@ export default function LayoutSelector({
             ) : (
               <>
                 {/* Structure Grid */}
-                <div>
-                  <label className="block text-xs font-medium text-gray-600 mb-1">
-                    Select to Edit <span className="text-gray-400 font-normal">(click label or cell)</span>
+                <div className="space-y-2">
+                  <label className="block text-xs font-medium text-gray-600">
+                    Select Cell <span className="text-gray-400 font-normal">(to configure structure)</span>
                   </label>
                   <StructureGrid
                     layout={layout}
                     imageCell={imageCell}
                     structureSelection={structureSelection}
+                    aspectRatio={platformAspectRatio}
                     onSelectSection={(index) => {
                       if (structureSelection?.type === 'section' && structureSelection.index === index) {
                         setStructureSelection(null)
@@ -821,29 +832,37 @@ export default function LayoutSelector({
                       }
                     }}
                   />
+                  {/* Selection indicator - consistent with other tabs */}
+                  <div className="text-xs text-center py-1 bg-gray-50 rounded">
+                    {structureSelection === null ? (
+                      <span className="text-gray-600">Select a {type === 'rows' ? 'row' : 'column'} or cell to edit</span>
+                    ) : structureSelection.type === 'section' ? (
+                      <span className="text-purple-600">
+                        Editing: <strong>{type === 'rows' ? `Row ${structureSelection.index + 1}` : `Column ${structureSelection.index + 1}`}</strong>
+                      </span>
+                    ) : (
+                      <span className="text-purple-600">
+                        Editing: <strong>Cell {structureSelection.cellIndex + 1}</strong>
+                      </span>
+                    )}
+                  </div>
                 </div>
 
-                {/* Selection Info & Controls */}
+                {/* Selection Controls */}
                 {structureSelection === null ? (
-                  <div className="space-y-2">
-                    <div className="text-xs text-center py-2 bg-gray-50 rounded text-gray-500">
-                      Click a {type === 'rows' ? 'row label (R1, R2...)' : 'column label (C1, C2...)'} to adjust its size,
-                      <br />or click a cell to adjust subdivision sizes
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs text-gray-600">{structure.length} {type === 'rows' ? 'rows' : 'columns'}</span>
-                      <button
-                        onClick={addSection}
-                        disabled={structure.length >= 4}
-                        className={`px-2 py-1 text-xs rounded ${
-                          structure.length >= 4
-                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                            : 'bg-blue-500 text-white hover:bg-blue-600'
-                        }`}
-                      >
-                        + Add {type === 'rows' ? 'Row' : 'Column'}
-                      </button>
-                    </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-gray-600">{structure.length} {type === 'rows' ? 'rows' : 'columns'}</span>
+                    <button
+                      onClick={addSection}
+                      disabled={structure.length >= 4}
+                      className={`px-2 py-1 text-xs rounded ${
+                        structure.length >= 4
+                          ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                          : 'bg-blue-500 text-white hover:bg-blue-600'
+                      }`}
+                    >
+                      + Add {type === 'rows' ? 'Row' : 'Column'}
+                    </button>
                   </div>
                 ) : structureSelection.type === 'section' ? (
                   <div className="space-y-3 p-3 bg-purple-50 rounded-lg">
@@ -990,9 +1009,38 @@ export default function LayoutSelector({
       case 'placement':
         return (
           <div className="space-y-4">
+            {/* Cell Selector - consistent with other tabs */}
+            {type !== 'fullbleed' && cellInfoList.length > 1 && (
+              <div className="space-y-2">
+                <label className="block text-xs font-medium text-gray-600">
+                  Select Cell <span className="text-gray-400 font-normal">(to configure placement)</span>
+                </label>
+                <CellGrid
+                  layout={layout}
+                  imageCell={imageCell}
+                  selectedCell={selectedCell}
+                  mode="placement"
+                  onSelectCell={handleCellSelect}
+                  textGroups={textGroups}
+                  aspectRatio={platformAspectRatio}
+                />
+                {/* Selection indicator */}
+                <div className="text-xs text-center py-1 bg-gray-50 rounded">
+                  {selectedCell === null ? (
+                    <span className="text-gray-600">Select a cell to configure text placement</span>
+                  ) : (
+                    <span className="text-purple-600">
+                      Editing: <strong>{cellInfoList.find(c => c.index === selectedCell)?.label || `Cell ${selectedCell}`}</strong>
+                      {selectedCell === imageCell && <span className="text-blue-500 ml-1">(image)</span>}
+                    </span>
+                  )}
+                </div>
+              </div>
+            )}
+
             {/* Image Section */}
             <div className="space-y-2">
-              <label className="block text-xs font-medium text-gray-600">Image</label>
+              <label className="block text-xs font-medium text-gray-600">Image Cell</label>
               <div className="flex gap-3">
                 {/* Cell selector */}
                 <CellGrid
