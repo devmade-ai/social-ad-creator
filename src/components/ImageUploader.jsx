@@ -1,5 +1,5 @@
 import { useCallback, useRef, useState, memo } from 'react'
-import { overlayTypes, imagePresets } from '../config/layouts'
+import { overlayTypes } from '../config/layouts'
 import { sampleImages } from '../config/sampleImages'
 
 const overlayColorOptions = [
@@ -272,27 +272,7 @@ export default memo(function ImageUploader({
         </Section>
       )}
 
-      {/* ===== SECTION 3: STYLE PRESETS (when image exists) ===== */}
-      {image && (
-        <Section title="Style Presets" defaultOpen={false} badge="Quick">
-          <div className="flex flex-wrap gap-1">
-            {imagePresets.map((preset) => (
-              <button
-                key={preset.id}
-                onClick={() => {
-                  onOverlayChange(preset.overlay)
-                  onFiltersChange(preset.filters)
-                }}
-                className="px-2 py-1 text-xs rounded bg-gray-100 text-gray-700 hover:bg-gray-200"
-              >
-                {preset.name}
-              </button>
-            ))}
-          </div>
-        </Section>
-      )}
-
-      {/* ===== SECTION 4: FILTERS (when image exists) ===== */}
+      {/* ===== SECTION 3: FILTERS (when image exists) ===== */}
       {image && (
         <Section title="Filters" defaultOpen={false}>
           <div className="flex items-center gap-2">
@@ -371,7 +351,7 @@ export default memo(function ImageUploader({
         </Section>
       )}
 
-      {/* ===== SECTION 5: OVERLAY (when image exists) ===== */}
+      {/* ===== SECTION 4: OVERLAY (when image exists) ===== */}
       {image && (
         <Section title="Overlay" defaultOpen={false}>
           <div className="space-y-2">
@@ -437,7 +417,7 @@ export default memo(function ImageUploader({
         </Section>
       )}
 
-      {/* ===== SECTION 6: LOGO ===== */}
+      {/* ===== SECTION 5: LOGO ===== */}
       {onLogoChange && (
         <Section title="Logo" defaultOpen={!!logo} badge={logo ? null : 'Optional'}>
           {!logo ? (

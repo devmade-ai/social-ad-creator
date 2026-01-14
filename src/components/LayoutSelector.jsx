@@ -63,10 +63,10 @@ const verticalAlignOptions = [
 ]
 
 const textGroupDefs = [
-  { id: 'titleGroup', name: 'Title + Tagline', short: 'Title' },
-  { id: 'bodyGroup', name: 'Body Text', short: 'Body' },
-  { id: 'cta', name: 'Call to Action', short: 'CTA' },
-  { id: 'footnote', name: 'Footnote', short: 'Note' },
+  { id: 'titleGroup', name: 'Title + Tagline', short: 'Title', elements: ['title', 'tagline'] },
+  { id: 'bodyGroup', name: 'Body Text', short: 'Body', elements: ['bodyHeading', 'bodyText'] },
+  { id: 'cta', name: 'CTA', short: 'CTA', elements: ['cta'] },
+  { id: 'footnote', name: 'Footnote', short: 'Note', elements: ['footnote'] },
 ]
 
 // Sub-tabs for the Layout section
@@ -902,45 +902,26 @@ export default function LayoutSelector({
         )
 
       case 'placement':
+        // Helper to get effective alignment for a text group
+        const getGroupAlignment = (groupId, prop) => {
+          const groupAlign = textGroups?.[groupId]?.[prop]
+          if (groupAlign !== null && groupAlign !== undefined) return groupAlign
+          return prop === 'textAlign' ? textAlign : textVerticalAlign
+        }
+
+        // Helper to update a text group's alignment
+        const updateGroupAlignment = (groupId, updates) => {
+          onTextGroupsChange?.({
+            [groupId]: { ...textGroups?.[groupId], ...updates }
+          })
+        }
+
         return (
           <div className="space-y-4">
-            {/* Cell Selector - consistent with other tabs */}
-            {type !== 'fullbleed' && cellInfoList.length > 1 && (
-              <div className="space-y-2">
-                <label className="block text-xs font-medium text-gray-600 text-center">
-                  Select Cell <span className="text-gray-400 font-normal">(to configure placement)</span>
-                </label>
-                <div className="flex justify-center">
-                  <CellGrid
-                    layout={layout}
-                    imageCell={imageCell}
-                    selectedCell={selectedCell}
-                    mode="placement"
-                    onSelectCell={handleCellSelect}
-                    textGroups={textGroups}
-                    aspectRatio={platformAspectRatio}
-                    size="large"
-                  />
-                </div>
-                {/* Selection indicator */}
-                <div className="text-xs text-center py-1 bg-gray-50 rounded">
-                  {selectedCell === null ? (
-                    <span className="text-gray-600">Select a cell to configure text placement</span>
-                  ) : (
-                    <span className="text-purple-600">
-                      Editing: <strong>{cellInfoList.find(c => c.index === selectedCell)?.label || `Cell ${selectedCell}`}</strong>
-                      {selectedCell === imageCell && <span className="text-blue-500 ml-1">(image)</span>}
-                    </span>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {/* Image Section */}
+            {/* Image Cell Section */}
             <div className="space-y-2">
-              <label className="block text-xs font-medium text-gray-600">Image Cell</label>
+              <label className="block text-xs font-medium text-gray-600">📷 Image Cell</label>
               <div className="flex gap-3">
-                {/* Cell selector */}
                 <CellGrid
                   layout={layout}
                   imageCell={imageCell}
@@ -948,9 +929,7 @@ export default function LayoutSelector({
                   onSelectCell={(idx) => onLayoutChange({ imageCell: idx })}
                   aspectRatio={platformAspectRatio}
                 />
-                {/* Quick controls */}
                 <div className="flex-1 space-y-2">
-                  {/* Fit toggle */}
                   <div className="flex gap-1">
                     <button
                       onClick={() => onImageObjectFitChange?.('cover')}
@@ -973,7 +952,6 @@ export default function LayoutSelector({
                       Contain
                     </button>
                   </div>
-                  {/* Grayscale toggle */}
                   <button
                     onClick={() => onImageFiltersChange?.({ grayscale: !imageFilters.grayscale })}
                     className={`w-full px-2 py-1.5 text-[10px] rounded ${
@@ -984,7 +962,6 @@ export default function LayoutSelector({
                   >
                     {imageFilters.grayscale ? 'Grayscale On' : 'Grayscale Off'}
                   </button>
-                  {/* Overlay slider */}
                   <div className="flex items-center gap-2">
                     <span className="text-[10px] text-gray-500">Overlay</span>
                     <input
@@ -1004,130 +981,249 @@ export default function LayoutSelector({
               </div>
             </div>
 
-            {/* Text Alignment */}
-            {type !== 'fullbleed' && (
-              <div className="space-y-2 pt-3 border-t border-gray-200">
-                <label className="block text-xs font-medium text-gray-600">Text Alignment</label>
-                <div className="flex gap-4">
-                  <div className="flex-1">
-                    <span className="text-[10px] text-gray-400 block mb-1">Horizontal</span>
-                    <div className="flex gap-1">
-                      {textAlignOptions.map((align) => {
-                        const isActive = textAlign === align.id
-                        return (
-                          <button
-                            key={align.id}
-                            onClick={() => updateAllCellsAlignment({ textAlign: align.id })}
-                            title={align.name}
-                            className={`flex-1 px-2 py-2 rounded flex items-center justify-center ${
-                              isActive
-                                ? 'bg-blue-500 text-white'
-                                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                            }`}
-                          >
-                            <align.Icon />
-                          </button>
-                        )
-                      })}
-                    </div>
-                  </div>
-                  <div className="flex-1">
-                    <span className="text-[10px] text-gray-400 block mb-1">Vertical</span>
-                    <div className="flex gap-1">
-                      {verticalAlignOptions.map((align) => {
-                        const isActive = textVerticalAlign === align.id
-                        return (
-                          <button
-                            key={align.id}
-                            onClick={() => updateAllCellsAlignment({ textVerticalAlign: align.id })}
-                            title={align.name}
-                            className={`flex-1 px-2 py-2 rounded flex items-center justify-center ${
-                              isActive
-                                ? 'bg-blue-500 text-white'
-                                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                            }`}
-                          >
-                            <align.Icon />
-                          </button>
-                        )
-                      })}
+            {/* Text Group Sections - each with its own cell selector and alignment */}
+            {textGroupDefs.map((group) => {
+              const groupState = textGroups?.[group.id] || { cell: null, textAlign: null, textVerticalAlign: null }
+              const currentCell = groupState.cell
+              const hasCustomAlign = groupState.textAlign !== null || groupState.textVerticalAlign !== null
+
+              return (
+                <div key={group.id} className="space-y-2 pt-3 border-t border-gray-200">
+                  <label className="block text-xs font-medium text-gray-600">{group.name}</label>
+                  <div className="flex gap-3">
+                    {/* Cell selector for this text group */}
+                    {type !== 'fullbleed' && cellInfoList.length > 1 ? (
+                      <div className="space-y-1">
+                        <div
+                          className="rounded overflow-hidden border border-gray-300 flex"
+                          style={{
+                            aspectRatio: platformAspectRatio,
+                            maxWidth: platformAspectRatio >= 1 ? '100px' : `${100 * platformAspectRatio}px`,
+                            width: '100%',
+                          }}
+                        >
+                          {type === 'rows' ? (
+                            <div className="flex flex-col w-full">
+                              {structure.map((section, sectionIndex) => {
+                                const sectionSize = section.size || (100 / structure.length)
+                                const subdivisions = section.subdivisions || 1
+                                const subSizes = section.subSizes || Array(subdivisions).fill(100 / subdivisions)
+                                let cellIdx = structure.slice(0, sectionIndex).reduce((sum, s) => sum + (s.subdivisions || 1), 0)
+
+                                return (
+                                  <div
+                                    key={sectionIndex}
+                                    className="flex flex-row"
+                                    style={{ flex: `0 0 ${sectionSize}%` }}
+                                  >
+                                    {Array.from({ length: subdivisions }).map((_, subIndex) => {
+                                      const thisCellIdx = cellIdx + subIndex
+                                      const isImage = thisCellIdx === imageCell
+                                      const isSelected = currentCell === thisCellIdx
+
+                                      return (
+                                        <div
+                                          key={thisCellIdx}
+                                          className={`relative cursor-pointer transition-colors ${
+                                            isSelected
+                                              ? 'bg-amber-400 hover:bg-amber-500'
+                                              : isImage
+                                                ? 'bg-blue-400 hover:bg-blue-500'
+                                                : 'bg-gray-200 hover:bg-gray-300'
+                                          }`}
+                                          style={{ flex: `0 0 ${subSizes[subIndex]}%` }}
+                                          onClick={() => updateGroupAlignment(group.id, { cell: thisCellIdx })}
+                                          title={isSelected ? 'Currently selected' : `Place in cell ${thisCellIdx + 1}`}
+                                        >
+                                          <div className={`absolute inset-0 flex items-center justify-center text-[8px] font-medium ${
+                                            isSelected || isImage ? 'text-white' : 'text-gray-500'
+                                          }`}>
+                                            {isImage ? '📷' : isSelected ? '✓' : thisCellIdx + 1}
+                                          </div>
+                                        </div>
+                                      )
+                                    })}
+                                  </div>
+                                )
+                              })}
+                            </div>
+                          ) : (
+                            <div className="flex flex-row w-full">
+                              {structure.map((section, sectionIndex) => {
+                                const sectionSize = section.size || (100 / structure.length)
+                                const subdivisions = section.subdivisions || 1
+                                const subSizes = section.subSizes || Array(subdivisions).fill(100 / subdivisions)
+                                let cellIdx = structure.slice(0, sectionIndex).reduce((sum, s) => sum + (s.subdivisions || 1), 0)
+
+                                return (
+                                  <div
+                                    key={sectionIndex}
+                                    className="flex flex-col"
+                                    style={{ flex: `0 0 ${sectionSize}%` }}
+                                  >
+                                    {Array.from({ length: subdivisions }).map((_, subIndex) => {
+                                      const thisCellIdx = cellIdx + subIndex
+                                      const isImage = thisCellIdx === imageCell
+                                      const isSelected = currentCell === thisCellIdx
+
+                                      return (
+                                        <div
+                                          key={thisCellIdx}
+                                          className={`relative cursor-pointer transition-colors ${
+                                            isSelected
+                                              ? 'bg-amber-400 hover:bg-amber-500'
+                                              : isImage
+                                                ? 'bg-blue-400 hover:bg-blue-500'
+                                                : 'bg-gray-200 hover:bg-gray-300'
+                                          }`}
+                                          style={{ flex: `0 0 ${subSizes[subIndex]}%` }}
+                                          onClick={() => updateGroupAlignment(group.id, { cell: thisCellIdx })}
+                                          title={isSelected ? 'Currently selected' : `Place in cell ${thisCellIdx + 1}`}
+                                        >
+                                          <div className={`absolute inset-0 flex items-center justify-center text-[8px] font-medium ${
+                                            isSelected || isImage ? 'text-white' : 'text-gray-500'
+                                          }`}>
+                                            {isImage ? '📷' : isSelected ? '✓' : thisCellIdx + 1}
+                                          </div>
+                                        </div>
+                                      )
+                                    })}
+                                  </div>
+                                )
+                              })}
+                            </div>
+                          )}
+                        </div>
+                        <span className="text-[9px] text-gray-400 block text-center">
+                          {currentCell !== null ? `Cell ${currentCell + 1}` : 'Auto'}
+                        </span>
+                      </div>
+                    ) : (
+                      <div className="w-[60px] flex items-center justify-center">
+                        <span className="text-[10px] text-gray-400">All</span>
+                      </div>
+                    )}
+
+                    {/* Alignment controls for this text group */}
+                    <div className="flex-1 space-y-2">
+                      <div className="flex gap-3">
+                        <div className="flex-1">
+                          <span className="text-[9px] text-gray-400 block mb-1">Horizontal</span>
+                          <div className="flex gap-0.5">
+                            {textAlignOptions.map((align) => {
+                              const isActive = getGroupAlignment(group.id, 'textAlign') === align.id
+                              const isCustom = groupState.textAlign === align.id
+                              return (
+                                <button
+                                  key={align.id}
+                                  onClick={() => updateGroupAlignment(group.id, { textAlign: align.id })}
+                                  title={align.name}
+                                  className={`flex-1 px-1.5 py-1.5 rounded flex items-center justify-center ${
+                                    isActive
+                                      ? isCustom
+                                        ? 'bg-amber-500 text-white'
+                                        : 'bg-blue-500 text-white'
+                                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                  }`}
+                                >
+                                  <align.Icon />
+                                </button>
+                              )
+                            })}
+                          </div>
+                        </div>
+                        <div className="flex-1">
+                          <span className="text-[9px] text-gray-400 block mb-1">Vertical</span>
+                          <div className="flex gap-0.5">
+                            {verticalAlignOptions.map((align) => {
+                              const isActive = getGroupAlignment(group.id, 'textVerticalAlign') === align.id
+                              const isCustom = groupState.textVerticalAlign === align.id
+                              return (
+                                <button
+                                  key={align.id}
+                                  onClick={() => updateGroupAlignment(group.id, { textVerticalAlign: align.id })}
+                                  title={align.name}
+                                  className={`flex-1 px-1.5 py-1.5 rounded flex items-center justify-center ${
+                                    isActive
+                                      ? isCustom
+                                        ? 'bg-amber-500 text-white'
+                                        : 'bg-blue-500 text-white'
+                                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                  }`}
+                                >
+                                  <align.Icon />
+                                </button>
+                              )
+                            })}
+                          </div>
+                        </div>
+                      </div>
+                      {/* Reset to global button */}
+                      {hasCustomAlign && (
+                        <button
+                          onClick={() => updateGroupAlignment(group.id, { textAlign: null, textVerticalAlign: null })}
+                          className="w-full px-2 py-1 text-[9px] text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded"
+                        >
+                          Reset to global
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>
-              </div>
-            )}
+              )
+            })}
 
-            {/* Individual Text Elements */}
+            {/* Global Alignment (Default) */}
             <div className="space-y-2 pt-3 border-t border-gray-200">
-              <label className="block text-xs font-medium text-gray-600">Text Elements</label>
-              {textElementDefs.map((element) => {
-                const elementState = text?.[element.id] || { content: '', visible: false, color: 'secondary' }
-                // Map element to its group for cell placement
-                const groupId = element.id === 'title' || element.id === 'tagline' ? 'titleGroup'
-                  : element.id === 'bodyHeading' || element.id === 'bodyText' ? 'bodyGroup'
-                  : element.id
-                const currentCell = textGroups?.[groupId]?.cell
-
-                return (
-                  <div key={element.id} className="p-2 bg-gray-50 rounded space-y-1.5">
-                    {/* Row 1: Label, visibility, color */}
-                    <div className="flex items-center gap-2">
-                      <span className="text-[10px] font-medium text-gray-600 w-16">{element.label}</span>
-                      <button
-                        onClick={() => onTextChange?.(element.id, { visible: !elementState.visible })}
-                        className={`px-1.5 py-0.5 text-[9px] rounded ${
-                          elementState.visible
-                            ? 'bg-green-100 text-green-700'
-                            : 'bg-gray-200 text-gray-500'
-                        }`}
-                      >
-                        {elementState.visible ? 'On' : 'Off'}
-                      </button>
-                      <div className="flex gap-0.5 ml-auto">
-                        {colorOptions.map((color) => (
-                          <button
-                            key={color.id}
-                            onClick={() => onTextChange?.(element.id, { color: color.id })}
-                            title={color.name}
-                            className={`w-4 h-4 rounded border ${
-                              elementState.color === color.id
-                                ? 'border-blue-500 ring-1 ring-blue-500'
-                                : 'border-gray-300'
-                            }`}
-                            style={{ backgroundColor: theme?.[color.id] || '#888' }}
-                          />
-                        ))}
-                      </div>
-                      {/* Cell placement (only show if not fullbleed and multiple cells) */}
-                      {type !== 'fullbleed' && cellInfoList.length > 1 && (
-                        <div className="flex gap-0.5">
-                          {cellInfoList.map((cell) => (
-                            <button
-                              key={cell.index}
-                              onClick={() => onTextGroupsChange?.({ [groupId]: { cell: cell.index } })}
-                              className={`w-5 h-5 text-[9px] rounded ${
-                                currentCell === cell.index
-                                  ? 'bg-blue-500 text-white'
-                                  : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
-                              }`}
-                            >
-                              {cell.index + 1}
-                            </button>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                    {/* Row 2: Text input */}
-                    <input
-                      type="text"
-                      value={elementState.content}
-                      onChange={(e) => onTextChange?.(element.id, { content: e.target.value })}
-                      placeholder={element.placeholder}
-                      className="w-full px-2 py-1 text-[11px] border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
-                    />
+              <label className="block text-xs font-medium text-gray-600">
+                Global Alignment <span className="text-gray-400 font-normal">(default)</span>
+              </label>
+              <div className="flex gap-4">
+                <div className="flex-1">
+                  <span className="text-[9px] text-gray-400 block mb-1">Horizontal</span>
+                  <div className="flex gap-1">
+                    {textAlignOptions.map((align) => {
+                      const isActive = textAlign === align.id
+                      return (
+                        <button
+                          key={align.id}
+                          onClick={() => onLayoutChange({ textAlign: align.id })}
+                          title={align.name}
+                          className={`flex-1 px-2 py-2 rounded flex items-center justify-center ${
+                            isActive
+                              ? 'bg-blue-500 text-white'
+                              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                          }`}
+                        >
+                          <align.Icon />
+                        </button>
+                      )
+                    })}
                   </div>
-                )
-              })}
+                </div>
+                <div className="flex-1">
+                  <span className="text-[9px] text-gray-400 block mb-1">Vertical</span>
+                  <div className="flex gap-1">
+                    {verticalAlignOptions.map((align) => {
+                      const isActive = textVerticalAlign === align.id
+                      return (
+                        <button
+                          key={align.id}
+                          onClick={() => onLayoutChange({ textVerticalAlign: align.id })}
+                          title={align.name}
+                          className={`flex-1 px-2 py-2 rounded flex items-center justify-center ${
+                            isActive
+                              ? 'bg-blue-500 text-white'
+                              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                          }`}
+                        >
+                          <align.Icon />
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         )
