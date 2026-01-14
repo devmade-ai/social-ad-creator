@@ -1,6 +1,7 @@
+import { memo } from 'react'
 import { fonts } from '../config/fonts'
 
-export default function FontSelector({ selectedFonts, onFontsChange }) {
+export default memo(function FontSelector({ selectedFonts, onFontsChange }) {
   return (
     <div className="space-y-3">
       <h3 className="text-sm font-semibold text-gray-700">Fonts</h3>
@@ -52,4 +53,4 @@ export default function FontSelector({ selectedFonts, onFontsChange }) {
       </div>
     </div>
   )
-}
+})

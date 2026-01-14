@@ -1430,19 +1430,20 @@ export default function LayoutSelector({
             <div className="space-y-2">
               <div className="flex justify-between">
                 <label className="text-xs font-medium text-gray-600">Global Padding</label>
-                <span className="text-xs text-gray-500">{padding.global}%</span>
+                <span className="text-xs text-gray-500">{padding.global}px</span>
               </div>
               <input
                 type="range"
                 min="0"
-                max="15"
+                max="60"
+                step="4"
                 value={padding.global}
                 onChange={(e) => onPaddingChange?.({ global: parseInt(e.target.value, 10) })}
                 className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
               />
               <div className="flex justify-between text-[10px] text-gray-400">
-                <span>0%</span>
-                <span>15%</span>
+                <span>0px</span>
+                <span>60px</span>
               </div>
             </div>
 
@@ -1501,12 +1502,13 @@ export default function LayoutSelector({
                       <div className="space-y-1">
                         <div className="flex justify-between">
                           <label className="text-xs text-gray-600">Padding</label>
-                          <span className="text-xs text-gray-500">{getCellPaddingValue(selectedCell)}%</span>
+                          <span className="text-xs text-gray-500">{getCellPaddingValue(selectedCell)}px</span>
                         </div>
                         <input
                           type="range"
                           min="0"
-                          max="15"
+                          max="60"
+                          step="4"
                           value={getCellPaddingValue(selectedCell)}
                           onChange={(e) => updateCellPadding(selectedCell, parseInt(e.target.value, 10))}
                           className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
@@ -1526,7 +1528,7 @@ export default function LayoutSelector({
                       >
                         <span className="text-gray-600">{cell.label}</span>
                         <span className={padding.cellOverrides?.[cell.index] !== undefined ? 'text-purple-600' : 'text-gray-400'}>
-                          {getCellPaddingValue(cell.index)}%
+                          {getCellPaddingValue(cell.index)}px
                           {padding.cellOverrides?.[cell.index] !== undefined && ' (custom)'}
                         </span>
                       </div>

@@ -11,13 +11,13 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
   const textGroups = state.textGroups || {}
   const titleFont = fonts.find((f) => f.id === state.fonts.title) || fonts[0]
   const bodyFont = fonts.find((f) => f.id === state.fonts.body) || fonts[0]
-  const paddingConfig = state.padding || { global: 5, cellOverrides: {} }
+  const paddingConfig = state.padding || { global: 20, cellOverrides: {} }
 
-  // Get padding for a specific cell (returns percentage string like "5%")
+  // Get padding for a specific cell (returns px string like "20px")
   const getCellPadding = (cellIndex) => {
     const override = paddingConfig.cellOverrides?.[cellIndex]
     const value = override !== undefined ? override : paddingConfig.global
-    return `${value}%`
+    return `${value}px`
   }
 
   const themeColors = useMemo(() => ({
@@ -270,7 +270,9 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
           <h1
             style={{
               fontSize: Math.round(platform.width * 0.05 * (title.size || 1)),
-              fontWeight: 700,
+              fontWeight: title.bold !== false ? 700 : 400,
+              fontStyle: title.italic ? 'italic' : 'normal',
+              letterSpacing: `${title.letterSpacing || 0}px`,
               fontFamily: titleFont.family,
               color: getTextColor(title.color),
               margin: 0,
@@ -287,7 +289,9 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
           <p
             style={{
               fontSize: Math.round(platform.width * 0.028 * (tagline.size || 1)),
-              fontWeight: 500,
+              fontWeight: tagline.bold ? 700 : 500,
+              fontStyle: tagline.italic ? 'italic' : 'normal',
+              letterSpacing: `${tagline.letterSpacing || 0}px`,
               fontFamily: bodyFont.family,
               color: getTextColor(tagline.color),
               margin: '0.4em 0 0 0',
@@ -316,7 +320,9 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
           <p
             style={{
               fontSize: Math.round(platform.width * 0.026 * (bodyHeading.size || 1)),
-              fontWeight: 600,
+              fontWeight: bodyHeading.bold !== false ? 600 : 400,
+              fontStyle: bodyHeading.italic ? 'italic' : 'normal',
+              letterSpacing: `${bodyHeading.letterSpacing || 0}px`,
               fontFamily: bodyFont.family,
               color: getTextColor(bodyHeading.color),
               margin: '0.8em 0 0 0',
@@ -333,7 +339,9 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
           <p
             style={{
               fontSize: Math.round(platform.width * 0.022 * (bodyTextLayer.size || 1)),
-              fontWeight: 400,
+              fontWeight: bodyTextLayer.bold ? 700 : 400,
+              fontStyle: bodyTextLayer.italic ? 'italic' : 'normal',
+              letterSpacing: `${bodyTextLayer.letterSpacing || 0}px`,
               fontFamily: bodyFont.family,
               color: getTextColor(bodyTextLayer.color),
               margin: '0.4em 0 0 0',
@@ -361,7 +369,9 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
       <p
         style={{
           fontSize: Math.round(platform.width * 0.028 * (cta.size || 1)),
-          fontWeight: 600,
+          fontWeight: cta.bold !== false ? 600 : 400,
+          fontStyle: cta.italic ? 'italic' : 'normal',
+          letterSpacing: `${cta.letterSpacing || 0}px`,
           fontFamily: bodyFont.family,
           color: getTextColor(cta.color),
           margin: '0.8em 0 0 0',
@@ -386,7 +396,9 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
       <p
         style={{
           fontSize: Math.round(platform.width * 0.015 * (footnote.size || 1)),
-          fontWeight: 400,
+          fontWeight: footnote.bold ? 700 : 400,
+          fontStyle: footnote.italic ? 'italic' : 'normal',
+          letterSpacing: `${footnote.letterSpacing || 0}px`,
           fontFamily: bodyFont.family,
           color: getTextColor(footnote.color),
           margin: '1em 0 0 0',

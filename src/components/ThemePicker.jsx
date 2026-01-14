@@ -1,6 +1,7 @@
+import { memo } from 'react'
 import { presetThemes } from '../config/themes'
 
-export default function ThemePicker({ theme, onThemeChange, onPresetChange }) {
+export default memo(function ThemePicker({ theme, onThemeChange, onPresetChange }) {
   const isCustom = theme.preset === 'custom'
 
   return (
@@ -68,9 +69,9 @@ export default function ThemePicker({ theme, onThemeChange, onPresetChange }) {
       </div>
     </div>
   )
-}
+})
 
-function ColorInput({ label, value, onChange }) {
+const ColorInput = memo(function ColorInput({ label, value, onChange }) {
   return (
     <div className="flex items-center gap-2">
       <input
@@ -90,4 +91,4 @@ function ColorInput({ label, value, onChange }) {
       </div>
     </div>
   )
-}
+})

@@ -29,10 +29,7 @@ Future enhancements and ideas for the Social Ad Creator.
 
 - [x] Responsive preview canvas that adapts to device width
 - [x] Undo/redo functionality (Ctrl+Z / Ctrl+Y)
-
----
-
-## Recently Completed
+- [x] Keyboard shortcuts for undo/redo
 
 ### Image/Media Tab
 
@@ -40,29 +37,16 @@ Future enhancements and ideas for the Social Ad Creator.
 - [x] Sample images for quick testing (5 devMade samples in public/samples/)
 - [x] Image filters (grayscale, sepia, blur, contrast, brightness)
 - [x] Merged Logo and Image tabs into unified Media tab
+- [x] Rename "Media" tab to "Image" (clearer naming)
+- [x] Make default platform Instagram Square (most common use case)
+- [x] Reorder platforms: Instagram Square, TikTok, LinkedIn, Instagram Story as first 4
+- [x] Smart layout suggestions based on image aspect ratio and platform
 
 ### Layout Tab Enhancements
 
 - [x] Per-cell overlay controls (enable/disable, custom settings per cell)
 - [x] Overlay sub-tab in Layout for cell-specific configuration
 - [x] Spacing sub-tab with global and per-cell padding controls
-
----
-
-## In Progress / Planned
-
-### Image Tab (formerly Media)
-
-- [x] Rename "Media" tab to "Image" (clearer naming)
-- [x] Make default platform Instagram Square (most common use case)
-- [x] Reorder platforms: Instagram Square, TikTok, LinkedIn, Instagram Story as first 4
-- [ ] Better quick layout suggestions (smarter, more useful presets)
-- [ ] More logical section ordering within tab
-- [ ] Make sections collapsible and/or start collapsed
-- [ ] Fix remove image placement issue
-
-### Layout Tab
-
 - [x] Remove "type" from presets (unnecessary complexity)
 - [x] Default presets filter to "All" instead of "Suggested"
 - [x] Consolidate placement sub-tabs: move image placement to unified "Placement" tab
@@ -72,17 +56,33 @@ Future enhancements and ideas for the Social Ad Creator.
 - [x] Make cell selector smaller on wider devices (max-width constrained)
 - [x] Cell selector matches selected platform's aspect ratio
 - [x] Make sub-tabs more prominent - larger, bolder styling
-- [ ] Use fixed units for padding (px or rem) instead of percentages for consistency across cell sizes
-
-#### Placement Tab Enhancements
-
-- [x] Separate text into individual elements instead of groups (Title, Tagline, Body Heading, Body Text, CTA, Footnote)
+- [x] Separate text into individual elements instead of groups
 - [x] Per-element editing: visibility, color, text content inline
 - [x] Image quick controls: contain/cover toggle, grayscale toggle, overlay slider
 
 ### Text Tab
 
 - [x] Remove sub-tabs - simplify to single tab (content and style together)
+
+### Export
+
+- [x] Loading states during export with progress indicator
+
+### Image Tab UX Overhaul
+
+- [x] Reorganize section order: Upload → Remove → Settings → Effects → Logo
+- [x] Collapsible sections with sensible defaults (Settings open, effects collapsed)
+- [x] Remove Quick Layout from Image tab (belongs in Layout tab)
+- [x] Clear visual hierarchy for first-time users
+
+### Typography
+
+- [x] Bold/italic text options per text element
+- [x] Letter spacing controls (Tight, Normal, Wide, Wider)
+
+### Layout Tab (continued)
+
+- [x] Use fixed units for padding (px) instead of percentages for consistency across cell sizes
 
 ---
 
@@ -91,24 +91,15 @@ Future enhancements and ideas for the Social Ad Creator.
 ### Content & Presets
 
 - [ ] Save/load designs to localStorage
-- [ ] Add preset text styles (e.g., "Bold Statement", "Elegant Quote")
 - [ ] Template gallery with complete designs
 
 ### Visual Effects
 
 - [ ] More overlay types (diagonal gradient, radial from corner)
-- [ ] Text shadow/stroke options
 - [ ] Animation preview for story formats
-
-### Typography
-
-- [ ] Line height controls
-- [ ] Letter spacing controls
-- [ ] Text transform (uppercase, capitalize)
 
 ### Usability
 
-- [ ] Keyboard shortcuts for common actions
 - [ ] Aspect ratio lock for custom sizes
 - [ ] Image cropping/repositioning within frame
 
@@ -116,9 +107,8 @@ Future enhancements and ideas for the Social Ad Creator.
 
 ## Technical Improvements
 
-- [ ] Loading states during export
-- [ ] Error boundaries
+- [x] Error boundaries for graceful error handling
+- [x] Optimize re-renders with React.memo
 - [ ] TypeScript migration
 - [ ] Unit tests for config utilities
-- [ ] Optimize re-renders with React.memo
 - [ ] PWA support for offline use

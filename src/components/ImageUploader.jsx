@@ -1,10 +1,5 @@
-import { useCallback, useRef, useMemo, useState } from 'react'
+import { useCallback, useRef, useState, memo } from 'react'
 import { overlayTypes, imagePresets } from '../config/layouts'
-import {
-  layoutPresets,
-  presetIcons,
-  getSuggestedLayouts,
-} from '../config/layoutPresets'
 import { sampleImages } from '../config/sampleImages'
 
 const overlayColorOptions = [
@@ -12,31 +7,6 @@ const overlayColorOptions = [
   { id: 'secondary', name: 'Secondary' },
   { id: 'accent', name: 'Accent' },
 ]
-
-// SVG Preview Icon Component (compact version)
-function PresetIcon({ presetId, isActive }) {
-  const iconData = presetIcons[presetId]
-  if (!iconData) return <span className="text-base">?</span>
-
-  return (
-    <svg
-      viewBox={iconData.viewBox}
-      className="w-8 h-6"
-      style={{ display: 'block' }}
-    >
-      {iconData.elements.map((el, i) => {
-        const Element = el.type
-        const props = { ...el.props }
-        if (isActive) {
-          if (props.fill === '#3b82f6') props.fill = '#ffffff'
-          if (props.fill === '#e5e7eb') props.fill = 'rgba(255,255,255,0.4)'
-          if (props.fill === '#d1d5db') props.fill = 'rgba(255,255,255,0.3)'
-        }
-        return <Element key={i} {...props} />
-      })}
-    </svg>
-  )
-}
 
 const logoPositionOptions = [
   { id: 'top-left', name: 'Top Left' },
@@ -54,7 +24,39 @@ const logoSizeOptions = [
   { id: 0.25, name: 'XL' },
 ]
 
-export default function ImageUploader({
+// Collapsible Section Component
+function Section({ title, children, defaultOpen = true, badge = null }) {
+  const [isOpen, setIsOpen] = useState(defaultOpen)
+
+  return (
+    <div className="border-t border-gray-200 pt-3">
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full flex items-center justify-between text-left mb-2"
+      >
+        <div className="flex items-center gap-2">
+          <h4 className="text-xs font-semibold text-gray-700">{title}</h4>
+          {badge && (
+            <span className="text-[10px] px-1.5 py-0.5 bg-gray-100 text-gray-500 rounded">
+              {badge}
+            </span>
+          )}
+        </div>
+        <svg
+          className={`w-4 h-4 text-gray-400 transition-transform ${isOpen ? 'rotate-180' : ''}`}
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+      {isOpen && <div className="space-y-3">{children}</div>}
+    </div>
+  )
+}
+
+export default memo(function ImageUploader({
   image,
   onImageChange,
   objectFit,
@@ -66,12 +68,6 @@ export default function ImageUploader({
   overlay,
   onOverlayChange,
   theme,
-  // Layout presets
-  layout,
-  onLayoutChange,
-  onTextGroupsChange,
-  imageAspectRatio,
-  platform,
   // Logo props
   logo,
   onLogoChange,
@@ -109,31 +105,6 @@ export default function ImageUploader({
     }
   }, [onImageChange])
 
-  // Get suggested layout presets
-  const suggestedIds = useMemo(() => {
-    return getSuggestedLayouts(imageAspectRatio, platform)
-  }, [imageAspectRatio, platform])
-
-  const suggestedPresets = useMemo(() => {
-    return layoutPresets.filter(p => suggestedIds.includes(p.id))
-  }, [suggestedIds])
-
-  // Check if current layout matches a preset
-  const getActivePreset = () => {
-    if (!layout) return null
-    return layoutPresets.find(preset => {
-      return JSON.stringify(preset.layout) === JSON.stringify(layout)
-    })
-  }
-
-  const activePreset = getActivePreset()
-
-  // Apply a preset
-  const applyPreset = (preset) => {
-    if (onLayoutChange) onLayoutChange(preset.layout)
-    if (onTextGroupsChange) onTextGroupsChange(preset.textGroups)
-  }
-
   const handleDrop = useCallback((e) => {
     e.preventDefault()
     const file = e.dataTransfer.files[0]
@@ -170,6 +141,7 @@ export default function ImageUploader({
 
   return (
     <div className="space-y-3">
+      {/* ===== SECTION 1: IMAGE UPLOAD (always visible) ===== */}
       <h3 className="text-sm font-semibold text-gray-700">Image</h3>
 
       <div
@@ -203,6 +175,16 @@ export default function ImageUploader({
           onChange={handleFileSelect}
         />
       </div>
+
+      {/* Remove button - immediately after upload area */}
+      {image && (
+        <button
+          onClick={handleRemove}
+          className="w-full text-sm text-red-600 hover:text-red-700 hover:bg-red-50 py-1.5 rounded transition-colors"
+        >
+          Remove Image
+        </button>
+      )}
 
       {/* Sample Images - shown when no image uploaded */}
       {!image && (
@@ -247,41 +229,9 @@ export default function ImageUploader({
         </div>
       )}
 
-      {/* Quick Layout Presets - shown when layout controls available */}
-      {onLayoutChange && suggestedPresets.length > 0 && (
-        <div className="space-y-2">
-          <label className="block text-xs font-medium text-gray-600">
-            Quick Layout {image ? '(suggested)' : ''}
-          </label>
-          <div className="flex flex-wrap gap-1">
-            {suggestedPresets.map((preset) => (
-              <button
-                key={preset.id}
-                onClick={() => applyPreset(preset)}
-                title={preset.description}
-                className={`px-1.5 py-1.5 text-xs rounded flex flex-col items-center gap-0.5 transition-colors ${
-                  activePreset?.id === preset.id
-                    ? 'bg-blue-500 text-white'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                }`}
-              >
-                <PresetIcon presetId={preset.id} isActive={activePreset?.id === preset.id} />
-                <span className="text-[8px] leading-tight text-center max-w-[50px] truncate">{preset.name}</span>
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-
+      {/* ===== SECTION 2: IMAGE SETTINGS (when image exists) ===== */}
       {image && (
-        <>
-          <button
-            onClick={handleRemove}
-            className="w-full text-sm text-red-600 hover:text-red-700 py-1"
-          >
-            Remove Image
-          </button>
-
+        <Section title="Settings" defaultOpen={true}>
           <div className="space-y-2">
             <label className="block text-xs font-medium text-gray-600">Object Fit</label>
             <div className="flex gap-2">
@@ -319,178 +269,177 @@ export default function ImageUploader({
               ))}
             </div>
           </div>
+        </Section>
+      )}
 
-          {/* Style Presets */}
-          <div className="pt-3 border-t border-gray-200 space-y-3">
-            <h4 className="text-xs font-semibold text-gray-700">Style Presets</h4>
-            <div className="flex flex-wrap gap-1">
-              {imagePresets.map((preset) => (
+      {/* ===== SECTION 3: STYLE PRESETS (when image exists) ===== */}
+      {image && (
+        <Section title="Style Presets" defaultOpen={false} badge="Quick">
+          <div className="flex flex-wrap gap-1">
+            {imagePresets.map((preset) => (
+              <button
+                key={preset.id}
+                onClick={() => {
+                  onOverlayChange(preset.overlay)
+                  onFiltersChange(preset.filters)
+                }}
+                className="px-2 py-1 text-xs rounded bg-gray-100 text-gray-700 hover:bg-gray-200"
+              >
+                {preset.name}
+              </button>
+            ))}
+          </div>
+        </Section>
+      )}
+
+      {/* ===== SECTION 4: FILTERS (when image exists) ===== */}
+      {image && (
+        <Section title="Filters" defaultOpen={false}>
+          <div className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              id="grayscale"
+              checked={filters.grayscale}
+              onChange={(e) => onFiltersChange({ grayscale: e.target.checked })}
+              className="w-4 h-4 text-blue-500 rounded border-gray-300 focus:ring-blue-500"
+            />
+            <label htmlFor="grayscale" className="text-xs font-medium text-gray-600">
+              Grayscale
+            </label>
+          </div>
+
+          <div className="space-y-2">
+            <div className="flex justify-between">
+              <label className="text-xs font-medium text-gray-600">Sepia</label>
+              <span className="text-xs text-gray-500">{filters.sepia}%</span>
+            </div>
+            <input
+              type="range"
+              min="0"
+              max="100"
+              value={filters.sepia}
+              onChange={(e) => onFiltersChange({ sepia: parseInt(e.target.value, 10) })}
+              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <div className="flex justify-between">
+              <label className="text-xs font-medium text-gray-600">Blur</label>
+              <span className="text-xs text-gray-500">{filters.blur}px</span>
+            </div>
+            <input
+              type="range"
+              min="0"
+              max="10"
+              step="0.5"
+              value={filters.blur}
+              onChange={(e) => onFiltersChange({ blur: parseFloat(e.target.value) })}
+              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <div className="flex justify-between">
+              <label className="text-xs font-medium text-gray-600">Contrast</label>
+              <span className="text-xs text-gray-500">{filters.contrast}%</span>
+            </div>
+            <input
+              type="range"
+              min="50"
+              max="150"
+              value={filters.contrast}
+              onChange={(e) => onFiltersChange({ contrast: parseInt(e.target.value, 10) })}
+              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <div className="flex justify-between">
+              <label className="text-xs font-medium text-gray-600">Brightness</label>
+              <span className="text-xs text-gray-500">{filters.brightness}%</span>
+            </div>
+            <input
+              type="range"
+              min="50"
+              max="150"
+              value={filters.brightness}
+              onChange={(e) => onFiltersChange({ brightness: parseInt(e.target.value, 10) })}
+              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+            />
+          </div>
+        </Section>
+      )}
+
+      {/* ===== SECTION 5: OVERLAY (when image exists) ===== */}
+      {image && (
+        <Section title="Overlay" defaultOpen={false}>
+          <div className="space-y-2">
+            <label className="block text-xs font-medium text-gray-600">Type</label>
+            <div className="grid grid-cols-2 gap-1">
+              {overlayTypes.map((type) => (
                 <button
-                  key={preset.id}
-                  onClick={() => {
-                    onOverlayChange(preset.overlay)
-                    onFiltersChange(preset.filters)
-                  }}
-                  className="px-2 py-1 text-xs rounded bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  key={type.id}
+                  onClick={() => onOverlayChange({ type: type.id })}
+                  className={`px-2 py-1.5 text-xs rounded ${
+                    overlay.type === type.id
+                      ? 'bg-blue-500 text-white'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
                 >
-                  {preset.name}
+                  {type.name}
                 </button>
               ))}
             </div>
           </div>
 
-          {/* Image Filters */}
-          <div className="pt-3 border-t border-gray-200 space-y-3">
-            <h4 className="text-xs font-semibold text-gray-700">Image Filters</h4>
-
-            <div className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                id="grayscale"
-                checked={filters.grayscale}
-                onChange={(e) => onFiltersChange({ grayscale: e.target.checked })}
-                className="w-4 h-4 text-blue-500 rounded border-gray-300 focus:ring-blue-500"
-              />
-              <label htmlFor="grayscale" className="text-xs font-medium text-gray-600">
-                Grayscale
-              </label>
-            </div>
-
-            <div className="space-y-2">
-              <div className="flex justify-between">
-                <label className="text-xs font-medium text-gray-600">Sepia</label>
-                <span className="text-xs text-gray-500">{filters.sepia}%</span>
-              </div>
-              <input
-                type="range"
-                min="0"
-                max="100"
-                value={filters.sepia}
-                onChange={(e) => onFiltersChange({ sepia: parseInt(e.target.value, 10) })}
-                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <div className="flex justify-between">
-                <label className="text-xs font-medium text-gray-600">Blur</label>
-                <span className="text-xs text-gray-500">{filters.blur}px</span>
-              </div>
-              <input
-                type="range"
-                min="0"
-                max="10"
-                step="0.5"
-                value={filters.blur}
-                onChange={(e) => onFiltersChange({ blur: parseFloat(e.target.value) })}
-                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <div className="flex justify-between">
-                <label className="text-xs font-medium text-gray-600">Contrast</label>
-                <span className="text-xs text-gray-500">{filters.contrast}%</span>
-              </div>
-              <input
-                type="range"
-                min="50"
-                max="150"
-                value={filters.contrast}
-                onChange={(e) => onFiltersChange({ contrast: parseInt(e.target.value, 10) })}
-                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <div className="flex justify-between">
-                <label className="text-xs font-medium text-gray-600">Brightness</label>
-                <span className="text-xs text-gray-500">{filters.brightness}%</span>
-              </div>
-              <input
-                type="range"
-                min="50"
-                max="150"
-                value={filters.brightness}
-                onChange={(e) => onFiltersChange({ brightness: parseInt(e.target.value, 10) })}
-                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-              />
+          <div className="space-y-2">
+            <label className="block text-xs font-medium text-gray-600">Overlay Color</label>
+            <div className="flex gap-2">
+              {overlayColorOptions.map((color) => (
+                <button
+                  key={color.id}
+                  onClick={() => onOverlayChange({ color: color.id })}
+                  className={`flex-1 px-2 py-1.5 text-xs rounded flex items-center justify-center gap-1 ${
+                    overlay.color === color.id
+                      ? 'ring-2 ring-blue-500 ring-offset-1'
+                      : 'hover:bg-gray-100'
+                  }`}
+                  style={{ backgroundColor: theme[color.id] }}
+                >
+                  <span
+                    className="text-xs"
+                    style={{
+                      color: color.id === 'primary' ? theme.secondary : theme.primary,
+                    }}
+                  >
+                    {color.name}
+                  </span>
+                </button>
+              ))}
             </div>
           </div>
 
-          {/* Overlay Controls */}
-          <div className="pt-3 border-t border-gray-200 space-y-3">
-            <h4 className="text-xs font-semibold text-gray-700">Overlay</h4>
-
-            <div className="space-y-2">
-              <label className="block text-xs font-medium text-gray-600">Type</label>
-              <div className="grid grid-cols-2 gap-1">
-                {overlayTypes.map((type) => (
-                  <button
-                    key={type.id}
-                    onClick={() => onOverlayChange({ type: type.id })}
-                    className={`px-2 py-1.5 text-xs rounded ${
-                      overlay.type === type.id
-                        ? 'bg-blue-500 text-white'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }`}
-                  >
-                    {type.name}
-                  </button>
-                ))}
-              </div>
+          <div className="space-y-2">
+            <div className="flex justify-between">
+              <label className="text-xs font-medium text-gray-600">Opacity</label>
+              <span className="text-xs text-gray-500">{overlay.opacity}%</span>
             </div>
-
-            <div className="space-y-2">
-              <label className="block text-xs font-medium text-gray-600">Overlay Color</label>
-              <div className="flex gap-2">
-                {overlayColorOptions.map((color) => (
-                  <button
-                    key={color.id}
-                    onClick={() => onOverlayChange({ color: color.id })}
-                    className={`flex-1 px-2 py-1.5 text-xs rounded flex items-center justify-center gap-1 ${
-                      overlay.color === color.id
-                        ? 'ring-2 ring-blue-500 ring-offset-1'
-                        : 'hover:bg-gray-100'
-                    }`}
-                    style={{ backgroundColor: theme[color.id] }}
-                  >
-                    <span
-                      className="text-xs"
-                      style={{
-                        color: color.id === 'primary' ? theme.secondary : theme.primary,
-                      }}
-                    >
-                      {color.name}
-                    </span>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <div className="flex justify-between">
-                <label className="text-xs font-medium text-gray-600">Opacity</label>
-                <span className="text-xs text-gray-500">{overlay.opacity}%</span>
-              </div>
-              <input
-                type="range"
-                min="0"
-                max="100"
-                value={overlay.opacity}
-                onChange={(e) => onOverlayChange({ opacity: parseInt(e.target.value, 10) })}
-                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-              />
-            </div>
+            <input
+              type="range"
+              min="0"
+              max="100"
+              value={overlay.opacity}
+              onChange={(e) => onOverlayChange({ opacity: parseInt(e.target.value, 10) })}
+              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+            />
           </div>
-        </>
+        </Section>
       )}
 
-      {/* Logo Section */}
+      {/* ===== SECTION 6: LOGO ===== */}
       {onLogoChange && (
-        <div className="pt-3 border-t border-gray-200 space-y-3">
-          <h4 className="text-xs font-semibold text-gray-700">Logo</h4>
-
+        <Section title="Logo" defaultOpen={!!logo} badge={logo ? null : 'Optional'}>
           {!logo ? (
             <div
               className="border-2 border-dashed border-gray-300 rounded-lg p-3 text-center cursor-pointer hover:border-blue-400 transition-colors"
@@ -572,8 +521,8 @@ export default function ImageUploader({
               </div>
             </>
           )}
-        </div>
+        </Section>
       )}
     </div>
   )
-}
+})
