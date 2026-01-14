@@ -32,4 +32,31 @@ Record of significant AI mistakes to prevent repetition across sessions.
 
 ---
 
+## 2025-01 | Over-Engineered Alignment (Per-Item Per-Cell Instead of Per-Cell)
+
+**What went wrong:** User asked for per-cell text alignment (each cell can have different alignment). AI implemented per-item per-cell alignment (each text element in each cell can have different alignment). This over-engineering:
+
+- Made the UI unnecessarily complex
+- Broke existing functionality
+- Required 11+ commits across multiple sessions to fix
+- Cascading issues with cell grid rendering, fullbleed layouts, and more
+
+**Timeline of damage:**
+
+- `85e686c` Added per-group cell selectors and alignment (the mistake)
+- `4264848` Revert per-group alignment to cell-level alignment
+- `377775c`, `9876080`, `b54adc4` Multiple fixes for broken cell grid display
+- `71117ad` Finally restore layout presets and placement tab features
+
+**Why it happened:** AI interpreted "per-cell alignment" as a more complex feature than intended. Didn't clarify requirements before implementing. Over-engineering tendency.
+
+**How to prevent:**
+
+- CLARIFY before implementing: "Do you want alignment per cell, or per text element per cell?"
+- Start with the simpler interpretation unless user specifies otherwise
+- If a feature seems complex, ask if simpler version would suffice
+- Don't add granularity the user didn't ask for
+
+---
+
 *Add new entries above this line*
