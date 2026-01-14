@@ -8,6 +8,7 @@ import ThemePicker from './components/ThemePicker'
 import FontSelector from './components/FontSelector'
 import PlatformPreview from './components/PlatformPreview'
 import ExportButtons from './components/ExportButtons'
+import ErrorBoundary from './components/ErrorBoundary'
 import { platforms } from './config/platforms'
 import { fonts } from './config/fonts'
 
@@ -182,71 +183,81 @@ function App() {
 
           {/* Section Content */}
           <div className="space-y-4">
-            {activeSection === 'image' && (
-              <ImageUploader
-                image={state.image}
-                onImageChange={setImage}
-                objectFit={state.imageObjectFit}
-                onObjectFitChange={setImageObjectFit}
-                position={state.imagePosition}
-                onPositionChange={setImagePosition}
-                filters={state.imageFilters}
-                onFiltersChange={setImageFilters}
-                overlay={state.overlay}
-                onOverlayChange={setOverlay}
-                theme={state.theme}
-                logo={state.logo}
-                onLogoChange={setLogo}
-                logoPosition={state.logoPosition}
-                onLogoPositionChange={setLogoPosition}
-                logoSize={state.logoSize}
-                onLogoSizeChange={setLogoSize}
-              />
-            )}
+            <ErrorBoundary title="Image controls error" message="Failed to load image controls.">
+              {activeSection === 'image' && (
+                <ImageUploader
+                  image={state.image}
+                  onImageChange={setImage}
+                  objectFit={state.imageObjectFit}
+                  onObjectFitChange={setImageObjectFit}
+                  position={state.imagePosition}
+                  onPositionChange={setImagePosition}
+                  filters={state.imageFilters}
+                  onFiltersChange={setImageFilters}
+                  overlay={state.overlay}
+                  onOverlayChange={setOverlay}
+                  theme={state.theme}
+                  logo={state.logo}
+                  onLogoChange={setLogo}
+                  logoPosition={state.logoPosition}
+                  onLogoPositionChange={setLogoPosition}
+                  logoSize={state.logoSize}
+                  onLogoSizeChange={setLogoSize}
+                />
+              )}
+            </ErrorBoundary>
 
-            {activeSection === 'text' && (
-              <TextEditor
-                text={state.text}
-                onTextChange={setText}
-                theme={state.theme}
-              />
-            )}
+            <ErrorBoundary title="Text editor error" message="Failed to load text editor.">
+              {activeSection === 'text' && (
+                <TextEditor
+                  text={state.text}
+                  onTextChange={setText}
+                  theme={state.theme}
+                />
+              )}
+            </ErrorBoundary>
 
-            {activeSection === 'layout' && (
-              <LayoutSelector
-                layout={state.layout}
-                onLayoutChange={setLayout}
-                textGroups={state.textGroups}
-                onTextGroupsChange={setTextGroups}
-                text={state.text}
-                onTextChange={setText}
-                imageAspectRatio={imageAspectRatio}
-                platform={state.platform}
-                overlay={state.overlay}
-                theme={state.theme}
-                padding={state.padding}
-                onPaddingChange={setPadding}
-                imageObjectFit={state.imageObjectFit}
-                onImageObjectFitChange={setImageObjectFit}
-                imageFilters={state.imageFilters}
-                onImageFiltersChange={setImageFilters}
-              />
-            )}
+            <ErrorBoundary title="Layout controls error" message="Failed to load layout controls.">
+              {activeSection === 'layout' && (
+                <LayoutSelector
+                  layout={state.layout}
+                  onLayoutChange={setLayout}
+                  textGroups={state.textGroups}
+                  onTextGroupsChange={setTextGroups}
+                  text={state.text}
+                  onTextChange={setText}
+                  imageAspectRatio={imageAspectRatio}
+                  platform={state.platform}
+                  overlay={state.overlay}
+                  theme={state.theme}
+                  padding={state.padding}
+                  onPaddingChange={setPadding}
+                  imageObjectFit={state.imageObjectFit}
+                  onImageObjectFitChange={setImageObjectFit}
+                  imageFilters={state.imageFilters}
+                  onImageFiltersChange={setImageFilters}
+                />
+              )}
+            </ErrorBoundary>
 
-            {activeSection === 'theme' && (
-              <ThemePicker
-                theme={state.theme}
-                onThemeChange={setTheme}
-                onPresetChange={setThemePreset}
-              />
-            )}
+            <ErrorBoundary title="Theme picker error" message="Failed to load theme picker.">
+              {activeSection === 'theme' && (
+                <ThemePicker
+                  theme={state.theme}
+                  onThemeChange={setTheme}
+                  onPresetChange={setThemePreset}
+                />
+              )}
+            </ErrorBoundary>
 
-            {activeSection === 'fonts' && (
-              <FontSelector
-                selectedFonts={state.fonts}
-                onFontsChange={setFonts}
-              />
-            )}
+            <ErrorBoundary title="Font selector error" message="Failed to load font selector.">
+              {activeSection === 'fonts' && (
+                <FontSelector
+                  selectedFonts={state.fonts}
+                  onFontsChange={setFonts}
+                />
+              )}
+            </ErrorBoundary>
           </div>
         </aside>
 
@@ -267,27 +278,35 @@ function App() {
                 minHeight: platform.height * previewScale + 40,
               }}
             >
-              <div
-                style={{
-                  width: platform.width * previewScale,
-                  height: platform.height * previewScale,
-                }}
+              <ErrorBoundary
+                title="Preview error"
+                message="Failed to render the ad preview."
+                className="w-full h-full min-h-[200px]"
               >
-                <AdCanvas
-                  ref={canvasRef}
-                  state={state}
-                  scale={previewScale}
-                />
-              </div>
+                <div
+                  style={{
+                    width: platform.width * previewScale,
+                    height: platform.height * previewScale,
+                  }}
+                >
+                  <AdCanvas
+                    ref={canvasRef}
+                    state={state}
+                    scale={previewScale}
+                  />
+                </div>
+              </ErrorBoundary>
             </div>
 
             {/* Export Buttons */}
             <div className="mt-4">
-              <ExportButtons
-                canvasRef={canvasRef}
-                state={state}
-                onPlatformChange={setPlatform}
-              />
+              <ErrorBoundary title="Export error" message="Failed to load export options.">
+                <ExportButtons
+                  canvasRef={canvasRef}
+                  state={state}
+                  onPlatformChange={setPlatform}
+                />
+              </ErrorBoundary>
             </div>
           </div>
         </main>
