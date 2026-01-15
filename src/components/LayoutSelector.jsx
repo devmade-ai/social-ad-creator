@@ -495,9 +495,9 @@ export default function LayoutSelector({
   // Add a section
   const addSection = () => {
     if (type === 'fullbleed') return
-    const newStructure = [...structure]
-    const newSize = 100 / (newStructure.length + 1)
-    newStructure.forEach(s => s.size = newSize)
+    const newSize = 100 / (structure.length + 1)
+    // Create new objects to avoid mutating history
+    const newStructure = structure.map(s => ({ ...s, size: newSize }))
     newStructure.push({ size: newSize, subdivisions: 1, subSizes: [100] })
     onLayoutChange({ structure: newStructure })
   }
@@ -505,9 +505,11 @@ export default function LayoutSelector({
   // Remove a section
   const removeSection = (index) => {
     if (structure.length <= 1) return
-    const newStructure = structure.filter((_, i) => i !== index)
-    const newSize = 100 / newStructure.length
-    newStructure.forEach(s => s.size = newSize)
+    const newSize = 100 / (structure.length - 1)
+    // Create new objects to avoid mutating history
+    const newStructure = structure
+      .filter((_, i) => i !== index)
+      .map(s => ({ ...s, size: newSize }))
     const newTotalCells = getTotalCells(newStructure)
     const newImageCell = imageCell >= newTotalCells ? 0 : imageCell
     onLayoutChange({ structure: newStructure, imageCell: newImageCell })

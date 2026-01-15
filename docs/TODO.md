@@ -90,6 +90,12 @@ Future enhancements and ideas for the Social Ad Creator.
 
 ---
 
+## High Priority
+
+- [ ] Text placement selectors should update when structure changes (e.g., if text is assigned to cell 3 and cell 3 is removed, reset to auto)
+
+---
+
 ## Potential Improvements
 
 ### Content & Presets
