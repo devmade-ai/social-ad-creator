@@ -253,11 +253,11 @@ function UnifiedCellGrid({
       content = isImage ? '📷' : cellIndex + 1
     } else if (mode === 'structure') {
       if (isSelected) {
-        bgClass = 'bg-purple-500 hover:bg-purple-600'
+        bgClass = 'bg-blue-500 hover:bg-blue-600'
         textClass = 'text-white'
       } else if (isSectionSelected) {
-        bgClass = 'bg-purple-200 hover:bg-purple-300'
-        textClass = 'text-purple-700'
+        bgClass = 'bg-blue-200 hover:bg-blue-300'
+        textClass = 'text-blue-700'
       } else if (isImage) {
         bgClass = 'bg-blue-400 hover:bg-blue-500'
         textClass = 'text-white'
@@ -269,7 +269,7 @@ function UnifiedCellGrid({
     } else if (mode === 'textGroup') {
       const isHighlighted = highlightCell === cellIndex
       if (isHighlighted) {
-        bgClass = 'bg-amber-400 hover:bg-amber-500'
+        bgClass = 'bg-blue-500 hover:bg-blue-600'
         textClass = 'text-white'
         content = '✓'
       } else if (isImage) {
@@ -285,7 +285,7 @@ function UnifiedCellGrid({
       // Default 'cell' mode (for overlay, spacing, etc.)
       const assignedGroups = textElementCells[cellIndex]
       if (isSelected) {
-        bgClass = 'bg-purple-500 hover:bg-purple-600'
+        bgClass = 'bg-blue-500 hover:bg-blue-600'
         textClass = 'text-white'
         content = '✓'
       } else if (isImage) {
@@ -293,8 +293,8 @@ function UnifiedCellGrid({
         textClass = 'text-white'
         content = '📷'
       } else if (assignedGroups) {
-        bgClass = 'bg-amber-100 hover:bg-amber-200'
-        textClass = 'text-amber-700'
+        bgClass = 'bg-blue-100 hover:bg-blue-200'
+        textClass = 'text-blue-700'
         content = assignedGroups.join(', ')
       } else {
         bgClass = 'bg-gray-200 hover:bg-gray-300'
@@ -384,7 +384,7 @@ function UnifiedCellGrid({
                 isRows ? 'rounded-l' : 'rounded-t'
               } ${
                 isSelected
-                  ? 'bg-purple-500 text-white'
+                  ? 'bg-blue-500 text-white'
                   : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
               }`}
               style={{ flex: `0 0 ${sectionSize}%` }}
@@ -794,11 +794,11 @@ export default function LayoutSelector({
                     {type === 'fullbleed' ? 'Single cell layout' : `Select a ${type === 'rows' ? 'row' : 'column'} or cell to edit`}
                   </span>
                 ) : structureSelection.type === 'section' ? (
-                  <span className="text-purple-600">
+                  <span className="text-blue-600">
                     Editing: <strong>{type === 'rows' || type === 'fullbleed' ? `Row ${structureSelection.index + 1}` : `Column ${structureSelection.index + 1}`}</strong>
                   </span>
                 ) : (
-                  <span className="text-purple-600">
+                  <span className="text-blue-600">
                     Editing: <strong>Cell {structureSelection.cellIndex + 1}</strong>
                   </span>
                 )}
@@ -825,14 +825,14 @@ export default function LayoutSelector({
 
             {/* Section editing controls */}
             {type !== 'fullbleed' && structureSelection?.type === 'section' && selectedSection && (
-              <div className="space-y-4 p-4 bg-purple-50 rounded-xl">
+              <div className="space-y-4 p-4 bg-blue-50 rounded-xl">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-purple-700">
+                  <span className="text-sm font-medium text-blue-700">
                     {type === 'rows' ? `Row ${selectedSectionIndex + 1}` : `Column ${selectedSectionIndex + 1}`}
                   </span>
                   <button
                     onClick={() => setStructureSelection(null)}
-                    className="text-xs text-purple-500 hover:text-purple-700 font-medium"
+                    className="text-xs text-blue-500 hover:text-blue-700 font-medium"
                   >
                     ✕ Deselect
                   </button>
@@ -841,7 +841,7 @@ export default function LayoutSelector({
                 {/* Section size (height for rows, width for columns) */}
                 {structure.length > 1 && (
                   <div>
-                    <label className="block text-xs text-purple-600 mb-2 font-medium">
+                    <label className="block text-xs text-blue-600 mb-2 font-medium">
                       {type === 'rows' ? 'Height' : 'Width'}
                     </label>
                     <div className="flex items-center gap-3">
@@ -853,14 +853,14 @@ export default function LayoutSelector({
                         onChange={(e) => updateSectionSize(selectedSectionIndex, Number(e.target.value))}
                         className="flex-1"
                       />
-                      <span className="text-sm text-purple-700 w-12 text-right font-medium">{Math.round(selectedSection.size)}%</span>
+                      <span className="text-sm text-blue-700 w-12 text-right font-medium">{Math.round(selectedSection.size)}%</span>
                     </div>
                   </div>
                 )}
 
                 {/* Subdivisions */}
                 <div>
-                  <label className="block text-xs text-purple-600 mb-2 font-medium">
+                  <label className="block text-xs text-blue-600 mb-2 font-medium">
                     Split into {type === 'rows' ? 'columns' : 'rows'}
                   </label>
                   <div className="flex items-center gap-3">
@@ -869,13 +869,13 @@ export default function LayoutSelector({
                       disabled={(selectedSection.subdivisions || 1) <= 1}
                       className={`w-9 h-9 text-base rounded-lg font-medium ${
                         (selectedSection.subdivisions || 1) <= 1
-                          ? 'bg-purple-100 text-purple-300 cursor-not-allowed'
-                          : 'bg-purple-200 text-purple-700 hover:bg-purple-300'
+                          ? 'bg-blue-100 text-blue-300 cursor-not-allowed'
+                          : 'bg-blue-200 text-blue-700 hover:bg-blue-300'
                       }`}
                     >
                       −
                     </button>
-                    <span className="text-base font-semibold text-purple-700 w-8 text-center">
+                    <span className="text-base font-semibold text-blue-700 w-8 text-center">
                       {selectedSection.subdivisions || 1}
                     </span>
                     <button
@@ -883,8 +883,8 @@ export default function LayoutSelector({
                       disabled={(selectedSection.subdivisions || 1) >= 3}
                       className={`w-9 h-9 text-base rounded-lg font-medium ${
                         (selectedSection.subdivisions || 1) >= 3
-                          ? 'bg-purple-100 text-purple-300 cursor-not-allowed'
-                          : 'bg-purple-200 text-purple-700 hover:bg-purple-300'
+                          ? 'bg-blue-100 text-blue-300 cursor-not-allowed'
+                          : 'bg-blue-200 text-blue-700 hover:bg-blue-300'
                       }`}
                     >
                       +
@@ -909,9 +909,9 @@ export default function LayoutSelector({
 
             {/* Cell editing controls (subdivision size) */}
             {type !== 'fullbleed' && structureSelection?.type === 'cell' && selectedCellInfo && (
-              <div className="space-y-4 p-4 bg-purple-50 rounded-xl">
+              <div className="space-y-4 p-4 bg-blue-50 rounded-xl">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-purple-700">
+                  <span className="text-sm font-medium text-blue-700">
                     {type === 'rows'
                       ? `Row ${selectedCellInfo.sectionIndex + 1}, Column ${selectedCellInfo.subIndex + 1}`
                       : `Column ${selectedCellInfo.sectionIndex + 1}, Row ${selectedCellInfo.subIndex + 1}`
@@ -919,7 +919,7 @@ export default function LayoutSelector({
                   </span>
                   <button
                     onClick={() => setStructureSelection(null)}
-                    className="text-xs text-purple-500 hover:text-purple-700 font-medium"
+                    className="text-xs text-blue-500 hover:text-blue-700 font-medium"
                   >
                     ✕ Deselect
                   </button>
@@ -927,7 +927,7 @@ export default function LayoutSelector({
 
                 {/* Cell size (width for cells in rows, height for cells in columns) */}
                 <div>
-                  <label className="block text-xs text-purple-600 mb-2 font-medium">
+                  <label className="block text-xs text-blue-600 mb-2 font-medium">
                     {type === 'rows' ? 'Width' : 'Height'}
                   </label>
                   <div className="flex items-center gap-3">
@@ -939,7 +939,7 @@ export default function LayoutSelector({
                       onChange={(e) => updateSubSize(selectedCellInfo.sectionIndex, selectedCellInfo.subIndex, Number(e.target.value))}
                       className="flex-1"
                     />
-                    <span className="text-sm text-purple-700 w-12 text-right font-medium">
+                    <span className="text-sm text-blue-700 w-12 text-right font-medium">
                       {Math.round(selectedCellSection?.subSizes?.[selectedCellInfo.subIndex] || 50)}%
                     </span>
                   </div>
@@ -948,7 +948,7 @@ export default function LayoutSelector({
                 {/* Quick link to edit parent section */}
                 <button
                   onClick={() => setStructureSelection({ type: 'section', index: selectedCellInfo.sectionIndex })}
-                  className="w-full px-3 py-2 text-sm bg-purple-200 text-purple-700 hover:bg-purple-300 rounded-lg font-medium"
+                  className="w-full px-3 py-2 text-sm bg-blue-200 text-blue-700 hover:bg-blue-300 rounded-lg font-medium"
                 >
                   Edit Parent {type === 'rows' ? 'Row' : 'Column'}
                 </button>
@@ -1017,7 +1017,7 @@ export default function LayoutSelector({
                 {selectedCell === null ? (
                   <span className="text-gray-600">Global alignment (all cells)</span>
                 ) : (
-                  <span className="text-purple-600">
+                  <span className="text-blue-600">
                     Cell {selectedCell + 1} alignment
                     {selectedCell === imageCell && <span className="text-blue-500 ml-1">(image)</span>}
                   </span>
@@ -1218,7 +1218,7 @@ export default function LayoutSelector({
               {selectedCell === null ? (
                 <span className="text-gray-600">Select a cell to configure its overlay</span>
               ) : (
-                <span className="text-purple-600">
+                <span className="text-blue-600">
                   Editing: <strong>Cell {selectedCell + 1}</strong>
                   {selectedCell === imageCell && <span className="text-blue-500 ml-1">(image)</span>}
                 </span>
@@ -1502,7 +1502,7 @@ export default function LayoutSelector({
                       className="flex items-center justify-between px-2 py-1.5 bg-gray-50 rounded text-xs"
                     >
                       <span className="text-gray-600">Cell {cell.index + 1}</span>
-                      <span className={padding.cellOverrides?.[cell.index] !== undefined ? 'text-purple-600' : 'text-gray-400'}>
+                      <span className={padding.cellOverrides?.[cell.index] !== undefined ? 'text-blue-600' : 'text-gray-400'}>
                         {getCellPaddingValue(cell.index)}px
                         {padding.cellOverrides?.[cell.index] !== undefined && ' (custom)'}
                       </span>

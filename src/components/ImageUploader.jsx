@@ -224,7 +224,7 @@ export default memo(function ImageUploader({
             ))}
           </div>
           {sampleError && (
-            <p className="text-sm text-amber-600">{sampleError}</p>
+            <p className="text-sm text-red-600">{sampleError}</p>
           )}
         </div>
       )}
