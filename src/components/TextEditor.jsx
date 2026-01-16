@@ -37,23 +37,23 @@ export default memo(function TextEditor({
 }) {
   return (
     <div className="space-y-4">
-      <h3 className="text-sm font-semibold text-gray-800">Text</h3>
+      <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-100">Text</h3>
 
       <div className="space-y-4">
         {textLayers.map((layer) => {
           const layerState = text?.[layer.id] || { content: '', visible: false, color: 'secondary', size: 1, bold: false, italic: false, letterSpacing: 0 }
 
           return (
-            <div key={layer.id} className="space-y-2.5 border-b border-gray-100 pb-4 last:border-0 last:pb-0">
+            <div key={layer.id} className="space-y-2.5 border-b border-gray-100 dark:border-gray-800 pb-4 last:border-0 last:pb-0">
               {/* Header: label + visibility toggle */}
               <div className="flex items-center justify-between">
-                <label className="text-sm font-medium text-gray-700">{layer.label}</label>
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-200">{layer.label}</label>
                 <button
                   onClick={() => onTextChange(layer.id, { visible: !layerState.visible })}
                   className={`text-xs px-2.5 py-1 rounded-full font-medium ${
                     layerState.visible
-                      ? 'bg-green-100 text-green-700'
-                      : 'bg-gray-100 text-gray-500'
+                      ? 'bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300'
+                      : 'bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400'
                   }`}
                 >
                   {layerState.visible ? 'On' : 'Off'}
@@ -67,7 +67,7 @@ export default memo(function TextEditor({
                   onChange={(e) => onTextChange(layer.id, { content: e.target.value })}
                   placeholder={layer.placeholder}
                   rows={2}
-                  className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 resize-none"
+                  className="w-full px-3 py-2 text-sm border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 resize-none bg-white dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-500"
                 />
               ) : (
                 <input
@@ -75,7 +75,7 @@ export default memo(function TextEditor({
                   value={layerState.content}
                   onChange={(e) => onTextChange(layer.id, { content: e.target.value })}
                   placeholder={layer.placeholder}
-                  className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                  className="w-full px-3 py-2 text-sm border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-white dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-500"
                 />
               )}
 
@@ -83,7 +83,7 @@ export default memo(function TextEditor({
               <div className="flex items-center gap-4">
                 {/* Color options */}
                 <div className="flex items-center gap-1.5">
-                  <span className="text-xs text-gray-500">Color:</span>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">Color:</span>
                   {colorOptions.map((color) => (
                     <button
                       key={color.id}
@@ -101,7 +101,7 @@ export default memo(function TextEditor({
 
                 {/* Size options */}
                 <div className="flex items-center gap-1 ml-auto">
-                  <span className="text-xs text-gray-500">Size:</span>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">Size:</span>
                   {sizeOptions.map((size) => (
                     <button
                       key={size.id}
@@ -110,7 +110,7 @@ export default memo(function TextEditor({
                       className={`w-6 h-6 text-xs font-medium rounded-md ${
                         layerState.size === size.id
                           ? 'bg-blue-500 text-white'
-                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                          : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
                       }`}
                     >
                       {size.name}
@@ -123,14 +123,14 @@ export default memo(function TextEditor({
               <div className="flex items-center gap-4">
                 {/* Bold/Italic toggles */}
                 <div className="flex items-center gap-1.5">
-                  <span className="text-xs text-gray-500">Style:</span>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">Style:</span>
                   <button
                     onClick={() => onTextChange(layer.id, { bold: !layerState.bold })}
                     title="Bold"
                     className={`w-7 h-6 text-xs font-bold rounded-md ${
                       layerState.bold
                         ? 'bg-blue-500 text-white'
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                        : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
                     }`}
                   >
                     B
@@ -141,7 +141,7 @@ export default memo(function TextEditor({
                     className={`w-7 h-6 text-xs italic rounded-md ${
                       layerState.italic
                         ? 'bg-blue-500 text-white'
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                        : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
                     }`}
                   >
                     I
@@ -150,7 +150,7 @@ export default memo(function TextEditor({
 
                 {/* Letter spacing */}
                 <div className="flex items-center gap-1 ml-auto">
-                  <span className="text-xs text-gray-500">Spacing:</span>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">Spacing:</span>
                   {letterSpacingOptions.map((opt) => (
                     <button
                       key={opt.id}
@@ -159,7 +159,7 @@ export default memo(function TextEditor({
                       className={`px-2 h-6 text-xs rounded-md ${
                         layerState.letterSpacing === opt.id
                           ? 'bg-blue-500 text-white'
-                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                          : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
                       }`}
                     >
                       {opt.name.charAt(0)}

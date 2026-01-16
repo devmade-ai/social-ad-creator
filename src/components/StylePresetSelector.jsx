@@ -140,21 +140,21 @@ export default function StylePresetSelector({ activePresetId, onSelectPreset }) 
   const activePreset = stylePresets.find(p => p.id === activePresetId)
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200/80 shadow-card">
+    <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200/80 dark:border-gray-700/80 shadow-card">
       {/* Header */}
       <div
-        className="flex items-center justify-between px-4 py-3.5 cursor-pointer hover:bg-gray-50 rounded-t-xl transition-colors"
+        className="flex items-center justify-between px-4 py-3.5 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 rounded-t-xl transition-colors"
         onClick={() => setIsExpanded(!isExpanded)}
       >
         <div className="flex items-center gap-3">
-          <h3 className="text-sm font-semibold text-gray-800">Style Presets</h3>
+          <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-100">Style Presets</h3>
           {activePreset && (
-            <span className="px-2.5 py-1 text-xs bg-blue-100 text-blue-700 rounded-full font-medium">
+            <span className="px-2.5 py-1 text-xs bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 rounded-full font-medium">
               {activePreset.name}
             </span>
           )}
         </div>
-        <button className="text-gray-400 hover:text-gray-600 transition-colors">
+        <button className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
           {isExpanded ? (
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
@@ -179,7 +179,7 @@ export default function StylePresetSelector({ activePresetId, onSelectPreset }) 
                 className={`px-3 py-1.5 text-xs rounded-lg font-medium transition-all ${
                   activeCategory === cat.id
                     ? 'bg-blue-500 text-white shadow-sm'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
                 }`}
               >
                 {cat.name}
@@ -196,13 +196,13 @@ export default function StylePresetSelector({ activePresetId, onSelectPreset }) 
                 title={`${preset.name}: ${preset.description}`}
                 className={`flex flex-col items-center gap-1.5 p-2 rounded-xl transition-all ${
                   activePresetId === preset.id
-                    ? 'bg-blue-50 ring-2 ring-blue-500'
-                    : 'hover:bg-gray-50'
+                    ? 'bg-blue-50 dark:bg-blue-900/30 ring-2 ring-blue-500'
+                    : 'hover:bg-gray-50 dark:hover:bg-gray-800'
                 }`}
               >
                 <PresetSwatch preset={preset} isActive={activePresetId === preset.id} />
                 <span className={`text-[10px] leading-tight text-center line-clamp-1 ${
-                  activePresetId === preset.id ? 'text-blue-700 font-medium' : 'text-gray-600'
+                  activePresetId === preset.id ? 'text-blue-700 dark:text-blue-300 font-medium' : 'text-gray-600 dark:text-gray-400'
                 }`}>
                   {preset.name}
                 </span>
@@ -212,7 +212,7 @@ export default function StylePresetSelector({ activePresetId, onSelectPreset }) 
 
           {/* Active preset description */}
           {activePreset && (
-            <div className="text-sm text-gray-500 text-center pt-2 border-t border-gray-100">
+            <div className="text-sm text-gray-500 dark:text-gray-400 text-center pt-2 border-t border-gray-100 dark:border-gray-800">
               {activePreset.description}
             </div>
           )}

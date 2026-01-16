@@ -1,5 +1,6 @@
 import { useRef, useMemo, useState, useEffect, useCallback } from 'react'
 import { useAdState } from './hooks/useAdState'
+import { useDarkMode } from './hooks/useDarkMode'
 import AdCanvas from './components/AdCanvas'
 import ImageUploader from './components/ImageUploader'
 import TextEditor from './components/TextEditor'
@@ -19,6 +20,7 @@ function App() {
   const [activeSection, setActiveSection] = useState('image')
   const [imageAspectRatio, setImageAspectRatio] = useState(null)
   const [containerWidth, setContainerWidth] = useState(600)
+  const { isDark, toggle: toggleDarkMode } = useDarkMode()
 
   const {
     state,
@@ -132,8 +134,8 @@ function App() {
       ))}
 
       {/* Header */}
-      <header className="bg-white/80 backdrop-blur-sm border-b border-gray-200/60 px-4 py-3 flex items-center justify-between sticky top-0 z-10">
-        <h1 className="text-lg font-semibold text-gray-800 tracking-tight">Social Ad Creator</h1>
+      <header className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border-b border-gray-200/60 dark:border-gray-700/60 px-4 py-3 flex items-center justify-between sticky top-0 z-10">
+        <h1 className="text-lg font-semibold text-gray-800 dark:text-gray-100 tracking-tight">Social Ad Creator</h1>
         <div className="flex gap-1.5">
           <button
             onClick={undo}
@@ -141,8 +143,8 @@ function App() {
             title="Undo (Ctrl+Z)"
             className={`px-3 py-1.5 text-sm rounded-lg flex items-center gap-1.5 font-medium ${
               canUndo
-                ? 'bg-gray-100 text-gray-700 hover:bg-gray-200 active:scale-95'
-                : 'bg-gray-50 text-gray-300 cursor-not-allowed'
+                ? 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700 active:scale-95'
+                : 'bg-gray-50 dark:bg-gray-800/50 text-gray-300 dark:text-gray-600 cursor-not-allowed'
             }`}
           >
             <span>↶</span>
@@ -154,12 +156,19 @@ function App() {
             title="Redo (Ctrl+Y)"
             className={`px-3 py-1.5 text-sm rounded-lg flex items-center gap-1.5 font-medium ${
               canRedo
-                ? 'bg-gray-100 text-gray-700 hover:bg-gray-200 active:scale-95'
-                : 'bg-gray-50 text-gray-300 cursor-not-allowed'
+                ? 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700 active:scale-95'
+                : 'bg-gray-50 dark:bg-gray-800/50 text-gray-300 dark:text-gray-600 cursor-not-allowed'
             }`}
           >
             <span>↷</span>
             <span className="hidden sm:inline">Redo</span>
+          </button>
+          <button
+            onClick={toggleDarkMode}
+            title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+            className="px-3 py-1.5 text-sm rounded-lg flex items-center gap-1.5 font-medium bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700 active:scale-95"
+          >
+            {isDark ? '☀️' : '🌙'}
           </button>
         </div>
       </header>
@@ -167,9 +176,9 @@ function App() {
       <div className="flex flex-col lg:flex-row lg:items-stretch">
         {/* Sidebar Controls */}
         <aside className="w-full lg:w-96 p-4 lg:p-5 lg:pr-0">
-          <div className="bg-white rounded-xl border border-gray-200/80 shadow-card p-4 lg:p-5">
+          <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200/80 dark:border-gray-700/80 shadow-card p-4 lg:p-5">
           {/* Section Tabs */}
-          <div className="flex flex-wrap gap-1.5 mb-5 pb-4 border-b border-gray-100">
+          <div className="flex flex-wrap gap-1.5 mb-5 pb-4 border-b border-gray-100 dark:border-gray-800">
             {sections.map((section) => (
               <button
                 key={section.id}
@@ -177,7 +186,7 @@ function App() {
                 className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-all ${
                   activeSection === section.id
                     ? 'bg-blue-500 text-white shadow-sm'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-800'
+                    : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 hover:text-gray-800 dark:hover:text-gray-100'
                 }`}
               >
                 {section.label}
@@ -273,7 +282,7 @@ function App() {
             />
           </ErrorBoundary>
 
-          <div className="bg-white rounded-xl border border-gray-200/80 shadow-card p-4 lg:p-6">
+          <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200/80 dark:border-gray-700/80 shadow-card p-4 lg:p-6">
             {/* Platform Selector */}
             <PlatformPreview
               selectedPlatform={state.platform}
@@ -283,7 +292,7 @@ function App() {
             {/* Canvas Preview */}
             <div
               ref={previewContainerRef}
-              className="mt-5 bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl overflow-hidden flex items-center justify-center border border-gray-200/50"
+              className="mt-5 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 rounded-xl overflow-hidden flex items-center justify-center border border-gray-200/50 dark:border-gray-700/50"
               style={{
                 minHeight: platform.height * previewScale + 40,
               }}
