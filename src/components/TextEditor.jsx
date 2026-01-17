@@ -1,6 +1,7 @@
 import { memo } from 'react'
+import { neutralColors } from '../config/themes'
 
-const colorOptions = [
+const themeColorOptions = [
   { id: 'primary', name: 'Primary' },
   { id: 'secondary', name: 'Secondary' },
   { id: 'accent', name: 'Accent' },
@@ -84,7 +85,8 @@ export default memo(function TextEditor({
                 {/* Color options */}
                 <div className="flex items-center gap-1.5">
                   <span className="text-xs text-gray-500 dark:text-gray-400">Color:</span>
-                  {colorOptions.map((color) => (
+                  {/* Theme colors */}
+                  {themeColorOptions.map((color) => (
                     <button
                       key={color.id}
                       onClick={() => onTextChange(layer.id, { color: color.id })}
@@ -92,9 +94,25 @@ export default memo(function TextEditor({
                       className={`w-6 h-6 rounded-full border-2 transition-transform hover:scale-110 ${
                         layerState.color === color.id
                           ? 'border-blue-500 ring-2 ring-blue-500/20'
-                          : 'border-gray-200'
+                          : 'border-gray-200 dark:border-gray-600'
                       }`}
                       style={{ backgroundColor: theme[color.id] }}
+                    />
+                  ))}
+                  {/* Separator */}
+                  <span className="w-px h-4 bg-gray-200 dark:bg-gray-700 mx-0.5" />
+                  {/* Neutral colors */}
+                  {neutralColors.map((color) => (
+                    <button
+                      key={color.id}
+                      onClick={() => onTextChange(layer.id, { color: color.id })}
+                      title={color.name}
+                      className={`w-5 h-5 rounded-full border transition-transform hover:scale-110 ${
+                        layerState.color === color.id
+                          ? 'border-blue-500 ring-2 ring-blue-500/20'
+                          : 'border-gray-300 dark:border-gray-600'
+                      }`}
+                      style={{ backgroundColor: color.hex }}
                     />
                   ))}
                 </div>

@@ -6,18 +6,22 @@ Compact context summary for session continuity. Rewrite at session end.
 
 ## Previous Session Summary
 
-**Worked on:** Fixed style presets using wrong data format, improved Layout tab UI.
+**Worked on:** Added neutral colors (off-black, grays, off-white, white) available for text and overlays regardless of theme.
 
 **Accomplished:**
 
-- Replaced Layout sub-tab text labels with SVG icons (tabs were too narrow for "Placement", "Structure" etc.)
-- Fixed style presets using old `textGroups` format - converted all 16 presets to `textCells` format
-- Same bug as layout presets (documented in AI_MISTAKES.md) but for style presets
+- Added `neutralColors` array to `themes.js` with 6 neutral color options
+- Added `getNeutralColor()` helper to resolve neutral color IDs to hex values
+- Updated TextEditor to show theme colors + neutral colors with visual separator
+- Updated ImageUploader overlay color picker to include neutrals
+- Updated LayoutSelector Placement tab (text element colors) to include neutrals
+- Updated LayoutSelector Overlay tab (per-cell overlay colors) to include neutrals
+- Updated AdCanvas `resolveColor()` to handle both theme and neutral color keys
 
-**Current state:** All preset features working correctly. When selecting a style preset like "Hero Banner", text elements now correctly assign to their designated cells instead of all showing "Auto".
+**Current state:** Neutral colors fully integrated. Users can now select off-black, dark gray, gray, light gray, off-white, or white for any text element or overlay, independent of the current theme.
 
 **Key context:**
 
-- Style presets in `stylePresets.js` define `textCells` (not `textGroups`)
-- Layout presets in `layoutPresets.js` also use `textCells` format
-- Both must match the state shape in `useAdState.js`
+- Neutral colors defined in `src/config/themes.js`
+- Color pickers show theme colors (Primary, Secondary, Accent) first, then a separator, then neutral color swatches
+- AdCanvas uses `resolveColor()` which checks theme colors first, then neutral colors, then falls back to default

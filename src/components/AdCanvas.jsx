@@ -2,6 +2,7 @@ import { forwardRef, useMemo } from 'react'
 import { overlayTypes, hexToRgb } from '../config/layouts'
 import { platforms } from '../config/platforms'
 import { fonts } from '../config/fonts'
+import { getNeutralColor } from '../config/themes'
 
 const defaultTextLayer = { content: '', visible: false, color: 'secondary', size: 1 }
 
@@ -26,9 +27,20 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
     accent: state.theme.accent,
   }), [state.theme])
 
+  // Resolve a color key to hex (supports theme colors and neutral colors)
+  const resolveColor = (colorKey, fallback) => {
+    // Check theme colors first
+    if (themeColors[colorKey]) return themeColors[colorKey]
+    // Check neutral colors
+    const neutralHex = getNeutralColor(colorKey)
+    if (neutralHex) return neutralHex
+    // Fallback
+    return fallback
+  }
+
   // Get overlay style for a given config
   const getOverlayStyle = (overlayConfig) => {
-    const color = themeColors[overlayConfig.color] || themeColors.primary
+    const color = resolveColor(overlayConfig.color, themeColors.primary)
     const type = overlayTypes.find((o) => o.id === overlayConfig.type) || overlayTypes[0]
     return type.getCss(hexToRgb(color), overlayConfig.opacity)
   }
@@ -56,7 +68,7 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
     return null
   }
 
-  const getTextColor = (colorKey) => themeColors[colorKey] || themeColors.secondary
+  const getTextColor = (colorKey) => resolveColor(colorKey, themeColors.secondary)
   const getTextLayer = (layerId) => state.text?.[layerId] || defaultTextLayer
 
   const containerStyle = {

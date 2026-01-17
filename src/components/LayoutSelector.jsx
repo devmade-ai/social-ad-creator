@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react'
 import { overlayTypes } from '../config/layouts'
 import { platforms } from '../config/platforms'
 import { defaultState } from '../hooks/useAdState'
+import { neutralColors } from '../config/themes'
 import {
   layoutPresets,
   presetCategories,
@@ -143,7 +144,7 @@ function PresetIcon({ presetId, isActive }) {
   )
 }
 
-const overlayColorOptions = [
+const themeColorOptions = [
   { id: 'primary', name: 'Primary' },
   { id: 'secondary', name: 'Secondary' },
   { id: 'accent', name: 'Accent' },
@@ -473,12 +474,6 @@ const textElementDefs = [
   { id: 'bodyText', label: 'Body Text', placeholder: 'Body text...' },
   { id: 'cta', label: 'CTA', placeholder: 'Call to action...' },
   { id: 'footnote', label: 'Footnote', placeholder: 'Footnote...' },
-]
-
-const colorOptions = [
-  { id: 'primary', name: 'Primary' },
-  { id: 'secondary', name: 'Secondary' },
-  { id: 'accent', name: 'Accent' },
 ]
 
 export default function LayoutSelector({
@@ -1190,15 +1185,30 @@ export default function LayoutSelector({
                     </span>
 
                     {/* Color Picker */}
-                    <div className="flex gap-1">
-                      {colorOptions.map((color) => (
+                    <div className="flex gap-1 items-center">
+                      {/* Theme colors */}
+                      {themeColorOptions.map((color) => (
                         <button
                           key={color.id}
                           onClick={() => onTextChange?.(element.id, { color: color.id })}
                           className={`w-5 h-5 rounded-full border-2 transition-transform hover:scale-110 ${
-                            colorValue === color.id ? 'ring-2 ring-blue-400 ring-offset-1 border-transparent' : 'border-gray-200'
+                            colorValue === color.id ? 'ring-2 ring-blue-400 ring-offset-1 border-transparent' : 'border-gray-200 dark:border-gray-600'
                           }`}
                           style={{ backgroundColor: theme?.[color.id] || '#666' }}
+                          title={color.name}
+                        />
+                      ))}
+                      {/* Separator */}
+                      <span className="w-px h-3 bg-gray-200 dark:bg-gray-700 mx-0.5" />
+                      {/* Neutral colors */}
+                      {neutralColors.map((color) => (
+                        <button
+                          key={color.id}
+                          onClick={() => onTextChange?.(element.id, { color: color.id })}
+                          className={`w-4 h-4 rounded-full border transition-transform hover:scale-110 ${
+                            colorValue === color.id ? 'ring-2 ring-blue-400 ring-offset-1 border-transparent' : 'border-gray-300 dark:border-gray-600'
+                          }`}
+                          style={{ backgroundColor: color.hex }}
                           title={color.name}
                         />
                       ))}
@@ -1357,10 +1367,11 @@ export default function LayoutSelector({
                             </div>
 
                             {/* Color */}
-                            <div className="space-y-1">
+                            <div className="space-y-1.5">
                               <label className="block text-xs font-medium text-gray-600">Color</label>
+                              {/* Theme colors */}
                               <div className="flex gap-1">
-                                {overlayColorOptions.map((c) => (
+                                {themeColorOptions.map((c) => (
                                   <button
                                     key={c.id}
                                     onClick={() => updateCellOverlay(selectedCell, { color: c.id })}
@@ -1375,6 +1386,23 @@ export default function LayoutSelector({
                                       {c.name}
                                     </span>
                                   </button>
+                                ))}
+                              </div>
+                              {/* Neutral colors */}
+                              <div className="flex items-center gap-1.5">
+                                <span className="text-[10px] text-gray-500">Neutrals:</span>
+                                {neutralColors.map((c) => (
+                                  <button
+                                    key={c.id}
+                                    onClick={() => updateCellOverlay(selectedCell, { color: c.id })}
+                                    title={c.name}
+                                    className={`w-5 h-5 rounded-full border transition-transform hover:scale-110 ${
+                                      getCellOverlayConfig(selectedCell)?.color === c.id
+                                        ? 'ring-2 ring-blue-500 ring-offset-1 border-transparent'
+                                        : 'border-gray-300'
+                                    }`}
+                                    style={{ backgroundColor: c.hex }}
+                                  />
                                 ))}
                               </div>
                             </div>

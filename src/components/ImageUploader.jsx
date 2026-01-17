@@ -1,8 +1,9 @@
 import { useCallback, useRef, useState, memo } from 'react'
 import { overlayTypes } from '../config/layouts'
 import { sampleImages } from '../config/sampleImages'
+import { neutralColors } from '../config/themes'
 
-const overlayColorOptions = [
+const themeColorOptions = [
   { id: 'primary', name: 'Primary' },
   { id: 'secondary', name: 'Secondary' },
   { id: 'accent', name: 'Accent' },
@@ -482,8 +483,9 @@ export default memo(function ImageUploader({
 
           <div className="space-y-3">
             <label className="block text-sm font-medium text-gray-600 dark:text-gray-300">Overlay Color</label>
+            {/* Theme colors */}
             <div className="flex gap-2">
-              {overlayColorOptions.map((color) => (
+              {themeColorOptions.map((color) => (
                 <button
                   key={color.id}
                   onClick={() => onOverlayChange({ color: color.id })}
@@ -503,6 +505,25 @@ export default memo(function ImageUploader({
                   </span>
                 </button>
               ))}
+            </div>
+            {/* Neutral colors */}
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-gray-500 dark:text-gray-400">Neutrals:</span>
+              <div className="flex gap-1.5">
+                {neutralColors.map((color) => (
+                  <button
+                    key={color.id}
+                    onClick={() => onOverlayChange({ color: color.id })}
+                    title={color.name}
+                    className={`w-6 h-6 rounded-full border transition-transform hover:scale-110 ${
+                      overlay.color === color.id
+                        ? 'border-blue-500 ring-2 ring-blue-500/20'
+                        : 'border-gray-300 dark:border-gray-600'
+                    }`}
+                    style={{ backgroundColor: color.hex }}
+                  />
+                ))}
+              </div>
             </div>
           </div>
 

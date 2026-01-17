@@ -1,3 +1,19 @@
+// Neutral colors - always available regardless of theme
+export const neutralColors = [
+  { id: 'off-black', name: 'Off Black', hex: '#1a1a1a' },
+  { id: 'dark-gray', name: 'Dark Gray', hex: '#4a4a4a' },
+  { id: 'gray', name: 'Gray', hex: '#808080' },
+  { id: 'light-gray', name: 'Light Gray', hex: '#d4d4d4' },
+  { id: 'off-white', name: 'Off White', hex: '#f5f5f5' },
+  { id: 'white', name: 'White', hex: '#ffffff' },
+]
+
+// Helper to get neutral color hex by id
+export const getNeutralColor = (id) => {
+  const neutral = neutralColors.find((c) => c.id === id)
+  return neutral?.hex || null
+}
+
 export const presetThemes = [
   // Core themes
   { id: 'dark', name: 'Dark', primary: '#1a1a1a', secondary: '#ffffff', accent: '#3b82f6' },

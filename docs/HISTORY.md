@@ -1,5 +1,16 @@
 # Changelog
 
+## 2026-01-17
+
+### Neutral colors for text and overlays
+
+- Added 6 neutral color options: Off Black (#1a1a1a), Dark Gray (#4a4a4a), Gray (#808080), Light Gray (#d4d4d4), Off White (#f5f5f5), White (#ffffff)
+- Available in all color pickers regardless of theme selection
+- Works for text element colors and overlay colors
+- Theme colors (Primary, Secondary, Accent) shown first, neutrals shown after a visual separator
+
+---
+
 ## Completed Features (from TODO)
 
 ### Layout & Structure
