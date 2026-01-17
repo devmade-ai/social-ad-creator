@@ -241,6 +241,15 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
     return cellAlign !== null && cellAlign !== undefined ? cellAlign : layout.textVerticalAlign
   }
 
+  // Get element-specific horizontal alignment with fallback chain: element → cell → global
+  const getElementTextAlign = (elementId, cellIndex) => {
+    const layer = getTextLayer(elementId)
+    if (layer.textAlign !== null && layer.textAlign !== undefined) {
+      return layer.textAlign
+    }
+    return getCellTextAlign(cellIndex)
+  }
+
   // Find the first non-image cell for auto text placement
   const getFirstNonImageCellIndex = () => {
     for (let i = 0; i < cellInfo.totalCells; i++) {
@@ -293,13 +302,16 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
     return elements
   }
 
-  // Render a single text element
-  const renderTextElement = (elementId, withShadow = false) => {
+  // Render a single text element with per-element alignment support
+  const renderTextElement = (elementId, withShadow = false, cellIndex = 0) => {
     const layer = getTextLayer(elementId)
     if (!layer.visible || !layer.content) return null
 
     const shadowStyle = withShadow ? { textShadow: '0 1px 2px rgba(0,0,0,0.3)' } : {}
     const titleShadow = withShadow ? { textShadow: '0 2px 4px rgba(0,0,0,0.3)' } : {}
+
+    // Get per-element horizontal alignment (with cell/global fallback)
+    const elementAlign = getElementTextAlign(elementId, cellIndex)
 
     // Element-specific styling
     const elementStyles = {
@@ -380,6 +392,9 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
           whiteSpace: style.whiteSpace,
           wordWrap: 'break-word',
           overflowWrap: 'break-word',
+          // Per-element horizontal alignment
+          textAlign: elementAlign,
+          alignSelf: getAlignItems(elementAlign),
           ...style.shadow,
         }}
       >
@@ -388,12 +403,11 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
     )
   }
 
-  // Render text elements for a specific cell - all elements share cell alignment
+  // Render text elements for a specific cell - supports per-element horizontal alignment
   const renderTextElementsForCell = (cellIndex, isOnImage) => {
     const elements = getElementsForCell(cellIndex, isOnImage)
     const withShadow = isOnImage
     const padding = getCellPadding(cellIndex)
-    const textAlign = getCellTextAlign(cellIndex)
     const verticalAlign = getCellVerticalAlign(cellIndex)
 
     return (
@@ -402,9 +416,8 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
           display: 'flex',
           flexDirection: 'column',
           justifyContent: getJustifyContent(verticalAlign),
-          alignItems: getAlignItems(textAlign),
+          alignItems: 'stretch', // Allow elements to control their own horizontal alignment via alignSelf
           padding,
-          textAlign,
           width: '100%',
           height: '100%',
           position: 'absolute',
@@ -412,17 +425,14 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
           overflow: 'hidden',
         }}
       >
-        <div style={{ maxWidth: '90%', overflow: 'hidden' }}>
-          {elements.map(elementId => renderTextElement(elementId, withShadow))}
-        </div>
+        {elements.map(elementId => renderTextElement(elementId, withShadow, cellIndex))}
       </div>
     )
   }
 
-  // Render fullbleed layout (no split) - all elements share cell alignment
+  // Render fullbleed layout (no split) - supports per-element horizontal alignment
   const renderFullbleed = () => {
     const padding = getCellPadding(0)
-    const textAlign = getCellTextAlign(0)
     const verticalAlign = getCellVerticalAlign(0)
     const cellOverlay = getCellOverlay(0, true)
     const allElements = ['title', 'tagline', 'bodyHeading', 'bodyText', 'cta', 'footnote']
@@ -430,15 +440,14 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
     return (
       <>
         {renderImage({ position: 'absolute', inset: 0 }, cellOverlay)}
-        {/* All elements share one alignment container */}
+        {/* Elements can have individual horizontal alignment via alignSelf */}
         <div
           style={{
             display: 'flex',
             flexDirection: 'column',
             justifyContent: getJustifyContent(verticalAlign),
-            alignItems: getAlignItems(textAlign),
+            alignItems: 'stretch', // Allow elements to control their own horizontal alignment
             padding,
-            textAlign,
             width: '100%',
             height: '100%',
             position: 'absolute',
@@ -446,9 +455,7 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
             overflow: 'hidden',
           }}
         >
-          <div style={{ maxWidth: '90%', overflow: 'hidden' }}>
-            {allElements.map(elementId => renderTextElement(elementId, true))}
-          </div>
+          {allElements.map(elementId => renderTextElement(elementId, true, 0))}
         </div>
       </>
     )

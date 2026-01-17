@@ -217,9 +217,21 @@ layout: {
     { size: 50, subdivisions: 2, subSizes: [50, 50] }
   ],
   imageCell: 0,  // Which cell the image appears in
-  textAlign: 'center',
-  textVerticalAlign: 'center',
+  textAlign: 'center',           // Global horizontal alignment fallback
+  textVerticalAlign: 'center',   // Global vertical alignment fallback
   cellAlignments: [{ textAlign, textVerticalAlign }, ...]  // Per-cell overrides
+}
+
+text: {
+  title: {
+    content: '...',
+    visible: true,
+    color: 'secondary',
+    size: 1,
+    textAlign: null,         // Per-element horizontal alignment (null = use cell default)
+    textVerticalAlign: null  // Reserved for future use
+  },
+  // ... same structure for tagline, bodyHeading, bodyText, cta, footnote
 }
 
 textCells: {
@@ -230,6 +242,8 @@ textCells: {
   cta: null,
   footnote: null
 }
+
+// Alignment fallback chain: element.textAlign → cellAlignments[cell] → layout.textAlign
 ```
 
 ## Layout Tab Sub-tabs
@@ -248,11 +262,12 @@ The Layout tab uses a sub-tab architecture for better organization:
    - Click cells to edit subdivision sizes
    - Contextual controls based on selection
 
-3. **Placement** - Per-cell alignment and text element controls
-   - Cell selector for per-cell alignment (select cell or set global)
-   - Horizontal and vertical alignment per cell
+3. **Placement** - Text element controls with per-element alignment
+   - Cell selector for per-cell vertical alignment (select cell or set global)
+   - Horizontal and vertical alignment per cell (as fallback)
    - Image cell assignment
-   - Text element controls: visibility toggle, cell assignment, color picker
+   - Text element controls: visibility toggle, cell assignment, horizontal alignment, color picker
+   - Per-element horizontal alignment allows different alignments in same cell (e.g., centered title + left-aligned body)
    - Individual text elements: Title, Tagline, Body Heading, Body Text, CTA, Footnote
 
 4. **Overlay** - Per-cell overlay controls

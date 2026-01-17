@@ -22,13 +22,42 @@ const letterSpacingOptions = [
   { id: 2, name: 'Wider' },
 ]
 
+// Alignment icons
+const AlignLeftIcon = () => (
+  <svg width="14" height="10" viewBox="0 0 14 10" fill="currentColor">
+    <rect x="0" y="0" width="10" height="2" />
+    <rect x="0" y="4" width="14" height="2" />
+    <rect x="0" y="8" width="8" height="2" />
+  </svg>
+)
+const AlignCenterIcon = () => (
+  <svg width="14" height="10" viewBox="0 0 14 10" fill="currentColor">
+    <rect x="2" y="0" width="10" height="2" />
+    <rect x="0" y="4" width="14" height="2" />
+    <rect x="3" y="8" width="8" height="2" />
+  </svg>
+)
+const AlignRightIcon = () => (
+  <svg width="14" height="10" viewBox="0 0 14 10" fill="currentColor">
+    <rect x="4" y="0" width="10" height="2" />
+    <rect x="0" y="4" width="14" height="2" />
+    <rect x="6" y="8" width="8" height="2" />
+  </svg>
+)
+
+const textAlignOptions = [
+  { id: 'left', name: 'Left', Icon: AlignLeftIcon },
+  { id: 'center', name: 'Center', Icon: AlignCenterIcon },
+  { id: 'right', name: 'Right', Icon: AlignRightIcon },
+]
+
 const textLayers = [
-  { id: 'title', label: 'Title', placeholder: 'Enter title...', multiline: false },
-  { id: 'tagline', label: 'Tagline', placeholder: 'Your tagline here...', multiline: false },
-  { id: 'bodyHeading', label: 'Body Heading', placeholder: 'Section heading...', multiline: false },
+  { id: 'title', label: 'Title', placeholder: 'Enter title...', multiline: true },
+  { id: 'tagline', label: 'Tagline', placeholder: 'Your tagline here...', multiline: true },
+  { id: 'bodyHeading', label: 'Body Heading', placeholder: 'Section heading...', multiline: true },
   { id: 'bodyText', label: 'Body Text', placeholder: 'Enter body text...', multiline: true },
-  { id: 'cta', label: 'Call to Action', placeholder: 'Learn More', multiline: false },
-  { id: 'footnote', label: 'Footnote', placeholder: 'Terms apply...', multiline: false },
+  { id: 'cta', label: 'Call to Action', placeholder: 'Learn More', multiline: true },
+  { id: 'footnote', label: 'Footnote', placeholder: 'Terms apply...', multiline: true },
 ]
 
 export default memo(function TextEditor({
@@ -134,7 +163,7 @@ export default memo(function TextEditor({
                 ))}
               </div>
 
-              {/* Row 2: Bold/Italic + Letter Spacing */}
+              {/* Row 3: Bold/Italic + Letter Spacing */}
               <div className="flex items-center gap-4">
                 {/* Bold/Italic toggles */}
                 <div className="flex items-center gap-1.5">
@@ -181,6 +210,41 @@ export default memo(function TextEditor({
                     </button>
                   ))}
                 </div>
+              </div>
+
+              {/* Row 4: Alignment */}
+              <div className="flex items-center gap-1.5">
+                <span className="text-xs text-gray-500 dark:text-gray-400">Align:</span>
+                {textAlignOptions.map((align) => {
+                  const isActive = layerState.textAlign === align.id
+                  return (
+                    <button
+                      key={align.id}
+                      onClick={() => onTextChange(layer.id, { textAlign: align.id })}
+                      title={align.name}
+                      className={`w-7 h-6 rounded-md flex items-center justify-center ${
+                        isActive
+                          ? 'bg-blue-500 text-white'
+                          : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+                      }`}
+                    >
+                      <align.Icon />
+                    </button>
+                  )
+                })}
+                {/* Reset to cell default */}
+                {layerState.textAlign !== null && (
+                  <button
+                    onClick={() => onTextChange(layer.id, { textAlign: null })}
+                    className="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 ml-1"
+                    title="Use cell default alignment"
+                  >
+                    ×
+                  </button>
+                )}
+                {layerState.textAlign === null && (
+                  <span className="text-xs text-gray-400 dark:text-gray-500 ml-1">(cell default)</span>
+                )}
               </div>
             </div>
           )

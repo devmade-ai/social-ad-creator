@@ -1139,7 +1139,7 @@ export default function LayoutSelector({
               </div>
             </div>
 
-            {/* Text Elements - cell assignment + visibility + color */}
+            {/* Text Elements - cell assignment + visibility + alignment + color */}
             <div className="pt-4 border-t border-gray-100 space-y-3">
               <label className="block text-sm font-medium text-gray-600">Text Elements</label>
               {textElementDefs.map((element) => {
@@ -1147,6 +1147,7 @@ export default function LayoutSelector({
                 const textData = text?.[element.id] || {}
                 const isVisible = textData.visible !== false
                 const colorValue = textData.color || 'secondary'
+                const elementAlign = textData.textAlign // null = use cell default
 
                 return (
                   <div key={element.id} className="space-y-1.5 pb-2 border-b border-gray-50 last:border-0 last:pb-0">
@@ -1198,7 +1199,43 @@ export default function LayoutSelector({
                       )}
                     </div>
 
-                    {/* Row 2: Color Picker */}
+                    {/* Row 2: Horizontal Alignment */}
+                    <div className="flex gap-1 items-center pl-8">
+                      <span className="text-[10px] text-gray-400 mr-1">Align:</span>
+                      {textAlignOptions.map((align) => {
+                        const isActive = elementAlign === align.id
+                        const isDefault = elementAlign === null && align.id === 'center' // Show center as "default" indicator
+                        return (
+                          <button
+                            key={align.id}
+                            onClick={() => onTextChange?.(element.id, { textAlign: align.id })}
+                            title={`${align.name}${isDefault ? ' (cell default)' : ''}`}
+                            className={`w-6 h-6 rounded flex items-center justify-center transition-colors ${
+                              isActive
+                                ? 'bg-blue-500 text-white'
+                                : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                            }`}
+                          >
+                            <align.Icon />
+                          </button>
+                        )
+                      })}
+                      {/* Reset to cell default */}
+                      {elementAlign !== null && (
+                        <button
+                          onClick={() => onTextChange?.(element.id, { textAlign: null })}
+                          className="text-[10px] text-gray-400 hover:text-gray-600 ml-1"
+                          title="Use cell default alignment"
+                        >
+                          ×
+                        </button>
+                      )}
+                      {elementAlign === null && (
+                        <span className="text-[10px] text-gray-400 ml-1">(cell)</span>
+                      )}
+                    </div>
+
+                    {/* Row 3: Color Picker */}
                     <div className="flex gap-1 items-center flex-wrap pl-8">
                       <span className="text-[10px] text-gray-400 mr-0.5">Color:</span>
                       {/* Theme colors */}
