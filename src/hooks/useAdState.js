@@ -185,56 +185,71 @@ export function useAdState() {
     setState(defaultState)
   }, [])
 
-  // Apply a complete style preset (theme, fonts, layout, overlay, filters, textCells)
+  // Apply a complete style preset (theme, fonts, layout, overlay, filters, textCells, textColors)
   // Preserves: image, logo, text content, platform
   const applyStylePreset = useCallback((preset) => {
     if (!preset || !preset.settings) return
 
     const { settings } = preset
 
-    setState((prev) => ({
-      ...prev,
-      activeStylePreset: preset.id,
-      // Apply theme
-      theme: settings.theme ? {
-        preset: settings.theme.preset,
-        primary: settings.theme.primary,
-        secondary: settings.theme.secondary,
-        accent: settings.theme.accent,
-      } : prev.theme,
-      // Apply fonts
-      fonts: settings.fonts ? {
-        title: settings.fonts.title,
-        body: settings.fonts.body,
-      } : prev.fonts,
-      // Apply layout
-      layout: settings.layout ? {
-        ...settings.layout,
-      } : prev.layout,
-      // Apply overlay
-      overlay: settings.overlay ? {
-        type: settings.overlay.type,
-        color: settings.overlay.color,
-        opacity: settings.overlay.opacity,
-      } : prev.overlay,
-      // Apply image filters (preserve grayscale - user controls this independently)
-      imageFilters: settings.imageFilters ? {
-        grayscale: prev.imageFilters.grayscale,
-        sepia: settings.imageFilters.sepia,
-        blur: settings.imageFilters.blur,
-        contrast: settings.imageFilters.contrast,
-        brightness: settings.imageFilters.brightness,
-      } : prev.imageFilters,
-      // Apply text cell placements
-      textCells: settings.textCells ? {
-        title: settings.textCells.title ?? null,
-        tagline: settings.textCells.tagline ?? null,
-        bodyHeading: settings.textCells.bodyHeading ?? null,
-        bodyText: settings.textCells.bodyText ?? null,
-        cta: settings.textCells.cta ?? null,
-        footnote: settings.textCells.footnote ?? null,
-      } : prev.textCells,
-    }))
+    setState((prev) => {
+      // Build updated text with colors if provided
+      let updatedText = prev.text
+      if (settings.textColors) {
+        updatedText = { ...prev.text }
+        for (const [key, color] of Object.entries(settings.textColors)) {
+          if (updatedText[key]) {
+            updatedText[key] = { ...updatedText[key], color }
+          }
+        }
+      }
+
+      return {
+        ...prev,
+        activeStylePreset: preset.id,
+        // Apply theme
+        theme: settings.theme ? {
+          preset: settings.theme.preset,
+          primary: settings.theme.primary,
+          secondary: settings.theme.secondary,
+          accent: settings.theme.accent,
+        } : prev.theme,
+        // Apply fonts
+        fonts: settings.fonts ? {
+          title: settings.fonts.title,
+          body: settings.fonts.body,
+        } : prev.fonts,
+        // Apply layout
+        layout: settings.layout ? {
+          ...settings.layout,
+        } : prev.layout,
+        // Apply overlay
+        overlay: settings.overlay ? {
+          type: settings.overlay.type,
+          color: settings.overlay.color,
+          opacity: settings.overlay.opacity,
+        } : prev.overlay,
+        // Apply image filters (preserve grayscale - user controls this independently)
+        imageFilters: settings.imageFilters ? {
+          grayscale: prev.imageFilters.grayscale,
+          sepia: settings.imageFilters.sepia,
+          blur: settings.imageFilters.blur,
+          contrast: settings.imageFilters.contrast,
+          brightness: settings.imageFilters.brightness,
+        } : prev.imageFilters,
+        // Apply text cell placements
+        textCells: settings.textCells ? {
+          title: settings.textCells.title ?? null,
+          tagline: settings.textCells.tagline ?? null,
+          bodyHeading: settings.textCells.bodyHeading ?? null,
+          bodyText: settings.textCells.bodyText ?? null,
+          cta: settings.textCells.cta ?? null,
+          footnote: settings.textCells.footnote ?? null,
+        } : prev.textCells,
+        // Apply text colors
+        text: updatedText,
+      }
+    })
   }, [])
 
   // Clear style preset tracking (called when user customizes something)
