@@ -12,7 +12,7 @@ A browser-based tool for creating social media advertisements. Upload images, ad
 - **Object fit** - Cover (fill) or Contain (fit) modes
 - **Position control** - Adjust image position within frame
 - **Grayscale toggle** - Quick black & white conversion
-- **Overlay system** - Solid, gradient (up/down), vignette effects with adjustable intensity
+- **Overlay system** - Solid, gradient (8 directions), vignette, spotlight effects with adjustable intensity and per-cell controls
 
 ### Logo
 
@@ -34,24 +34,29 @@ Six independent text elements, each with:
 Each text element supports:
 
 - Visibility toggle
-- Custom color
+- Custom color (theme colors + neutrals)
 - Cell placement (which layout cell it appears in)
+- Per-element horizontal alignment
 - Bold/italic styling
 - Letter spacing (tight, normal, wide, wider)
 
 ### Layout System
 
-- **20 preset layouts** - Quick start options organized by category:
-  - Image Focus, Text Focus, Balanced, Grid
-  - Smart suggestions based on your image's aspect ratio
-- **Structure controls** - Fine-tune rows/columns and subdivisions
-- **Per-cell alignment** - Horizontal and vertical text alignment per cell
-- **Per-cell overlays** - Enable/disable and customize overlay per cell
-- **Per-cell padding** - Global or custom spacing per cell
+The Layout tab has 5 sub-tabs for organization:
+
+- **Layouts** - 20 quick-start layout templates organized by category (Image Focus, Text Focus, Balanced, Grid) with smart suggestions based on your image's aspect ratio
+- **Structure** - Fine-tune rows/columns and subdivisions
+- **Placement** - Assign text elements to cells, per-cell alignment, image cell selection
+- **Overlay** - Per-cell overlay controls (enable/disable, type, intensity)
+- **Spacing** - Global and per-cell padding controls
+
+### Quick Styles
+
+One-click style combinations available above the preview area. Each Quick Style applies a theme + font pairing for instant results.
 
 ### Themes & Fonts
 
-- **4 preset themes** - Quick color schemes
+- **4 color themes** - Quick color schemes (or create custom)
 - **Custom colors** - Full control over background, text, and accent colors
 - **15 Google Fonts** - Sans-serif, serif, and display categories
 
@@ -65,9 +70,9 @@ Each text element supports:
 ## How to Use
 
 1. **Upload an image** - Drag-drop or click the upload area in the Image tab
-2. **Choose a layout** - Go to Layout tab → Presets and pick a starting layout
+2. **Choose a layout** - Go to Layout tab → Layouts and pick a starting template
 3. **Add your text** - Fill in the text fields in the Text tab
-4. **Customize** - Adjust colors (Theme tab), fonts (Font tab), and fine-tune layout
+4. **Customize** - Use Quick Styles for instant looks, or adjust colors (Theme tab) and fonts (Font tab) manually
 5. **Export** - Select your platform and download
 
 ### Tips

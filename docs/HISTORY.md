@@ -2,6 +2,13 @@
 
 ## 2026-01-17
 
+### Text placement selector validation
+
+- Text element cell assignments now auto-reset when layout structure changes
+- Added `validateTextCells()` helper to reset out-of-bounds cell assignments
+- Validation runs on layout type change, section removal, and subdivision removal
+- Increased cell selector size (80x52px) for better mobile touch targets
+
 ### Neutral colors for text and overlays
 
 - Added 6 neutral color options: Off Black (#1a1a1a), Dark Gray (#4a4a4a), Gray (#808080), Light Gray (#d4d4d4), Off White (#f5f5f5), White (#ffffff)

@@ -143,24 +143,25 @@ Social Ad Creator - A browser-based tool for creating social media advertisement
 
 Core features working:
 
-- Image upload with drag-drop, object fit (cover/contain), position, grayscale, overlay controls
-- Flexible layout system with sub-tab organization:
-  - **Presets tab**: Quick layout selection with smart suggestions based on image aspect ratio
-  - **Structure tab**: Fine-tune rows/columns with contextual cell/section selection
-  - **Alignment tab**: Per-cell text alignment (horizontal/vertical)
-  - **Placement tab**: Assign text groups to specific cells
+- Image upload with drag-drop, object fit (cover/contain), position, grayscale
+- Logo upload with position (corners, center) and size options
+- Flexible layout system with sub-tab organization (see Layout Tab Sub-tabs below)
 - Text groups with cell assignment:
   - Title + Tagline (paired)
   - Body Heading + Body Text (paired)
   - CTA (independent)
   - Footnote (independent)
-- Logo upload with position (corners, center) and size options
-- Theme system with 4 presets and custom colors
-- Overlay system (solid, 8 gradient directions, vignette, spotlight) - integrated in Image tab
+- Theme system with 4 color themes and custom colors
+- Quick Styles bar for one-click style combinations (above preview)
+- Overlay system (solid, 8 gradient directions, vignette, spotlight) with per-cell controls
 - 15 Google Fonts (sans-serif, serif, display categories)
 - Export to 6 platforms (LinkedIn, Facebook, Instagram, Twitter/X, TikTok)
 - Single download and ZIP batch download
 - Responsive preview that adapts to device width
+
+## Current Tab Structure
+
+**Top-level tabs:** Image, Layout, Text, Theme, Fonts
 
 ## Tech Stack
 
@@ -184,25 +185,28 @@ npm run deploy   # Deploy to GitHub Pages
 ```
 src/
 ├── components/     # React components
-│   ├── AdCanvas.jsx       # Core rendering (cell-based layout)
-│   ├── ImageUploader.jsx  # Image upload + overlay controls
-│   ├── LogoUploader.jsx   # Logo upload and positioning
-│   ├── TextEditor.jsx     # Text layer editing
-│   ├── LayoutSelector.jsx # Layout with sub-tabs (Presets, Structure, Alignment, Placement)
-│   ├── ThemePicker.jsx
-│   ├── FontSelector.jsx
-│   ├── PlatformPreview.jsx
-│   └── ExportButtons.jsx
+│   ├── AdCanvas.jsx           # Core rendering (cell-based layout)
+│   ├── ImageUploader.jsx      # Image + logo upload, fit, position, grayscale
+│   ├── LogoUploader.jsx       # Logo upload and positioning (used by ImageUploader)
+│   ├── TextEditor.jsx         # Text layer editing
+│   ├── LayoutSelector.jsx     # Layout with sub-tabs (Structure, Placement, Overlay, Spacing, Layouts)
+│   ├── ThemePicker.jsx        # Color themes and custom colors
+│   ├── FontSelector.jsx       # Font selection
+│   ├── StylePresetSelector.jsx # Quick Styles bar (top-level, above preview)
+│   ├── PlatformPreview.jsx    # Platform selector
+│   ├── ExportButtons.jsx      # Export controls
+│   └── ErrorBoundary.jsx      # Error handling wrapper
 ├── config/         # Configuration
 │   ├── layouts.js        # Overlay types and helpers
-│   ├── layoutPresets.js  # 17 layout presets with SVG icons and categories
+│   ├── layoutPresets.js  # 20 layouts with SVG icons and categories
 │   ├── platforms.js      # 6 platform sizes
-│   ├── themes.js         # 4 preset themes
+│   ├── themes.js         # 4 color themes
 │   └── fonts.js          # 15 Google Fonts
 ├── hooks/
-│   └── useAdState.js  # Central state (includes textGroups, layout)
+│   ├── useAdState.js     # Central state (includes textGroups, layout)
+│   └── useDarkMode.js    # Dark mode toggle
 ├── utils/
-│   └── export.js      # Export utilities
+│   └── export.js         # Export utilities
 ├── App.jsx
 └── main.jsx
 ```
@@ -250,31 +254,41 @@ textCells: {
 
 The Layout tab uses a sub-tab architecture for better organization:
 
-1. **Presets** - Quick start with 20 pre-built layouts
-   - Categories: All, Suggested, Image Focus, Text Focus, Balanced, Grid
-   - Smart suggestions based on image aspect ratio and platform
-   - Visual SVG preview icons
-   - Applies both layout structure AND text cell placements
-
-2. **Structure** - Fine-tune the layout grid
+1. **Structure** - Fine-tune the layout grid
    - Layout type selector (Full/Rows/Columns)
    - Click section labels (R1, R2 or C1, C2) to edit row/column size
    - Click cells to edit subdivision sizes
    - Contextual controls based on selection
 
-3. **Placement** - Text element controls with per-element alignment
+2. **Placement** - Text element controls with per-element alignment
    - Cell selector for per-cell vertical alignment (select cell or set global)
    - Horizontal and vertical alignment per cell (as fallback)
    - Image cell assignment
    - Text element controls: visibility toggle, cell assignment, horizontal alignment, color picker
-   - Per-element horizontal alignment allows different alignments in same cell (e.g., centered title + left-aligned body)
+   - Per-element horizontal alignment allows different alignments in same cell
    - Individual text elements: Title, Tagline, Body Heading, Body Text, CTA, Footnote
 
-4. **Overlay** - Per-cell overlay controls
+3. **Overlay** - Per-cell overlay controls
    - Click cell to select
    - Enable/disable overlay per cell
    - Custom overlay type and intensity per cell
 
-5. **Spacing** - Global and per-cell padding
+4. **Spacing** - Global and per-cell padding
    - Global padding for all cells
    - Click cell for custom padding overrides
+
+5. **Layouts** - Quick start with 20 pre-built layout templates
+   - Categories: All, Suggested, Image Focus, Text Focus, Balanced, Grid
+   - Smart suggestions based on image aspect ratio and platform
+   - Visual SVG preview icons
+   - Applies both layout structure AND text cell placements
+
+## Preset Types (Naming Clarification)
+
+The app has three types of "presets" - use these distinct names to avoid confusion:
+
+| Name | Location | What It Applies | Config File |
+|------|----------|-----------------|-------------|
+| **Layouts** | Layout tab → Layouts sub-tab | Grid structure + text cell placements | `layoutPresets.js` |
+| **Quick Styles** | Top bar above preview | Theme + font combination | `StylePresetSelector.jsx` |
+| **Themes** | Theme tab | Color scheme only | `themes.js` |
