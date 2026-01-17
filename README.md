@@ -6,80 +6,62 @@ A browser-based tool for creating social media advertisements. Upload images, ad
 
 ## Features
 
-### Image & Media
+### Templates
+- **Complete Designs** - One-click style presets that apply theme, fonts, layout, overlay, and filters all at once
+- **Layout Only** - Apply just the grid structure without changing colors or fonts
 
+### Media
 - **Image upload** - Drag-drop or click to upload background images
 - **Object fit** - Cover (fill) or Contain (fit) modes
 - **Position control** - Adjust image position within frame
-- **Grayscale toggle** - Quick black & white conversion
-- **Overlay system** - Solid, gradient (8 directions), vignette, spotlight effects with adjustable intensity and per-cell controls
+- **Advanced filters** - Grayscale, sepia, blur, contrast, brightness
+- **Logo upload** - Add your brand logo with position (corners/center) and size controls
 
-### Logo
-
-- **Logo upload** - Add your brand logo
-- **Position** - Place in corners or center
-- **Size control** - Small, medium, large options
-
-### Text Layers
-
-Six independent text elements, each with:
-
-- **Title** - Main headline
-- **Tagline** - Supporting headline
-- **Body Heading** - Section header
-- **Body Text** - Detailed content
-- **CTA (Call to Action)** - Action prompt
+### Content
+Six text elements organized into groups:
+- **Title & Tagline** - Main headline and supporting text (paired)
+- **Body Heading & Body Text** - Section content (paired)
+- **CTA** - Call to action button text
 - **Footnote** - Fine print or disclaimers
 
 Each text element supports:
-
 - Visibility toggle
-- Custom color (theme colors + neutrals)
 - Cell placement (which layout cell it appears in)
-- Per-element horizontal alignment
+- Horizontal alignment (left, center, right, or auto)
+- Color selection (theme colors + neutrals)
+- Size adjustment
 - Bold/italic styling
 - Letter spacing (tight, normal, wide, wider)
 
-### Layout System
+### Layout
+- **Structure** - Choose Full Bleed, Rows, or Columns with adjustable sizes
+- **Cell Assignment** - Select which cell displays the image, set per-cell text alignment
 
-The Layout tab has 5 sub-tabs for organization:
-
-- **Layouts** - 20 quick-start layout templates organized by category (Image Focus, Text Focus, Balanced, Grid) with smart suggestions based on your image's aspect ratio
-- **Structure** - Fine-tune rows/columns and subdivisions
-- **Placement** - Assign text elements to cells, per-cell alignment, image cell selection
-- **Overlay** - Per-cell overlay controls (enable/disable, type, intensity)
-- **Spacing** - Global and per-cell padding controls
-
-### Quick Styles
-
-One-click style combinations available above the preview area. Each Quick Style applies a theme + font pairing for instant results.
-
-### Themes & Fonts
-
-- **4 color themes** - Quick color schemes (or create custom)
-- **Custom colors** - Full control over background, text, and accent colors
-- **15 Google Fonts** - Sans-serif, serif, and display categories
+### Style
+- **12 color themes** - Quick color schemes plus custom color inputs
+- **Typography** - 15 Google Fonts (sans-serif, serif, display categories) with separate title and body font selection
+- **Overlay** - Per-cell overlay controls (solid, 8 gradient directions, vignette, spotlight) with adjustable opacity
+- **Spacing** - Global padding plus per-cell custom padding
 
 ### Export
-
 - **6 platforms** - LinkedIn, Facebook, Instagram (Square & Story), Twitter/X, TikTok
 - **Single download** - Export current platform as PNG
 - **Batch download** - ZIP file with all platform sizes
 - **Progress indicator** - Visual feedback during export
 
-## How to Use
+## Quick Start
 
-1. **Upload an image** - Drag-drop or click the upload area in the Image tab
-2. **Choose a layout** - Go to Layout tab → Layouts and pick a starting template
-3. **Add your text** - Fill in the text fields in the Text tab
-4. **Customize** - Use Quick Styles for instant looks, or adjust colors (Theme tab) and fonts (Font tab) manually
-5. **Export** - Select your platform and download
+1. **Pick a template** - Start with a Complete Design from the Templates tab
+2. **Upload your image** - Go to Media tab, drag-drop or click to upload
+3. **Add your text** - Fill in the Content tab with your headline, body, CTA
+4. **Adjust layout** - Fine-tune grid structure in the Layout tab if needed
+5. **Customize style** - Change theme, fonts, or overlay in the Style tab
+6. **Export** - Select your platform and download
 
 ### Tips
-
-- Use **Suggested** layouts for options that work well with your image's aspect ratio
-- **Per-cell alignment** lets you position text differently in each layout cell
-- **Overlays** help text stand out over busy images
+- Start with **Complete Designs** for the fastest workflow
+- Use **Layout Only** presets to change structure without losing your color choices
+- **Per-cell overlay** helps text stand out over busy images
 - Preview different platforms before exporting to ensure your design works everywhere
 
 ## Getting Started (Development)

@@ -116,6 +116,34 @@
 
 **Why:** Users and contributors read this first. Must accurately reflect the current state.
 
+### `docs/USER_GUIDE.md`
+
+**Purpose:** Comprehensive user documentation explaining how to use every feature.
+**When to read:** When you need to understand what users can do with the tool, or how a feature is supposed to work from the user's perspective.
+**When to update:** When adding new features, changing UI workflows, or modifying how existing features work.
+**What to include:**
+
+- Tab-by-tab walkthrough of the interface
+- Explanation of every control and what it does
+- Workflow tips and best practices
+- Organized by user tasks, not technical implementation
+
+**Why:** Serves as the authoritative reference for user-facing behavior. Helps ensure AI assistants understand the user experience.
+
+### `docs/TESTING_GUIDE.md`
+
+**Purpose:** Manual test scenarios for verifying the application works correctly.
+**When to read:** Before testing changes, or when you need to verify specific functionality works.
+**When to update:** When adding new features that need test coverage, or when existing tests become outdated.
+**What to include:**
+
+- Step-by-step test scenarios with exact actions
+- Where to click/look for each step
+- Expected results for each action
+- Regression checklist for quick verification
+
+**Why:** Ensures consistent, thorough testing. Prevents regressions by documenting what to verify after changes.
+
 ### REMINDER: READ AND FOLLOW THE FUCKING DOCUMENTATION EVERY TIME
 
 ## AI Notes
