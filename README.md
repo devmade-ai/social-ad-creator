@@ -12,7 +12,7 @@ A browser-based tool for creating social media advertisements. Upload images, ad
 - **Object fit** - Cover (fill) or Contain (fit) modes
 - **Position control** - Adjust image position within frame
 - **Grayscale toggle** - Quick black & white conversion
-- **Overlay system** - Solid, gradient (up/down), vignette effects with adjustable intensity
+- **Overlay system** - Solid, gradient (8 directions), vignette, spotlight effects with adjustable intensity and per-cell controls
 
 ### Logo
 
@@ -34,20 +34,21 @@ Six independent text elements, each with:
 Each text element supports:
 
 - Visibility toggle
-- Custom color
+- Custom color (theme colors + neutrals)
 - Cell placement (which layout cell it appears in)
+- Per-element horizontal alignment
 - Bold/italic styling
 - Letter spacing (tight, normal, wide, wider)
 
 ### Layout System
 
-- **20 preset layouts** - Quick start options organized by category:
-  - Image Focus, Text Focus, Balanced, Grid
-  - Smart suggestions based on your image's aspect ratio
-- **Structure controls** - Fine-tune rows/columns and subdivisions
-- **Per-cell alignment** - Horizontal and vertical text alignment per cell
-- **Per-cell overlays** - Enable/disable and customize overlay per cell
-- **Per-cell padding** - Global or custom spacing per cell
+The Layout tab has 5 sub-tabs for organization:
+
+- **Presets** - 20 quick-start layouts organized by category (Image Focus, Text Focus, Balanced, Grid) with smart suggestions based on your image's aspect ratio
+- **Structure** - Fine-tune rows/columns and subdivisions
+- **Placement** - Assign text elements to cells, per-cell alignment, image cell selection
+- **Overlay** - Per-cell overlay controls (enable/disable, type, intensity)
+- **Spacing** - Global and per-cell padding controls
 
 ### Themes & Fonts
 
