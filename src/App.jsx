@@ -2,22 +2,21 @@ import { useRef, useMemo, useState, useEffect, useCallback } from 'react'
 import { useAdState } from './hooks/useAdState'
 import { useDarkMode } from './hooks/useDarkMode'
 import AdCanvas from './components/AdCanvas'
-import ImageUploader from './components/ImageUploader'
-import TextEditor from './components/TextEditor'
-import LayoutSelector from './components/LayoutSelector'
-import ThemePicker from './components/ThemePicker'
-import FontSelector from './components/FontSelector'
+import TemplatesTab from './components/TemplatesTab'
+import MediaTab from './components/MediaTab'
+import ContentTab from './components/ContentTab'
+import LayoutTab from './components/LayoutTab'
+import StyleTab from './components/StyleTab'
 import PlatformPreview from './components/PlatformPreview'
 import ExportButtons from './components/ExportButtons'
 import ErrorBoundary from './components/ErrorBoundary'
-import StylePresetSelector from './components/StylePresetSelector'
 import { platforms } from './config/platforms'
 import { fonts } from './config/fonts'
 
 function App() {
   const canvasRef = useRef(null)
   const previewContainerRef = useRef(null)
-  const [activeSection, setActiveSection] = useState('image')
+  const [activeSection, setActiveSection] = useState('templates')
   const [imageAspectRatio, setImageAspectRatio] = useState(null)
   const [containerWidth, setContainerWidth] = useState(600)
   const { isDark, toggle: toggleDarkMode } = useDarkMode()
@@ -118,12 +117,13 @@ function App() {
     return Math.min(scaleX, scaleY, 1)
   }, [platform, containerWidth])
 
+  // New workflow-based tabs
   const sections = [
-    { id: 'image', label: 'Image' },
+    { id: 'templates', label: 'Templates' },
+    { id: 'media', label: 'Media' },
+    { id: 'content', label: 'Content' },
     { id: 'layout', label: 'Layout' },
-    { id: 'text', label: 'Text' },
-    { id: 'theme', label: 'Theme' },
-    { id: 'fonts', label: 'Fonts' },
+    { id: 'style', label: 'Style' },
   ]
 
   return (
@@ -177,117 +177,111 @@ function App() {
         {/* Sidebar Controls */}
         <aside className="w-full lg:w-96 p-4 lg:p-5 lg:pr-0">
           <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200/80 dark:border-gray-700/80 shadow-card p-4 lg:p-5">
-          {/* Section Tabs */}
-          <div className="flex flex-wrap gap-1.5 mb-5 pb-4 border-b border-gray-100 dark:border-gray-800">
-            {sections.map((section) => (
-              <button
-                key={section.id}
-                onClick={() => setActiveSection(section.id)}
-                className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-all ${
-                  activeSection === section.id
-                    ? 'bg-blue-500 text-white shadow-sm'
-                    : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 hover:text-gray-800 dark:hover:text-gray-100'
-                }`}
-              >
-                {section.label}
-              </button>
-            ))}
-          </div>
+            {/* Section Tabs */}
+            <div className="flex flex-wrap gap-1.5 mb-5 pb-4 border-b border-gray-100 dark:border-gray-800">
+              {sections.map((section) => (
+                <button
+                  key={section.id}
+                  onClick={() => setActiveSection(section.id)}
+                  className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-all ${
+                    activeSection === section.id
+                      ? 'bg-blue-500 text-white shadow-sm'
+                      : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 hover:text-gray-800 dark:hover:text-gray-100'
+                  }`}
+                >
+                  {section.label}
+                </button>
+              ))}
+            </div>
 
-          {/* Section Content */}
-          <div className="space-y-5">
-            <ErrorBoundary title="Image controls error" message="Failed to load image controls.">
-              {activeSection === 'image' && (
-                <ImageUploader
-                  image={state.image}
-                  onImageChange={setImage}
-                  objectFit={state.imageObjectFit}
-                  onObjectFitChange={setImageObjectFit}
-                  position={state.imagePosition}
-                  onPositionChange={setImagePosition}
-                  filters={state.imageFilters}
-                  onFiltersChange={setImageFilters}
-                  overlay={state.overlay}
-                  onOverlayChange={setOverlay}
-                  theme={state.theme}
-                  logo={state.logo}
-                  onLogoChange={setLogo}
-                  logoPosition={state.logoPosition}
-                  onLogoPositionChange={setLogoPosition}
-                  logoSize={state.logoSize}
-                  onLogoSizeChange={setLogoSize}
-                />
-              )}
-            </ErrorBoundary>
+            {/* Section Content */}
+            <div className="space-y-5">
+              <ErrorBoundary title="Templates error" message="Failed to load templates.">
+                {activeSection === 'templates' && (
+                  <TemplatesTab
+                    activeStylePreset={state.activeStylePreset}
+                    onSelectStylePreset={applyStylePreset}
+                    layout={state.layout}
+                    onApplyLayoutPreset={applyLayoutPreset}
+                    imageAspectRatio={imageAspectRatio}
+                    platform={state.platform}
+                  />
+                )}
+              </ErrorBoundary>
 
-            <ErrorBoundary title="Text editor error" message="Failed to load text editor.">
-              {activeSection === 'text' && (
-                <TextEditor
-                  text={state.text}
-                  onTextChange={setText}
-                  theme={state.theme}
-                />
-              )}
-            </ErrorBoundary>
+              <ErrorBoundary title="Media error" message="Failed to load media controls.">
+                {activeSection === 'media' && (
+                  <MediaTab
+                    image={state.image}
+                    onImageChange={setImage}
+                    objectFit={state.imageObjectFit}
+                    onObjectFitChange={setImageObjectFit}
+                    position={state.imagePosition}
+                    onPositionChange={setImagePosition}
+                    filters={state.imageFilters}
+                    onFiltersChange={setImageFilters}
+                    logo={state.logo}
+                    onLogoChange={setLogo}
+                    logoPosition={state.logoPosition}
+                    onLogoPositionChange={setLogoPosition}
+                    logoSize={state.logoSize}
+                    onLogoSizeChange={setLogoSize}
+                  />
+                )}
+              </ErrorBoundary>
 
-            <ErrorBoundary title="Layout controls error" message="Failed to load layout controls.">
-              {activeSection === 'layout' && (
-                <LayoutSelector
-                  layout={state.layout}
-                  onLayoutChange={setLayout}
-                  textCells={state.textCells}
-                  onTextCellsChange={setTextCells}
-                  text={state.text}
-                  onTextChange={setText}
-                  imageAspectRatio={imageAspectRatio}
-                  platform={state.platform}
-                  overlay={state.overlay}
-                  theme={state.theme}
-                  padding={state.padding}
-                  onPaddingChange={setPadding}
-                  onApplyLayoutPreset={applyLayoutPreset}
-                />
-              )}
-            </ErrorBoundary>
+              <ErrorBoundary title="Content error" message="Failed to load content controls.">
+                {activeSection === 'content' && (
+                  <ContentTab
+                    text={state.text}
+                    onTextChange={setText}
+                    textCells={state.textCells}
+                    onTextCellsChange={setTextCells}
+                    layout={state.layout}
+                    theme={state.theme}
+                    platform={state.platform}
+                  />
+                )}
+              </ErrorBoundary>
 
-            <ErrorBoundary title="Theme picker error" message="Failed to load theme picker.">
-              {activeSection === 'theme' && (
-                <ThemePicker
-                  theme={state.theme}
-                  onThemeChange={setTheme}
-                  onPresetChange={setThemePreset}
-                />
-              )}
-            </ErrorBoundary>
+              <ErrorBoundary title="Layout error" message="Failed to load layout controls.">
+                {activeSection === 'layout' && (
+                  <LayoutTab
+                    layout={state.layout}
+                    onLayoutChange={setLayout}
+                    textCells={state.textCells}
+                    onTextCellsChange={setTextCells}
+                    platform={state.platform}
+                  />
+                )}
+              </ErrorBoundary>
 
-            <ErrorBoundary title="Font selector error" message="Failed to load font selector.">
-              {activeSection === 'fonts' && (
-                <FontSelector
-                  selectedFonts={state.fonts}
-                  onFontsChange={setFonts}
-                />
-              )}
-            </ErrorBoundary>
-          </div>
+              <ErrorBoundary title="Style error" message="Failed to load style controls.">
+                {activeSection === 'style' && (
+                  <StyleTab
+                    theme={state.theme}
+                    onThemeChange={setTheme}
+                    onPresetChange={setThemePreset}
+                    selectedFonts={state.fonts}
+                    onFontsChange={setFonts}
+                    layout={state.layout}
+                    onLayoutChange={setLayout}
+                    overlay={state.overlay}
+                    platform={state.platform}
+                    padding={state.padding}
+                    onPaddingChange={setPadding}
+                  />
+                )}
+              </ErrorBoundary>
+            </div>
           </div>
         </aside>
 
         {/* Preview Area */}
         <main className="flex-1 p-4 lg:p-5 space-y-4">
-          {/* Style Presets - Top Level */}
-          <ErrorBoundary title="Style presets error" message="Failed to load style presets.">
-            <StylePresetSelector
-              activePresetId={state.activeStylePreset}
-              onSelectPreset={applyStylePreset}
-            />
-          </ErrorBoundary>
-
           <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200/80 dark:border-gray-700/80 shadow-card p-4 lg:p-6">
             {/* Platform Selector */}
-            <PlatformPreview
-              selectedPlatform={state.platform}
-              onPlatformChange={setPlatform}
-            />
+            <PlatformPreview selectedPlatform={state.platform} onPlatformChange={setPlatform} />
 
             {/* Canvas Preview */}
             <div
@@ -297,22 +291,14 @@ function App() {
                 minHeight: platform.height * previewScale + 40,
               }}
             >
-              <ErrorBoundary
-                title="Preview error"
-                message="Failed to render the ad preview."
-                className="w-full h-full min-h-[200px]"
-              >
+              <ErrorBoundary title="Preview error" message="Failed to render the ad preview." className="w-full h-full min-h-[200px]">
                 <div
                   style={{
                     width: platform.width * previewScale,
                     height: platform.height * previewScale,
                   }}
                 >
-                  <AdCanvas
-                    ref={canvasRef}
-                    state={state}
-                    scale={previewScale}
-                  />
+                  <AdCanvas ref={canvasRef} state={state} scale={previewScale} />
                 </div>
               </ErrorBoundary>
             </div>
@@ -320,11 +306,7 @@ function App() {
             {/* Export Buttons */}
             <div className="mt-5">
               <ErrorBoundary title="Export error" message="Failed to load export options.">
-                <ExportButtons
-                  canvasRef={canvasRef}
-                  state={state}
-                  onPlatformChange={setPlatform}
-                />
+                <ExportButtons canvasRef={canvasRef} state={state} onPlatformChange={setPlatform} />
               </ErrorBoundary>
             </div>
           </div>

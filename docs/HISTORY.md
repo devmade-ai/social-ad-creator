@@ -2,6 +2,26 @@
 
 ## 2026-01-17
 
+### Major UI refactor: Workflow-based tabs
+
+Reorganized from feature-based tabs (Image, Layout, Text, Theme, Fonts) to workflow-based tabs:
+
+**New tab structure: Templates | Media | Content | Layout | Style**
+
+- **Templates** - Entry point combining Complete Designs (style presets) and Layout Only presets
+- **Media** - Image + logo upload, positioning, and filters (collapsible sections)
+- **Content** - Text editing with visibility, cell assignment, alignment, colors, sizes (grouped by Title/Tagline, Body, CTA, Footnote)
+- **Layout** - Simplified to Structure grid editing + Cell Assignment only
+- **Style** - Themes + Typography + per-cell Overlay + Spacing
+
+New components created:
+- `CollapsibleSection.jsx` - Reusable collapsible section for all tabs
+- `TemplatesTab.jsx` - Merges Quick Styles + Layout presets
+- `MediaTab.jsx` - Streamlined image/logo controls
+- `ContentTab.jsx` - Text editing with cell placement
+- `LayoutTab.jsx` - Structure + alignment
+- `StyleTab.jsx` - Themes, fonts, overlay, spacing
+
 ### Text placement selector validation
 
 - Text element cell assignments now auto-reset when layout structure changes

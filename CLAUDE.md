@@ -161,7 +161,14 @@ Core features working:
 
 ## Current Tab Structure
 
-**Top-level tabs:** Image, Layout, Text, Theme, Fonts
+**Top-level tabs:** Templates, Media, Content, Layout, Style
+
+This is a workflow-based organization (as of January 2026 refactor):
+- **Templates** - Start here: Complete designs (style presets) + Layout-only presets
+- **Media** - Upload background image and logo, adjust fit/position/filters
+- **Content** - Write text, set visibility, cell assignment, alignment, color, size
+- **Layout** - Fine-tune grid structure and cell alignment
+- **Style** - Themes, typography, per-cell overlay, spacing
 
 ## Tech Stack
 
@@ -186,24 +193,33 @@ npm run deploy   # Deploy to GitHub Pages
 src/
 ├── components/     # React components
 │   ├── AdCanvas.jsx           # Core rendering (cell-based layout)
-│   ├── ImageUploader.jsx      # Image + logo upload, fit, position, grayscale
-│   ├── LogoUploader.jsx       # Logo upload and positioning (used by ImageUploader)
-│   ├── TextEditor.jsx         # Text layer editing
-│   ├── LayoutSelector.jsx     # Layout with sub-tabs (Structure, Placement, Overlay, Spacing, Layouts)
-│   ├── ThemePicker.jsx        # Color themes and custom colors
-│   ├── FontSelector.jsx       # Font selection
-│   ├── StylePresetSelector.jsx # Quick Styles bar (top-level, above preview)
+│   ├── CollapsibleSection.jsx # Reusable collapsible section for tab content
+│   ├── TemplatesTab.jsx       # Complete designs + layout-only presets
+│   ├── MediaTab.jsx           # Image + logo upload, fit, position, filters
+│   ├── ContentTab.jsx         # Text editing with cell assignment
+│   ├── LayoutTab.jsx          # Grid structure + cell alignment
+│   ├── StyleTab.jsx           # Themes, fonts, overlay, spacing
 │   ├── PlatformPreview.jsx    # Platform selector
 │   ├── ExportButtons.jsx      # Export controls
-│   └── ErrorBoundary.jsx      # Error handling wrapper
+│   ├── ErrorBoundary.jsx      # Error handling wrapper
+│   │
+│   │ # Legacy components (kept for reference, not used in new UI):
+│   ├── ImageUploader.jsx      # Old image tab
+│   ├── TextEditor.jsx         # Old text editor
+│   ├── LayoutSelector.jsx     # Old layout with sub-tabs
+│   ├── ThemePicker.jsx        # Old theme picker
+│   ├── FontSelector.jsx       # Old font selector
+│   └── StylePresetSelector.jsx # Old quick styles bar
 ├── config/         # Configuration
 │   ├── layouts.js        # Overlay types and helpers
 │   ├── layoutPresets.js  # 20 layouts with SVG icons and categories
+│   ├── stylePresets.js   # Complete design presets (theme + fonts + layout + effects)
 │   ├── platforms.js      # 6 platform sizes
-│   ├── themes.js         # 4 color themes
+│   ├── themes.js         # 12 color themes
 │   └── fonts.js          # 15 Google Fonts
 ├── hooks/
 │   ├── useAdState.js     # Central state (includes textGroups, layout)
+│   ├── useHistory.js     # Undo/redo history management
 │   └── useDarkMode.js    # Dark mode toggle
 ├── utils/
 │   └── export.js         # Export utilities
@@ -250,45 +266,44 @@ textCells: {
 // Alignment fallback chain: element.textAlign → cellAlignments[cell] → layout.textAlign
 ```
 
-## Layout Tab Sub-tabs
+## Tab Details (New Workflow-Based UI)
 
-The Layout tab uses a sub-tab architecture for better organization:
+### Templates Tab
+Entry point for users. Two sections:
+- **Complete Designs** - Style presets that apply theme, fonts, layout, overlay, filters all at once
+- **Layout Only** - Layout presets that only change grid structure (keeps current colors/fonts)
 
-1. **Structure** - Fine-tune the layout grid
-   - Layout type selector (Full/Rows/Columns)
-   - Click section labels (R1, R2 or C1, C2) to edit row/column size
-   - Click cells to edit subdivision sizes
-   - Contextual controls based on selection
+### Media Tab
+Collapsible sections:
+- **Background Image** - Upload, fit, position, grayscale toggle, sample images
+- **Advanced Filters** - Grayscale slider, sepia, blur, contrast, brightness
+- **Logo** - Upload, position (corners/center), size
 
-2. **Placement** - Text element controls with per-element alignment
-   - Cell selector for per-cell vertical alignment (select cell or set global)
-   - Horizontal and vertical alignment per cell (as fallback)
-   - Image cell assignment
-   - Text element controls: visibility toggle, cell assignment, horizontal alignment, color picker
-   - Per-element horizontal alignment allows different alignments in same cell
-   - Individual text elements: Title, Tagline, Body Heading, Body Text, CTA, Footnote
+### Content Tab
+Text editing organized by groups, each in a collapsible section:
+- **Title & Tagline** - Paired text elements
+- **Body** - Heading + body text
+- **Call to Action** - CTA button text
+- **Footnote** - Fine print
 
-3. **Overlay** - Per-cell overlay controls
-   - Click cell to select
-   - Enable/disable overlay per cell
-   - Custom overlay type and intensity per cell
+Each text element has: visibility toggle, text input, cell assignment, alignment, color, size, bold/italic, letter spacing
 
-4. **Spacing** - Global and per-cell padding
-   - Global padding for all cells
-   - Click cell for custom padding overrides
+### Layout Tab
+Collapsible sections:
+- **Structure** - Layout type (Full/Rows/Columns), interactive grid for editing section/cell sizes
+- **Cell Assignment** - Image cell selector, per-cell alignment controls
 
-5. **Layouts** - Quick start with 20 pre-built layout templates
-   - Categories: All, Suggested, Image Focus, Text Focus, Balanced, Grid
-   - Smart suggestions based on image aspect ratio and platform
-   - Visual SVG preview icons
-   - Applies both layout structure AND text cell placements
+### Style Tab
+Collapsible sections:
+- **Themes** - 12 preset themes + custom color inputs
+- **Typography** - Title font + body font selectors with preview
+- **Overlay** - Per-cell overlay controls (type, color, opacity)
+- **Spacing** - Global padding + per-cell custom padding
 
-## Preset Types (Naming Clarification)
-
-The app has three types of "presets" - use these distinct names to avoid confusion:
+## Preset Types
 
 | Name | Location | What It Applies | Config File |
 |------|----------|-----------------|-------------|
-| **Layouts** | Layout tab → Layouts sub-tab | Grid structure + text cell placements | `layoutPresets.js` |
-| **Quick Styles** | Top bar above preview | Theme + font combination | `StylePresetSelector.jsx` |
-| **Themes** | Theme tab | Color scheme only | `themes.js` |
+| **Complete Designs** | Templates → Complete Designs | Everything (theme, fonts, layout, overlay, filters) | `stylePresets.js` |
+| **Layouts** | Templates → Layout Only | Grid structure + text cell placements only | `layoutPresets.js` |
+| **Themes** | Style → Themes | Color scheme only | `themes.js` |
