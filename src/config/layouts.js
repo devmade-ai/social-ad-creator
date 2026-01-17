@@ -6,7 +6,7 @@ export const overlayTypes = [
   },
   {
     id: 'gradient-down',
-    name: 'Gradient Down',
+    name: 'Gradient ↓',
     getCss: (color, opacity) => {
       const rgbaColor = color.replace(')', `, ${opacity / 100})`).replace('rgb', 'rgba')
       return `linear-gradient(to bottom, ${rgbaColor}, transparent)`
@@ -14,10 +14,58 @@ export const overlayTypes = [
   },
   {
     id: 'gradient-up',
-    name: 'Gradient Up',
+    name: 'Gradient ↑',
     getCss: (color, opacity) => {
       const rgbaColor = color.replace(')', `, ${opacity / 100})`).replace('rgb', 'rgba')
       return `linear-gradient(to top, ${rgbaColor}, transparent)`
+    },
+  },
+  {
+    id: 'gradient-left',
+    name: 'Gradient ←',
+    getCss: (color, opacity) => {
+      const rgbaColor = color.replace(')', `, ${opacity / 100})`).replace('rgb', 'rgba')
+      return `linear-gradient(to left, ${rgbaColor}, transparent)`
+    },
+  },
+  {
+    id: 'gradient-right',
+    name: 'Gradient →',
+    getCss: (color, opacity) => {
+      const rgbaColor = color.replace(')', `, ${opacity / 100})`).replace('rgb', 'rgba')
+      return `linear-gradient(to right, ${rgbaColor}, transparent)`
+    },
+  },
+  {
+    id: 'gradient-tl',
+    name: 'Gradient ↖',
+    getCss: (color, opacity) => {
+      const rgbaColor = color.replace(')', `, ${opacity / 100})`).replace('rgb', 'rgba')
+      return `linear-gradient(to top left, ${rgbaColor}, transparent)`
+    },
+  },
+  {
+    id: 'gradient-tr',
+    name: 'Gradient ↗',
+    getCss: (color, opacity) => {
+      const rgbaColor = color.replace(')', `, ${opacity / 100})`).replace('rgb', 'rgba')
+      return `linear-gradient(to top right, ${rgbaColor}, transparent)`
+    },
+  },
+  {
+    id: 'gradient-bl',
+    name: 'Gradient ↙',
+    getCss: (color, opacity) => {
+      const rgbaColor = color.replace(')', `, ${opacity / 100})`).replace('rgb', 'rgba')
+      return `linear-gradient(to bottom left, ${rgbaColor}, transparent)`
+    },
+  },
+  {
+    id: 'gradient-br',
+    name: 'Gradient ↘',
+    getCss: (color, opacity) => {
+      const rgbaColor = color.replace(')', `, ${opacity / 100})`).replace('rgb', 'rgba')
+      return `linear-gradient(to bottom right, ${rgbaColor}, transparent)`
     },
   },
   {
@@ -26,6 +74,14 @@ export const overlayTypes = [
     getCss: (color, opacity) => {
       const rgbaColor = color.replace(')', `, ${opacity / 100})`).replace('rgb', 'rgba')
       return `radial-gradient(ellipse at center, transparent 0%, ${rgbaColor} 100%)`
+    },
+  },
+  {
+    id: 'spotlight',
+    name: 'Spotlight',
+    getCss: (color, opacity) => {
+      const rgbaColor = color.replace(')', `, ${opacity / 100})`).replace('rgb', 'rgba')
+      return `radial-gradient(ellipse at center, ${rgbaColor} 0%, transparent 70%)`
     },
   },
 ]

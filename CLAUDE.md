@@ -156,7 +156,7 @@ Core features working:
   - Footnote (independent)
 - Logo upload with position (corners, center) and size options
 - Theme system with 4 presets and custom colors
-- Overlay system (solid, gradient up/down, vignette) - integrated in Image tab
+- Overlay system (solid, 8 gradient directions, vignette, spotlight) - integrated in Image tab
 - 15 Google Fonts (sans-serif, serif, display categories)
 - Export to 6 platforms (LinkedIn, Facebook, Instagram, Twitter/X, TikTok)
 - Single download and ZIP batch download

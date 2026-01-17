@@ -48,24 +48,23 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
   // Global overlay style (for backward compatibility)
   const overlayStyle = getOverlayStyle(state.overlay)
 
-  // Get overlay config for a specific cell
+  // Get overlay config for a specific cell (cell-specific only, not global fallback)
+  // For image cells: global overlay is applied separately, this returns additional cell overlay
+  // For non-image cells: this returns the cell overlay (no global overlay applies)
   const getCellOverlay = (cellIndex, hasImage) => {
     const cellOverlays = layout.cellOverlays || {}
     const cellConfig = cellOverlays[cellIndex]
 
-    // If cell has explicit config
-    if (cellConfig !== undefined) {
-      if (cellConfig.enabled === false) return null
-      return {
-        type: cellConfig.type || state.overlay.type,
-        color: cellConfig.color || state.overlay.color,
-        opacity: cellConfig.opacity ?? state.overlay.opacity,
-      }
-    }
+    // No explicit config for this cell
+    if (cellConfig === undefined) return null
 
-    // Default: image cells get global overlay, non-image cells get none
-    if (hasImage) return state.overlay
-    return null
+    // Cell has explicit config
+    if (cellConfig.enabled === false) return { enabled: false }
+    return {
+      type: cellConfig.type || state.overlay.type,
+      color: cellConfig.color || state.overlay.color,
+      opacity: cellConfig.opacity ?? state.overlay.opacity,
+    }
   }
 
   const getTextColor = (colorKey) => resolveColor(colorKey, themeColors.secondary)
@@ -164,30 +163,55 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
   }, [state.imageFilters])
 
   // Render image with overlay (for fullbleed or image cells)
-  const renderImage = (style = {}) => (
-    <div style={{ position: 'relative', backgroundColor: themeColors.primary, ...style }}>
-      {state.image && (
-        <div
-          style={{
-            position: 'absolute',
-            inset: 0,
-            backgroundImage: `url(${state.image})`,
-            backgroundSize: state.imageObjectFit,
-            backgroundPosition: `${state.imagePosition.horizontal} ${state.imagePosition.vertical}`,
-            backgroundRepeat: 'no-repeat',
-            filter: imageFilterStyle,
-          }}
-        />
-      )}
-      <div
-        style={{
-          position: 'absolute',
-          inset: 0,
-          background: overlayStyle,
-        }}
-      />
-    </div>
-  )
+  // Supports stacking: global overlay (Image tab) + cell overlay (Layout > Overlay)
+  const renderImage = (style = {}, cellOverlayConfig = null) => {
+    // Global overlay from Image tab (always applied if opacity > 0)
+    const globalOverlay = state.overlay
+    const hasGlobalOverlay = globalOverlay && globalOverlay.opacity > 0
+
+    // Cell-specific overlay (stacks on top if different from global)
+    const hasCellOverlay = cellOverlayConfig &&
+      cellOverlayConfig !== globalOverlay &&
+      cellOverlayConfig.enabled !== false
+
+    return (
+      <div style={{ position: 'relative', backgroundColor: themeColors.primary, ...style }}>
+        {state.image && (
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              backgroundImage: `url(${state.image})`,
+              backgroundSize: state.imageObjectFit,
+              backgroundPosition: `${state.imagePosition.horizontal} ${state.imagePosition.vertical}`,
+              backgroundRepeat: 'no-repeat',
+              filter: imageFilterStyle,
+            }}
+          />
+        )}
+        {/* Global overlay layer (from Image tab) */}
+        {hasGlobalOverlay && (
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              background: getOverlayStyle(globalOverlay),
+            }}
+          />
+        )}
+        {/* Cell overlay layer (from Layout > Overlay) - stacks on top */}
+        {hasCellOverlay && (
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              background: getOverlayStyle(cellOverlayConfig),
+            }}
+          />
+        )}
+      </div>
+    )
+  }
 
   // Get alignment CSS values
   const getAlignItems = (align) => {
@@ -400,11 +424,12 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
     const padding = getCellPadding(0)
     const textAlign = getCellTextAlign(0)
     const verticalAlign = getCellVerticalAlign(0)
+    const cellOverlay = getCellOverlay(0, true)
     const allElements = ['title', 'tagline', 'bodyHeading', 'bodyText', 'cta', 'footnote']
 
     return (
       <>
-        {renderImage({ position: 'absolute', inset: 0 })}
+        {renderImage({ position: 'absolute', inset: 0 }, cellOverlay)}
         {/* All elements share one alignment container */}
         <div
           style={{
@@ -444,10 +469,10 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
         )}
 
         {/* Image for image cells */}
-        {hasImage && renderImage({ position: 'absolute', inset: 0 })}
+        {hasImage && renderImage({ position: 'absolute', inset: 0 }, cellOverlay)}
 
         {/* Overlay for non-image cells (if enabled) */}
-        {!hasImage && cellOverlay && (
+        {!hasImage && cellOverlay && cellOverlay.enabled !== false && (
           <div
             style={{
               position: 'absolute',

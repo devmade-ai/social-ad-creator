@@ -42,6 +42,27 @@ function getOverlayTip(type, opacity, grayscaleAmount) {
       } else {
         return 'Bottom fade creates a professional scrim—great for captions and CTAs.'
       }
+    case 'gradient-left':
+      if (isLowOpacity) {
+        return 'Soft right-side fade—good for text on the right side of the image.'
+      } else {
+        return 'Right-to-left fade helps text readability in column layouts with text on the right.'
+      }
+    case 'gradient-right':
+      if (isLowOpacity) {
+        return 'Soft left-side fade—good for text on the left side of the image.'
+      } else {
+        return 'Left-to-right fade helps text readability in column layouts with text on the left.'
+      }
+    case 'gradient-tl':
+    case 'gradient-tr':
+    case 'gradient-bl':
+    case 'gradient-br':
+      if (isLowOpacity) {
+        return 'Subtle corner fade—draws attention to the opposite corner.'
+      } else {
+        return 'Diagonal gradient creates dynamic visual flow—great for corner-placed content.'
+      }
     case 'vignette':
       if (isLowOpacity) {
         return 'Subtle vignette draws the eye to center content without being obvious.'
@@ -49,6 +70,14 @@ function getOverlayTip(type, opacity, grayscaleAmount) {
         return 'Classic vignette effect—frames your content like professional photography.'
       } else {
         return 'Dramatic framing—creates strong focus but may obscure edge details.'
+      }
+    case 'spotlight':
+      if (isLowOpacity) {
+        return 'Soft center glow—adds subtle warmth or mood to the center of your image.'
+      } else if (isMidOpacity) {
+        return 'Center spotlight effect—highlights the middle while keeping edges clear.'
+      } else {
+        return 'Strong center focus—works well with centered subjects or text.'
       }
     default:
       return null
@@ -464,12 +493,13 @@ export default memo(function ImageUploader({
         <Section title="Overlay" defaultOpen={false}>
           <div className="space-y-3">
             <label className="block text-sm font-medium text-gray-600 dark:text-gray-300">Type</label>
-            <div className="grid grid-cols-2 gap-1.5">
+            <div className="grid grid-cols-4 gap-1.5">
               {overlayTypes.map((type) => (
                 <button
                   key={type.id}
                   onClick={() => onOverlayChange({ type: type.id })}
-                  className={`px-2 py-2 text-sm rounded-lg font-medium ${
+                  title={type.name}
+                  className={`px-1.5 py-2 text-xs rounded-lg font-medium ${
                     overlay.type === type.id
                       ? 'bg-blue-500 text-white shadow-sm'
                       : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
