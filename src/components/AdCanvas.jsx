@@ -4,7 +4,7 @@ import { platforms } from '../config/platforms'
 import { fonts } from '../config/fonts'
 import { getNeutralColor } from '../config/themes'
 
-const defaultTextLayer = { content: '', visible: false, color: 'secondary', size: 1 }
+const defaultTextLayer = { content: '', visible: false, color: 'secondary', size: 1, textAlign: null }
 
 const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
   const platform = platforms.find((p) => p.id === state.platform) || platforms[0]
