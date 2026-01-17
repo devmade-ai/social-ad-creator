@@ -22,7 +22,7 @@
 
 ## Documentation
 
-**These documents are maintained every session.** Keep them up to date as you work.
+**AI assistants automatically maintain these documents.** Update them as you work - don't wait for the user to ask. This ensures context is always current for the next session.
 
 ### `CLAUDE.md`
 
