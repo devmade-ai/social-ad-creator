@@ -1140,7 +1140,7 @@ export default function LayoutSelector({
             </div>
 
             {/* Text Elements - cell assignment + visibility + color */}
-            <div className="pt-4 border-t border-gray-100 space-y-2">
+            <div className="pt-4 border-t border-gray-100 space-y-3">
               <label className="block text-sm font-medium text-gray-600">Text Elements</label>
               {textElementDefs.map((element) => {
                 const currentCell = textCells?.[element.id]
@@ -1149,43 +1149,58 @@ export default function LayoutSelector({
                 const colorValue = textData.color || 'secondary'
 
                 return (
-                  <div key={element.id} className="flex items-center gap-2 py-1.5">
-                    {/* Visibility Toggle */}
-                    <button
-                      onClick={() => onTextChange?.(element.id, { visible: !isVisible })}
-                      className={`w-6 h-6 rounded-md flex items-center justify-center text-xs ${
-                        isVisible
-                          ? 'bg-green-100 text-green-600'
-                          : 'bg-gray-100 text-gray-400'
-                      }`}
-                      title={isVisible ? 'Visible - click to hide' : 'Hidden - click to show'}
-                    >
-                      {isVisible ? '✓' : '○'}
-                    </button>
+                  <div key={element.id} className="space-y-1.5 pb-2 border-b border-gray-50 last:border-0 last:pb-0">
+                    {/* Row 1: Toggle + Label + Cell */}
+                    <div className="flex items-center gap-2">
+                      {/* Visibility Toggle */}
+                      <button
+                        onClick={() => onTextChange?.(element.id, { visible: !isVisible })}
+                        className={`w-6 h-6 rounded-md flex items-center justify-center text-xs shrink-0 ${
+                          isVisible
+                            ? 'bg-green-100 text-green-600'
+                            : 'bg-gray-100 text-gray-400'
+                        }`}
+                        title={isVisible ? 'Visible - click to hide' : 'Hidden - click to show'}
+                      >
+                        {isVisible ? '✓' : '○'}
+                      </button>
 
-                    {/* Label */}
-                    <span className={`text-sm w-24 ${isVisible ? 'text-gray-700' : 'text-gray-400'}`}>
-                      {element.label}
-                    </span>
+                      {/* Label */}
+                      <span className={`text-sm flex-1 min-w-0 ${isVisible ? 'text-gray-700' : 'text-gray-400'}`}>
+                        {element.label}
+                      </span>
 
-                    {/* Cell Selector */}
-                    <UnifiedCellGrid
-                      layout={layout}
-                      imageCell={imageCell}
-                      mode="textGroup"
-                      highlightCell={currentCell}
-                      onSelectCell={(idx) => onTextCellsChange?.({ [element.id]: idx })}
-                      aspectRatio={platformAspectRatio}
-                      size="small"
-                    />
+                      {/* Cell Selector */}
+                      <UnifiedCellGrid
+                        layout={layout}
+                        imageCell={imageCell}
+                        mode="textGroup"
+                        highlightCell={currentCell}
+                        onSelectCell={(idx) => onTextCellsChange?.({ [element.id]: idx })}
+                        aspectRatio={platformAspectRatio}
+                        size="small"
+                      />
 
-                    {/* Cell Label */}
-                    <span className="text-xs text-gray-500 w-12">
-                      {currentCell !== null ? `Cell ${currentCell + 1}` : 'Auto'}
-                    </span>
+                      {/* Cell Label */}
+                      <span className="text-xs text-gray-500 w-10 shrink-0 text-right">
+                        {currentCell !== null ? `Cell ${currentCell + 1}` : 'Auto'}
+                      </span>
 
-                    {/* Color Picker */}
-                    <div className="flex gap-1 items-center">
+                      {/* Reset Cell */}
+                      {currentCell !== null && (
+                        <button
+                          onClick={() => onTextCellsChange?.({ [element.id]: null })}
+                          className="text-xs text-gray-400 hover:text-gray-600 shrink-0"
+                          title="Reset to auto"
+                        >
+                          ×
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Row 2: Color Picker */}
+                    <div className="flex gap-1 items-center flex-wrap pl-8">
+                      <span className="text-[10px] text-gray-400 mr-0.5">Color:</span>
                       {/* Theme colors */}
                       {themeColorOptions.map((color) => (
                         <button
@@ -1213,17 +1228,6 @@ export default function LayoutSelector({
                         />
                       ))}
                     </div>
-
-                    {/* Reset Cell */}
-                    {currentCell !== null && (
-                      <button
-                        onClick={() => onTextCellsChange?.({ [element.id]: null })}
-                        className="text-xs text-gray-400 hover:text-gray-600"
-                        title="Reset to auto"
-                      >
-                        ×
-                      </button>
-                    )}
                   </div>
                 )
               })}

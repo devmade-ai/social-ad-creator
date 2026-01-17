@@ -80,61 +80,58 @@ export default memo(function TextEditor({
                 />
               )}
 
-              {/* Row 1: Color + Size */}
-              <div className="flex items-center gap-4">
-                {/* Color options */}
-                <div className="flex items-center gap-1.5">
-                  <span className="text-xs text-gray-500 dark:text-gray-400">Color:</span>
-                  {/* Theme colors */}
-                  {themeColorOptions.map((color) => (
-                    <button
-                      key={color.id}
-                      onClick={() => onTextChange(layer.id, { color: color.id })}
-                      title={color.name}
-                      className={`w-6 h-6 rounded-full border-2 transition-transform hover:scale-110 ${
-                        layerState.color === color.id
-                          ? 'border-blue-500 ring-2 ring-blue-500/20'
-                          : 'border-gray-200 dark:border-gray-600'
-                      }`}
-                      style={{ backgroundColor: theme[color.id] }}
-                    />
-                  ))}
-                  {/* Separator */}
-                  <span className="w-px h-4 bg-gray-200 dark:bg-gray-700 mx-0.5" />
-                  {/* Neutral colors */}
-                  {neutralColors.map((color) => (
-                    <button
-                      key={color.id}
-                      onClick={() => onTextChange(layer.id, { color: color.id })}
-                      title={color.name}
-                      className={`w-5 h-5 rounded-full border transition-transform hover:scale-110 ${
-                        layerState.color === color.id
-                          ? 'border-blue-500 ring-2 ring-blue-500/20'
-                          : 'border-gray-300 dark:border-gray-600'
-                      }`}
-                      style={{ backgroundColor: color.hex }}
-                    />
-                  ))}
-                </div>
+              {/* Row 1: Color */}
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <span className="text-xs text-gray-500 dark:text-gray-400">Color:</span>
+                {/* Theme colors */}
+                {themeColorOptions.map((color) => (
+                  <button
+                    key={color.id}
+                    onClick={() => onTextChange(layer.id, { color: color.id })}
+                    title={color.name}
+                    className={`w-6 h-6 rounded-full border-2 transition-transform hover:scale-110 ${
+                      layerState.color === color.id
+                        ? 'border-blue-500 ring-2 ring-blue-500/20'
+                        : 'border-gray-200 dark:border-gray-600'
+                    }`}
+                    style={{ backgroundColor: theme[color.id] }}
+                  />
+                ))}
+                {/* Separator */}
+                <span className="w-px h-4 bg-gray-200 dark:bg-gray-700 mx-0.5" />
+                {/* Neutral colors */}
+                {neutralColors.map((color) => (
+                  <button
+                    key={color.id}
+                    onClick={() => onTextChange(layer.id, { color: color.id })}
+                    title={color.name}
+                    className={`w-5 h-5 rounded-full border transition-transform hover:scale-110 ${
+                      layerState.color === color.id
+                        ? 'border-blue-500 ring-2 ring-blue-500/20'
+                        : 'border-gray-300 dark:border-gray-600'
+                    }`}
+                    style={{ backgroundColor: color.hex }}
+                  />
+                ))}
+              </div>
 
-                {/* Size options */}
-                <div className="flex items-center gap-1 ml-auto">
-                  <span className="text-xs text-gray-500 dark:text-gray-400">Size:</span>
-                  {sizeOptions.map((size) => (
-                    <button
-                      key={size.id}
-                      onClick={() => onTextChange(layer.id, { size: size.id })}
-                      title={`Size ${size.name}`}
-                      className={`w-6 h-6 text-xs font-medium rounded-md ${
-                        layerState.size === size.id
-                          ? 'bg-blue-500 text-white'
-                          : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
-                      }`}
-                    >
-                      {size.name}
-                    </button>
-                  ))}
-                </div>
+              {/* Row 2: Size */}
+              <div className="flex items-center gap-1">
+                <span className="text-xs text-gray-500 dark:text-gray-400">Size:</span>
+                {sizeOptions.map((size) => (
+                  <button
+                    key={size.id}
+                    onClick={() => onTextChange(layer.id, { size: size.id })}
+                    title={`Size ${size.name}`}
+                    className={`w-6 h-6 text-xs font-medium rounded-md ${
+                      layerState.size === size.id
+                        ? 'bg-blue-500 text-white'
+                        : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+                    }`}
+                  >
+                    {size.name}
+                  </button>
+                ))}
               </div>
 
               {/* Row 2: Bold/Italic + Letter Spacing */}
