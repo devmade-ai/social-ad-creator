@@ -211,6 +211,21 @@ function getTotalCells(structure) {
   return structure.reduce((sum, section) => sum + (section.subdivisions || 1), 0)
 }
 
+// Helper to validate textCells against total cell count
+// Returns updated textCells with out-of-bounds assignments reset to null (auto)
+function validateTextCells(textCells, totalCells) {
+  if (!textCells) return textCells
+  const validated = { ...textCells }
+  let hasChanges = false
+  Object.keys(validated).forEach(key => {
+    if (validated[key] !== null && validated[key] >= totalCells) {
+      validated[key] = null
+      hasChanges = true
+    }
+  })
+  return hasChanges ? validated : null // Return null if no changes needed
+}
+
 // Helper to get cell info for display
 function getCellInfo(layout) {
   const { structure } = layout
@@ -275,9 +290,9 @@ function UnifiedCellGrid({
     return cellMap
   }, [textCells])
 
-  // Size configurations
+  // Size configurations - small is larger for better mobile touch targets
   const sizeConfig = {
-    small: { width: 60, height: 40 },
+    small: { width: 80, height: 52 },
     normal: { maxWidth: 180, minHeight: 100 },
     large: { maxWidth: 280, minHeight: 160 },
   }
@@ -404,7 +419,7 @@ function UnifiedCellGrid({
                 }
               }}
             >
-              <div className={`absolute inset-0 flex items-center justify-center text-[10px] font-medium ${textClass}`}>
+              <div className={`absolute inset-0 flex items-center justify-center text-[11px] font-medium ${textClass}`}>
                 {content}
               </div>
             </div>
@@ -529,6 +544,13 @@ export default function LayoutSelector({
         structure: [{ size: 100, subdivisions: 1, subSizes: [100] }],
         imageCell: 0,
       })
+      // Reset all text cell assignments to auto (only 1 cell in fullbleed)
+      if (onTextCellsChange) {
+        const validatedTextCells = validateTextCells(textCells, 1)
+        if (validatedTextCells) {
+          onTextCellsChange(validatedTextCells)
+        }
+      }
     } else {
       onLayoutChange({
         type: newType,
@@ -538,6 +560,13 @@ export default function LayoutSelector({
         ],
         imageCell: 0,
       })
+      // Validate for 2 cells
+      if (onTextCellsChange) {
+        const validatedTextCells = validateTextCells(textCells, 2)
+        if (validatedTextCells) {
+          onTextCellsChange(validatedTextCells)
+        }
+      }
     }
     setSelectedCell(null)
   }
@@ -563,6 +592,11 @@ export default function LayoutSelector({
     const newTotalCells = getTotalCells(newStructure)
     const newImageCell = imageCell >= newTotalCells ? 0 : imageCell
     onLayoutChange({ structure: newStructure, imageCell: newImageCell })
+    // Validate text cell assignments
+    const validatedTextCells = validateTextCells(textCells, newTotalCells)
+    if (validatedTextCells && onTextCellsChange) {
+      onTextCellsChange(validatedTextCells)
+    }
   }
 
   // Update section size with proportional balancing
@@ -631,6 +665,11 @@ export default function LayoutSelector({
     const newTotalCells = getTotalCells(newStructure)
     const newImageCell = imageCell >= newTotalCells ? 0 : imageCell
     onLayoutChange({ structure: newStructure, imageCell: newImageCell })
+    // Validate text cell assignments
+    const validatedTextCells = validateTextCells(textCells, newTotalCells)
+    if (validatedTextCells && onTextCellsChange) {
+      onTextCellsChange(validatedTextCells)
+    }
   }
 
   // Update subdivision sizes

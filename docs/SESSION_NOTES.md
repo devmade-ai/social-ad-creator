@@ -6,22 +6,21 @@ Compact context summary for session continuity. Rewrite at session end.
 
 ## Previous Session Summary
 
-**Worked on:** Added neutral colors (off-black, grays, off-white, white) available for text and overlays regardless of theme.
+**Worked on:** Fixed placement selectors to adapt when rows/columns change, and improved mobile touch targets.
 
 **Accomplished:**
 
-- Added `neutralColors` array to `themes.js` with 6 neutral color options
-- Added `getNeutralColor()` helper to resolve neutral color IDs to hex values
-- Updated TextEditor to show theme colors + neutral colors with visual separator
-- Updated ImageUploader overlay color picker to include neutrals
-- Updated LayoutSelector Placement tab (text element colors) to include neutrals
-- Updated LayoutSelector Overlay tab (per-cell overlay colors) to include neutrals
-- Updated AdCanvas `resolveColor()` to handle both theme and neutral color keys
+- Added `validateTextCells()` helper function to reset out-of-bounds cell assignments
+- Updated `handleTypeChange()` to validate text cells when switching layout types
+- Updated `removeSection()` to validate text cells when removing rows/columns
+- Updated `removeSubdivision()` to validate text cells when removing subdivisions
+- Increased cell selector size from 60x40px to 80x52px for better mobile touch targets
+- Slightly increased cell content text size (10px to 11px) for readability
 
-**Current state:** Neutral colors fully integrated. Users can now select off-black, dark gray, gray, light gray, off-white, or white for any text element or overlay, independent of the current theme.
+**Current state:** Placement selectors now properly adapt when the layout structure changes. Text element cell assignments are automatically reset to "Auto" if they reference cells that no longer exist. Cell selectors are larger and more touch-friendly on mobile devices.
 
 **Key context:**
 
-- Neutral colors defined in `src/config/themes.js`
-- Color pickers show theme colors (Primary, Secondary, Accent) first, then a separator, then neutral color swatches
-- AdCanvas uses `resolveColor()` which checks theme colors first, then neutral colors, then falls back to default
+- `validateTextCells()` in `LayoutSelector.jsx` resets cell assignments >= totalCells to null
+- Cell size config lives in `UnifiedCellGrid` component's `sizeConfig` object
+- Image cell already had validation; text cells now match this behavior
