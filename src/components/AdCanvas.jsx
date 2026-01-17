@@ -164,30 +164,35 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
   }, [state.imageFilters])
 
   // Render image with overlay (for fullbleed or image cells)
-  const renderImage = (style = {}) => (
-    <div style={{ position: 'relative', backgroundColor: themeColors.primary, ...style }}>
-      {state.image && (
-        <div
-          style={{
-            position: 'absolute',
-            inset: 0,
-            backgroundImage: `url(${state.image})`,
-            backgroundSize: state.imageObjectFit,
-            backgroundPosition: `${state.imagePosition.horizontal} ${state.imagePosition.vertical}`,
-            backgroundRepeat: 'no-repeat',
-            filter: imageFilterStyle,
-          }}
-        />
-      )}
-      <div
-        style={{
-          position: 'absolute',
-          inset: 0,
-          background: overlayStyle,
-        }}
-      />
-    </div>
-  )
+  const renderImage = (style = {}, cellOverlayConfig = null) => {
+    const overlayToUse = cellOverlayConfig || state.overlay
+    return (
+      <div style={{ position: 'relative', backgroundColor: themeColors.primary, ...style }}>
+        {state.image && (
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              backgroundImage: `url(${state.image})`,
+              backgroundSize: state.imageObjectFit,
+              backgroundPosition: `${state.imagePosition.horizontal} ${state.imagePosition.vertical}`,
+              backgroundRepeat: 'no-repeat',
+              filter: imageFilterStyle,
+            }}
+          />
+        )}
+        {overlayToUse && (
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              background: getOverlayStyle(overlayToUse),
+            }}
+          />
+        )}
+      </div>
+    )
+  }
 
   // Get alignment CSS values
   const getAlignItems = (align) => {
@@ -400,11 +405,12 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
     const padding = getCellPadding(0)
     const textAlign = getCellTextAlign(0)
     const verticalAlign = getCellVerticalAlign(0)
+    const cellOverlay = getCellOverlay(0, true)
     const allElements = ['title', 'tagline', 'bodyHeading', 'bodyText', 'cta', 'footnote']
 
     return (
       <>
-        {renderImage({ position: 'absolute', inset: 0 })}
+        {renderImage({ position: 'absolute', inset: 0 }, cellOverlay)}
         {/* All elements share one alignment container */}
         <div
           style={{
@@ -444,7 +450,7 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
         )}
 
         {/* Image for image cells */}
-        {hasImage && renderImage({ position: 'absolute', inset: 0 })}
+        {hasImage && renderImage({ position: 'absolute', inset: 0 }, cellOverlay)}
 
         {/* Overlay for non-image cells (if enabled) */}
         {!hasImage && cellOverlay && (
