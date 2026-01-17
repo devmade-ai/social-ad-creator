@@ -322,6 +322,7 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
         fontFamily: titleFont.family,
         margin: 0,
         lineHeight: 1.2,
+        whiteSpace: 'pre-wrap',
         shadow: titleShadow,
       },
       tagline: {
@@ -331,6 +332,7 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
         fontFamily: bodyFont.family,
         margin: '0.4em 0 0 0',
         lineHeight: 1.3,
+        whiteSpace: 'pre-wrap',
         shadow: shadowStyle,
       },
       bodyHeading: {
@@ -340,6 +342,7 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
         fontFamily: bodyFont.family,
         margin: '0.8em 0 0 0',
         lineHeight: 1.3,
+        whiteSpace: 'pre-wrap',
         shadow: shadowStyle,
       },
       bodyText: {
@@ -359,6 +362,7 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
         fontFamily: bodyFont.family,
         margin: '0.8em 0 0 0',
         lineHeight: 1.3,
+        whiteSpace: 'pre-wrap',
         shadow: shadowStyle,
       },
       footnote: {
@@ -368,6 +372,7 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
         fontFamily: bodyFont.family,
         margin: '1em 0 0 0',
         lineHeight: 1.3,
+        whiteSpace: 'pre-wrap',
         opacity: 0.8,
         shadow: shadowStyle,
       },
