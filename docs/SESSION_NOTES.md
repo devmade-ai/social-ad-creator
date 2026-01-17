@@ -6,22 +6,22 @@ Compact context summary for session continuity. Rewrite at session end.
 
 ## Previous Session Summary
 
-**Worked on:** Added neutral colors (off-black, grays, off-white, white) available for text and overlays regardless of theme.
+**Worked on:** Improved text overlay defaults by integrating neutral colors into layout presets.
 
 **Accomplished:**
 
-- Added `neutralColors` array to `themes.js` with 6 neutral color options
-- Added `getNeutralColor()` helper to resolve neutral color IDs to hex values
-- Updated TextEditor to show theme colors + neutral colors with visual separator
-- Updated ImageUploader overlay color picker to include neutrals
-- Updated LayoutSelector Placement tab (text element colors) to include neutrals
-- Updated LayoutSelector Overlay tab (per-cell overlay colors) to include neutrals
-- Updated AdCanvas `resolveColor()` to handle both theme and neutral color keys
+- Added `overlay` and `textColors` properties to all 20 layout presets in `layoutPresets.js`
+- Created two color schemes:
+  - `heroColors` - for fullbleed layouts where text overlays the image (dark overlay + white text)
+  - `splitColors` - for split layouts where text is in separate cells (theme-adaptive colors)
+- Updated `applyLayoutPreset()` in `useAdState.js` to apply overlay and text colors when a preset is selected
+- Changed initial state defaults to match hero preset (off-black overlay at 40%, white text, accent CTA, light-gray footnote)
 
-**Current state:** Neutral colors fully integrated. Users can now select off-black, dark gray, gray, light gray, off-white, or white for any text element or overlay, independent of the current theme.
+**Current state:** Layout presets now define appropriate colors for their layout type. Hero/fullbleed presets use neutral white text on dark overlay. Split layouts use theme-adaptive 'secondary' color that changes with theme. Switching presets now applies correct color scheme automatically.
 
 **Key context:**
 
-- Neutral colors defined in `src/config/themes.js`
-- Color pickers show theme colors (Primary, Secondary, Accent) first, then a separator, then neutral color swatches
-- AdCanvas uses `resolveColor()` which checks theme colors first, then neutral colors, then falls back to default
+- Hero layouts (fullbleed): `off-black` overlay at 40%, text colors `white`, CTA `accent`, footnote `light-gray`
+- Split layouts: no overlay, text colors `secondary` (adapts to theme), CTA `accent`
+- Theme switching works correctly: neutrals stay constant, theme colors adapt
+- `heroColors` and `splitColors` defined at top of `layoutPresets.js` for easy modification

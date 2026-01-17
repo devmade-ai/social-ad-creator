@@ -2,6 +2,14 @@
 
 ## 2026-01-17
 
+### Improved text overlay defaults with preset-based color schemes
+
+- Added `overlay` and `textColors` to all 20 layout presets
+- Hero/fullbleed presets: dark overlay (`off-black` at 40%) + white text for guaranteed readability
+- Split layouts: no overlay + theme-adaptive text (`secondary`) that adapts when theme changes
+- `applyLayoutPreset()` now applies colors along with layout structure
+- Initial state now uses hero defaults: off-black overlay, white text, accent CTA, light-gray footnote
+
 ### Neutral colors for text and overlays
 
 - Added 6 neutral color options: Off Black (#1a1a1a), Dark Gray (#4a4a4a), Gray (#808080), Light Gray (#d4d4d4), Off White (#f5f5f5), White (#ffffff)

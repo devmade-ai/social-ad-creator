@@ -1,6 +1,34 @@
 // Layout presets for quick start
-// Each preset defines layout settings and text group placements
+// Each preset defines layout settings, text group placements, overlay, and text colors
 // Using the new nested grid structure
+
+// Default color schemes for different layout types
+// Hero layouts: text overlays image, needs dark overlay + light text
+const heroColors = {
+  overlay: { type: 'solid', color: 'off-black', opacity: 40 },
+  textColors: {
+    title: 'white',
+    tagline: 'white',
+    bodyHeading: 'white',
+    bodyText: 'white',
+    cta: 'accent',
+    footnote: 'light-gray',
+  },
+}
+
+// Split layouts: text in separate cells with theme.primary background
+// Uses 'secondary' which adapts to theme for proper contrast
+const splitColors = {
+  overlay: { type: 'none', color: 'off-black', opacity: 0 },
+  textColors: {
+    title: 'secondary',
+    tagline: 'secondary',
+    bodyHeading: 'secondary',
+    bodyText: 'secondary',
+    cta: 'accent',
+    footnote: 'secondary',
+  },
+}
 
 // Categories for organizing presets
 export const presetCategories = [
@@ -168,6 +196,7 @@ export const layoutPresets = [
     name: 'Full Bleed Hero',
     description: 'Full image with centered text overlay - great for impactful visuals',
     category: 'image-focus',
+    ...heroColors,
     layout: {
       type: 'fullbleed',
       structure: [{ size: 100, subdivisions: 1, subSizes: [100] }],
@@ -190,6 +219,7 @@ export const layoutPresets = [
     name: 'Hero Top Text',
     description: 'Full image with text aligned to top',
     category: 'image-focus',
+    ...heroColors,
     layout: {
       type: 'fullbleed',
       structure: [{ size: 100, subdivisions: 1, subSizes: [100] }],
@@ -212,6 +242,7 @@ export const layoutPresets = [
     name: 'Hero Bottom Text',
     description: 'Full image with text aligned to bottom',
     category: 'image-focus',
+    ...heroColors,
     layout: {
       type: 'fullbleed',
       structure: [{ size: 100, subdivisions: 1, subSizes: [100] }],
@@ -234,6 +265,7 @@ export const layoutPresets = [
     name: 'Large Image Left',
     description: 'Image takes 2/3, text on right strip',
     category: 'image-focus',
+    ...splitColors,
     layout: {
       type: 'columns',
       structure: [
@@ -262,6 +294,7 @@ export const layoutPresets = [
     name: 'Large Image Right',
     description: 'Text strip on left, image takes 2/3',
     category: 'image-focus',
+    ...splitColors,
     layout: {
       type: 'columns',
       structure: [
@@ -290,6 +323,7 @@ export const layoutPresets = [
     name: 'Large Image Top',
     description: 'Image takes 2/3 top, text bar below',
     category: 'image-focus',
+    ...splitColors,
     layout: {
       type: 'rows',
       structure: [
@@ -318,6 +352,7 @@ export const layoutPresets = [
     name: 'Large Image Bottom',
     description: 'Text bar on top, image takes 2/3 below',
     category: 'image-focus',
+    ...splitColors,
     layout: {
       type: 'rows',
       structure: [
@@ -348,6 +383,7 @@ export const layoutPresets = [
     name: 'Image Left / Text Right',
     description: 'Classic 50-50 split with image on left',
     category: 'balanced',
+    ...splitColors,
     layout: {
       type: 'columns',
       structure: [
@@ -376,6 +412,7 @@ export const layoutPresets = [
     name: 'Text Left / Image Right',
     description: 'Classic 50-50 split with image on right',
     category: 'balanced',
+    ...splitColors,
     layout: {
       type: 'columns',
       structure: [
@@ -404,6 +441,7 @@ export const layoutPresets = [
     name: 'Image Top / Text Bottom',
     description: 'Horizontal 50-50 split with image on top',
     category: 'balanced',
+    ...splitColors,
     layout: {
       type: 'rows',
       structure: [
@@ -432,6 +470,7 @@ export const layoutPresets = [
     name: 'Text Top / Image Bottom',
     description: 'Horizontal 50-50 split with image below',
     category: 'balanced',
+    ...splitColors,
     layout: {
       type: 'rows',
       structure: [
@@ -460,6 +499,7 @@ export const layoutPresets = [
     name: 'Image Sandwich',
     description: 'Image in middle with text bars above and below',
     category: 'balanced',
+    ...splitColors,
     layout: {
       type: 'rows',
       structure: [
@@ -492,6 +532,7 @@ export const layoutPresets = [
     name: 'Left Accent Strip',
     description: 'Narrow image strip on left, large text area',
     category: 'text-focus',
+    ...splitColors,
     layout: {
       type: 'columns',
       structure: [
@@ -520,6 +561,7 @@ export const layoutPresets = [
     name: 'Right Accent Strip',
     description: 'Large text area with narrow image strip on right',
     category: 'text-focus',
+    ...splitColors,
     layout: {
       type: 'columns',
       structure: [
@@ -548,6 +590,7 @@ export const layoutPresets = [
     name: 'Top Image Banner',
     description: 'Thin image banner at top, large text area below',
     category: 'text-focus',
+    ...splitColors,
     layout: {
       type: 'rows',
       structure: [
@@ -576,6 +619,7 @@ export const layoutPresets = [
     name: 'Bottom Image Banner',
     description: 'Large text area with thin image banner at bottom',
     category: 'text-focus',
+    ...splitColors,
     layout: {
       type: 'rows',
       structure: [
@@ -606,6 +650,7 @@ export const layoutPresets = [
     name: 'Image Top + 2 Below',
     description: 'Full-width image on top, two text cells below',
     category: 'grid',
+    ...splitColors,
     layout: {
       type: 'rows',
       structure: [
@@ -635,6 +680,7 @@ export const layoutPresets = [
     name: '2 Above + Image Bottom',
     description: 'Two text cells on top, full-width image below',
     category: 'grid',
+    ...splitColors,
     layout: {
       type: 'rows',
       structure: [
@@ -664,6 +710,7 @@ export const layoutPresets = [
     name: 'Image Left + 2 Right',
     description: 'Full-height image on left, two text cells on right',
     category: 'grid',
+    ...splitColors,
     layout: {
       type: 'columns',
       structure: [
@@ -693,6 +740,7 @@ export const layoutPresets = [
     name: '2 Left + Image Right',
     description: 'Two text cells on left, full-height image on right',
     category: 'grid',
+    ...splitColors,
     layout: {
       type: 'columns',
       structure: [

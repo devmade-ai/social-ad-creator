@@ -18,19 +18,22 @@ export const defaultState = {
     brightness: 100,
   },
 
+  // Default overlay uses neutral 'off-black' for consistent dark overlay regardless of theme
   overlay: {
     type: 'solid',
-    color: 'primary',
-    opacity: 50,
+    color: 'off-black',
+    opacity: 40,
   },
 
+  // Default text colors use neutrals for hero/fullbleed layouts (text on dark overlay)
+  // CTA uses 'accent' for theme integration, footnote uses 'light-gray' for de-emphasis
   text: {
-    title: { content: 'Your Title Here', visible: true, color: 'secondary', size: 1, bold: true, italic: false, letterSpacing: 0 },
-    tagline: { content: 'Elevate your brand today', visible: true, color: 'secondary', size: 1, bold: false, italic: false, letterSpacing: 0 },
-    bodyHeading: { content: 'Why Choose Us', visible: true, color: 'secondary', size: 1, bold: true, italic: false, letterSpacing: 0 },
-    bodyText: { content: 'Transform your business with innovative solutions designed for success.', visible: true, color: 'secondary', size: 1, bold: false, italic: false, letterSpacing: 0 },
+    title: { content: 'Your Title Here', visible: true, color: 'white', size: 1, bold: true, italic: false, letterSpacing: 0 },
+    tagline: { content: 'Elevate your brand today', visible: true, color: 'white', size: 1, bold: false, italic: false, letterSpacing: 0 },
+    bodyHeading: { content: 'Why Choose Us', visible: true, color: 'white', size: 1, bold: true, italic: false, letterSpacing: 0 },
+    bodyText: { content: 'Transform your business with innovative solutions designed for success.', visible: true, color: 'white', size: 1, bold: false, italic: false, letterSpacing: 0 },
     cta: { content: 'Learn More', visible: true, color: 'accent', size: 1, bold: true, italic: false, letterSpacing: 0 },
-    footnote: { content: '*Terms and conditions apply', visible: true, color: 'secondary', size: 1, bold: false, italic: false, letterSpacing: 0 },
+    footnote: { content: '*Terms and conditions apply', visible: true, color: 'light-gray', size: 1, bold: false, italic: false, letterSpacing: 0 },
   },
 
   // Per-element cell placement (which cell each text element appears in)
@@ -242,26 +245,46 @@ export function useAdState() {
     setState((prev) => ({ ...prev, activeStylePreset: null }))
   }, [])
 
-  // Apply a layout preset (layout structure + text cell placements)
+  // Apply a layout preset (layout structure + text cell placements + overlay + text colors)
   const applyLayoutPreset = useCallback((preset) => {
     if (!preset) return
 
-    setState((prev) => ({
-      ...prev,
-      // Apply layout settings
-      layout: {
-        ...preset.layout,
-      },
-      // Apply text cell placements
-      textCells: preset.textCells ? {
-        title: preset.textCells.title ?? null,
-        tagline: preset.textCells.tagline ?? null,
-        bodyHeading: preset.textCells.bodyHeading ?? null,
-        bodyText: preset.textCells.bodyText ?? null,
-        cta: preset.textCells.cta ?? null,
-        footnote: preset.textCells.footnote ?? null,
-      } : prev.textCells,
-    }))
+    setState((prev) => {
+      // Build new text state with colors from preset
+      const newText = { ...prev.text }
+      if (preset.textColors) {
+        Object.keys(preset.textColors).forEach((key) => {
+          if (newText[key]) {
+            newText[key] = { ...newText[key], color: preset.textColors[key] }
+          }
+        })
+      }
+
+      return {
+        ...prev,
+        // Apply layout settings
+        layout: {
+          ...preset.layout,
+        },
+        // Apply overlay settings if preset defines them
+        overlay: preset.overlay ? {
+          type: preset.overlay.type,
+          color: preset.overlay.color,
+          opacity: preset.overlay.opacity,
+        } : prev.overlay,
+        // Apply text colors
+        text: newText,
+        // Apply text cell placements
+        textCells: preset.textCells ? {
+          title: preset.textCells.title ?? null,
+          tagline: preset.textCells.tagline ?? null,
+          bodyHeading: preset.textCells.bodyHeading ?? null,
+          bodyText: preset.textCells.bodyText ?? null,
+          cta: preset.textCells.cta ?? null,
+          footnote: preset.textCells.footnote ?? null,
+        } : prev.textCells,
+      }
+    })
   }, [])
 
   return {
