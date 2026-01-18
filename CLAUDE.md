@@ -301,8 +301,9 @@ Entry point for users. Two sections:
 
 ### Media Tab
 Collapsible sections:
-- **Background Image** - Upload, fit, position, grayscale toggle, sample images
+- **Background Image** - Upload, fit, position, grayscale toggle, sample images, image cell selector (for multi-cell layouts)
 - **Advanced Filters** - Grayscale slider, sepia, blur, contrast, brightness
+- **Image Overlay** - Type (solid/gradient/vignette), color, opacity (uses global overlay system)
 - **Logo** - Upload, position (corners/center), size
 
 ### Content Tab
@@ -316,8 +317,8 @@ Each text element has: visibility toggle, text input, cell assignment, alignment
 
 ### Layout Tab
 Collapsible sections:
-- **Structure** - Layout type (Full/Rows/Columns), interactive grid for editing section/cell sizes
-- **Cell Assignment** - Image cell selector, per-cell alignment controls
+- **Structure** - Layout type (Full/Rows/Columns), interactive grid for editing section/cell sizes, add/remove sections and subdivisions
+- **Text Alignment** - Context-aware alignment controls (section selected = all cells in section, cell selected = that cell, nothing = global)
 
 ### Style Tab
 Collapsible sections:
