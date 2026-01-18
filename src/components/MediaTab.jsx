@@ -1,6 +1,77 @@
-import { useCallback, useRef, useState, memo } from 'react'
+import { useCallback, useRef, useState, memo, useMemo } from 'react'
 import CollapsibleSection from './CollapsibleSection'
 import { sampleImages } from '../config/sampleImages'
+import { platforms } from '../config/platforms'
+
+// Simple cell grid for image cell selection
+function ImageCellGrid({ layout, imageCell, onSelectCell, platform }) {
+  const { type, structure } = layout
+  const isFullbleed = type === 'fullbleed'
+  const isRows = type === 'rows'
+
+  const normalizedStructure =
+    isFullbleed || !structure || structure.length === 0
+      ? [{ size: 100, subdivisions: 1, subSizes: [100] }]
+      : structure
+
+  const platformData = platforms.find((p) => p.id === platform) || platforms[0]
+  const aspectRatio = platformData.width / platformData.height
+
+  let cellIndex = 0
+
+  return (
+    <div
+      className="rounded overflow-hidden border border-gray-300 dark:border-gray-600 flex"
+      style={{
+        aspectRatio,
+        maxWidth: '120px',
+        width: '100%',
+        flexDirection: isRows || isFullbleed ? 'column' : 'row',
+      }}
+    >
+      {normalizedStructure.map((section, sectionIndex) => {
+        const sectionSize = section.size || 100 / normalizedStructure.length
+        const subdivisions = section.subdivisions || 1
+        const subSizes = section.subSizes || Array(subdivisions).fill(100 / subdivisions)
+
+        const sectionCells = []
+        for (let subIndex = 0; subIndex < subdivisions; subIndex++) {
+          const currentCellIndex = cellIndex
+          const isImage = currentCellIndex === imageCell
+          cellIndex++
+
+          sectionCells.push(
+            <button
+              key={`cell-${currentCellIndex}`}
+              onClick={() => onSelectCell(currentCellIndex)}
+              className={`flex items-center justify-center text-xs font-medium transition-colors ${
+                isImage
+                  ? 'bg-blue-500 hover:bg-blue-600 text-white'
+                  : 'bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-500 dark:text-gray-400'
+              }`}
+              style={{ flex: `0 0 ${subSizes[subIndex]}%` }}
+            >
+              {isImage ? '📷' : currentCellIndex + 1}
+            </button>
+          )
+        }
+
+        return (
+          <div
+            key={`section-${sectionIndex}`}
+            className="flex"
+            style={{
+              flex: `0 0 ${sectionSize}%`,
+              flexDirection: isRows ? 'row' : 'column',
+            }}
+          >
+            {sectionCells}
+          </div>
+        )
+      })}
+    </div>
+  )
+}
 
 const logoPositionOptions = [
   { id: 'top-left', name: 'Top Left' },
@@ -34,6 +105,10 @@ export default memo(function MediaTab({
   onLogoPositionChange,
   logoSize,
   onLogoSizeChange,
+  // Layout props for image cell
+  layout,
+  onLayoutChange,
+  platform,
 }) {
   const fileInputRef = useRef(null)
   const logoInputRef = useRef(null)
@@ -276,6 +351,24 @@ export default memo(function MediaTab({
                   {filters.grayscale > 0 ? 'On' : 'Off'}
                 </button>
               </div>
+
+              {/* Image Cell - only show for multi-cell layouts */}
+              {layout && layout.type !== 'fullbleed' && (
+                <div className="space-y-2">
+                  <label className="block text-xs font-medium text-gray-600 dark:text-gray-300">Cell</label>
+                  <div className="flex items-center gap-3">
+                    <ImageCellGrid
+                      layout={layout}
+                      imageCell={layout.imageCell || 0}
+                      onSelectCell={(idx) => onLayoutChange({ imageCell: idx })}
+                      platform={platform}
+                    />
+                    <span className="text-sm text-gray-500 dark:text-gray-400">
+                      Cell {(layout.imageCell || 0) + 1}
+                    </span>
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>

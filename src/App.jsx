@@ -227,6 +227,9 @@ function App() {
                     onLogoPositionChange={setLogoPosition}
                     logoSize={state.logoSize}
                     onLogoSizeChange={setLogoSize}
+                    layout={state.layout}
+                    onLayoutChange={setLayout}
+                    platform={state.platform}
                   />
                 )}
               </ErrorBoundary>
