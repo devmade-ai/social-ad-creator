@@ -19,6 +19,7 @@ function App() {
   const [activeSection, setActiveSection] = useState('templates')
   const [imageAspectRatio, setImageAspectRatio] = useState(null)
   const [containerWidth, setContainerWidth] = useState(600)
+  const [isExporting, setIsExporting] = useState(false)
   const { isDark, toggle: toggleDarkMode } = useDarkMode()
 
   const {
@@ -286,7 +287,7 @@ function App() {
             {/* Canvas Preview */}
             <div
               ref={previewContainerRef}
-              className="mt-5 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 rounded-xl overflow-hidden flex items-center justify-center border border-gray-200/50 dark:border-gray-700/50"
+              className="relative mt-5 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 rounded-xl overflow-hidden flex items-center justify-center border border-gray-200/50 dark:border-gray-700/50"
               style={{
                 minHeight: platform.height * previewScale + 40,
               }}
@@ -301,12 +302,21 @@ function App() {
                   <AdCanvas ref={canvasRef} state={state} scale={previewScale} />
                 </div>
               </ErrorBoundary>
+              {/* Export overlay */}
+              {isExporting && (
+                <div className="absolute inset-0 bg-gray-900/70 flex items-center justify-center rounded-xl">
+                  <div className="text-center">
+                    <div className="inline-block w-8 h-8 border-3 border-white/30 border-t-white rounded-full animate-spin mb-3" />
+                    <p className="text-white font-medium">Exporting...</p>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Export Buttons */}
             <div className="mt-5">
               <ErrorBoundary title="Export error" message="Failed to load export options.">
-                <ExportButtons canvasRef={canvasRef} state={state} onPlatformChange={setPlatform} />
+                <ExportButtons canvasRef={canvasRef} state={state} onPlatformChange={setPlatform} onExportingChange={setIsExporting} />
               </ErrorBoundary>
             </div>
           </div>

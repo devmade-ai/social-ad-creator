@@ -4,9 +4,15 @@ import JSZip from 'jszip'
 import { saveAs } from 'file-saver'
 import { platforms } from '../config/platforms'
 
-export default memo(function ExportButtons({ canvasRef, state, onPlatformChange }) {
+export default memo(function ExportButtons({ canvasRef, state, onPlatformChange, onExportingChange }) {
   const [isExporting, setIsExporting] = useState(false)
   const [exportProgress, setExportProgress] = useState(null)
+
+  // Update both local state and notify parent
+  const updateExporting = useCallback((value) => {
+    setIsExporting(value)
+    onExportingChange?.(value)
+  }, [onExportingChange])
 
   const handleExportSingle = useCallback(async () => {
     if (!canvasRef.current) return
@@ -14,7 +20,7 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange 
     const platform = platforms.find((p) => p.id === state.platform)
     if (!platform) return
 
-    setIsExporting(true)
+    updateExporting(true)
 
     // Store original styles and hide canvas during capture to prevent visible flash
     const originalTransform = canvasRef.current.style.transform
@@ -43,14 +49,14 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange 
       // Restore original styles
       canvasRef.current.style.transform = originalTransform
       canvasRef.current.style.opacity = originalOpacity
-      setIsExporting(false)
+      updateExporting(false)
     }
-  }, [canvasRef, state.platform])
+  }, [canvasRef, state.platform, updateExporting])
 
   const handleExportAll = useCallback(async () => {
     if (!canvasRef.current) return
 
-    setIsExporting(true)
+    updateExporting(true)
     const zip = new JSZip()
     const originalPlatform = state.platform
 
@@ -102,10 +108,10 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange 
     } finally {
       // Restore canvas visibility
       canvasRef.current.style.opacity = originalOpacity
-      setIsExporting(false)
+      updateExporting(false)
       setExportProgress(null)
     }
-  }, [canvasRef, state.platform, onPlatformChange])
+  }, [canvasRef, state.platform, onPlatformChange, updateExporting])
 
   return (
     <div className="space-y-3">
