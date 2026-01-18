@@ -16,8 +16,10 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange 
 
     setIsExporting(true)
 
-    // Store original transform and temporarily remove scale for capture
+    // Store original styles and hide canvas during capture to prevent visible flash
     const originalTransform = canvasRef.current.style.transform
+    const originalOpacity = canvasRef.current.style.opacity
+    canvasRef.current.style.opacity = '0'
     canvasRef.current.style.transform = 'scale(1)'
 
     try {
@@ -38,8 +40,9 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange 
       console.error('Export failed:', error)
       alert('Export failed. Please try again.')
     } finally {
-      // Restore original transform
+      // Restore original styles
       canvasRef.current.style.transform = originalTransform
+      canvasRef.current.style.opacity = originalOpacity
       setIsExporting(false)
     }
   }, [canvasRef, state.platform])
@@ -50,6 +53,10 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange 
     setIsExporting(true)
     const zip = new JSZip()
     const originalPlatform = state.platform
+
+    // Hide canvas during batch export to prevent visible flashing
+    const originalOpacity = canvasRef.current.style.opacity
+    canvasRef.current.style.opacity = '0'
 
     try {
       for (let i = 0; i < platforms.length; i++) {
@@ -93,6 +100,8 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange 
       alert('Export failed. Please try again.')
       onPlatformChange(originalPlatform)
     } finally {
+      // Restore canvas visibility
+      canvasRef.current.style.opacity = originalOpacity
       setIsExporting(false)
       setExportProgress(null)
     }
