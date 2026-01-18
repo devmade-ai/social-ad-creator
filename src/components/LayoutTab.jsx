@@ -9,6 +9,16 @@ const layoutTypes = [
   { id: 'columns', name: 'Cols', icon: '|||' },
 ]
 
+// Size constraints for layout sections and subdivisions
+const MIN_SIZE = 10
+const MAX_SIZE = 90
+
+// Calculate the maximum size a section/cell can be based on how many others need minimum space
+const getMaxSize = (totalItems) => {
+  if (totalItems <= 1) return 100
+  return Math.min(MAX_SIZE, 100 - (totalItems - 1) * MIN_SIZE)
+}
+
 // Alignment icon components
 const AlignLeftIcon = () => (
   <svg width="14" height="10" viewBox="0 0 14 10" fill="currentColor">
@@ -367,30 +377,41 @@ export default memo(function LayoutTab({
     }
   }
 
-  // Update section size
+  // Update section size with dynamic constraints
+  // Max size is limited by needing to leave MIN_SIZE for each other section
   const updateSectionSize = (index, newSize) => {
+    const numSections = structure.length
+    const maxAllowed = getMaxSize(numSections)
+
+    // Clamp the new size to valid range
+    const clampedSize = Math.max(MIN_SIZE, Math.min(maxAllowed, newSize))
+
     const newStructure = [...structure]
     const oldSize = newStructure[index].size
-    const sizeDiff = newSize - oldSize
+    const sizeDiff = clampedSize - oldSize
 
     const otherIndices = structure.map((_, i) => i).filter((i) => i !== index)
     const otherTotalSize = otherIndices.reduce((sum, i) => sum + structure[i].size, 0)
 
     if (otherTotalSize > 0 && otherIndices.length > 0) {
+      // Distribute the size change proportionally among other sections
       otherIndices.forEach((i) => {
         const proportion = structure[i].size / otherTotalSize
         const adjustment = sizeDiff * proportion
-        newStructure[i] = { ...newStructure[i], size: Math.max(10, Math.min(90, structure[i].size - adjustment)) }
+        const newOtherSize = structure[i].size - adjustment
+        // Ensure each other section maintains at least MIN_SIZE
+        newStructure[i] = { ...newStructure[i], size: Math.max(MIN_SIZE, Math.min(maxAllowed, newOtherSize)) }
       })
     }
 
-    newStructure[index] = { ...newStructure[index], size: newSize }
+    newStructure[index] = { ...newStructure[index], size: clampedSize }
 
+    // Normalize to ensure total is exactly 100%
     const total = newStructure.reduce((sum, s) => sum + s.size, 0)
     if (Math.abs(total - 100) > 0.1) {
       const scale = 100 / total
       newStructure.forEach((s, i) => {
-        newStructure[i] = { ...s, size: s.size * scale }
+        newStructure[i] = { ...s, size: Math.max(MIN_SIZE, s.size * scale) }
       })
     }
 
@@ -436,32 +457,43 @@ export default memo(function LayoutTab({
     }
   }
 
-  // Update subdivision sizes
+  // Update subdivision sizes with dynamic constraints
+  // Max size is limited by needing to leave MIN_SIZE for each other subdivision
   const updateSubSize = (sectionIndex, subIndex, newSize) => {
     const newStructure = [...structure]
     const section = newStructure[sectionIndex]
     const subSizes = [...(section.subSizes || [])]
+    const numSubs = subSizes.length
+    const maxAllowed = getMaxSize(numSubs)
+
+    // Clamp the new size to valid range
+    const clampedSize = Math.max(MIN_SIZE, Math.min(maxAllowed, newSize))
+
     const oldSize = subSizes[subIndex]
-    const sizeDiff = newSize - oldSize
+    const sizeDiff = clampedSize - oldSize
 
     const otherIndices = subSizes.map((_, i) => i).filter((i) => i !== subIndex)
     const otherTotalSize = otherIndices.reduce((sum, i) => sum + subSizes[i], 0)
 
     if (otherTotalSize > 0 && otherIndices.length > 0) {
+      // Distribute the size change proportionally among other subdivisions
       otherIndices.forEach((i) => {
         const proportion = subSizes[i] / otherTotalSize
         const adjustment = sizeDiff * proportion
-        subSizes[i] = Math.max(10, Math.min(90, subSizes[i] - adjustment))
+        const newOtherSize = subSizes[i] - adjustment
+        // Ensure each other subdivision maintains at least MIN_SIZE
+        subSizes[i] = Math.max(MIN_SIZE, Math.min(maxAllowed, newOtherSize))
       })
     }
 
-    subSizes[subIndex] = newSize
+    subSizes[subIndex] = clampedSize
 
+    // Normalize to ensure total is exactly 100%
     const total = subSizes.reduce((sum, s) => sum + s, 0)
     if (Math.abs(total - 100) > 0.1) {
       const scale = 100 / total
       subSizes.forEach((s, i) => {
-        subSizes[i] = s * scale
+        subSizes[i] = Math.max(MIN_SIZE, s * scale)
       })
     }
 
@@ -636,13 +668,13 @@ export default memo(function LayoutTab({
               {structure.length > 1 && (
                 <div>
                   <label className="block text-xs text-blue-600 dark:text-blue-400 mb-2 font-medium">
-                    {type === 'rows' ? 'Height' : 'Width'}
+                    {type === 'rows' ? 'Height' : 'Width'} <span className="font-normal text-blue-400 dark:text-blue-500">({MIN_SIZE}–{getMaxSize(structure.length)}%)</span>
                   </label>
                   <div className="flex items-center gap-3">
                     <input
                       type="range"
-                      min="20"
-                      max="80"
+                      min={MIN_SIZE}
+                      max={getMaxSize(structure.length)}
                       value={selectedSection.size}
                       onChange={(e) => updateSectionSize(selectedSectionIndex, Number(e.target.value))}
                       className="flex-1"
@@ -720,13 +752,13 @@ export default memo(function LayoutTab({
 
               <div>
                 <label className="block text-xs text-blue-600 dark:text-blue-400 mb-2 font-medium">
-                  {type === 'rows' ? 'Width' : 'Height'}
+                  {type === 'rows' ? 'Width' : 'Height'} <span className="font-normal text-blue-400 dark:text-blue-500">({MIN_SIZE}–{getMaxSize(selectedCellSection?.subdivisions || 2)}%)</span>
                 </label>
                 <div className="flex items-center gap-3">
                   <input
                     type="range"
-                    min="20"
-                    max="80"
+                    min={MIN_SIZE}
+                    max={getMaxSize(selectedCellSection?.subdivisions || 2)}
                     value={selectedCellSection?.subSizes?.[selectedCellInfo.subIndex] || 50}
                     onChange={(e) => updateSubSize(selectedCellInfo.sectionIndex, selectedCellInfo.subIndex, Number(e.target.value))}
                     className="flex-1"
