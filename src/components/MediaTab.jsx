@@ -1,7 +1,16 @@
-import { useCallback, useRef, useState, memo, useMemo } from 'react'
+import { useCallback, useRef, useState, memo } from 'react'
 import CollapsibleSection from './CollapsibleSection'
 import { sampleImages } from '../config/sampleImages'
 import { platforms } from '../config/platforms'
+import { overlayTypes } from '../config/layouts'
+import { neutralColors } from '../config/themes'
+
+// Theme color options for overlay
+const themeColorOptions = [
+  { id: 'primary', name: 'Primary' },
+  { id: 'secondary', name: 'Secondary' },
+  { id: 'accent', name: 'Accent' },
+]
 
 // Simple cell grid for image cell selection
 function ImageCellGrid({ layout, imageCell, onSelectCell, platform }) {
@@ -109,6 +118,7 @@ export default memo(function MediaTab({
   layout,
   onLayoutChange,
   platform,
+  theme,
 }) {
   const fileInputRef = useRef(null)
   const logoInputRef = useRef(null)
@@ -453,6 +463,145 @@ export default memo(function MediaTab({
                 className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer"
               />
             </div>
+          </div>
+        </CollapsibleSection>
+      )}
+
+      {/* Image Overlay Section - only when image exists */}
+      {image && (
+        <CollapsibleSection title="Image Overlay" defaultExpanded={false}>
+          <div className="space-y-3">
+            {(() => {
+              const imageCell = layout?.imageCell || 0
+              const cellOverlays = layout?.cellOverlays || {}
+              const overlayConfig = cellOverlays[imageCell] || {}
+              const isEnabled = overlayConfig.enabled
+
+              const updateOverlay = (updates) => {
+                const newCellOverlays = { ...cellOverlays }
+                if (updates === null) {
+                  delete newCellOverlays[imageCell]
+                } else {
+                  newCellOverlays[imageCell] = { ...overlayConfig, ...updates }
+                }
+                onLayoutChange({ cellOverlays: newCellOverlays })
+              }
+
+              return (
+                <>
+                  {/* Enable toggle */}
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="checkbox"
+                      id="image-overlay-enabled"
+                      checked={isEnabled || false}
+                      onChange={(e) => updateOverlay({ enabled: e.target.checked })}
+                      className="w-4 h-4 rounded text-blue-500"
+                    />
+                    <label
+                      htmlFor="image-overlay-enabled"
+                      className="text-sm text-gray-700 dark:text-gray-300 font-medium cursor-pointer"
+                    >
+                      Enable Overlay
+                    </label>
+                  </div>
+
+                  {isEnabled && (
+                    <div className="space-y-3 pt-2">
+                      {/* Overlay Type */}
+                      <div className="space-y-2">
+                        <label className="block text-xs font-medium text-gray-600 dark:text-gray-300">Type</label>
+                        <div className="grid grid-cols-4 gap-1.5">
+                          {overlayTypes.map((t) => (
+                            <button
+                              key={t.id}
+                              onClick={() => updateOverlay({ type: t.id })}
+                              className={`px-2 py-1.5 text-xs rounded-lg font-medium truncate ${
+                                overlayConfig.type === t.id
+                                  ? 'bg-blue-500 text-white shadow-sm'
+                                  : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+                              }`}
+                              title={t.name}
+                            >
+                              {t.name}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Overlay Color */}
+                      <div className="space-y-2">
+                        <label className="block text-xs font-medium text-gray-600 dark:text-gray-300">Color</label>
+                        <div className="flex flex-wrap gap-1.5">
+                          {/* Theme colors */}
+                          {themeColorOptions.map((c) => (
+                            <button
+                              key={c.id}
+                              onClick={() => updateOverlay({ color: c.id })}
+                              className={`px-2.5 py-1.5 text-xs rounded-lg font-medium ${
+                                overlayConfig.color === c.id
+                                  ? 'bg-blue-500 text-white shadow-sm'
+                                  : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+                              }`}
+                            >
+                              <span
+                                className="inline-block w-2.5 h-2.5 rounded-full mr-1.5 border border-gray-300 dark:border-gray-600"
+                                style={{ backgroundColor: theme?.[c.id] || '#000' }}
+                              />
+                              {c.name}
+                            </button>
+                          ))}
+                          {/* Neutral colors */}
+                          {neutralColors.map((c) => (
+                            <button
+                              key={c.id}
+                              onClick={() => updateOverlay({ color: c.id })}
+                              className={`px-2.5 py-1.5 text-xs rounded-lg font-medium ${
+                                overlayConfig.color === c.id
+                                  ? 'bg-blue-500 text-white shadow-sm'
+                                  : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+                              }`}
+                            >
+                              <span
+                                className="inline-block w-2.5 h-2.5 rounded-full mr-1.5 border border-gray-300 dark:border-gray-600"
+                                style={{ backgroundColor: c.color }}
+                              />
+                              {c.name}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Overlay Opacity */}
+                      <div className="space-y-1">
+                        <div className="flex justify-between">
+                          <label className="text-xs font-medium text-gray-600 dark:text-gray-300">Opacity</label>
+                          <span className="text-xs text-gray-500 dark:text-gray-400">
+                            {overlayConfig.opacity ?? 50}%
+                          </span>
+                        </div>
+                        <input
+                          type="range"
+                          min="0"
+                          max="100"
+                          value={overlayConfig.opacity ?? 50}
+                          onChange={(e) => updateOverlay({ opacity: parseInt(e.target.value, 10) })}
+                          className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer"
+                        />
+                      </div>
+
+                      {/* Remove overlay button */}
+                      <button
+                        onClick={() => updateOverlay(null)}
+                        className="w-full px-3 py-2 text-xs bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg font-medium"
+                      >
+                        Remove Overlay
+                      </button>
+                    </div>
+                  )}
+                </>
+              )
+            })()}
           </div>
         </CollapsibleSection>
       )}

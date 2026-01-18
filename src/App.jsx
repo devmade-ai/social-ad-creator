@@ -230,6 +230,7 @@ function App() {
                     layout={state.layout}
                     onLayoutChange={setLayout}
                     platform={state.platform}
+                    theme={state.theme}
                   />
                 )}
               </ErrorBoundary>
