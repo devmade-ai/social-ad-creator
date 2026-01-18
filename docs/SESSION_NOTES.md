@@ -5,28 +5,30 @@ Compact context summary for session continuity. Rewrite at session end.
 ---
 
 ## Worked on
-Post-refactor cleanup and documentation overhaul
+Export fixes and Layout/Media tab UX improvements
 
 ## Accomplished
-- Deleted 6 legacy components (ImageUploader, TextEditor, LayoutSelector, ThemePicker, FontSelector, StylePresetSelector)
-- Deleted docs/REFACTOR_PLAN.md (implementation complete)
-- Updated README.md with current UI structure and features
-- Created docs/USER_GUIDE.md - comprehensive user documentation
-- Created docs/TESTING_GUIDE.md - manual test scenarios with step-by-step instructions
-- Updated CLAUDE.md:
-  - Removed legacy component references
-  - Added USER_GUIDE.md and TESTING_GUIDE.md documentation entries
-  - Fixed "4 themes" → "12 themes"
-- Updated TODO.md (removed completed cleanup items)
-- Updated HISTORY.md (recorded all changes)
+- Fixed export text wrapping mismatch with preview (removed `skipFonts: true` from html-to-image)
+- Hide canvas during export to prevent visible size flash
+- Added "Exporting..." overlay with spinner during export
+- Fixed cell grid selectors not scaling with row/column count (now uses aspect-ratio sizing)
+- Simplified Layout tab UI:
+  - Moved Image Cell selector to Media tab (under Background Image settings)
+  - Removed separate Cell Assignment section
+  - Integrated alignment controls into Structure section (responds to selection)
+- Added Image Overlay section to Media tab (uses global overlay system, same as templates)
 
 ## Current state
-- **Clean**: All legacy components removed
-- **Documented**: Full user guide and testing guide in place
-- **Working**: Workflow-based UI with 5 tabs (Templates, Media, Content, Layout, Style)
+- **Export**: Text wrapping now matches preview exactly, no visible flash during export
+- **Layout tab**: Streamlined to Structure + Text Alignment sections only
+- **Media tab**: Now has Image Cell selector and Image Overlay controls
+- **Working**: All changes pushed to `claude/verify-preview-constraints-Pace8`
 
 ## Key context
-- January 2026 UI refactor is fully complete and cleaned up
-- Documentation is comprehensive and up-to-date
-- TESTING_GUIDE.md has 20+ test scenarios covering all tabs
-- USER_GUIDE.md explains every feature from user perspective
+- Export uses `html-to-image` library - `skipFonts: true` caused different text metrics
+- Two overlay systems: global `state.overlay` (templates use this) vs per-cell `layout.cellOverlays`
+- Media tab's Image Overlay now controls `state.overlay` to match template behavior
+- Text Alignment in Layout tab shows context-aware controls based on structure selection:
+  - Section selected: applies to all cells in row/column
+  - Cell selected: applies to that cell only
+  - Nothing selected: applies global alignment

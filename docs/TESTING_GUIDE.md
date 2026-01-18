@@ -110,6 +110,31 @@ Run these tests after making changes to ensure nothing is broken.
 | 5 | Click "Center" | Position options | Logo moves to center |
 | 6 | Change size to "Large" | Size options | Logo becomes larger |
 
+### M6: Image Cell Selection
+
+**Scenario:** Image can be assigned to different cells from Media tab.
+
+| Step | Action | Where | Expected |
+|------|--------|-------|----------|
+| 1 | Upload an image | Media → Background Image | Image visible in preview |
+| 2 | Apply a 2-cell layout | Layout → Structure | 2 cells visible |
+| 3 | Return to Media tab | Top tab bar | Media tab opens |
+| 4 | Find "Image Cell" selector | Background Image section | Small grid showing cells |
+| 5 | Click cell 2 | Image Cell grid | Background image moves to cell 2 |
+
+### M7: Image Overlay
+
+**Scenario:** Image overlay controls affect the background image layer.
+
+| Step | Action | Where | Expected |
+|------|--------|-------|----------|
+| 1 | Upload an image | Media → Background Image | Image visible in preview |
+| 2 | Find "Image Overlay" section | Media tab | Overlay controls visible |
+| 3 | Change Type to "Vignette" | Type selector | Vignette effect appears on image |
+| 4 | Change Color to "Primary" | Color selector | Overlay uses theme's primary color |
+| 5 | Drag Opacity to 50% | Opacity slider | Overlay semi-transparent |
+| 6 | Drag Opacity to 0% | Opacity slider | Overlay disappears completely |
+
 ---
 
 ## Content Tab Tests
@@ -197,26 +222,40 @@ Run these tests after making changes to ensure nothing is broken.
 | 3 | Drag the divider up or down | Grid divider | Cell sizes change proportionally |
 | 4 | Check preview | Ad preview | Preview reflects new proportions |
 
-### L3: Image Cell Selection
+### L3: Text Alignment - Section Selection
 
-**Scenario:** Image can be assigned to different cells.
-
-| Step | Action | Where | Expected |
-|------|--------|-------|----------|
-| 1 | Apply a 2-cell layout | Layout → Structure | 2 cells visible |
-| 2 | Expand "Cell Assignment" section | Layout tab | Image cell selector visible |
-| 3 | Click cell 2 for image | Image cell options | Background image moves to cell 2 |
-
-### L4: Per-Cell Alignment
-
-**Scenario:** Each cell can have different text alignment.
+**Scenario:** Selecting a section applies alignment to all cells in that section.
 
 | Step | Action | Where | Expected |
 |------|--------|-------|----------|
-| 1 | Apply a 2-cell layout | Layout tab | 2 cells visible |
-| 2 | Go to Cell Assignment section | Layout tab | Per-cell controls visible |
-| 3 | Set Cell 1 alignment to "Left" | Cell 1 controls | Text in cell 1 aligns left |
-| 4 | Set Cell 2 alignment to "Right" | Cell 2 controls | Text in cell 2 aligns right |
+| 1 | Apply a 2-row layout | Layout → Structure | 2 rows visible in grid editor |
+| 2 | Click on Row 1 in the grid | Structure grid | Row 1 highlights as selected |
+| 3 | Check Text Alignment section | Layout tab | Shows "Row 1" or section indicator |
+| 4 | Set horizontal to "Left" | Alignment buttons | All cells in Row 1 align left |
+| 5 | Add text to both cells in Row 1 | Content tab | Both show left alignment |
+
+### L4: Text Alignment - Cell Selection
+
+**Scenario:** Selecting a cell applies alignment to just that cell.
+
+| Step | Action | Where | Expected |
+|------|--------|-------|----------|
+| 1 | Apply a layout with subdivisions | Layout → Structure | Multiple cells visible |
+| 2 | Click on a specific cell | Structure grid | Single cell highlights |
+| 3 | Check Text Alignment section | Layout tab | Shows "Cell X" indicator |
+| 4 | Set vertical to "Top" | Alignment buttons | Only that cell aligns to top |
+| 5 | Check adjacent cells | Preview | Other cells unaffected |
+
+### L5: Text Alignment - Global Default
+
+**Scenario:** With nothing selected, alignment sets the global default.
+
+| Step | Action | Where | Expected |
+|------|--------|-------|----------|
+| 1 | Click empty area in Structure grid | Structure grid | No selection highlighted |
+| 2 | Check Text Alignment section | Layout tab | Shows "Global" or default indicator |
+| 3 | Set alignment to "Center" + "Middle" | Alignment buttons | All cells without overrides use this |
+| 4 | Add text to any cell | Content tab | Text centers (unless cell has override) |
 
 ---
 
@@ -363,5 +402,8 @@ Quick checks to run after any code change:
 - [ ] Text appears in preview when typed
 - [ ] Theme change affects preview colors
 - [ ] Layout change affects preview structure
-- [ ] Export produces a valid PNG
+- [ ] Image Cell selector works in Media tab (multi-cell layouts)
+- [ ] Image Overlay controls work in Media tab
+- [ ] Text Alignment responds to grid selection in Layout tab
+- [ ] Export produces a valid PNG matching preview
 - [ ] No React warnings in console

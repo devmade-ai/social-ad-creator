@@ -1,5 +1,38 @@
 # Changelog
 
+## 2026-01-18
+
+### Export fixes
+
+- **Fixed text wrapping mismatch** between preview and export - removed `skipFonts: true` from html-to-image which was causing different font metrics during capture
+- **Hide canvas during export** - set opacity to 0 while capturing to prevent visible size flash
+- **Added export overlay** - "Exporting..." message with spinner shown over canvas during export
+
+### Layout tab simplification
+
+- **Moved Image Cell to Media tab** - now in Background Image section with other image settings
+- **Removed Cell Assignment section** - eliminated redundant small grid selectors
+- **Integrated alignment into Structure section** - context-aware based on selection:
+  - Section (row/column) selected: alignment applies to all cells in that section
+  - Cell selected: alignment applies to just that cell
+  - Nothing selected: sets global alignment
+- Reduced from 3 grids to 1 main structure grid
+
+### Media tab enhancements
+
+- **Added Image Cell selector** - shows in Background Image section for multi-cell layouts
+- **Added Image Overlay section** - controls for overlay type, color, and opacity
+  - Uses global `state.overlay` (same system as templates)
+  - Type: Solid, 8 gradient directions, Vignette, Spotlight
+  - Color: Theme colors (Primary/Secondary/Accent) + Neutrals
+  - Opacity slider (0 = disabled)
+
+### UI fixes
+
+- **Fixed cell grid selectors not scaling** - changed from fixed 80x52px to aspect-ratio based sizing so all cells are visible regardless of layout structure
+
+---
+
 ## 2026-01-17
 
 ### Post-refactor cleanup

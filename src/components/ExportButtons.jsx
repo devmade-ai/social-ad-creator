@@ -4,9 +4,15 @@ import JSZip from 'jszip'
 import { saveAs } from 'file-saver'
 import { platforms } from '../config/platforms'
 
-export default memo(function ExportButtons({ canvasRef, state, onPlatformChange }) {
+export default memo(function ExportButtons({ canvasRef, state, onPlatformChange, onExportingChange }) {
   const [isExporting, setIsExporting] = useState(false)
   const [exportProgress, setExportProgress] = useState(null)
+
+  // Update both local state and notify parent
+  const updateExporting = useCallback((value) => {
+    setIsExporting(value)
+    onExportingChange?.(value)
+  }, [onExportingChange])
 
   const handleExportSingle = useCallback(async () => {
     if (!canvasRef.current) return
@@ -14,10 +20,12 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange 
     const platform = platforms.find((p) => p.id === state.platform)
     if (!platform) return
 
-    setIsExporting(true)
+    updateExporting(true)
 
-    // Store original transform and temporarily remove scale for capture
+    // Store original styles and hide canvas during capture to prevent visible flash
     const originalTransform = canvasRef.current.style.transform
+    const originalOpacity = canvasRef.current.style.opacity
+    canvasRef.current.style.opacity = '0'
     canvasRef.current.style.transform = 'scale(1)'
 
     try {
@@ -28,7 +36,6 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange 
         width: platform.width,
         height: platform.height,
         pixelRatio: 1,
-        skipFonts: true,
       })
 
       const link = document.createElement('a')
@@ -39,18 +46,23 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange 
       console.error('Export failed:', error)
       alert('Export failed. Please try again.')
     } finally {
-      // Restore original transform
+      // Restore original styles
       canvasRef.current.style.transform = originalTransform
-      setIsExporting(false)
+      canvasRef.current.style.opacity = originalOpacity
+      updateExporting(false)
     }
-  }, [canvasRef, state.platform])
+  }, [canvasRef, state.platform, updateExporting])
 
   const handleExportAll = useCallback(async () => {
     if (!canvasRef.current) return
 
-    setIsExporting(true)
+    updateExporting(true)
     const zip = new JSZip()
     const originalPlatform = state.platform
+
+    // Hide canvas during batch export to prevent visible flashing
+    const originalOpacity = canvasRef.current.style.opacity
+    canvasRef.current.style.opacity = '0'
 
     try {
       for (let i = 0; i < platforms.length; i++) {
@@ -74,7 +86,6 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange 
           width: platform.width,
           height: platform.height,
           pixelRatio: 1,
-          skipFonts: true,
         })
 
         // Restore transform immediately after capture
@@ -95,10 +106,12 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange 
       alert('Export failed. Please try again.')
       onPlatformChange(originalPlatform)
     } finally {
-      setIsExporting(false)
+      // Restore canvas visibility
+      canvasRef.current.style.opacity = originalOpacity
+      updateExporting(false)
       setExportProgress(null)
     }
-  }, [canvasRef, state.platform, onPlatformChange])
+  }, [canvasRef, state.platform, onPlatformChange, updateExporting])
 
   return (
     <div className="space-y-3">

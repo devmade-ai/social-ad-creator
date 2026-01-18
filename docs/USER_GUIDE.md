@@ -51,6 +51,15 @@ Manage your background image and logo.
 - **Sample Images:** Click any sample to use it as a starting point
 - **Fit:** Choose "Cover" (fills frame, may crop) or "Contain" (shows entire image)
 - **Position:** Adjust where the image sits within the frame
+- **Image Cell:** (Multi-cell layouts only) Select which cell displays the background image
+
+#### Image Overlay
+Controls the overlay on your background image (same system used by Complete Design templates):
+- **Type:** Solid, gradient (8 directions), vignette, or spotlight
+- **Color:** Choose from theme colors (Primary, Secondary, Accent) or neutrals
+- **Opacity:** Adjust transparency (0 = disabled, 100 = full)
+
+**Note:** This is separate from per-cell overlays in the Style tab. Image Overlay affects only the image layer.
 
 #### Advanced Filters
 Expand this section to access:
@@ -102,16 +111,26 @@ Write and configure your text elements. Organized into collapsible groups:
 
 ### Layout Tab
 
-Fine-tune your grid structure and cell settings.
+Fine-tune your grid structure and text alignment.
 
 #### Structure
 - **Layout Type:** Full Bleed (single cell), Rows, or Columns
 - **Interactive Grid:** Click and drag dividers to resize sections
 - **Add/Remove:** Adjust the number of sections
+- Click on a section or cell in the grid to select it
 
-#### Cell Assignment
-- **Image Cell:** Select which cell displays the background image
-- **Per-Cell Alignment:** Set horizontal and vertical text alignment for each cell individually
+#### Text Alignment
+Context-aware alignment controls that respond to your selection in the Structure grid:
+
+| Selection | What happens |
+|-----------|--------------|
+| **Section selected** (row/column) | Alignment applies to all cells in that section |
+| **Cell selected** | Alignment applies to that specific cell only |
+| **Nothing selected** | Sets the global alignment default |
+
+Controls available:
+- **Horizontal:** Left, Center, Right
+- **Vertical:** Top, Middle, Bottom
 
 ---
 

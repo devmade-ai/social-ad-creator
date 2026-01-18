@@ -141,16 +141,19 @@ function CellGrid({
   const showSectionLabels = mode === 'structure' && !isFullbleed && normalizedStructure.length > 1
 
   const sizeConfig = {
-    small: { width: 80, height: 52 },
+    small: { maxWidth: 100, minHeight: 50 },
     normal: { maxWidth: 180, minHeight: 100 },
     large: { maxWidth: 280, minHeight: 160 },
   }
   const config = sizeConfig[size] || sizeConfig.normal
 
-  const containerStyle =
-    size === 'small'
-      ? { width: `${config.width}px`, height: `${config.height}px`, flexShrink: 0 }
-      : { aspectRatio: aspectRatio, maxWidth: `${config.maxWidth}px`, minHeight: `${config.minHeight}px`, width: '100%' }
+  const containerStyle = {
+    aspectRatio: aspectRatio,
+    maxWidth: `${config.maxWidth}px`,
+    minHeight: `${config.minHeight}px`,
+    width: '100%',
+    flexShrink: 0,
+  }
 
   const getCellContent = (cellIndex, isImage, isSelected, isSectionSelected, subdivisions, subSize) => {
     let bgClass, textClass, content
@@ -310,7 +313,6 @@ export default memo(function LayoutTab({
 }) {
   const { type = 'fullbleed', structure = [], imageCell = 0, textAlign, textVerticalAlign, cellAlignments = [] } = layout
   const [structureSelection, setStructureSelection] = useState(null)
-  const [selectedAlignmentCell, setSelectedAlignmentCell] = useState(null)
 
   const cellInfoList = useMemo(() => getCellInfo(layout), [layout])
 
@@ -790,91 +792,103 @@ export default memo(function LayoutTab({
         </div>
       </CollapsibleSection>
 
-      {/* Cell Assignment Section */}
-      <CollapsibleSection title="Cell Assignment" defaultExpanded={true}>
-        <div className="space-y-4">
-          {/* Image Cell */}
-          <div className="space-y-2">
-            <label className="block text-xs font-medium text-gray-600 dark:text-gray-300">Image Cell</label>
-            <div className="flex items-center gap-3">
-              <CellGrid
-                layout={layout}
-                imageCell={imageCell}
-                mode="image"
-                onSelectCell={(idx) => onLayoutChange({ imageCell: idx })}
-                aspectRatio={platformAspectRatio}
-                size="small"
-              />
-              <span className="text-sm text-gray-600 dark:text-gray-400">
-                Cell {imageCell + 1}
-              </span>
-            </div>
+      {/* Text Alignment Section */}
+      <CollapsibleSection title="Text Alignment" defaultExpanded={true}>
+        <div className="space-y-3">
+          {/* Context-aware label */}
+          <div className="text-xs text-gray-500 dark:text-gray-400">
+            {type === 'fullbleed' ? (
+              'Global alignment for all text'
+            ) : structureSelection?.type === 'section' ? (
+              <>Alignment for <span className="font-medium text-blue-600 dark:text-blue-400">{type === 'rows' ? 'Row' : 'Column'} {structureSelection.index + 1}</span> (all cells)</>
+            ) : structureSelection?.type === 'cell' ? (
+              <>Alignment for <span className="font-medium text-blue-600 dark:text-blue-400">Cell {structureSelection.cellIndex + 1}</span></>
+            ) : (
+              <>Select a cell/row above, or set <span className="font-medium">global</span> alignment</>
+            )}
           </div>
 
-          {/* Cell Alignment */}
-          <div className="space-y-3 pt-3 border-t border-gray-200 dark:border-gray-700">
-            <label className="block text-xs font-medium text-gray-600 dark:text-gray-300">
-              Cell Alignment <span className="text-gray-400 font-normal">(select cell or set global)</span>
-            </label>
-            <div className="flex items-center gap-3">
-              <CellGrid
-                layout={layout}
-                imageCell={imageCell}
-                selectedCell={selectedAlignmentCell}
-                mode="cell"
-                onSelectCell={(idx) => setSelectedAlignmentCell(selectedAlignmentCell === idx ? null : idx)}
-                aspectRatio={platformAspectRatio}
-                size="small"
-              />
-              <span className="text-sm text-gray-600 dark:text-gray-400">
-                {selectedAlignmentCell === null ? 'Global' : `Cell ${selectedAlignmentCell + 1}`}
-              </span>
-            </div>
-
-            <div className="flex gap-4">
-              <div className="flex-1">
-                <span className="text-xs text-gray-500 dark:text-gray-400 block mb-1.5">Horizontal</span>
-                <div className="flex gap-1.5">
-                  {textAlignOptions.map((align) => {
-                    const isActive = getAlignmentForCell(selectedAlignmentCell, 'textAlign') === align.id
-                    return (
-                      <button
-                        key={align.id}
-                        onClick={() => setAlignmentForCell(selectedAlignmentCell, 'textAlign', align.id)}
-                        title={align.name}
-                        className={`flex-1 px-2 py-2 rounded-lg flex items-center justify-center ${
-                          isActive
-                            ? 'bg-blue-500 text-white shadow-sm'
-                            : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
-                        }`}
-                      >
-                        <align.Icon />
-                      </button>
-                    )
-                  })}
-                </div>
+          <div className="flex gap-4">
+            <div className="flex-1">
+              <span className="text-xs text-gray-500 dark:text-gray-400 block mb-1.5">Horizontal</span>
+              <div className="flex gap-1.5">
+                {textAlignOptions.map((align) => {
+                  const targetCell = structureSelection?.type === 'cell' ? structureSelection.cellIndex : null
+                  const isActive = getAlignmentForCell(targetCell, 'textAlign') === align.id
+                  return (
+                    <button
+                      key={align.id}
+                      onClick={() => {
+                        if (structureSelection?.type === 'section') {
+                          // Apply to all cells in this section
+                          const sectionIndex = structureSelection.index
+                          const section = structure[sectionIndex]
+                          const subdivisions = section?.subdivisions || 1
+                          let cellStart = 0
+                          for (let i = 0; i < sectionIndex; i++) {
+                            cellStart += structure[i]?.subdivisions || 1
+                          }
+                          for (let i = 0; i < subdivisions; i++) {
+                            setAlignmentForCell(cellStart + i, 'textAlign', align.id)
+                          }
+                        } else if (structureSelection?.type === 'cell') {
+                          setAlignmentForCell(structureSelection.cellIndex, 'textAlign', align.id)
+                        } else {
+                          setAlignmentForCell(null, 'textAlign', align.id)
+                        }
+                      }}
+                      title={align.name}
+                      className={`flex-1 px-2 py-2 rounded-lg flex items-center justify-center ${
+                        isActive
+                          ? 'bg-blue-500 text-white shadow-sm'
+                          : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+                      }`}
+                    >
+                      <align.Icon />
+                    </button>
+                  )
+                })}
               </div>
-              <div className="flex-1">
-                <span className="text-xs text-gray-500 dark:text-gray-400 block mb-1.5">Vertical</span>
-                <div className="flex gap-1.5">
-                  {verticalAlignOptions.map((align) => {
-                    const isActive = getAlignmentForCell(selectedAlignmentCell, 'textVerticalAlign') === align.id
-                    return (
-                      <button
-                        key={align.id}
-                        onClick={() => setAlignmentForCell(selectedAlignmentCell, 'textVerticalAlign', align.id)}
-                        title={align.name}
-                        className={`flex-1 px-2 py-2 rounded-lg flex items-center justify-center ${
-                          isActive
-                            ? 'bg-blue-500 text-white shadow-sm'
-                            : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
-                        }`}
-                      >
-                        <align.Icon />
-                      </button>
-                    )
-                  })}
-                </div>
+            </div>
+            <div className="flex-1">
+              <span className="text-xs text-gray-500 dark:text-gray-400 block mb-1.5">Vertical</span>
+              <div className="flex gap-1.5">
+                {verticalAlignOptions.map((align) => {
+                  const targetCell = structureSelection?.type === 'cell' ? structureSelection.cellIndex : null
+                  const isActive = getAlignmentForCell(targetCell, 'textVerticalAlign') === align.id
+                  return (
+                    <button
+                      key={align.id}
+                      onClick={() => {
+                        if (structureSelection?.type === 'section') {
+                          // Apply to all cells in this section
+                          const sectionIndex = structureSelection.index
+                          const section = structure[sectionIndex]
+                          const subdivisions = section?.subdivisions || 1
+                          let cellStart = 0
+                          for (let i = 0; i < sectionIndex; i++) {
+                            cellStart += structure[i]?.subdivisions || 1
+                          }
+                          for (let i = 0; i < subdivisions; i++) {
+                            setAlignmentForCell(cellStart + i, 'textVerticalAlign', align.id)
+                          }
+                        } else if (structureSelection?.type === 'cell') {
+                          setAlignmentForCell(structureSelection.cellIndex, 'textVerticalAlign', align.id)
+                        } else {
+                          setAlignmentForCell(null, 'textVerticalAlign', align.id)
+                        }
+                      }}
+                      title={align.name}
+                      className={`flex-1 px-2 py-2 rounded-lg flex items-center justify-center ${
+                        isActive
+                          ? 'bg-blue-500 text-white shadow-sm'
+                          : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+                      }`}
+                    >
+                      <align.Icon />
+                    </button>
+                  )
+                })}
               </div>
             </div>
           </div>
