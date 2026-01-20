@@ -36,6 +36,10 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
         width: platform.width,
         height: platform.height,
         pixelRatio: 1,
+        style: {
+          opacity: '1',
+          transform: 'scale(1)',
+        },
       })
 
       const link = document.createElement('a')
@@ -86,6 +90,10 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
           width: platform.width,
           height: platform.height,
           pixelRatio: 1,
+          style: {
+            opacity: '1',
+            transform: 'scale(1)',
+          },
         })
 
         // Restore transform immediately after capture
