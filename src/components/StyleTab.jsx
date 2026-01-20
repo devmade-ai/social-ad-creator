@@ -526,6 +526,7 @@ export default memo(function StyleTab({
                           type="range"
                           min="0"
                           max="100"
+                          step="5"
                           value={getCellOverlayConfig(selectedOverlayCell)?.opacity ?? 50}
                           onChange={(e) =>
                             updateCellOverlay(selectedOverlayCell, { opacity: parseInt(e.target.value, 10) })
@@ -583,7 +584,7 @@ export default memo(function StyleTab({
               type="range"
               min="0"
               max="60"
-              step="4"
+              step="5"
               value={padding.global}
               onChange={(e) => onPaddingChange?.({ global: parseInt(e.target.value, 10) })}
               className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer"
@@ -652,7 +653,7 @@ export default memo(function StyleTab({
                       type="range"
                       min="0"
                       max="60"
-                      step="4"
+                      step="5"
                       value={getCellPaddingValue(selectedSpacingCell)}
                       onChange={(e) => updateCellPadding(selectedSpacingCell, parseInt(e.target.value, 10))}
                       className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer"

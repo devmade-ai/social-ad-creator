@@ -9,7 +9,7 @@ export const defaultState = {
   activeStylePreset: null,
   image: null,
   imageObjectFit: 'cover',
-  imagePosition: { vertical: 'center', horizontal: 'center' },
+  imagePosition: { x: 50, y: 50 }, // Percentage-based (0-100)
   imageFilters: {
     grayscale: 0,
     sepia: 0,

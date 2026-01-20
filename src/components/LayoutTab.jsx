@@ -677,6 +677,7 @@ export default memo(function LayoutTab({
                       type="range"
                       min={MIN_SIZE}
                       max={getMaxSize(structure.length)}
+                      step="5"
                       value={selectedSection.size}
                       onChange={(e) => updateSectionSize(selectedSectionIndex, Number(e.target.value))}
                       className="flex-1"
@@ -761,6 +762,7 @@ export default memo(function LayoutTab({
                     type="range"
                     min={MIN_SIZE}
                     max={getMaxSize(selectedCellSection?.subdivisions || 2)}
+                    step="5"
                     value={selectedCellSection?.subSizes?.[selectedCellInfo.subIndex] || 50}
                     onChange={(e) => updateSubSize(selectedCellInfo.sectionIndex, selectedCellInfo.subIndex, Number(e.target.value))}
                     className="flex-1"
