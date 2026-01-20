@@ -310,42 +310,63 @@ export default memo(function MediaTab({
               {/* Position */}
               <div className="space-y-2">
                 <label className="block text-xs font-medium text-gray-600 dark:text-gray-300">Position</label>
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <span className="text-[10px] text-gray-500 dark:text-gray-400 block mb-1">Vertical</span>
-                    <div className="flex gap-1">
-                      {['top', 'center', 'bottom'].map((pos) => (
-                        <button
-                          key={pos}
-                          onClick={() => onPositionChange({ vertical: pos })}
-                          className={`flex-1 px-1.5 py-1.5 text-xs rounded capitalize font-medium ${
-                            position.vertical === pos
-                              ? 'bg-blue-500 text-white shadow-sm'
-                              : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
-                          }`}
-                        >
-                          {pos.charAt(0).toUpperCase()}
-                        </button>
-                      ))}
+                {/* Quick presets */}
+                <div className="grid grid-cols-3 gap-1">
+                  {[
+                    { x: 0, y: 0, label: '↖' },
+                    { x: 50, y: 0, label: '↑' },
+                    { x: 100, y: 0, label: '↗' },
+                    { x: 0, y: 50, label: '←' },
+                    { x: 50, y: 50, label: '•' },
+                    { x: 100, y: 50, label: '→' },
+                    { x: 0, y: 100, label: '↙' },
+                    { x: 50, y: 100, label: '↓' },
+                    { x: 100, y: 100, label: '↘' },
+                  ].map((preset) => (
+                    <button
+                      key={`${preset.x}-${preset.y}`}
+                      onClick={() => onPositionChange({ x: preset.x, y: preset.y })}
+                      className={`px-2 py-1.5 text-sm rounded font-medium ${
+                        position.x === preset.x && position.y === preset.y
+                          ? 'bg-blue-500 text-white shadow-sm'
+                          : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+                      }`}
+                    >
+                      {preset.label}
+                    </button>
+                  ))}
+                </div>
+                {/* Fine-tune sliders */}
+                <div className="space-y-2 pt-2">
+                  <div className="space-y-1">
+                    <div className="flex justify-between">
+                      <span className="text-[10px] text-gray-500 dark:text-gray-400">Horizontal (X)</span>
+                      <span className="text-[10px] text-gray-500 dark:text-gray-400">{position.x}%</span>
                     </div>
+                    <input
+                      type="range"
+                      min="0"
+                      max="100"
+                      step="5"
+                      value={position.x}
+                      onChange={(e) => onPositionChange({ x: parseInt(e.target.value, 10) })}
+                      className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer"
+                    />
                   </div>
-                  <div>
-                    <span className="text-[10px] text-gray-500 dark:text-gray-400 block mb-1">Horizontal</span>
-                    <div className="flex gap-1">
-                      {['left', 'center', 'right'].map((pos) => (
-                        <button
-                          key={pos}
-                          onClick={() => onPositionChange({ horizontal: pos })}
-                          className={`flex-1 px-1.5 py-1.5 text-xs rounded capitalize font-medium ${
-                            position.horizontal === pos
-                              ? 'bg-blue-500 text-white shadow-sm'
-                              : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
-                          }`}
-                        >
-                          {pos.charAt(0).toUpperCase()}
-                        </button>
-                      ))}
+                  <div className="space-y-1">
+                    <div className="flex justify-between">
+                      <span className="text-[10px] text-gray-500 dark:text-gray-400">Vertical (Y)</span>
+                      <span className="text-[10px] text-gray-500 dark:text-gray-400">{position.y}%</span>
                     </div>
+                    <input
+                      type="range"
+                      min="0"
+                      max="100"
+                      step="5"
+                      value={position.y}
+                      onChange={(e) => onPositionChange({ y: parseInt(e.target.value, 10) })}
+                      className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer"
+                    />
                   </div>
                 </div>
               </div>

@@ -314,7 +314,7 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
               inset: 0,
               backgroundImage: `url(${state.image})`,
               backgroundSize: state.imageObjectFit,
-              backgroundPosition: `${state.imagePosition.horizontal} ${state.imagePosition.vertical}`,
+              backgroundPosition: `${state.imagePosition.x}% ${state.imagePosition.y}%`,
               backgroundRepeat: 'no-repeat',
               filter: combinedFilter,
             }}
