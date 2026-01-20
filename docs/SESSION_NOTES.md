@@ -5,24 +5,22 @@ Compact context summary for session continuity. Rewrite at session end.
 ---
 
 ## Worked on
-UI improvements to Media, Style, and Platform sections
+Standardizing slider increments across the application
 
 ## Accomplished
 
-- Moved Image Overlay section above Advanced Filters in MediaTab
-- Added on/off toggle button for Image Overlay (similar to Grayscale toggle)
-- Clicking selected overlay type/color now deselects them (toggle behavior)
-- Made platform categories collapsible (only category with selected platform expanded by default)
-- Made Typography section in Style tab collapsed by default
-- Overlay controls now only show when overlay is enabled
+- Added `step="5"` to all sliders for consistent 5% increments
+- MediaTab: overlay opacity, grayscale, sepia, contrast, brightness sliders
+- StyleTab: cell overlay opacity, global padding, cell padding (changed from step=4 to step=5)
+- LayoutTab: section size and cell/subdivision size sliders
+- Build passes successfully
 
 ## Current state
 - **Build**: Passes successfully
 - **All features**: Working
+- All sliders now increment by 5 (or 5% for percentage-based values)
 
 ## Key context
 
-- Image Overlay section now has On/Off toggle that sets opacity to 0 or 50
-- Platform categories are collapsible with chevron toggle
-- When a category is collapsed, it shows the selected platform name if any
-- Typography section starts collapsed to reduce visual clutter
+- Blur slider already had step=0.5 (5% of its 0-10 range) - left unchanged
+- Padding sliders max is 60px, so values now go 0, 5, 10, 15... instead of 0, 4, 8, 12...
