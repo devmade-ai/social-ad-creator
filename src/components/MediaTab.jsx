@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState, memo } from 'react'
+import { useCallback, useRef, useState, memo, useMemo } from 'react'
 import CollapsibleSection from './CollapsibleSection'
 import { sampleImages } from '../config/sampleImages'
 import { platforms } from '../config/platforms'
@@ -11,6 +11,50 @@ const themeColorOptions = [
   { id: 'secondary', name: 'Secondary' },
   { id: 'accent', name: 'Accent' },
 ]
+
+// AI Image Prompt Helper options
+const styleOptions = [
+  { id: 'photorealistic', name: 'Photo', description: 'photorealistic photograph' },
+  { id: 'cinematic', name: 'Cinematic', description: 'cinematic film still' },
+  { id: 'editorial', name: 'Editorial', description: 'editorial photography' },
+  { id: 'minimal', name: 'Minimal', description: 'minimalist clean image' },
+  { id: 'abstract', name: 'Abstract', description: 'abstract artistic' },
+  { id: 'illustration', name: 'Illustration', description: 'digital illustration' },
+  { id: '3d', name: '3D', description: '3D rendered' },
+]
+
+const moodOptions = [
+  { id: 'dark', name: 'Dark', description: 'dark moody lighting, deep shadows' },
+  { id: 'light', name: 'Light', description: 'bright airy lighting, soft highlights' },
+  { id: 'neutral', name: 'Neutral', description: 'balanced neutral lighting' },
+  { id: 'dramatic', name: 'Dramatic', description: 'dramatic high-contrast lighting' },
+  { id: 'soft', name: 'Soft', description: 'soft diffused lighting' },
+  { id: 'warm', name: 'Warm', description: 'warm golden tones' },
+  { id: 'cool', name: 'Cool', description: 'cool blue tones' },
+]
+
+const purposeOptions = [
+  { id: 'hero', name: 'Hero Image', description: 'as a featured hero image with clear focal point' },
+  { id: 'background', name: 'Background', description: 'as a background image suitable for text overlay, with subtle details and low contrast areas' },
+]
+
+// Helper to get aspect ratio string from platform
+function getAspectRatioString(platform) {
+  const p = platforms.find((pl) => pl.id === platform)
+  if (!p) return '1:1'
+  const gcd = (a, b) => (b === 0 ? a : gcd(b, a % b))
+  const divisor = gcd(p.width, p.height)
+  return `${p.width / divisor}:${p.height / divisor}`
+}
+
+// Helper to get orientation from platform
+function getOrientationString(platform) {
+  const p = platforms.find((pl) => pl.id === platform)
+  if (!p) return 'square'
+  if (p.width > p.height) return 'landscape'
+  if (p.width < p.height) return 'portrait'
+  return 'square'
+}
 
 // Simple cell grid for image cell selection
 function ImageCellGrid({ layout, imageCell, onSelectCell, platform }) {
@@ -97,6 +141,212 @@ const logoSizeOptions = [
   { id: 0.2, name: 'L' },
   { id: 0.25, name: 'XL' },
 ]
+
+// AI Image Prompt Helper Component
+function AIPromptHelper({ platform, theme }) {
+  const [style, setStyle] = useState('photorealistic')
+  const [mood, setMood] = useState('neutral')
+  const [purpose, setPurpose] = useState('background')
+  const [useThemeColors, setUseThemeColors] = useState(true)
+  const [customColors, setCustomColors] = useState('')
+  const [context, setContext] = useState('')
+  const [copied, setCopied] = useState(false)
+
+  const platformData = platforms.find((p) => p.id === platform) || platforms[0]
+  const aspectRatio = getAspectRatioString(platform)
+  const orientation = getOrientationString(platform)
+
+  // Generate the prompt
+  const generatedPrompt = useMemo(() => {
+    const parts = []
+
+    // Style
+    const styleData = styleOptions.find((s) => s.id === style)
+    if (styleData) parts.push(styleData.description)
+
+    // Context (subject)
+    if (context.trim()) {
+      parts.push(context.trim())
+    }
+
+    // Purpose
+    const purposeData = purposeOptions.find((p) => p.id === purpose)
+    if (purposeData) parts.push(purposeData.description)
+
+    // Mood/Lighting
+    const moodData = moodOptions.find((m) => m.id === mood)
+    if (moodData) parts.push(moodData.description)
+
+    // Colors
+    if (useThemeColors && theme) {
+      parts.push(`color palette: ${theme.primary} (primary), ${theme.secondary} (secondary), ${theme.accent} (accent)`)
+    } else if (customColors.trim()) {
+      parts.push(`color palette: ${customColors.trim()}`)
+    }
+
+    // Orientation & format
+    parts.push(`${orientation} orientation, ${aspectRatio} aspect ratio, for ${platformData.name}`)
+
+    // Constants - always include
+    parts.push('do not include any text, words, letters, numbers, or typography')
+    parts.push('do not include any overlays, borders, watermarks, or graphic elements')
+
+    return parts.join(', ')
+  }, [style, mood, purpose, useThemeColors, customColors, context, theme, aspectRatio, orientation, platformData.name])
+
+  const handleCopy = useCallback(() => {
+    navigator.clipboard.writeText(generatedPrompt)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }, [generatedPrompt])
+
+  return (
+    <div className="space-y-3">
+      {/* Subject/Context */}
+      <div className="space-y-1.5">
+        <label className="block text-xs font-medium text-gray-600 dark:text-gray-300">Subject / Context</label>
+        <textarea
+          value={context}
+          onChange={(e) => setContext(e.target.value)}
+          placeholder="e.g., coffee shop interior, mountain landscape, abstract geometric shapes..."
+          className="w-full px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+          rows={2}
+        />
+      </div>
+
+      {/* Style */}
+      <div className="space-y-1.5">
+        <label className="block text-xs font-medium text-gray-600 dark:text-gray-300">Style</label>
+        <div className="flex flex-wrap gap-1">
+          {styleOptions.map((opt) => (
+            <button
+              key={opt.id}
+              onClick={() => setStyle(opt.id)}
+              className={`px-2 py-1 text-xs rounded-lg font-medium ${
+                style === opt.id
+                  ? 'bg-blue-500 text-white shadow-sm'
+                  : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+              }`}
+            >
+              {opt.name}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Mood */}
+      <div className="space-y-1.5">
+        <label className="block text-xs font-medium text-gray-600 dark:text-gray-300">Mood / Lighting</label>
+        <div className="flex flex-wrap gap-1">
+          {moodOptions.map((opt) => (
+            <button
+              key={opt.id}
+              onClick={() => setMood(opt.id)}
+              className={`px-2 py-1 text-xs rounded-lg font-medium ${
+                mood === opt.id
+                  ? 'bg-blue-500 text-white shadow-sm'
+                  : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+              }`}
+            >
+              {opt.name}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Purpose */}
+      <div className="space-y-1.5">
+        <label className="block text-xs font-medium text-gray-600 dark:text-gray-300">Image Purpose</label>
+        <div className="flex gap-1.5">
+          {purposeOptions.map((opt) => (
+            <button
+              key={opt.id}
+              onClick={() => setPurpose(opt.id)}
+              className={`flex-1 px-2 py-1.5 text-xs rounded-lg font-medium ${
+                purpose === opt.id
+                  ? 'bg-blue-500 text-white shadow-sm'
+                  : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+              }`}
+            >
+              {opt.name}
+            </button>
+          ))}
+        </div>
+        <p className="text-[10px] text-gray-400 dark:text-gray-500">
+          {purpose === 'hero' ? 'Clean focal point for featured images' : 'Subtle details, good for text overlays'}
+        </p>
+      </div>
+
+      {/* Colors */}
+      <div className="space-y-1.5">
+        <label className="block text-xs font-medium text-gray-600 dark:text-gray-300">Colors</label>
+        <div className="flex gap-1.5 mb-2">
+          <button
+            onClick={() => setUseThemeColors(true)}
+            className={`flex-1 px-2 py-1.5 text-xs rounded-lg font-medium ${
+              useThemeColors
+                ? 'bg-blue-500 text-white shadow-sm'
+                : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+            }`}
+          >
+            Use Theme
+          </button>
+          <button
+            onClick={() => setUseThemeColors(false)}
+            className={`flex-1 px-2 py-1.5 text-xs rounded-lg font-medium ${
+              !useThemeColors
+                ? 'bg-blue-500 text-white shadow-sm'
+                : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+            }`}
+          >
+            Custom
+          </button>
+        </div>
+        {useThemeColors && theme ? (
+          <div className="flex gap-2 items-center text-xs text-gray-500 dark:text-gray-400">
+            <span className="inline-block w-4 h-4 rounded border" style={{ backgroundColor: theme.primary }} />
+            <span className="inline-block w-4 h-4 rounded border" style={{ backgroundColor: theme.secondary }} />
+            <span className="inline-block w-4 h-4 rounded border" style={{ backgroundColor: theme.accent }} />
+            <span>Current theme colors</span>
+          </div>
+        ) : (
+          <input
+            type="text"
+            value={customColors}
+            onChange={(e) => setCustomColors(e.target.value)}
+            placeholder="e.g., blue and orange, muted earth tones..."
+            className="w-full px-3 py-1.5 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          />
+        )}
+      </div>
+
+      {/* Format Info */}
+      <div className="text-xs text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 rounded-lg px-3 py-2">
+        <span className="font-medium">Format:</span> {platformData.name} ({platformData.width}×{platformData.height}, {aspectRatio}, {orientation})
+      </div>
+
+      {/* Generated Prompt */}
+      <div className="space-y-1.5">
+        <label className="block text-xs font-medium text-gray-600 dark:text-gray-300">Generated Prompt</label>
+        <div className="relative">
+          <div className="w-full px-3 py-2 text-xs bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-700 dark:text-gray-300 max-h-24 overflow-y-auto">
+            {generatedPrompt}
+          </div>
+          <button
+            onClick={handleCopy}
+            className={`absolute top-1.5 right-1.5 px-2 py-1 text-[10px] rounded font-medium transition-colors ${
+              copied
+                ? 'bg-green-500 text-white'
+                : 'bg-blue-500 text-white hover:bg-blue-600'
+            }`}
+          >
+            {copied ? 'Copied!' : 'Copy'}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
 
 export default memo(function MediaTab({
   image,
@@ -198,6 +448,11 @@ export default memo(function MediaTab({
   return (
     <div className="space-y-3">
       <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-100">Media</h3>
+
+      {/* AI Image Prompt Helper Section - collapsed by default */}
+      <CollapsibleSection title="AI Image Prompt" defaultExpanded={false}>
+        <AIPromptHelper platform={platform} theme={theme} />
+      </CollapsibleSection>
 
       {/* Background Image Section */}
       <CollapsibleSection title="Background Image" defaultExpanded={true}>

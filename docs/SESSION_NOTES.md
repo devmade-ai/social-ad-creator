@@ -5,26 +5,33 @@ Compact context summary for session continuity. Rewrite at session end.
 ---
 
 ## Worked on
-Standardizing slider increments and adding flexible image positioning
+Adding AI Image Prompt Helper feature to help users generate prompts for AI image generation tools
 
 ## Accomplished
 
-- Added `step="5"` to all sliders for consistent 5% increments
-- MediaTab: overlay opacity, grayscale, sepia, contrast, brightness sliders
-- StyleTab: cell overlay opacity, global padding, cell padding (changed from step=4 to step=5)
-- LayoutTab: section size and cell/subdivision size sliders
-- Added flexible image positioning with X/Y percentage sliders (0-100%)
-- Kept 9 quick preset buttons (arrows + center) for common positions
+- Added new "AI Image Prompt" collapsible section at top of Media tab (collapsed by default)
+- Prompt builder includes:
+  - Subject/context text area
+  - Style options (Photo, Cinematic, Editorial, Minimal, Abstract, Illustration, 3D)
+  - Mood/lighting options (Dark, Light, Neutral, Dramatic, Soft, Warm, Cool)
+  - Image purpose (Hero Image vs Background for text overlays)
+  - Color options (use current theme or custom description)
+  - Auto-detected format from current platform (orientation, aspect ratio, dimensions)
+- Generated prompt automatically includes:
+  - "do not include any text, words, letters, numbers, or typography"
+  - "do not include any overlays, borders, watermarks, or graphic elements"
+- Copy button with visual feedback
+- Updated USER_GUIDE.md with documentation
 - Build passes successfully
 
 ## Current state
 - **Build**: Passes successfully
 - **All features**: Working
-- All sliders now increment by 5 (or 5% for percentage-based values)
-- Image position now uses percentage-based values with sliders + preset buttons
+- New AI Image Prompt Helper section is ready to use in Media tab
 
 ## Key context
 
-- Blur slider already had step=0.5 (5% of its 0-10 range) - left unchanged
-- Image position changed from `{ vertical, horizontal }` (string values) to `{ x, y }` (0-100 percentages)
-- backgroundPosition in AdCanvas now uses `${x}% ${y}%` format
+- The helper uses `useMemo` to efficiently regenerate the prompt when options change
+- Platform aspect ratio is calculated from the platforms config using GCD
+- Theme colors are passed from parent component and can be used in the generated prompt
+- The section is collapsed by default to keep the UI clean for users who don't need it
