@@ -135,17 +135,17 @@ function App() {
       ))}
 
       {/* Header */}
-      <header className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border-b border-gray-200/60 dark:border-gray-700/60 px-4 py-3 flex items-center justify-between sticky top-0 z-10">
-        <h1 className="text-lg font-semibold text-gray-800 dark:text-gray-100 tracking-tight">Social Ad Creator</h1>
+      <header className="bg-white/80 dark:bg-dark-card/80 backdrop-blur-sm border-b border-zinc-200/60 dark:border-zinc-700/60 px-4 py-3 flex items-center justify-between sticky top-0 z-10">
+        <h1 className="text-lg font-display font-bold text-zinc-800 dark:text-zinc-100 tracking-tight">Social Ad Creator</h1>
         <div className="flex gap-1.5">
           <button
             onClick={undo}
             disabled={!canUndo}
             title="Undo (Ctrl+Z)"
-            className={`px-3 py-1.5 text-sm rounded-lg flex items-center gap-1.5 font-medium ${
+            className={`px-3 py-1.5 text-sm rounded-lg flex items-center gap-1.5 font-medium transition-all ${
               canUndo
-                ? 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700 active:scale-95'
-                : 'bg-gray-50 dark:bg-gray-800/50 text-gray-300 dark:text-gray-600 cursor-not-allowed'
+                ? 'bg-zinc-100 dark:bg-dark-subtle text-zinc-700 dark:text-zinc-200 hover:bg-zinc-200 dark:hover:bg-dark-elevated active:scale-95'
+                : 'bg-zinc-50 dark:bg-dark-subtle/50 text-zinc-300 dark:text-zinc-600 cursor-not-allowed'
             }`}
           >
             <span>↶</span>
@@ -155,10 +155,10 @@ function App() {
             onClick={redo}
             disabled={!canRedo}
             title="Redo (Ctrl+Y)"
-            className={`px-3 py-1.5 text-sm rounded-lg flex items-center gap-1.5 font-medium ${
+            className={`px-3 py-1.5 text-sm rounded-lg flex items-center gap-1.5 font-medium transition-all ${
               canRedo
-                ? 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700 active:scale-95'
-                : 'bg-gray-50 dark:bg-gray-800/50 text-gray-300 dark:text-gray-600 cursor-not-allowed'
+                ? 'bg-zinc-100 dark:bg-dark-subtle text-zinc-700 dark:text-zinc-200 hover:bg-zinc-200 dark:hover:bg-dark-elevated active:scale-95'
+                : 'bg-zinc-50 dark:bg-dark-subtle/50 text-zinc-300 dark:text-zinc-600 cursor-not-allowed'
             }`}
           >
             <span>↷</span>
@@ -167,7 +167,7 @@ function App() {
           <button
             onClick={toggleDarkMode}
             title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-            className="px-3 py-1.5 text-sm rounded-lg flex items-center gap-1.5 font-medium bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700 active:scale-95"
+            className="px-3 py-1.5 text-sm rounded-lg flex items-center gap-1.5 font-medium bg-zinc-100 dark:bg-dark-subtle text-zinc-700 dark:text-zinc-200 hover:bg-zinc-200 dark:hover:bg-dark-elevated active:scale-95 transition-all"
           >
             {isDark ? '☀️' : '🌙'}
           </button>
@@ -177,17 +177,17 @@ function App() {
       <div className="flex flex-col lg:flex-row lg:items-stretch">
         {/* Sidebar Controls */}
         <aside className="w-full lg:w-96 p-4 lg:p-5 lg:pr-0">
-          <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200/80 dark:border-gray-700/80 shadow-card p-4 lg:p-5">
+          <div className="bg-white dark:bg-dark-card rounded-xl border border-zinc-200/80 dark:border-zinc-700/50 shadow-card p-4 lg:p-5">
             {/* Section Tabs */}
-            <div className="flex flex-wrap gap-1.5 mb-5 pb-4 border-b border-gray-100 dark:border-gray-800">
+            <div className="flex flex-wrap gap-1.5 mb-5 pb-4 border-b border-zinc-100 dark:border-zinc-800">
               {sections.map((section) => (
                 <button
                   key={section.id}
                   onClick={() => setActiveSection(section.id)}
                   className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-all ${
                     activeSection === section.id
-                      ? 'bg-blue-500 text-white shadow-sm'
-                      : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 hover:text-gray-800 dark:hover:text-gray-100'
+                      ? 'bg-primary text-white shadow-sm hover:bg-primary-hover'
+                      : 'bg-zinc-100 dark:bg-dark-subtle text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-dark-elevated hover:text-zinc-800 dark:hover:text-zinc-100'
                   }`}
                 >
                   {section.label}
@@ -286,14 +286,14 @@ function App() {
 
         {/* Preview Area */}
         <main className="flex-1 p-4 lg:p-5 space-y-4">
-          <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200/80 dark:border-gray-700/80 shadow-card p-4 lg:p-6">
+          <div className="bg-white dark:bg-dark-card rounded-xl border border-zinc-200/80 dark:border-zinc-700/50 shadow-card p-4 lg:p-6">
             {/* Platform Selector */}
             <PlatformPreview selectedPlatform={state.platform} onPlatformChange={setPlatform} />
 
             {/* Canvas Preview */}
             <div
               ref={previewContainerRef}
-              className="relative mt-5 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 rounded-xl overflow-hidden flex items-center justify-center border border-gray-200/50 dark:border-gray-700/50"
+              className="relative mt-5 bg-gradient-to-br from-zinc-50 to-zinc-100 dark:from-dark-subtle dark:to-dark-page rounded-xl overflow-hidden flex items-center justify-center border border-zinc-200/50 dark:border-zinc-700/50"
               style={{
                 minHeight: platform.height * previewScale + 40,
               }}
@@ -310,9 +310,9 @@ function App() {
               </ErrorBoundary>
               {/* Export overlay */}
               {isExporting && (
-                <div className="absolute inset-0 bg-gray-900/70 flex items-center justify-center rounded-xl">
+                <div className="absolute inset-0 bg-dark-page/80 flex items-center justify-center rounded-xl backdrop-blur-sm">
                   <div className="text-center">
-                    <div className="inline-block w-8 h-8 border-3 border-white/30 border-t-white rounded-full animate-spin mb-3" />
+                    <div className="inline-block w-8 h-8 border-3 border-primary/30 border-t-primary rounded-full animate-spin mb-3" />
                     <p className="text-white font-medium">Exporting...</p>
                   </div>
                 </div>

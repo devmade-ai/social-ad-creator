@@ -16,7 +16,7 @@ function PresetSwatch({ preset, isActive }) {
   return (
     <div
       className={`w-12 h-8 rounded overflow-hidden border-2 transition-all ${
-        isActive ? 'border-blue-500 ring-2 ring-blue-300' : 'border-transparent'
+        isActive ? 'border-primary ring-2 ring-violet-300' : 'border-transparent'
       }`}
       style={{ backgroundColor: bg }}
     >
@@ -56,16 +56,16 @@ function PresetSwatch({ preset, isActive }) {
       )}
       {style === 'minimal' && (
         <div className="w-full h-full flex">
-          <div className="w-1/2 bg-gray-300" />
+          <div className="w-1/2 bg-zinc-300" />
           <div className="w-1/2 flex flex-col justify-center gap-0.5 pl-0.5">
             <div className="h-0.5 w-full" style={{ backgroundColor: accent }} />
-            <div className="h-0.5 w-2/3 bg-gray-500 opacity-50" />
+            <div className="h-0.5 w-2/3 bg-zinc-500 opacity-50" />
           </div>
         </div>
       )}
       {style === 'serif' && (
         <div className="w-full h-full flex items-center justify-center">
-          <div className="text-[8px] font-serif text-gray-800 opacity-80">Aa</div>
+          <div className="text-[8px] font-serif text-zinc-800 opacity-80">Aa</div>
         </div>
       )}
       {style === 'luxury' && (
@@ -115,7 +115,7 @@ function PresetSwatch({ preset, isActive }) {
         <div className="w-full h-full flex">
           <div className="w-1/2" />
           <div className="w-1/2 flex flex-col" style={{ backgroundColor: '#f1f5f9' }}>
-            <div className="flex-1 border-b border-gray-300" />
+            <div className="flex-1 border-b border-zinc-300" />
             <div className="flex-1" />
           </div>
         </div>
@@ -193,18 +193,18 @@ export default memo(function TemplatesTab({
 
   return (
     <div className="space-y-3">
-      <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-100">Templates</h3>
+      <h3 className="text-sm font-semibold text-zinc-800 dark:text-zinc-100">Templates</h3>
 
       {/* Style Presets - Complete designs */}
       <CollapsibleSection title="Complete Designs" defaultExpanded={false}>
         <div className="space-y-3">
           {/* Active preset indicator */}
           {activeStylePresetData && (
-            <div className="flex items-center gap-2 px-3 py-2 bg-blue-50 dark:bg-blue-900/30 rounded-lg">
+            <div className="flex items-center gap-2 px-3 py-2 bg-violet-50 dark:bg-violet-900/20 rounded-lg">
               <PresetSwatch preset={activeStylePresetData} isActive={true} />
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-blue-700 dark:text-blue-300">{activeStylePresetData.name}</p>
-                <p className="text-xs text-blue-600 dark:text-blue-400 truncate">{activeStylePresetData.description}</p>
+                <p className="text-sm font-medium text-violet-700 dark:text-violet-300">{activeStylePresetData.name}</p>
+                <p className="text-xs text-primary dark:text-violet-400 truncate">{activeStylePresetData.description}</p>
               </div>
             </div>
           )}
@@ -217,8 +217,8 @@ export default memo(function TemplatesTab({
                 onClick={() => setStyleCategory(cat.id)}
                 className={`px-2.5 py-1 text-xs rounded-lg font-medium transition-all ${
                   styleCategory === cat.id
-                    ? 'bg-blue-500 text-white shadow-sm'
-                    : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+                    ? 'bg-primary text-white shadow-sm'
+                    : 'bg-zinc-100 dark:bg-dark-subtle text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-dark-elevated'
                 }`}
               >
                 {cat.name}
@@ -235,16 +235,16 @@ export default memo(function TemplatesTab({
                 title={`${preset.name}: ${preset.description}`}
                 className={`flex flex-col items-center gap-1.5 p-2 rounded-lg transition-all ${
                   activeStylePreset === preset.id
-                    ? 'bg-blue-50 dark:bg-blue-900/30 ring-2 ring-blue-500'
-                    : 'hover:bg-gray-50 dark:hover:bg-gray-800'
+                    ? 'bg-violet-50 dark:bg-violet-900/20 ring-2 ring-primary'
+                    : 'hover:bg-zinc-50 dark:hover:bg-dark-subtle'
                 }`}
               >
                 <PresetSwatch preset={preset} isActive={activeStylePreset === preset.id} />
                 <span
                   className={`text-[10px] leading-tight text-center line-clamp-1 ${
                     activeStylePreset === preset.id
-                      ? 'text-blue-700 dark:text-blue-300 font-medium'
-                      : 'text-gray-600 dark:text-gray-400'
+                      ? 'text-violet-700 dark:text-violet-300 font-medium'
+                      : 'text-zinc-600 dark:text-zinc-400'
                   }`}
                 >
                   {preset.name}
@@ -253,7 +253,7 @@ export default memo(function TemplatesTab({
             ))}
           </div>
 
-          <p className="text-[10px] text-gray-500 dark:text-gray-400 text-center">
+          <p className="text-[10px] text-zinc-500 dark:text-zinc-400 text-center">
             Complete designs apply theme, fonts, layout, and effects
           </p>
         </div>
@@ -268,8 +268,8 @@ export default memo(function TemplatesTab({
               onClick={() => setLayoutCategory('all')}
               className={`px-2.5 py-1 text-xs rounded-lg font-medium ${
                 layoutCategory === 'all'
-                  ? 'bg-blue-500 text-white shadow-sm'
-                  : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+                  ? 'bg-primary text-white shadow-sm'
+                  : 'bg-zinc-100 dark:bg-dark-subtle text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-dark-elevated'
               }`}
             >
               All
@@ -278,8 +278,8 @@ export default memo(function TemplatesTab({
               onClick={() => setLayoutCategory('suggested')}
               className={`px-2.5 py-1 text-xs rounded-lg font-medium ${
                 layoutCategory === 'suggested'
-                  ? 'bg-blue-500 text-white shadow-sm'
-                  : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+                  ? 'bg-primary text-white shadow-sm'
+                  : 'bg-zinc-100 dark:bg-dark-subtle text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-dark-elevated'
               }`}
             >
               Suggested
@@ -290,8 +290,8 @@ export default memo(function TemplatesTab({
                 onClick={() => setLayoutCategory(cat.id)}
                 className={`px-2.5 py-1 text-xs rounded-lg font-medium ${
                   layoutCategory === cat.id
-                    ? 'bg-blue-500 text-white shadow-sm'
-                    : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+                    ? 'bg-primary text-white shadow-sm'
+                    : 'bg-zinc-100 dark:bg-dark-subtle text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-dark-elevated'
                 }`}
               >
                 {cat.name}
@@ -309,8 +309,8 @@ export default memo(function TemplatesTab({
                   onClick={() => onApplyLayoutPreset?.(preset)}
                   className={`p-2 rounded-lg border-2 transition-all flex flex-col items-center gap-1.5 ${
                     isActive
-                      ? 'border-blue-500 bg-blue-500 text-white shadow-sm'
-                      : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-blue-300 dark:hover:border-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20'
+                      ? 'border-primary bg-primary text-white shadow-sm'
+                      : 'border-zinc-200 dark:border-zinc-700 bg-white dark:bg-dark-subtle hover:border-violet-300 dark:hover:border-violet-500 hover:bg-violet-50 dark:hover:bg-violet-900/30'
                   }`}
                   title={preset.description}
                 >
@@ -322,10 +322,10 @@ export default memo(function TemplatesTab({
           </div>
 
           {displayLayoutPresets.length === 0 && (
-            <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-4">No layouts match the current filter</p>
+            <p className="text-sm text-zinc-500 dark:text-zinc-400 text-center py-4">No layouts match the current filter</p>
           )}
 
-          <p className="text-[10px] text-gray-500 dark:text-gray-400 text-center">
+          <p className="text-[10px] text-zinc-500 dark:text-zinc-400 text-center">
             Layout only presets change structure without affecting colors or fonts
           </p>
         </div>

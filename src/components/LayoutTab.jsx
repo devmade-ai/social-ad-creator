@@ -159,36 +159,36 @@ function CellGrid({
     let bgClass, textClass, content
 
     if (mode === 'image') {
-      bgClass = isImage ? 'bg-blue-500 hover:bg-blue-600' : 'bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600'
-      textClass = isImage ? 'text-white' : 'text-gray-500 dark:text-gray-400'
+      bgClass = isImage ? 'bg-primary hover:bg-primary-hover' : 'bg-zinc-200 dark:bg-dark-subtle hover:bg-zinc-300 dark:hover:bg-dark-elevated'
+      textClass = isImage ? 'text-white' : 'text-zinc-500 dark:text-zinc-400'
       content = isImage ? '📷' : cellIndex + 1
     } else if (mode === 'structure') {
       if (isSelected) {
-        bgClass = 'bg-blue-500 hover:bg-blue-600'
+        bgClass = 'bg-primary hover:bg-primary-hover'
         textClass = 'text-white'
       } else if (isSectionSelected) {
         bgClass = 'bg-blue-200 dark:bg-blue-800 hover:bg-blue-300 dark:hover:bg-blue-700'
-        textClass = 'text-blue-700 dark:text-blue-300'
+        textClass = 'text-violet-700 dark:text-violet-300'
       } else if (isImage) {
-        bgClass = 'bg-blue-400 hover:bg-blue-500'
+        bgClass = 'bg-blue-400 hover:bg-primary'
         textClass = 'text-white'
       } else {
-        bgClass = 'bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600'
-        textClass = 'text-gray-500 dark:text-gray-400'
+        bgClass = 'bg-zinc-100 dark:bg-dark-subtle hover:bg-zinc-200 dark:hover:bg-dark-elevated'
+        textClass = 'text-zinc-500 dark:text-zinc-400'
       }
       content = isImage ? '📷' : subdivisions > 1 ? `${Math.round(subSize)}%` : ''
     } else {
       if (isSelected) {
-        bgClass = 'bg-blue-500 hover:bg-blue-600'
+        bgClass = 'bg-primary hover:bg-primary-hover'
         textClass = 'text-white'
         content = '✓'
       } else if (isImage) {
-        bgClass = 'bg-blue-400 hover:bg-blue-500'
+        bgClass = 'bg-blue-400 hover:bg-primary'
         textClass = 'text-white'
         content = '📷'
       } else {
-        bgClass = 'bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600'
-        textClass = 'text-gray-500 dark:text-gray-400'
+        bgClass = 'bg-zinc-200 dark:bg-dark-subtle hover:bg-zinc-300 dark:hover:bg-dark-elevated'
+        textClass = 'text-zinc-500 dark:text-zinc-400'
         content = cellIndex + 1
       }
     }
@@ -200,7 +200,7 @@ function CellGrid({
 
   const renderCells = () => (
     <div
-      className={`flex-1 ${showSectionLabels ? 'rounded-r' : 'rounded'} overflow-hidden border border-gray-300 dark:border-gray-600 flex h-full ${
+      className={`flex-1 ${showSectionLabels ? 'rounded-r' : 'rounded'} overflow-hidden border border-zinc-300 dark:border-zinc-600 flex h-full ${
         isRows || isFullbleed ? 'flex-col' : 'flex-row'
       }`}
     >
@@ -234,7 +234,7 @@ function CellGrid({
             <div
               key={`cell-${currentCellIndex}`}
               className={`relative cursor-pointer transition-colors min-h-[20px] ${bgClass} ${
-                mode === 'structure' && subdivisions > 1 ? 'border border-gray-200 dark:border-gray-600' : ''
+                mode === 'structure' && subdivisions > 1 ? 'border border-zinc-200 dark:border-zinc-600' : ''
               }`}
               style={{ flex: `1 1 ${subSizes[subIndex]}%` }}
               onClick={(e) => {
@@ -281,8 +281,8 @@ function CellGrid({
                 isRows ? 'rounded-l' : 'rounded-t'
               } ${
                 isSelected
-                  ? 'bg-blue-500 text-white'
-                  : 'bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-300 dark:hover:bg-gray-600'
+                  ? 'bg-primary text-white'
+                  : 'bg-zinc-200 dark:bg-dark-subtle text-zinc-600 dark:text-zinc-400 hover:bg-zinc-300 dark:hover:bg-dark-elevated'
               }`}
               style={{ flex: `0 0 ${sectionSize}%` }}
               onClick={() => onSelectSection?.(sectionIndex)}
@@ -544,14 +544,14 @@ export default memo(function LayoutTab({
 
   return (
     <div className="space-y-3">
-      <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-100">Layout</h3>
+      <h3 className="text-sm font-semibold text-zinc-800 dark:text-zinc-100">Layout</h3>
 
       {/* Structure Section */}
       <CollapsibleSection title="Structure" defaultExpanded={false}>
         <div className="space-y-4">
           {/* Layout Type */}
           <div>
-            <label className="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-2">Layout Type</label>
+            <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-300 mb-2">Layout Type</label>
             <div className="flex gap-1.5">
               {layoutTypes.map((lt) => (
                 <button
@@ -562,8 +562,8 @@ export default memo(function LayoutTab({
                   }}
                   className={`flex-1 px-3 py-2.5 text-sm rounded-lg flex flex-col items-center gap-1 font-medium ${
                     type === lt.id
-                      ? 'bg-blue-500 text-white shadow-sm'
-                      : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+                      ? 'bg-primary text-white shadow-sm'
+                      : 'bg-zinc-100 dark:bg-dark-subtle text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-dark-elevated'
                   }`}
                 >
                   <span className="text-base">{lt.icon}</span>
@@ -575,8 +575,8 @@ export default memo(function LayoutTab({
 
           {/* Structure Grid */}
           <div className="space-y-3">
-            <label className="block text-xs font-medium text-gray-600 dark:text-gray-300 text-center">
-              Select Cell <span className="text-gray-400 font-normal">(to configure)</span>
+            <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-300 text-center">
+              Select Cell <span className="text-zinc-400 font-normal">(to configure)</span>
             </label>
             <div className="flex justify-center">
               <CellGrid
@@ -615,17 +615,17 @@ export default memo(function LayoutTab({
                 }}
               />
             </div>
-            <div className="text-sm text-center py-2 bg-gray-50 dark:bg-gray-800 rounded-lg">
+            <div className="text-sm text-center py-2 bg-zinc-50 dark:bg-dark-subtle rounded-lg">
               {structureSelection === null ? (
-                <span className="text-gray-600 dark:text-gray-400">
+                <span className="text-zinc-600 dark:text-zinc-400">
                   {type === 'fullbleed' ? 'Single cell layout' : `Select a ${type === 'rows' ? 'row' : 'column'} or cell to edit`}
                 </span>
               ) : structureSelection.type === 'section' ? (
-                <span className="text-blue-600 dark:text-blue-400">
+                <span className="text-primary dark:text-violet-400">
                   Editing: <strong>{type === 'rows' || type === 'fullbleed' ? `Row ${structureSelection.index + 1}` : `Column ${structureSelection.index + 1}`}</strong>
                 </span>
               ) : (
-                <span className="text-blue-600 dark:text-blue-400">
+                <span className="text-primary dark:text-violet-400">
                   Editing: <strong>Cell {structureSelection.cellIndex + 1}</strong>
                 </span>
               )}
@@ -635,7 +635,7 @@ export default memo(function LayoutTab({
           {/* Add section button */}
           {type !== 'fullbleed' && structureSelection === null && (
             <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-600 dark:text-gray-400">
+              <span className="text-sm text-zinc-600 dark:text-zinc-400">
                 {structure.length} {type === 'rows' ? 'rows' : 'columns'}
               </span>
               <button
@@ -643,8 +643,8 @@ export default memo(function LayoutTab({
                 disabled={structure.length >= 4}
                 className={`px-3 py-1.5 text-sm rounded-lg font-medium ${
                   structure.length >= 4
-                    ? 'bg-gray-100 dark:bg-gray-800 text-gray-400 cursor-not-allowed'
-                    : 'bg-blue-500 text-white hover:bg-blue-600 shadow-sm'
+                    ? 'bg-zinc-100 dark:bg-dark-subtle text-zinc-400 cursor-not-allowed'
+                    : 'bg-primary text-white hover:bg-primary-hover shadow-sm'
                 }`}
               >
                 + Add {type === 'rows' ? 'Row' : 'Column'}
@@ -654,14 +654,14 @@ export default memo(function LayoutTab({
 
           {/* Section editing controls */}
           {type !== 'fullbleed' && structureSelection?.type === 'section' && selectedSection && (
-            <div className="space-y-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl">
+            <div className="space-y-4 p-4 bg-violet-50 dark:bg-violet-900/20 rounded-xl">
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-blue-700 dark:text-blue-300">
+                <span className="text-sm font-medium text-violet-700 dark:text-violet-300">
                   {type === 'rows' ? `Row ${selectedSectionIndex + 1}` : `Column ${selectedSectionIndex + 1}`}
                 </span>
                 <button
                   onClick={() => setStructureSelection(null)}
-                  className="text-xs text-blue-500 hover:text-blue-700 dark:hover:text-blue-300 font-medium"
+                  className="text-xs text-primary hover:text-violet-700 dark:hover:text-violet-300 font-medium"
                 >
                   ✕ Deselect
                 </button>
@@ -669,8 +669,8 @@ export default memo(function LayoutTab({
 
               {structure.length > 1 && (
                 <div>
-                  <label className="block text-xs text-blue-600 dark:text-blue-400 mb-2 font-medium">
-                    {type === 'rows' ? 'Height' : 'Width'} <span className="font-normal text-blue-400 dark:text-blue-500">({MIN_SIZE}–{getMaxSize(structure.length)}%)</span>
+                  <label className="block text-xs text-primary dark:text-violet-400 mb-2 font-medium">
+                    {type === 'rows' ? 'Height' : 'Width'} <span className="font-normal text-violet-400 dark:text-primary">({MIN_SIZE}–{getMaxSize(structure.length)}%)</span>
                   </label>
                   <div className="flex items-center gap-3">
                     <input
@@ -682,7 +682,7 @@ export default memo(function LayoutTab({
                       onChange={(e) => updateSectionSize(selectedSectionIndex, Number(e.target.value))}
                       className="flex-1"
                     />
-                    <span className="text-sm text-blue-700 dark:text-blue-300 w-12 text-right font-medium">
+                    <span className="text-sm text-violet-700 dark:text-violet-300 w-12 text-right font-medium">
                       {Math.round(selectedSection.size)}%
                     </span>
                   </div>
@@ -690,7 +690,7 @@ export default memo(function LayoutTab({
               )}
 
               <div>
-                <label className="block text-xs text-blue-600 dark:text-blue-400 mb-2 font-medium">
+                <label className="block text-xs text-primary dark:text-violet-400 mb-2 font-medium">
                   Split into {type === 'rows' ? 'columns' : 'rows'}
                 </label>
                 <div className="flex items-center gap-3">
@@ -699,13 +699,13 @@ export default memo(function LayoutTab({
                     disabled={(selectedSection.subdivisions || 1) <= 1}
                     className={`w-9 h-9 text-base rounded-lg font-medium ${
                       (selectedSection.subdivisions || 1) <= 1
-                        ? 'bg-blue-100 dark:bg-blue-800/50 text-blue-300 dark:text-blue-600 cursor-not-allowed'
-                        : 'bg-blue-200 dark:bg-blue-800 text-blue-700 dark:text-blue-300 hover:bg-blue-300 dark:hover:bg-blue-700'
+                        ? 'bg-violet-100 dark:bg-blue-800/50 text-violet-300 dark:text-primary cursor-not-allowed'
+                        : 'bg-blue-200 dark:bg-blue-800 text-violet-700 dark:text-violet-300 hover:bg-blue-300 dark:hover:bg-blue-700'
                     }`}
                   >
                     −
                   </button>
-                  <span className="text-base font-semibold text-blue-700 dark:text-blue-300 w-8 text-center">
+                  <span className="text-base font-semibold text-violet-700 dark:text-violet-300 w-8 text-center">
                     {selectedSection.subdivisions || 1}
                   </span>
                   <button
@@ -713,8 +713,8 @@ export default memo(function LayoutTab({
                     disabled={(selectedSection.subdivisions || 1) >= 3}
                     className={`w-9 h-9 text-base rounded-lg font-medium ${
                       (selectedSection.subdivisions || 1) >= 3
-                        ? 'bg-blue-100 dark:bg-blue-800/50 text-blue-300 dark:text-blue-600 cursor-not-allowed'
-                        : 'bg-blue-200 dark:bg-blue-800 text-blue-700 dark:text-blue-300 hover:bg-blue-300 dark:hover:bg-blue-700'
+                        ? 'bg-violet-100 dark:bg-blue-800/50 text-violet-300 dark:text-primary cursor-not-allowed'
+                        : 'bg-blue-200 dark:bg-blue-800 text-violet-700 dark:text-violet-300 hover:bg-blue-300 dark:hover:bg-blue-700'
                     }`}
                   >
                     +
@@ -738,24 +738,24 @@ export default memo(function LayoutTab({
 
           {/* Cell editing controls */}
           {type !== 'fullbleed' && structureSelection?.type === 'cell' && selectedCellInfo && (
-            <div className="space-y-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl">
+            <div className="space-y-4 p-4 bg-violet-50 dark:bg-violet-900/20 rounded-xl">
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-blue-700 dark:text-blue-300">
+                <span className="text-sm font-medium text-violet-700 dark:text-violet-300">
                   {type === 'rows'
                     ? `Row ${selectedCellInfo.sectionIndex + 1}, Column ${selectedCellInfo.subIndex + 1}`
                     : `Column ${selectedCellInfo.sectionIndex + 1}, Row ${selectedCellInfo.subIndex + 1}`}
                 </span>
                 <button
                   onClick={() => setStructureSelection(null)}
-                  className="text-xs text-blue-500 hover:text-blue-700 dark:hover:text-blue-300 font-medium"
+                  className="text-xs text-primary hover:text-violet-700 dark:hover:text-violet-300 font-medium"
                 >
                   ✕ Deselect
                 </button>
               </div>
 
               <div>
-                <label className="block text-xs text-blue-600 dark:text-blue-400 mb-2 font-medium">
-                  {type === 'rows' ? 'Width' : 'Height'} <span className="font-normal text-blue-400 dark:text-blue-500">({MIN_SIZE}–{getMaxSize(selectedCellSection?.subdivisions || 2)}%)</span>
+                <label className="block text-xs text-primary dark:text-violet-400 mb-2 font-medium">
+                  {type === 'rows' ? 'Width' : 'Height'} <span className="font-normal text-violet-400 dark:text-primary">({MIN_SIZE}–{getMaxSize(selectedCellSection?.subdivisions || 2)}%)</span>
                 </label>
                 <div className="flex items-center gap-3">
                   <input
@@ -767,7 +767,7 @@ export default memo(function LayoutTab({
                     onChange={(e) => updateSubSize(selectedCellInfo.sectionIndex, selectedCellInfo.subIndex, Number(e.target.value))}
                     className="flex-1"
                   />
-                  <span className="text-sm text-blue-700 dark:text-blue-300 w-12 text-right font-medium">
+                  <span className="text-sm text-violet-700 dark:text-violet-300 w-12 text-right font-medium">
                     {Math.round(selectedCellSection?.subSizes?.[selectedCellInfo.subIndex] || 50)}%
                   </span>
                 </div>
@@ -775,7 +775,7 @@ export default memo(function LayoutTab({
 
               <button
                 onClick={() => setStructureSelection({ type: 'section', index: selectedCellInfo.sectionIndex })}
-                className="w-full px-3 py-2 text-sm bg-blue-200 dark:bg-blue-800 text-blue-700 dark:text-blue-300 hover:bg-blue-300 dark:hover:bg-blue-700 rounded-lg font-medium"
+                className="w-full px-3 py-2 text-sm bg-blue-200 dark:bg-blue-800 text-violet-700 dark:text-violet-300 hover:bg-blue-300 dark:hover:bg-blue-700 rounded-lg font-medium"
               >
                 Edit Parent {type === 'rows' ? 'Row' : 'Column'}
               </button>
@@ -787,7 +787,7 @@ export default memo(function LayoutTab({
               handleReset()
               setStructureSelection(null)
             }}
-            className="w-full px-3 py-2.5 text-sm bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg font-medium"
+            className="w-full px-3 py-2.5 text-sm bg-zinc-100 dark:bg-dark-subtle text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-dark-elevated rounded-lg font-medium"
           >
             Reset to Default
           </button>
@@ -798,13 +798,13 @@ export default memo(function LayoutTab({
       <CollapsibleSection title="Text Alignment" defaultExpanded={false}>
         <div className="space-y-3">
           {/* Context-aware label */}
-          <div className="text-xs text-gray-500 dark:text-gray-400">
+          <div className="text-xs text-zinc-500 dark:text-zinc-400">
             {type === 'fullbleed' ? (
               'Global alignment for all text'
             ) : structureSelection?.type === 'section' ? (
-              <>Alignment for <span className="font-medium text-blue-600 dark:text-blue-400">{type === 'rows' ? 'Row' : 'Column'} {structureSelection.index + 1}</span> (all cells)</>
+              <>Alignment for <span className="font-medium text-primary dark:text-violet-400">{type === 'rows' ? 'Row' : 'Column'} {structureSelection.index + 1}</span> (all cells)</>
             ) : structureSelection?.type === 'cell' ? (
-              <>Alignment for <span className="font-medium text-blue-600 dark:text-blue-400">Cell {structureSelection.cellIndex + 1}</span></>
+              <>Alignment for <span className="font-medium text-primary dark:text-violet-400">Cell {structureSelection.cellIndex + 1}</span></>
             ) : (
               <>Select a cell/row above, or set <span className="font-medium">global</span> alignment</>
             )}
@@ -812,7 +812,7 @@ export default memo(function LayoutTab({
 
           <div className="flex gap-4">
             <div className="flex-1">
-              <span className="text-xs text-gray-500 dark:text-gray-400 block mb-1.5">Horizontal</span>
+              <span className="text-xs text-zinc-500 dark:text-zinc-400 block mb-1.5">Horizontal</span>
               <div className="flex gap-1.5">
                 {textAlignOptions.map((align) => {
                   const targetCell = structureSelection?.type === 'cell' ? structureSelection.cellIndex : null
@@ -842,8 +842,8 @@ export default memo(function LayoutTab({
                       title={align.name}
                       className={`flex-1 px-2 py-2 rounded-lg flex items-center justify-center ${
                         isActive
-                          ? 'bg-blue-500 text-white shadow-sm'
-                          : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+                          ? 'bg-primary text-white shadow-sm'
+                          : 'bg-zinc-100 dark:bg-dark-subtle text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-dark-elevated'
                       }`}
                     >
                       <align.Icon />
@@ -853,7 +853,7 @@ export default memo(function LayoutTab({
               </div>
             </div>
             <div className="flex-1">
-              <span className="text-xs text-gray-500 dark:text-gray-400 block mb-1.5">Vertical</span>
+              <span className="text-xs text-zinc-500 dark:text-zinc-400 block mb-1.5">Vertical</span>
               <div className="flex gap-1.5">
                 {verticalAlignOptions.map((align) => {
                   const targetCell = structureSelection?.type === 'cell' ? structureSelection.cellIndex : null
@@ -883,8 +883,8 @@ export default memo(function LayoutTab({
                       title={align.name}
                       className={`flex-1 px-2 py-2 rounded-lg flex items-center justify-center ${
                         isActive
-                          ? 'bg-blue-500 text-white shadow-sm'
-                          : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+                          ? 'bg-primary text-white shadow-sm'
+                          : 'bg-zinc-100 dark:bg-dark-subtle text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-dark-elevated'
                       }`}
                     >
                       <align.Icon />

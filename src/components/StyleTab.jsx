@@ -57,7 +57,7 @@ function MiniCellGrid({ layout, imageCell, selectedCell, onSelectCell, platform 
 
   return (
     <div
-      className="flex overflow-hidden border border-gray-300 dark:border-gray-600 rounded"
+      className="flex overflow-hidden border border-zinc-300 dark:border-zinc-600 rounded"
       style={{
         width: '120px',
         height: `${120 / aspectRatio}px`,
@@ -78,14 +78,14 @@ function MiniCellGrid({ layout, imageCell, selectedCell, onSelectCell, platform 
 
           let bgClass, content
           if (isSelected) {
-            bgClass = 'bg-blue-500 hover:bg-blue-600'
+            bgClass = 'bg-primary hover:bg-primary-hover'
             content = <span className="text-white text-[10px]">✓</span>
           } else if (isImage) {
-            bgClass = 'bg-blue-400 hover:bg-blue-500'
+            bgClass = 'bg-blue-400 hover:bg-primary'
             content = <span className="text-white text-[10px]">📷</span>
           } else {
-            bgClass = 'bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600'
-            content = <span className="text-gray-500 dark:text-gray-400 text-[10px]">{currentCellIndex + 1}</span>
+            bgClass = 'bg-zinc-200 dark:bg-dark-subtle hover:bg-zinc-300 dark:hover:bg-dark-elevated'
+            content = <span className="text-zinc-500 dark:text-zinc-400 text-[10px]">{currentCellIndex + 1}</span>
           }
 
           sectionCells.push(
@@ -122,15 +122,15 @@ const ColorInput = memo(function ColorInput({ label, value, onChange }) {
         type="color"
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-10 h-10 rounded-lg cursor-pointer border-2 border-gray-200 dark:border-gray-600 shadow-sm"
+        className="w-10 h-10 rounded-lg cursor-pointer border-2 border-zinc-200 dark:border-zinc-600 shadow-sm"
       />
       <div className="flex-1">
-        <label className="text-xs text-gray-500 dark:text-gray-400 mb-0.5 block">{label}</label>
+        <label className="text-xs text-zinc-500 dark:text-zinc-400 mb-0.5 block">{label}</label>
         <input
           type="text"
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className="w-full px-2 py-1.5 text-sm font-mono border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-white dark:bg-gray-800 dark:text-gray-100"
+          className="w-full px-2 py-1.5 text-sm font-mono border border-zinc-200 dark:border-zinc-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-white dark:bg-dark-subtle dark:text-zinc-100"
         />
       </div>
     </div>
@@ -197,13 +197,13 @@ export default memo(function StyleTab({
 
   return (
     <div className="space-y-3">
-      <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-100">Style</h3>
+      <h3 className="text-sm font-semibold text-zinc-800 dark:text-zinc-100">Style</h3>
 
       {/* Themes Section */}
       <CollapsibleSection title="Themes" defaultExpanded={false}>
         {/* Preset Themes */}
         <div className="space-y-2">
-          <label className="block text-xs font-medium text-gray-600 dark:text-gray-300">Presets</label>
+          <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-300">Presets</label>
           <div className="grid grid-cols-3 gap-2">
             {presetThemes.map((preset) => (
               <button
@@ -211,8 +211,8 @@ export default memo(function StyleTab({
                 onClick={() => onPresetChange(preset.id)}
                 className={`p-2 rounded-lg border-2 transition-all ${
                   theme.preset === preset.id
-                    ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/30 ring-2 ring-blue-500/20'
-                    : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800'
+                    ? 'border-primary bg-violet-50 dark:bg-violet-900/20 ring-2 ring-primary/20'
+                    : 'border-zinc-200 dark:border-zinc-700 hover:border-zinc-300 dark:hover:border-zinc-600 hover:bg-zinc-50 dark:hover:bg-dark-subtle'
                 }`}
               >
                 <div className="flex gap-1 mb-1.5 justify-center">
@@ -220,17 +220,17 @@ export default memo(function StyleTab({
                   <div className="w-4 h-4 rounded-full shadow-sm" style={{ backgroundColor: preset.secondary }} />
                   <div className="w-4 h-4 rounded-full shadow-sm" style={{ backgroundColor: preset.accent }} />
                 </div>
-                <span className="text-[10px] text-gray-700 dark:text-gray-300 font-medium">{preset.name}</span>
+                <span className="text-[10px] text-zinc-700 dark:text-zinc-300 font-medium">{preset.name}</span>
               </button>
             ))}
           </div>
         </div>
 
         {/* Custom Colors */}
-        <div className="space-y-2 pt-3 border-t border-gray-100 dark:border-gray-800">
+        <div className="space-y-2 pt-3 border-t border-zinc-100 dark:border-zinc-800">
           <div className="flex items-center justify-between">
-            <label className="text-xs font-medium text-gray-600 dark:text-gray-300">Custom Colors</label>
-            {!isCustomTheme && <span className="text-[10px] text-gray-400">(Edit to customize)</span>}
+            <label className="text-xs font-medium text-zinc-600 dark:text-zinc-300">Custom Colors</label>
+            {!isCustomTheme && <span className="text-[10px] text-zinc-400">(Edit to customize)</span>}
           </div>
           <div className="space-y-2">
             <ColorInput
@@ -256,11 +256,11 @@ export default memo(function StyleTab({
       <CollapsibleSection title="Typography" defaultExpanded={false}>
         <div className="space-y-3">
           <div className="space-y-2">
-            <label className="block text-xs font-medium text-gray-600 dark:text-gray-300">Title Font</label>
+            <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-300">Title Font</label>
             <select
               value={selectedFonts.title}
               onChange={(e) => onFontsChange({ title: e.target.value })}
-              className="w-full px-3 py-2 text-sm border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-white dark:bg-gray-800 dark:text-gray-100"
+              className="w-full px-3 py-2 text-sm border border-zinc-200 dark:border-zinc-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-white dark:bg-dark-subtle dark:text-zinc-100"
             >
               {fonts.map((font) => (
                 <option key={font.id} value={font.id}>
@@ -271,11 +271,11 @@ export default memo(function StyleTab({
           </div>
 
           <div className="space-y-2">
-            <label className="block text-xs font-medium text-gray-600 dark:text-gray-300">Body Font</label>
+            <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-300">Body Font</label>
             <select
               value={selectedFonts.body}
               onChange={(e) => onFontsChange({ body: e.target.value })}
-              className="w-full px-3 py-2 text-sm border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-white dark:bg-gray-800 dark:text-gray-100"
+              className="w-full px-3 py-2 text-sm border border-zinc-200 dark:border-zinc-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-white dark:bg-dark-subtle dark:text-zinc-100"
             >
               {fonts.map((font) => (
                 <option key={font.id} value={font.id}>
@@ -286,16 +286,16 @@ export default memo(function StyleTab({
           </div>
 
           {/* Preview */}
-          <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-            <p className="text-[10px] text-gray-500 dark:text-gray-400 mb-1">Preview:</p>
+          <div className="p-3 bg-zinc-50 dark:bg-dark-subtle rounded-lg">
+            <p className="text-[10px] text-zinc-500 dark:text-zinc-400 mb-1">Preview:</p>
             <p
-              className="text-lg font-bold text-gray-800 dark:text-gray-100"
+              className="text-lg font-bold text-zinc-800 dark:text-zinc-100"
               style={{ fontFamily: fonts.find((f) => f.id === selectedFonts.title)?.family }}
             >
               Title Text
             </p>
             <p
-              className="text-sm text-gray-600 dark:text-gray-300 mt-0.5"
+              className="text-sm text-zinc-600 dark:text-zinc-300 mt-0.5"
               style={{ fontFamily: fonts.find((f) => f.id === selectedFonts.body)?.family }}
             >
               Body text preview
@@ -309,7 +309,7 @@ export default memo(function StyleTab({
         <div className="space-y-3">
           {/* Cell Selector */}
           <div className="flex items-center justify-between">
-            <label className="text-xs font-medium text-gray-600 dark:text-gray-300">Select Cell</label>
+            <label className="text-xs font-medium text-zinc-600 dark:text-zinc-300">Select Cell</label>
             <MiniCellGrid
               layout={layout}
               imageCell={imageCell}
@@ -320,20 +320,20 @@ export default memo(function StyleTab({
           </div>
 
           {/* Selection indicator */}
-          <div className="text-xs text-center py-1.5 bg-gray-50 dark:bg-gray-800 rounded">
+          <div className="text-xs text-center py-1.5 bg-zinc-50 dark:bg-dark-subtle rounded">
             {selectedOverlayCell === null ? (
-              <span className="text-gray-500 dark:text-gray-400">Select a cell to configure overlay</span>
+              <span className="text-zinc-500 dark:text-zinc-400">Select a cell to configure overlay</span>
             ) : (
-              <span className="text-blue-600 dark:text-blue-400">
+              <span className="text-primary dark:text-violet-400">
                 Editing: <strong>Cell {selectedOverlayCell + 1}</strong>
-                {selectedOverlayCell === imageCell && <span className="text-blue-400 ml-1">(image)</span>}
+                {selectedOverlayCell === imageCell && <span className="text-violet-400 ml-1">(image)</span>}
               </span>
             )}
           </div>
 
           {/* Cell Overlay Controls */}
           {selectedOverlayCell !== null && (
-            <div className="space-y-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+            <div className="space-y-3 p-3 bg-zinc-50 dark:bg-dark-subtle rounded-lg">
               {/* Enable/Disable */}
               <div className="flex items-center gap-2">
                 <input
@@ -341,11 +341,11 @@ export default memo(function StyleTab({
                   id={`overlay-enabled-${selectedOverlayCell}`}
                   checked={isCellOverlayEnabled(selectedOverlayCell)}
                   onChange={(e) => updateCellOverlay(selectedOverlayCell, { enabled: e.target.checked })}
-                  className="w-4 h-4 text-blue-500 rounded border-gray-300 focus:ring-blue-500"
+                  className="w-4 h-4 text-primary rounded border-zinc-300 focus:ring-primary"
                 />
                 <label
                   htmlFor={`overlay-enabled-${selectedOverlayCell}`}
-                  className="text-xs font-medium text-gray-700 dark:text-gray-300"
+                  className="text-xs font-medium text-zinc-700 dark:text-zinc-300"
                 >
                   Enable Overlay
                 </label>
@@ -376,11 +376,11 @@ export default memo(function StyleTab({
                           })
                         }
                       }}
-                      className="w-4 h-4 text-blue-500 rounded border-gray-300 focus:ring-blue-500"
+                      className="w-4 h-4 text-primary rounded border-zinc-300 focus:ring-primary"
                     />
                     <label
                       htmlFor={`overlay-custom-${selectedOverlayCell}`}
-                      className="text-xs text-gray-600 dark:text-gray-400"
+                      className="text-xs text-zinc-600 dark:text-zinc-400"
                     >
                       Custom settings
                     </label>
@@ -388,13 +388,13 @@ export default memo(function StyleTab({
 
                   {/* Custom overlay settings */}
                   {getCellOverlayConfig(selectedOverlayCell)?.type !== undefined && (
-                    <div className="space-y-3 pt-2 border-t border-gray-200 dark:border-gray-700">
+                    <div className="space-y-3 pt-2 border-t border-zinc-200 dark:border-zinc-700">
                       {/* Type - organized by category */}
                       <div className="space-y-2">
-                        <label className="block text-xs font-medium text-gray-600 dark:text-gray-300">Type</label>
+                        <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-300">Type</label>
                         {/* Basic & Linear */}
                         <div className="space-y-1">
-                          <span className="text-[9px] text-gray-400 dark:text-gray-500 uppercase tracking-wide">Basic & Gradients</span>
+                          <span className="text-[9px] text-zinc-400 dark:text-zinc-500 uppercase tracking-wide">Basic & Gradients</span>
                           <div className="grid grid-cols-3 gap-1">
                             {overlayTypes.filter(t => t.category === 'basic' || t.category === 'linear').map((t) => (
                               <button
@@ -402,8 +402,8 @@ export default memo(function StyleTab({
                                 onClick={() => updateCellOverlay(selectedOverlayCell, { type: t.id })}
                                 className={`px-1.5 py-1 text-[9px] rounded truncate ${
                                   getCellOverlayConfig(selectedOverlayCell)?.type === t.id
-                                    ? 'bg-blue-500 text-white'
-                                    : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
+                                    ? 'bg-primary text-white'
+                                    : 'bg-zinc-200 dark:bg-dark-subtle text-zinc-700 dark:text-zinc-300 hover:bg-zinc-300 dark:hover:bg-dark-elevated'
                                 }`}
                                 title={t.name}
                               >
@@ -414,7 +414,7 @@ export default memo(function StyleTab({
                         </div>
                         {/* Radial */}
                         <div className="space-y-1">
-                          <span className="text-[9px] text-gray-400 dark:text-gray-500 uppercase tracking-wide">Radial</span>
+                          <span className="text-[9px] text-zinc-400 dark:text-zinc-500 uppercase tracking-wide">Radial</span>
                           <div className="grid grid-cols-3 gap-1">
                             {overlayTypes.filter(t => t.category === 'radial').map((t) => (
                               <button
@@ -422,8 +422,8 @@ export default memo(function StyleTab({
                                 onClick={() => updateCellOverlay(selectedOverlayCell, { type: t.id })}
                                 className={`px-1.5 py-1 text-[9px] rounded truncate ${
                                   getCellOverlayConfig(selectedOverlayCell)?.type === t.id
-                                    ? 'bg-blue-500 text-white'
-                                    : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
+                                    ? 'bg-primary text-white'
+                                    : 'bg-zinc-200 dark:bg-dark-subtle text-zinc-700 dark:text-zinc-300 hover:bg-zinc-300 dark:hover:bg-dark-elevated'
                                 }`}
                                 title={t.name}
                               >
@@ -434,7 +434,7 @@ export default memo(function StyleTab({
                         </div>
                         {/* Effects */}
                         <div className="space-y-1">
-                          <span className="text-[9px] text-gray-400 dark:text-gray-500 uppercase tracking-wide">Effects</span>
+                          <span className="text-[9px] text-zinc-400 dark:text-zinc-500 uppercase tracking-wide">Effects</span>
                           <div className="grid grid-cols-3 gap-1">
                             {overlayTypes.filter(t => t.category === 'effect' || t.category === 'texture').map((t) => (
                               <button
@@ -442,8 +442,8 @@ export default memo(function StyleTab({
                                 onClick={() => updateCellOverlay(selectedOverlayCell, { type: t.id })}
                                 className={`px-1.5 py-1 text-[9px] rounded truncate ${
                                   getCellOverlayConfig(selectedOverlayCell)?.type === t.id
-                                    ? 'bg-blue-500 text-white'
-                                    : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
+                                    ? 'bg-primary text-white'
+                                    : 'bg-zinc-200 dark:bg-dark-subtle text-zinc-700 dark:text-zinc-300 hover:bg-zinc-300 dark:hover:bg-dark-elevated'
                                 }`}
                                 title={t.name}
                               >
@@ -454,7 +454,7 @@ export default memo(function StyleTab({
                         </div>
                         {/* Blend Modes */}
                         <div className="space-y-1">
-                          <span className="text-[9px] text-gray-400 dark:text-gray-500 uppercase tracking-wide">Blend Modes</span>
+                          <span className="text-[9px] text-zinc-400 dark:text-zinc-500 uppercase tracking-wide">Blend Modes</span>
                           <div className="grid grid-cols-3 gap-1">
                             {overlayTypes.filter(t => t.category === 'blend').map((t) => (
                               <button
@@ -462,8 +462,8 @@ export default memo(function StyleTab({
                                 onClick={() => updateCellOverlay(selectedOverlayCell, { type: t.id })}
                                 className={`px-1.5 py-1 text-[9px] rounded truncate ${
                                   getCellOverlayConfig(selectedOverlayCell)?.type === t.id
-                                    ? 'bg-blue-500 text-white'
-                                    : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
+                                    ? 'bg-primary text-white'
+                                    : 'bg-zinc-200 dark:bg-dark-subtle text-zinc-700 dark:text-zinc-300 hover:bg-zinc-300 dark:hover:bg-dark-elevated'
                                 }`}
                                 title={t.name}
                               >
@@ -476,7 +476,7 @@ export default memo(function StyleTab({
 
                       {/* Color */}
                       <div className="space-y-1.5">
-                        <label className="block text-xs font-medium text-gray-600 dark:text-gray-300">Color</label>
+                        <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-300">Color</label>
                         <div className="flex gap-1">
                           {themeColorOptions.map((c) => (
                             <button
@@ -484,7 +484,7 @@ export default memo(function StyleTab({
                               onClick={() => updateCellOverlay(selectedOverlayCell, { color: c.id })}
                               className={`flex-1 px-2 py-1.5 text-[10px] rounded ${
                                 getCellOverlayConfig(selectedOverlayCell)?.color === c.id
-                                  ? 'ring-2 ring-blue-500 ring-offset-1'
+                                  ? 'ring-2 ring-primary ring-offset-1'
                                   : ''
                               }`}
                               style={{ backgroundColor: theme?.[c.id] || '#000' }}
@@ -497,7 +497,7 @@ export default memo(function StyleTab({
                         </div>
                         {/* Neutral colors */}
                         <div className="flex items-center gap-1.5">
-                          <span className="text-[10px] text-gray-500 dark:text-gray-400">Neutrals:</span>
+                          <span className="text-[10px] text-zinc-500 dark:text-zinc-400">Neutrals:</span>
                           {neutralColors.map((c) => (
                             <button
                               key={c.id}
@@ -505,8 +505,8 @@ export default memo(function StyleTab({
                               title={c.name}
                               className={`w-5 h-5 rounded-full border transition-transform hover:scale-110 ${
                                 getCellOverlayConfig(selectedOverlayCell)?.color === c.id
-                                  ? 'ring-2 ring-blue-500 ring-offset-1 border-transparent'
-                                  : 'border-gray-300 dark:border-gray-600'
+                                  ? 'ring-2 ring-primary ring-offset-1 border-transparent'
+                                  : 'border-zinc-300 dark:border-zinc-600'
                               }`}
                               style={{ backgroundColor: c.hex }}
                             />
@@ -517,8 +517,8 @@ export default memo(function StyleTab({
                       {/* Opacity */}
                       <div className="space-y-1">
                         <div className="flex justify-between">
-                          <label className="text-xs font-medium text-gray-600 dark:text-gray-300">Opacity</label>
-                          <span className="text-xs text-gray-500 dark:text-gray-400">
+                          <label className="text-xs font-medium text-zinc-600 dark:text-zinc-300">Opacity</label>
+                          <span className="text-xs text-zinc-500 dark:text-zinc-400">
                             {getCellOverlayConfig(selectedOverlayCell)?.opacity ?? 50}%
                           </span>
                         </div>
@@ -531,7 +531,7 @@ export default memo(function StyleTab({
                           onChange={(e) =>
                             updateCellOverlay(selectedOverlayCell, { opacity: parseInt(e.target.value, 10) })
                           }
-                          className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer"
+                          className="w-full h-2 bg-zinc-200 dark:bg-dark-subtle rounded-lg appearance-none cursor-pointer"
                         />
                       </div>
                     </div>
@@ -542,7 +542,7 @@ export default memo(function StyleTab({
               {/* Reset */}
               <button
                 onClick={() => updateCellOverlay(selectedOverlayCell, null)}
-                className="w-full px-2 py-1.5 text-xs bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600 rounded"
+                className="w-full px-2 py-1.5 text-xs bg-zinc-200 dark:bg-dark-subtle text-zinc-600 dark:text-zinc-300 hover:bg-zinc-300 dark:hover:bg-dark-elevated rounded"
               >
                 Reset to Default
               </button>
@@ -555,13 +555,13 @@ export default memo(function StyleTab({
               {cellInfoList.map((cell) => (
                 <div
                   key={cell.index}
-                  className="flex items-center justify-between px-2 py-1.5 bg-gray-50 dark:bg-gray-800 rounded text-xs"
+                  className="flex items-center justify-between px-2 py-1.5 bg-zinc-50 dark:bg-dark-subtle rounded text-xs"
                 >
-                  <span className="text-gray-600 dark:text-gray-400">
+                  <span className="text-zinc-600 dark:text-zinc-400">
                     Cell {cell.index + 1}
-                    {cell.index === imageCell && <span className="text-blue-500 ml-1">(img)</span>}
+                    {cell.index === imageCell && <span className="text-primary ml-1">(img)</span>}
                   </span>
-                  <span className={isCellOverlayEnabled(cell.index) ? 'text-green-600' : 'text-gray-400'}>
+                  <span className={isCellOverlayEnabled(cell.index) ? 'text-green-600' : 'text-zinc-400'}>
                     {isCellOverlayEnabled(cell.index) ? 'On' : 'Off'}
                   </span>
                 </div>
@@ -577,8 +577,8 @@ export default memo(function StyleTab({
           {/* Global Padding */}
           <div className="space-y-2">
             <div className="flex justify-between">
-              <label className="text-xs font-medium text-gray-600 dark:text-gray-300">Global Padding</label>
-              <span className="text-xs text-gray-500 dark:text-gray-400">{padding.global}px</span>
+              <label className="text-xs font-medium text-zinc-600 dark:text-zinc-300">Global Padding</label>
+              <span className="text-xs text-zinc-500 dark:text-zinc-400">{padding.global}px</span>
             </div>
             <input
               type="range"
@@ -587,14 +587,14 @@ export default memo(function StyleTab({
               step="5"
               value={padding.global}
               onChange={(e) => onPaddingChange?.({ global: parseInt(e.target.value, 10) })}
-              className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer"
+              className="w-full h-2 bg-zinc-200 dark:bg-dark-subtle rounded-lg appearance-none cursor-pointer"
             />
           </div>
 
           {/* Per-cell padding */}
-          <div className="pt-3 border-t border-gray-100 dark:border-gray-800 space-y-3">
+          <div className="pt-3 border-t border-zinc-100 dark:border-zinc-800 space-y-3">
             <div className="flex items-center justify-between">
-              <label className="text-xs font-medium text-gray-600 dark:text-gray-300">Cell Padding</label>
+              <label className="text-xs font-medium text-zinc-600 dark:text-zinc-300">Cell Padding</label>
               <MiniCellGrid
                 layout={layout}
                 imageCell={imageCell}
@@ -606,14 +606,14 @@ export default memo(function StyleTab({
 
             {/* Selected cell padding */}
             {selectedSpacingCell !== null && (
-              <div className="space-y-2 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+              <div className="space-y-2 p-3 bg-zinc-50 dark:bg-dark-subtle rounded-lg">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
+                  <span className="text-xs font-medium text-zinc-700 dark:text-zinc-300">
                     Cell {selectedSpacingCell + 1}
                   </span>
                   <button
                     onClick={() => setSelectedSpacingCell(null)}
-                    className="text-[10px] text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+                    className="text-[10px] text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"
                   >
                     ✕ Deselect
                   </button>
@@ -631,11 +631,11 @@ export default memo(function StyleTab({
                         updateCellPadding(selectedSpacingCell, null)
                       }
                     }}
-                    className="w-4 h-4 text-blue-500 rounded border-gray-300 focus:ring-blue-500"
+                    className="w-4 h-4 text-primary rounded border-zinc-300 focus:ring-primary"
                   />
                   <label
                     htmlFor={`padding-custom-${selectedSpacingCell}`}
-                    className="text-xs text-gray-600 dark:text-gray-400"
+                    className="text-xs text-zinc-600 dark:text-zinc-400"
                   >
                     Custom padding
                   </label>
@@ -644,8 +644,8 @@ export default memo(function StyleTab({
                 {padding.cellOverrides?.[selectedSpacingCell] !== undefined && (
                   <div className="space-y-1">
                     <div className="flex justify-between">
-                      <label className="text-xs text-gray-600 dark:text-gray-400">Padding</label>
-                      <span className="text-xs text-gray-500 dark:text-gray-400">
+                      <label className="text-xs text-zinc-600 dark:text-zinc-400">Padding</label>
+                      <span className="text-xs text-zinc-500 dark:text-zinc-400">
                         {getCellPaddingValue(selectedSpacingCell)}px
                       </span>
                     </div>
@@ -656,7 +656,7 @@ export default memo(function StyleTab({
                       step="5"
                       value={getCellPaddingValue(selectedSpacingCell)}
                       onChange={(e) => updateCellPadding(selectedSpacingCell, parseInt(e.target.value, 10))}
-                      className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer"
+                      className="w-full h-2 bg-zinc-200 dark:bg-dark-subtle rounded-lg appearance-none cursor-pointer"
                     />
                   </div>
                 )}
@@ -669,14 +669,14 @@ export default memo(function StyleTab({
                 {cellInfoList.map((cell) => (
                   <div
                     key={cell.index}
-                    className="flex items-center justify-between px-2 py-1.5 bg-gray-50 dark:bg-gray-800 rounded text-xs"
+                    className="flex items-center justify-between px-2 py-1.5 bg-zinc-50 dark:bg-dark-subtle rounded text-xs"
                   >
-                    <span className="text-gray-600 dark:text-gray-400">Cell {cell.index + 1}</span>
+                    <span className="text-zinc-600 dark:text-zinc-400">Cell {cell.index + 1}</span>
                     <span
                       className={
                         padding.cellOverrides?.[cell.index] !== undefined
-                          ? 'text-blue-600 dark:text-blue-400'
-                          : 'text-gray-400'
+                          ? 'text-primary dark:text-violet-400'
+                          : 'text-zinc-400'
                       }
                     >
                       {getCellPaddingValue(cell.index)}px

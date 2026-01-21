@@ -62,7 +62,7 @@ function ImageCellGrid({ layout, imageCell, onSelectCell, platform }) {
 
   return (
     <div
-      className="rounded overflow-hidden border border-gray-300 dark:border-gray-600 flex"
+      className="rounded overflow-hidden border border-zinc-300 dark:border-zinc-600 flex"
       style={{
         aspectRatio,
         maxWidth: '120px',
@@ -87,8 +87,8 @@ function ImageCellGrid({ layout, imageCell, onSelectCell, platform }) {
               onClick={() => onSelectCell(currentCellIndex)}
               className={`flex items-center justify-center text-xs font-medium transition-colors ${
                 isImage
-                  ? 'bg-blue-500 hover:bg-blue-600 text-white'
-                  : 'bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-500 dark:text-gray-400'
+                  ? 'bg-primary hover:bg-primary-hover text-white'
+                  : 'bg-zinc-200 dark:bg-dark-subtle hover:bg-zinc-300 dark:hover:bg-dark-elevated text-zinc-500 dark:text-zinc-400'
               }`}
               style={{ flex: `0 0 ${subSizes[subIndex]}%` }}
             >
@@ -190,19 +190,19 @@ function AIPromptHelper({ theme }) {
     <div className="space-y-3">
       {/* Subject/Context */}
       <div className="space-y-1.5">
-        <label className="block text-xs font-medium text-gray-600 dark:text-gray-300">Subject / Context</label>
+        <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-300">Subject / Context</label>
         <textarea
           value={context}
           onChange={(e) => setContext(e.target.value)}
           placeholder="e.g., coffee shop interior, mountain landscape, abstract geometric shapes..."
-          className="w-full px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+          className="w-full px-3 py-2 text-sm bg-white dark:bg-dark-subtle border border-zinc-200 dark:border-zinc-700 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
           rows={2}
         />
       </div>
 
       {/* Style */}
       <div className="space-y-1.5">
-        <label className="block text-xs font-medium text-gray-600 dark:text-gray-300">Style</label>
+        <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-300">Style</label>
         <div className="flex flex-wrap gap-1">
           {styleOptions.map((opt) => (
             <button
@@ -210,8 +210,8 @@ function AIPromptHelper({ theme }) {
               onClick={() => setStyle(opt.id)}
               className={`px-2 py-1 text-xs rounded-lg font-medium ${
                 style === opt.id
-                  ? 'bg-blue-500 text-white shadow-sm'
-                  : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+                  ? 'bg-primary text-white shadow-sm'
+                  : 'bg-zinc-100 dark:bg-dark-subtle text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-dark-elevated'
               }`}
             >
               {opt.name}
@@ -222,7 +222,7 @@ function AIPromptHelper({ theme }) {
 
       {/* Mood */}
       <div className="space-y-1.5">
-        <label className="block text-xs font-medium text-gray-600 dark:text-gray-300">Mood / Lighting</label>
+        <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-300">Mood / Lighting</label>
         <div className="flex flex-wrap gap-1">
           {moodOptions.map((opt) => (
             <button
@@ -230,8 +230,8 @@ function AIPromptHelper({ theme }) {
               onClick={() => setMood(opt.id)}
               className={`px-2 py-1 text-xs rounded-lg font-medium ${
                 mood === opt.id
-                  ? 'bg-blue-500 text-white shadow-sm'
-                  : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+                  ? 'bg-primary text-white shadow-sm'
+                  : 'bg-zinc-100 dark:bg-dark-subtle text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-dark-elevated'
               }`}
             >
               {opt.name}
@@ -242,7 +242,7 @@ function AIPromptHelper({ theme }) {
 
       {/* Purpose */}
       <div className="space-y-1.5">
-        <label className="block text-xs font-medium text-gray-600 dark:text-gray-300">Image Purpose</label>
+        <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-300">Image Purpose</label>
         <div className="flex gap-1.5">
           {purposeOptions.map((opt) => (
             <button
@@ -250,22 +250,22 @@ function AIPromptHelper({ theme }) {
               onClick={() => setPurpose(opt.id)}
               className={`flex-1 px-2 py-1.5 text-xs rounded-lg font-medium ${
                 purpose === opt.id
-                  ? 'bg-blue-500 text-white shadow-sm'
-                  : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+                  ? 'bg-primary text-white shadow-sm'
+                  : 'bg-zinc-100 dark:bg-dark-subtle text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-dark-elevated'
               }`}
             >
               {opt.name}
             </button>
           ))}
         </div>
-        <p className="text-[10px] text-gray-400 dark:text-gray-500">
+        <p className="text-[10px] text-zinc-400 dark:text-zinc-500">
           {purpose === 'hero' ? 'Clean focal point for featured images' : 'Subtle details, good for text overlays'}
         </p>
       </div>
 
       {/* Orientation */}
       <div className="space-y-1.5">
-        <label className="block text-xs font-medium text-gray-600 dark:text-gray-300">Orientation</label>
+        <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-300">Orientation</label>
         <div className="flex gap-1">
           {orientationOptions.map((opt) => (
             <button
@@ -273,8 +273,8 @@ function AIPromptHelper({ theme }) {
               onClick={() => setOrientation(opt.id)}
               className={`flex-1 px-2 py-1.5 text-xs rounded-lg font-medium ${
                 orientation === opt.id
-                  ? 'bg-blue-500 text-white shadow-sm'
-                  : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+                  ? 'bg-primary text-white shadow-sm'
+                  : 'bg-zinc-100 dark:bg-dark-subtle text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-dark-elevated'
               }`}
             >
               {opt.name}
@@ -285,14 +285,14 @@ function AIPromptHelper({ theme }) {
 
       {/* Colors */}
       <div className="space-y-1.5">
-        <label className="block text-xs font-medium text-gray-600 dark:text-gray-300">Colors (optional)</label>
+        <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-300">Colors (optional)</label>
         <div className="flex gap-1.5 mb-2">
           <button
             onClick={() => setUseThemeColors(true)}
             className={`flex-1 px-2 py-1.5 text-xs rounded-lg font-medium ${
               useThemeColors
-                ? 'bg-blue-500 text-white shadow-sm'
-                : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+                ? 'bg-primary text-white shadow-sm'
+                : 'bg-zinc-100 dark:bg-dark-subtle text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-dark-elevated'
             }`}
           >
             Use Theme
@@ -301,8 +301,8 @@ function AIPromptHelper({ theme }) {
             onClick={() => setUseThemeColors(false)}
             className={`flex-1 px-2 py-1.5 text-xs rounded-lg font-medium ${
               !useThemeColors
-                ? 'bg-blue-500 text-white shadow-sm'
-                : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+                ? 'bg-primary text-white shadow-sm'
+                : 'bg-zinc-100 dark:bg-dark-subtle text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-dark-elevated'
             }`}
           >
             Custom
@@ -310,14 +310,14 @@ function AIPromptHelper({ theme }) {
         </div>
         {useThemeColors ? (
           theme ? (
-            <div className="flex gap-2 items-center text-xs text-gray-500 dark:text-gray-400">
+            <div className="flex gap-2 items-center text-xs text-zinc-500 dark:text-zinc-400">
               <span className="inline-block w-4 h-4 rounded border" style={{ backgroundColor: theme.primary }} />
               <span className="inline-block w-4 h-4 rounded border" style={{ backgroundColor: theme.secondary }} />
               <span className="inline-block w-4 h-4 rounded border" style={{ backgroundColor: theme.accent }} />
               <span>From Style tab</span>
             </div>
           ) : (
-            <p className="text-[10px] text-gray-400 dark:text-gray-500">
+            <p className="text-[10px] text-zinc-400 dark:text-zinc-500">
               Select a theme in the Style tab, or switch to Custom
             </p>
           )
@@ -327,7 +327,7 @@ function AIPromptHelper({ theme }) {
             value={customColors}
             onChange={(e) => setCustomColors(e.target.value)}
             placeholder="e.g., blue and orange, muted earth tones..."
-            className="w-full px-3 py-1.5 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-3 py-1.5 text-sm bg-white dark:bg-dark-subtle border border-zinc-200 dark:border-zinc-700 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
           />
         )}
       </div>
@@ -335,11 +335,11 @@ function AIPromptHelper({ theme }) {
       {/* Generated Prompt */}
       <div className="space-y-1.5">
         <div className="flex justify-between items-center">
-          <label className="block text-xs font-medium text-gray-600 dark:text-gray-300">Generated Prompt</label>
-          <span className="text-[10px] text-gray-400 dark:text-gray-500">Updates as you change options</span>
+          <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-300">Generated Prompt</label>
+          <span className="text-[10px] text-zinc-400 dark:text-zinc-500">Updates as you change options</span>
         </div>
         <div className="relative">
-          <div className="w-full px-3 py-2 text-xs bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-700 dark:text-gray-300 max-h-24 overflow-y-auto">
+          <div className="w-full px-3 py-2 text-xs bg-zinc-50 dark:bg-dark-subtle border border-zinc-200 dark:border-zinc-700 rounded-lg text-zinc-700 dark:text-zinc-300 max-h-24 overflow-y-auto">
             {generatedPrompt}
           </div>
           <button
@@ -347,7 +347,7 @@ function AIPromptHelper({ theme }) {
             className={`absolute top-1.5 right-1.5 px-2 py-1 text-[10px] rounded font-medium transition-colors ${
               copied
                 ? 'bg-green-500 text-white'
-                : 'bg-blue-500 text-white hover:bg-blue-600'
+                : 'bg-primary text-white hover:bg-primary-hover'
             }`}
           >
             {copied ? 'Copied!' : 'Copy'}
@@ -457,7 +457,7 @@ export default memo(function MediaTab({
 
   return (
     <div className="space-y-3">
-      <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-100">Media</h3>
+      <h3 className="text-sm font-semibold text-zinc-800 dark:text-zinc-100">Media</h3>
 
       {/* AI Image Prompt Helper Section - collapsed by default */}
       <CollapsibleSection title="AI Image Prompt" defaultExpanded={false}>
@@ -469,7 +469,7 @@ export default memo(function MediaTab({
         <div className="space-y-3">
           {/* Upload area */}
           <div
-            className="border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl p-4 text-center cursor-pointer hover:border-blue-400 hover:bg-blue-50/30 dark:hover:bg-blue-900/20 transition-all"
+            className="border-2 border-dashed border-zinc-200 dark:border-zinc-700 rounded-xl p-4 text-center cursor-pointer hover:border-violet-400 hover:bg-violet-50/30 dark:hover:bg-violet-900/30 transition-all"
             onDrop={handleDrop}
             onDragOver={handleDragOver}
             onClick={() => fileInputRef.current?.click()}
@@ -477,12 +477,12 @@ export default memo(function MediaTab({
             {image ? (
               <div className="space-y-2">
                 <img src={image} alt="Preview" className="max-h-24 mx-auto rounded-lg shadow-sm" />
-                <p className="text-xs text-gray-500 dark:text-gray-400">Click or drop to replace</p>
+                <p className="text-xs text-zinc-500 dark:text-zinc-400">Click or drop to replace</p>
               </div>
             ) : (
               <div className="py-2">
                 <svg
-                  className="w-8 h-8 mx-auto text-gray-300 dark:text-gray-600 mb-2"
+                  className="w-8 h-8 mx-auto text-zinc-300 dark:text-zinc-600 mb-2"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -494,7 +494,7 @@ export default memo(function MediaTab({
                     d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
                   />
                 </svg>
-                <p className="text-sm text-gray-600 dark:text-gray-300 font-medium">Drop image or click to upload</p>
+                <p className="text-sm text-zinc-600 dark:text-zinc-300 font-medium">Drop image or click to upload</p>
               </div>
             )}
             <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileSelect} />
@@ -513,7 +513,7 @@ export default memo(function MediaTab({
           {/* Sample Images */}
           {!image && (
             <div className="space-y-2">
-              <label className="block text-xs font-medium text-gray-600 dark:text-gray-300">Or try a sample</label>
+              <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-300">Or try a sample</label>
               <div className="grid grid-cols-5 gap-1.5">
                 {sampleImages.map((sample) => (
                   <button
@@ -523,8 +523,8 @@ export default memo(function MediaTab({
                     title={sample.name}
                     className={`aspect-square rounded-lg overflow-hidden border-2 transition-all ${
                       loadingSample === sample.id
-                        ? 'border-blue-400 opacity-50 scale-95'
-                        : 'border-gray-200 dark:border-gray-700 hover:border-blue-400 hover:shadow-sm active:scale-95'
+                        ? 'border-violet-400 opacity-50 scale-95'
+                        : 'border-zinc-200 dark:border-zinc-700 hover:border-violet-400 hover:shadow-sm active:scale-95'
                     }`}
                   >
                     <img
@@ -537,7 +537,7 @@ export default memo(function MediaTab({
                       }}
                     />
                     <div
-                      className="w-full h-full bg-gray-100 dark:bg-gray-800 items-center justify-center text-gray-400 text-[9px] text-center p-0.5"
+                      className="w-full h-full bg-zinc-100 dark:bg-dark-subtle items-center justify-center text-zinc-400 text-[9px] text-center p-0.5"
                       style={{ display: 'none' }}
                     >
                       {sample.name}
@@ -551,10 +551,10 @@ export default memo(function MediaTab({
 
           {/* Image Settings - only when image exists */}
           {image && (
-            <div className="space-y-3 pt-3 border-t border-gray-100 dark:border-gray-800">
+            <div className="space-y-3 pt-3 border-t border-zinc-100 dark:border-zinc-800">
               {/* Object Fit */}
               <div className="space-y-2">
-                <label className="block text-xs font-medium text-gray-600 dark:text-gray-300">Fit</label>
+                <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-300">Fit</label>
                 <div className="flex gap-2">
                   {['cover', 'contain'].map((fit) => (
                     <button
@@ -562,8 +562,8 @@ export default memo(function MediaTab({
                       onClick={() => onObjectFitChange(fit)}
                       className={`flex-1 px-3 py-2 text-sm rounded-lg capitalize font-medium ${
                         objectFit === fit
-                          ? 'bg-blue-500 text-white shadow-sm'
-                          : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+                          ? 'bg-primary text-white shadow-sm'
+                          : 'bg-zinc-100 dark:bg-dark-subtle text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-dark-elevated'
                       }`}
                     >
                       {fit}
@@ -574,7 +574,7 @@ export default memo(function MediaTab({
 
               {/* Position */}
               <div className="space-y-2">
-                <label className="block text-xs font-medium text-gray-600 dark:text-gray-300">Position</label>
+                <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-300">Position</label>
                 {/* Quick presets */}
                 <div className="grid grid-cols-3 gap-1">
                   {[
@@ -593,8 +593,8 @@ export default memo(function MediaTab({
                       onClick={() => onPositionChange({ x: preset.x, y: preset.y })}
                       className={`px-2 py-1.5 text-sm rounded font-medium ${
                         position.x === preset.x && position.y === preset.y
-                          ? 'bg-blue-500 text-white shadow-sm'
-                          : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+                          ? 'bg-primary text-white shadow-sm'
+                          : 'bg-zinc-100 dark:bg-dark-subtle text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-dark-elevated'
                       }`}
                     >
                       {preset.label}
@@ -605,8 +605,8 @@ export default memo(function MediaTab({
                 <div className="space-y-2 pt-2">
                   <div className="space-y-1">
                     <div className="flex justify-between">
-                      <span className="text-[10px] text-gray-500 dark:text-gray-400">Horizontal (X)</span>
-                      <span className="text-[10px] text-gray-500 dark:text-gray-400">{position.x}%</span>
+                      <span className="text-[10px] text-zinc-500 dark:text-zinc-400">Horizontal (X)</span>
+                      <span className="text-[10px] text-zinc-500 dark:text-zinc-400">{position.x}%</span>
                     </div>
                     <input
                       type="range"
@@ -615,13 +615,13 @@ export default memo(function MediaTab({
                       step="5"
                       value={position.x}
                       onChange={(e) => onPositionChange({ x: parseInt(e.target.value, 10) })}
-                      className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer"
+                      className="w-full h-2 bg-zinc-200 dark:bg-dark-subtle rounded-lg appearance-none cursor-pointer"
                     />
                   </div>
                   <div className="space-y-1">
                     <div className="flex justify-between">
-                      <span className="text-[10px] text-gray-500 dark:text-gray-400">Vertical (Y)</span>
-                      <span className="text-[10px] text-gray-500 dark:text-gray-400">{position.y}%</span>
+                      <span className="text-[10px] text-zinc-500 dark:text-zinc-400">Vertical (Y)</span>
+                      <span className="text-[10px] text-zinc-500 dark:text-zinc-400">{position.y}%</span>
                     </div>
                     <input
                       type="range"
@@ -630,7 +630,7 @@ export default memo(function MediaTab({
                       step="5"
                       value={position.y}
                       onChange={(e) => onPositionChange({ y: parseInt(e.target.value, 10) })}
-                      className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer"
+                      className="w-full h-2 bg-zinc-200 dark:bg-dark-subtle rounded-lg appearance-none cursor-pointer"
                     />
                   </div>
                 </div>
@@ -638,13 +638,13 @@ export default memo(function MediaTab({
 
               {/* Grayscale toggle */}
               <div className="space-y-2">
-                <label className="block text-xs font-medium text-gray-600 dark:text-gray-300">Grayscale</label>
+                <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-300">Grayscale</label>
                 <button
                   onClick={() => onFiltersChange({ grayscale: filters.grayscale > 0 ? 0 : 100 })}
                   className={`w-full px-3 py-2 text-sm rounded-lg font-medium ${
                     filters.grayscale > 0
-                      ? 'bg-blue-500 text-white shadow-sm'
-                      : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+                      ? 'bg-primary text-white shadow-sm'
+                      : 'bg-zinc-100 dark:bg-dark-subtle text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-dark-elevated'
                   }`}
                 >
                   {filters.grayscale > 0 ? 'On' : 'Off'}
@@ -654,7 +654,7 @@ export default memo(function MediaTab({
               {/* Image Cell - only show for multi-cell layouts */}
               {layout && layout.type !== 'fullbleed' && (
                 <div className="space-y-2">
-                  <label className="block text-xs font-medium text-gray-600 dark:text-gray-300">Cell</label>
+                  <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-300">Cell</label>
                   <div className="flex items-center gap-3">
                     <ImageCellGrid
                       layout={layout}
@@ -662,7 +662,7 @@ export default memo(function MediaTab({
                       onSelectCell={(idx) => onLayoutChange({ imageCell: idx })}
                       platform={platform}
                     />
-                    <span className="text-sm text-gray-500 dark:text-gray-400">
+                    <span className="text-sm text-zinc-500 dark:text-zinc-400">
                       Cell {(layout.imageCell || 0) + 1}
                     </span>
                   </div>
@@ -679,13 +679,13 @@ export default memo(function MediaTab({
           <div className="space-y-3">
             {/* On/Off Toggle */}
             <div className="space-y-2">
-              <label className="block text-xs font-medium text-gray-600 dark:text-gray-300">Overlay</label>
+              <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-300">Overlay</label>
               <button
                 onClick={() => onOverlayChange({ opacity: (overlay?.opacity ?? 0) > 0 ? 0 : 50 })}
                 className={`w-full px-3 py-2 text-sm rounded-lg font-medium ${
                   (overlay?.opacity ?? 0) > 0
-                    ? 'bg-blue-500 text-white shadow-sm'
-                    : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+                    ? 'bg-primary text-white shadow-sm'
+                    : 'bg-zinc-100 dark:bg-dark-subtle text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-dark-elevated'
                 }`}
               >
                 {(overlay?.opacity ?? 0) > 0 ? 'On' : 'Off'}
@@ -697,10 +697,10 @@ export default memo(function MediaTab({
               <>
                 {/* Overlay Type - organized by category */}
                 <div className="space-y-3">
-                  <label className="block text-xs font-medium text-gray-600 dark:text-gray-300">Type</label>
+                  <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-300">Type</label>
                   {/* Basic & Linear Gradients */}
                   <div className="space-y-1.5">
-                    <span className="text-[10px] text-gray-400 dark:text-gray-500 uppercase tracking-wide">Basic & Gradients</span>
+                    <span className="text-[10px] text-zinc-400 dark:text-zinc-500 uppercase tracking-wide">Basic & Gradients</span>
                     <div className="grid grid-cols-5 gap-1">
                       {overlayTypes.filter(t => t.category === 'basic' || t.category === 'linear').map((t) => (
                         <button
@@ -708,8 +708,8 @@ export default memo(function MediaTab({
                           onClick={() => onOverlayChange({ type: overlay?.type === t.id ? null : t.id })}
                           className={`px-1.5 py-1.5 text-[10px] rounded-lg font-medium truncate ${
                             overlay?.type === t.id
-                              ? 'bg-blue-500 text-white shadow-sm'
-                              : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+                              ? 'bg-primary text-white shadow-sm'
+                              : 'bg-zinc-100 dark:bg-dark-subtle text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-dark-elevated'
                           }`}
                           title={t.name}
                         >
@@ -720,7 +720,7 @@ export default memo(function MediaTab({
                   </div>
                   {/* Radial */}
                   <div className="space-y-1.5">
-                    <span className="text-[10px] text-gray-400 dark:text-gray-500 uppercase tracking-wide">Radial</span>
+                    <span className="text-[10px] text-zinc-400 dark:text-zinc-500 uppercase tracking-wide">Radial</span>
                     <div className="grid grid-cols-4 gap-1">
                       {overlayTypes.filter(t => t.category === 'radial').map((t) => (
                         <button
@@ -728,8 +728,8 @@ export default memo(function MediaTab({
                           onClick={() => onOverlayChange({ type: overlay?.type === t.id ? null : t.id })}
                           className={`px-1.5 py-1.5 text-[10px] rounded-lg font-medium truncate ${
                             overlay?.type === t.id
-                              ? 'bg-blue-500 text-white shadow-sm'
-                              : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+                              ? 'bg-primary text-white shadow-sm'
+                              : 'bg-zinc-100 dark:bg-dark-subtle text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-dark-elevated'
                           }`}
                           title={t.name}
                         >
@@ -740,7 +740,7 @@ export default memo(function MediaTab({
                   </div>
                   {/* Effects & Textures */}
                   <div className="space-y-1.5">
-                    <span className="text-[10px] text-gray-400 dark:text-gray-500 uppercase tracking-wide">Effects</span>
+                    <span className="text-[10px] text-zinc-400 dark:text-zinc-500 uppercase tracking-wide">Effects</span>
                     <div className="grid grid-cols-4 gap-1">
                       {overlayTypes.filter(t => t.category === 'effect' || t.category === 'texture').map((t) => (
                         <button
@@ -748,8 +748,8 @@ export default memo(function MediaTab({
                           onClick={() => onOverlayChange({ type: overlay?.type === t.id ? null : t.id })}
                           className={`px-1.5 py-1.5 text-[10px] rounded-lg font-medium truncate ${
                             overlay?.type === t.id
-                              ? 'bg-blue-500 text-white shadow-sm'
-                              : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+                              ? 'bg-primary text-white shadow-sm'
+                              : 'bg-zinc-100 dark:bg-dark-subtle text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-dark-elevated'
                           }`}
                           title={t.name}
                         >
@@ -760,7 +760,7 @@ export default memo(function MediaTab({
                   </div>
                   {/* Blend Modes */}
                   <div className="space-y-1.5">
-                    <span className="text-[10px] text-gray-400 dark:text-gray-500 uppercase tracking-wide">Blend Modes</span>
+                    <span className="text-[10px] text-zinc-400 dark:text-zinc-500 uppercase tracking-wide">Blend Modes</span>
                     <div className="grid grid-cols-4 gap-1">
                       {overlayTypes.filter(t => t.category === 'blend').map((t) => (
                         <button
@@ -768,8 +768,8 @@ export default memo(function MediaTab({
                           onClick={() => onOverlayChange({ type: overlay?.type === t.id ? null : t.id })}
                           className={`px-1.5 py-1.5 text-[10px] rounded-lg font-medium truncate ${
                             overlay?.type === t.id
-                              ? 'bg-blue-500 text-white shadow-sm'
-                              : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+                              ? 'bg-primary text-white shadow-sm'
+                              : 'bg-zinc-100 dark:bg-dark-subtle text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-dark-elevated'
                           }`}
                           title={t.name}
                         >
@@ -782,7 +782,7 @@ export default memo(function MediaTab({
 
                 {/* Overlay Color */}
                 <div className="space-y-2">
-                  <label className="block text-xs font-medium text-gray-600 dark:text-gray-300">Color</label>
+                  <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-300">Color</label>
                   <div className="flex flex-wrap gap-1.5">
                     {/* Theme colors */}
                     {themeColorOptions.map((c) => (
@@ -791,12 +791,12 @@ export default memo(function MediaTab({
                         onClick={() => onOverlayChange({ color: overlay?.color === c.id ? null : c.id })}
                         className={`px-2.5 py-1.5 text-xs rounded-lg font-medium ${
                           overlay?.color === c.id
-                            ? 'bg-blue-500 text-white shadow-sm'
-                            : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+                            ? 'bg-primary text-white shadow-sm'
+                            : 'bg-zinc-100 dark:bg-dark-subtle text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-dark-elevated'
                         }`}
                       >
                         <span
-                          className="inline-block w-2.5 h-2.5 rounded-full mr-1.5 border border-gray-300 dark:border-gray-600"
+                          className="inline-block w-2.5 h-2.5 rounded-full mr-1.5 border border-zinc-300 dark:border-zinc-600"
                           style={{ backgroundColor: theme?.[c.id] || '#000' }}
                         />
                         {c.name}
@@ -809,12 +809,12 @@ export default memo(function MediaTab({
                         onClick={() => onOverlayChange({ color: overlay?.color === c.id ? null : c.id })}
                         className={`px-2.5 py-1.5 text-xs rounded-lg font-medium ${
                           overlay?.color === c.id
-                            ? 'bg-blue-500 text-white shadow-sm'
-                            : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+                            ? 'bg-primary text-white shadow-sm'
+                            : 'bg-zinc-100 dark:bg-dark-subtle text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-dark-elevated'
                         }`}
                       >
                         <span
-                          className="inline-block w-2.5 h-2.5 rounded-full mr-1.5 border border-gray-300 dark:border-gray-600"
+                          className="inline-block w-2.5 h-2.5 rounded-full mr-1.5 border border-zinc-300 dark:border-zinc-600"
                           style={{ backgroundColor: c.color }}
                         />
                         {c.name}
@@ -826,8 +826,8 @@ export default memo(function MediaTab({
                 {/* Overlay Opacity */}
                 <div className="space-y-1">
                   <div className="flex justify-between">
-                    <label className="text-xs font-medium text-gray-600 dark:text-gray-300">Opacity</label>
-                    <span className="text-xs text-gray-500 dark:text-gray-400">
+                    <label className="text-xs font-medium text-zinc-600 dark:text-zinc-300">Opacity</label>
+                    <span className="text-xs text-zinc-500 dark:text-zinc-400">
                       {overlay?.opacity ?? 0}%
                     </span>
                   </div>
@@ -838,7 +838,7 @@ export default memo(function MediaTab({
                     step="5"
                     value={overlay?.opacity ?? 0}
                     onChange={(e) => onOverlayChange({ opacity: parseInt(e.target.value, 10) })}
-                    className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer"
+                    className="w-full h-2 bg-zinc-200 dark:bg-dark-subtle rounded-lg appearance-none cursor-pointer"
                   />
                 </div>
               </>
@@ -853,8 +853,8 @@ export default memo(function MediaTab({
           <div className="space-y-3">
             <div className="space-y-1">
               <div className="flex justify-between">
-                <label className="text-xs font-medium text-gray-600 dark:text-gray-300">Grayscale</label>
-                <span className="text-xs text-gray-500 dark:text-gray-400">{filters.grayscale}%</span>
+                <label className="text-xs font-medium text-zinc-600 dark:text-zinc-300">Grayscale</label>
+                <span className="text-xs text-zinc-500 dark:text-zinc-400">{filters.grayscale}%</span>
               </div>
               <input
                 type="range"
@@ -863,14 +863,14 @@ export default memo(function MediaTab({
                 step="5"
                 value={filters.grayscale}
                 onChange={(e) => onFiltersChange({ grayscale: parseInt(e.target.value, 10) })}
-                className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer"
+                className="w-full h-2 bg-zinc-200 dark:bg-dark-subtle rounded-lg appearance-none cursor-pointer"
               />
             </div>
 
             <div className="space-y-1">
               <div className="flex justify-between">
-                <label className="text-xs font-medium text-gray-600 dark:text-gray-300">Sepia</label>
-                <span className="text-xs text-gray-500 dark:text-gray-400">{filters.sepia}%</span>
+                <label className="text-xs font-medium text-zinc-600 dark:text-zinc-300">Sepia</label>
+                <span className="text-xs text-zinc-500 dark:text-zinc-400">{filters.sepia}%</span>
               </div>
               <input
                 type="range"
@@ -879,14 +879,14 @@ export default memo(function MediaTab({
                 step="5"
                 value={filters.sepia}
                 onChange={(e) => onFiltersChange({ sepia: parseInt(e.target.value, 10) })}
-                className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer"
+                className="w-full h-2 bg-zinc-200 dark:bg-dark-subtle rounded-lg appearance-none cursor-pointer"
               />
             </div>
 
             <div className="space-y-1">
               <div className="flex justify-between">
-                <label className="text-xs font-medium text-gray-600 dark:text-gray-300">Blur</label>
-                <span className="text-xs text-gray-500 dark:text-gray-400">{filters.blur}px</span>
+                <label className="text-xs font-medium text-zinc-600 dark:text-zinc-300">Blur</label>
+                <span className="text-xs text-zinc-500 dark:text-zinc-400">{filters.blur}px</span>
               </div>
               <input
                 type="range"
@@ -895,14 +895,14 @@ export default memo(function MediaTab({
                 step="0.5"
                 value={filters.blur}
                 onChange={(e) => onFiltersChange({ blur: parseFloat(e.target.value) })}
-                className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer"
+                className="w-full h-2 bg-zinc-200 dark:bg-dark-subtle rounded-lg appearance-none cursor-pointer"
               />
             </div>
 
             <div className="space-y-1">
               <div className="flex justify-between">
-                <label className="text-xs font-medium text-gray-600 dark:text-gray-300">Contrast</label>
-                <span className="text-xs text-gray-500 dark:text-gray-400">{filters.contrast}%</span>
+                <label className="text-xs font-medium text-zinc-600 dark:text-zinc-300">Contrast</label>
+                <span className="text-xs text-zinc-500 dark:text-zinc-400">{filters.contrast}%</span>
               </div>
               <input
                 type="range"
@@ -911,14 +911,14 @@ export default memo(function MediaTab({
                 step="5"
                 value={filters.contrast}
                 onChange={(e) => onFiltersChange({ contrast: parseInt(e.target.value, 10) })}
-                className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer"
+                className="w-full h-2 bg-zinc-200 dark:bg-dark-subtle rounded-lg appearance-none cursor-pointer"
               />
             </div>
 
             <div className="space-y-1">
               <div className="flex justify-between">
-                <label className="text-xs font-medium text-gray-600 dark:text-gray-300">Brightness</label>
-                <span className="text-xs text-gray-500 dark:text-gray-400">{filters.brightness}%</span>
+                <label className="text-xs font-medium text-zinc-600 dark:text-zinc-300">Brightness</label>
+                <span className="text-xs text-zinc-500 dark:text-zinc-400">{filters.brightness}%</span>
               </div>
               <input
                 type="range"
@@ -927,7 +927,7 @@ export default memo(function MediaTab({
                 step="5"
                 value={filters.brightness}
                 onChange={(e) => onFiltersChange({ brightness: parseInt(e.target.value, 10) })}
-                className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer"
+                className="w-full h-2 bg-zinc-200 dark:bg-dark-subtle rounded-lg appearance-none cursor-pointer"
               />
             </div>
           </div>
@@ -939,11 +939,11 @@ export default memo(function MediaTab({
         <CollapsibleSection title="Logo" defaultExpanded={false}>
           {!logo ? (
             <div
-              className="border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl p-4 text-center cursor-pointer hover:border-blue-400 hover:bg-blue-50/30 dark:hover:bg-blue-900/20 transition-all"
+              className="border-2 border-dashed border-zinc-200 dark:border-zinc-700 rounded-xl p-4 text-center cursor-pointer hover:border-violet-400 hover:bg-violet-50/30 dark:hover:bg-violet-900/30 transition-all"
               onClick={() => logoInputRef.current?.click()}
             >
               <svg
-                className="w-8 h-8 mx-auto text-gray-300 dark:text-gray-600 mb-2"
+                className="w-8 h-8 mx-auto text-zinc-300 dark:text-zinc-600 mb-2"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -955,8 +955,8 @@ export default memo(function MediaTab({
                   d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
                 />
               </svg>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Click to upload logo</p>
-              <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">Optional</p>
+              <p className="text-sm text-zinc-500 dark:text-zinc-400">Click to upload logo</p>
+              <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-1">Optional</p>
               <input
                 ref={logoInputRef}
                 type="file"
@@ -975,7 +975,7 @@ export default memo(function MediaTab({
           ) : (
             <div className="space-y-3">
               {/* Logo preview */}
-              <div className="relative bg-gray-50 dark:bg-gray-800 rounded-xl p-3">
+              <div className="relative bg-zinc-50 dark:bg-dark-subtle rounded-xl p-3">
                 <img src={logo} alt="Logo" className="max-h-16 mx-auto object-contain" />
                 <button
                   onClick={() => {
@@ -990,7 +990,7 @@ export default memo(function MediaTab({
 
               {/* Logo position */}
               <div className="space-y-2">
-                <label className="block text-xs font-medium text-gray-600 dark:text-gray-300">Position</label>
+                <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-300">Position</label>
                 <div className="grid grid-cols-3 gap-1.5">
                   {logoPositionOptions.map((opt) => (
                     <button
@@ -998,8 +998,8 @@ export default memo(function MediaTab({
                       onClick={() => onLogoPositionChange(opt.id)}
                       className={`px-2 py-1.5 text-xs rounded-lg font-medium ${
                         logoPosition === opt.id
-                          ? 'bg-blue-500 text-white shadow-sm'
-                          : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+                          ? 'bg-primary text-white shadow-sm'
+                          : 'bg-zinc-100 dark:bg-dark-subtle text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-dark-elevated'
                       }`}
                     >
                       {opt.name}
@@ -1010,7 +1010,7 @@ export default memo(function MediaTab({
 
               {/* Logo size */}
               <div className="space-y-2">
-                <label className="block text-xs font-medium text-gray-600 dark:text-gray-300">Size</label>
+                <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-300">Size</label>
                 <div className="flex gap-1.5">
                   {logoSizeOptions.map((opt) => (
                     <button
@@ -1018,8 +1018,8 @@ export default memo(function MediaTab({
                       onClick={() => onLogoSizeChange(opt.id)}
                       className={`flex-1 px-2 py-1.5 text-xs rounded-lg font-medium ${
                         logoSize === opt.id
-                          ? 'bg-blue-500 text-white shadow-sm'
-                          : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+                          ? 'bg-primary text-white shadow-sm'
+                          : 'bg-zinc-100 dark:bg-dark-subtle text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-dark-elevated'
                       }`}
                     >
                       {opt.name}

@@ -126,7 +126,7 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
       <button
         onClick={handleExportSingle}
         disabled={isExporting}
-        className="w-full px-4 py-3 text-sm font-semibold text-white bg-blue-500 rounded-xl hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm hover:shadow active:scale-[0.98]"
+        className="w-full px-4 py-3 text-sm font-semibold text-white bg-primary rounded-xl hover:bg-primary-hover disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm hover:shadow-glow active:scale-[0.98] btn-scale"
       >
         {isExporting && !exportProgress ? 'Exporting...' : 'Download Current'}
       </button>
@@ -134,7 +134,7 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
       <button
         onClick={handleExportAll}
         disabled={isExporting}
-        className="w-full px-4 py-3 text-sm font-semibold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 rounded-xl hover:bg-blue-100 dark:hover:bg-blue-900/50 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-[0.98]"
+        className="w-full px-4 py-3 text-sm font-semibold text-primary dark:text-violet-400 bg-violet-50 dark:bg-violet-900/20 rounded-xl hover:bg-violet-100 dark:hover:bg-violet-900/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-[0.98]"
       >
         {exportProgress
           ? `Exporting ${exportProgress.current}/${exportProgress.total}...`
@@ -143,13 +143,13 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
 
       {exportProgress && (
         <div className="space-y-2">
-          <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
+          <div className="w-full bg-zinc-200 dark:bg-zinc-700 rounded-full h-1.5 overflow-hidden">
             <div
-              className="bg-blue-500 h-1.5 rounded-full transition-all duration-300"
+              className="bg-gradient-creative h-1.5 rounded-full transition-all duration-300"
               style={{ width: `${(exportProgress.current / exportProgress.total) * 100}%` }}
             />
           </div>
-          <p className="text-sm text-center text-gray-500 dark:text-gray-400">
+          <p className="text-sm text-center text-zinc-500 dark:text-zinc-400">
             Processing: {exportProgress.name}
           </p>
         </div>

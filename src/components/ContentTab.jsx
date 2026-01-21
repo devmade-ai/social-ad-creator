@@ -131,7 +131,7 @@ function MiniCellGrid({ layout, imageCell, highlightCell, onSelectCell, platform
 
   return (
     <div
-      className="flex overflow-hidden border border-gray-300 dark:border-gray-600 rounded"
+      className="flex overflow-hidden border border-zinc-300 dark:border-zinc-600 rounded"
       style={{
         width: '64px',
         height: `${64 / aspectRatio}px`,
@@ -152,14 +152,14 @@ function MiniCellGrid({ layout, imageCell, highlightCell, onSelectCell, platform
 
           let bgClass, content
           if (isHighlighted) {
-            bgClass = 'bg-blue-500 hover:bg-blue-600'
+            bgClass = 'bg-primary hover:bg-primary-hover'
             content = <span className="text-white text-[8px]">✓</span>
           } else if (isImage) {
-            bgClass = 'bg-blue-400 hover:bg-blue-500'
+            bgClass = 'bg-blue-400 hover:bg-primary'
             content = <span className="text-white text-[8px]">📷</span>
           } else {
-            bgClass = 'bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600'
-            content = <span className="text-gray-500 dark:text-gray-400 text-[8px]">{currentCellIndex + 1}</span>
+            bgClass = 'bg-zinc-200 dark:bg-dark-subtle hover:bg-zinc-300 dark:hover:bg-dark-elevated'
+            content = <span className="text-zinc-500 dark:text-zinc-400 text-[8px]">{currentCellIndex + 1}</span>
           }
 
           sectionCells.push(
@@ -214,14 +214,14 @@ function TextElementEditor({
   const isVisible = layerState.visible !== false
 
   return (
-    <div className="space-y-2 pb-3 border-b border-gray-100 dark:border-gray-800 last:border-0 last:pb-0">
+    <div className="space-y-2 pb-3 border-b border-zinc-100 dark:border-zinc-800 last:border-0 last:pb-0">
       {/* Row 1: Visibility + Label + Cell Assignment */}
       <div className="flex items-center gap-2">
         {/* Visibility Toggle */}
         <button
           onClick={() => onTextChange(element.id, { visible: !isVisible })}
           className={`w-6 h-6 rounded-md flex items-center justify-center text-xs shrink-0 ${
-            isVisible ? 'bg-green-100 dark:bg-green-900/50 text-green-600 dark:text-green-400' : 'bg-gray-100 dark:bg-gray-800 text-gray-400'
+            isVisible ? 'bg-green-100 dark:bg-green-900/50 text-green-600 dark:text-green-400' : 'bg-zinc-100 dark:bg-dark-subtle text-zinc-400'
           }`}
           title={isVisible ? 'Visible - click to hide' : 'Hidden - click to show'}
         >
@@ -229,7 +229,7 @@ function TextElementEditor({
         </button>
 
         {/* Label */}
-        <span className={`text-sm flex-1 min-w-0 ${isVisible ? 'text-gray-700 dark:text-gray-200' : 'text-gray-400'}`}>
+        <span className={`text-sm flex-1 min-w-0 ${isVisible ? 'text-zinc-700 dark:text-zinc-200' : 'text-zinc-400'}`}>
           {element.label}
         </span>
 
@@ -243,7 +243,7 @@ function TextElementEditor({
         />
 
         {/* Cell Label */}
-        <span className="text-[10px] text-gray-500 dark:text-gray-400 w-10 shrink-0 text-right">
+        <span className="text-[10px] text-zinc-500 dark:text-zinc-400 w-10 shrink-0 text-right">
           {currentCell !== null && currentCell !== undefined ? `Cell ${currentCell + 1}` : 'Auto'}
         </span>
 
@@ -251,7 +251,7 @@ function TextElementEditor({
         {currentCell !== null && currentCell !== undefined && (
           <button
             onClick={() => onTextCellsChange?.({ [element.id]: null })}
-            className="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 shrink-0"
+            className="text-xs text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 shrink-0"
             title="Reset to auto"
           >
             ×
@@ -265,12 +265,12 @@ function TextElementEditor({
         onChange={(e) => onTextChange(element.id, { content: e.target.value })}
         placeholder={element.placeholder}
         rows={2}
-        className="w-full px-3 py-2 text-sm border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 resize-none bg-white dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-500"
+        className="w-full px-3 py-2 text-sm border border-zinc-200 dark:border-zinc-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary resize-none bg-white dark:bg-dark-subtle dark:text-zinc-100 dark:placeholder-zinc-500"
       />
 
       {/* Row 3: Alignment */}
       <div className="flex items-center gap-1.5">
-        <span className="text-[10px] text-gray-500 dark:text-gray-400">Align:</span>
+        <span className="text-[10px] text-zinc-500 dark:text-zinc-400">Align:</span>
         {textAlignOptions.map((align) => {
           const isActive = layerState.textAlign === align.id
           return (
@@ -280,8 +280,8 @@ function TextElementEditor({
               title={align.name}
               className={`w-6 h-5 rounded flex items-center justify-center transition-colors ${
                 isActive
-                  ? 'bg-blue-500 text-white'
-                  : 'bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
+                  ? 'bg-primary text-white'
+                  : 'bg-zinc-100 dark:bg-dark-subtle text-zinc-500 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-dark-elevated'
               }`}
             >
               <align.Icon />
@@ -292,7 +292,7 @@ function TextElementEditor({
 
       {/* Row 4: Color */}
       <div className="flex items-center gap-1 flex-wrap">
-        <span className="text-[10px] text-gray-500 dark:text-gray-400">Color:</span>
+        <span className="text-[10px] text-zinc-500 dark:text-zinc-400">Color:</span>
         {themeColorOptions.map((color) => (
           <button
             key={color.id}
@@ -300,13 +300,13 @@ function TextElementEditor({
             title={color.name}
             className={`w-5 h-5 rounded-full border-2 transition-transform hover:scale-110 ${
               layerState.color === color.id
-                ? 'border-blue-500 ring-2 ring-blue-500/20'
-                : 'border-gray-200 dark:border-gray-600'
+                ? 'border-primary ring-2 ring-primary/20'
+                : 'border-zinc-200 dark:border-zinc-600'
             }`}
             style={{ backgroundColor: theme[color.id] }}
           />
         ))}
-        <span className="w-px h-3 bg-gray-200 dark:bg-gray-700 mx-0.5" />
+        <span className="w-px h-3 bg-zinc-200 dark:bg-dark-subtle mx-0.5" />
         {neutralColors.map((color) => (
           <button
             key={color.id}
@@ -314,8 +314,8 @@ function TextElementEditor({
             title={color.name}
             className={`w-4 h-4 rounded-full border transition-transform hover:scale-110 ${
               layerState.color === color.id
-                ? 'border-blue-500 ring-2 ring-blue-500/20'
-                : 'border-gray-300 dark:border-gray-600'
+                ? 'border-primary ring-2 ring-primary/20'
+                : 'border-zinc-300 dark:border-zinc-600'
             }`}
             style={{ backgroundColor: color.hex }}
           />
@@ -326,7 +326,7 @@ function TextElementEditor({
       <div className="flex items-center gap-3 flex-wrap">
         {/* Size */}
         <div className="flex items-center gap-1">
-          <span className="text-[10px] text-gray-500 dark:text-gray-400">Size:</span>
+          <span className="text-[10px] text-zinc-500 dark:text-zinc-400">Size:</span>
           {sizeOptions.map((size) => (
             <button
               key={size.id}
@@ -334,8 +334,8 @@ function TextElementEditor({
               title={`Size ${size.name}`}
               className={`w-5 h-5 text-[10px] font-medium rounded ${
                 layerState.size === size.id
-                  ? 'bg-blue-500 text-white'
-                  : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+                  ? 'bg-primary text-white'
+                  : 'bg-zinc-100 dark:bg-dark-subtle text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-dark-elevated'
               }`}
             >
               {size.name}
@@ -350,8 +350,8 @@ function TextElementEditor({
             title="Bold"
             className={`w-6 h-5 text-[10px] font-bold rounded ${
               layerState.bold
-                ? 'bg-blue-500 text-white'
-                : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+                ? 'bg-primary text-white'
+                : 'bg-zinc-100 dark:bg-dark-subtle text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-dark-elevated'
             }`}
           >
             B
@@ -361,8 +361,8 @@ function TextElementEditor({
             title="Italic"
             className={`w-6 h-5 text-[10px] italic rounded ${
               layerState.italic
-                ? 'bg-blue-500 text-white'
-                : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+                ? 'bg-primary text-white'
+                : 'bg-zinc-100 dark:bg-dark-subtle text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-dark-elevated'
             }`}
           >
             I
@@ -371,7 +371,7 @@ function TextElementEditor({
 
         {/* Letter spacing */}
         <div className="flex items-center gap-1 ml-auto">
-          <span className="text-[10px] text-gray-500 dark:text-gray-400">Sp:</span>
+          <span className="text-[10px] text-zinc-500 dark:text-zinc-400">Sp:</span>
           {letterSpacingOptions.map((opt) => (
             <button
               key={opt.id}
@@ -379,8 +379,8 @@ function TextElementEditor({
               title={opt.name}
               className={`px-1.5 h-5 text-[10px] rounded ${
                 layerState.letterSpacing === opt.id
-                  ? 'bg-blue-500 text-white'
-                  : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+                  ? 'bg-primary text-white'
+                  : 'bg-zinc-100 dark:bg-dark-subtle text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-dark-elevated'
               }`}
             >
               {opt.label}
@@ -405,7 +405,7 @@ export default memo(function ContentTab({
 
   return (
     <div className="space-y-3">
-      <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-100">Content</h3>
+      <h3 className="text-sm font-semibold text-zinc-800 dark:text-zinc-100">Content</h3>
 
       {textGroups.map((group) => (
         <CollapsibleSection key={group.id} title={group.name} defaultExpanded={false}>
