@@ -196,7 +196,7 @@ export default memo(function TemplatesTab({
       <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-100">Templates</h3>
 
       {/* Style Presets - Complete designs */}
-      <CollapsibleSection title="Complete Designs" defaultExpanded={true}>
+      <CollapsibleSection title="Complete Designs" defaultExpanded={false}>
         <div className="space-y-3">
           {/* Active preset indicator */}
           {activeStylePresetData && (

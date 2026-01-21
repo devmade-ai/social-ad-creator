@@ -408,7 +408,7 @@ export default memo(function ContentTab({
       <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-100">Content</h3>
 
       {textGroups.map((group) => (
-        <CollapsibleSection key={group.id} title={group.name} defaultExpanded={group.id === 'titleTagline'}>
+        <CollapsibleSection key={group.id} title={group.name} defaultExpanded={false}>
           <div className="space-y-3">
             {group.elements.map((element) => (
               <TextElementEditor

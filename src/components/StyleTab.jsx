@@ -200,7 +200,7 @@ export default memo(function StyleTab({
       <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-100">Style</h3>
 
       {/* Themes Section */}
-      <CollapsibleSection title="Themes" defaultExpanded={true}>
+      <CollapsibleSection title="Themes" defaultExpanded={false}>
         {/* Preset Themes */}
         <div className="space-y-2">
           <label className="block text-xs font-medium text-gray-600 dark:text-gray-300">Presets</label>

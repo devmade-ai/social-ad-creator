@@ -547,7 +547,7 @@ export default memo(function LayoutTab({
       <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-100">Layout</h3>
 
       {/* Structure Section */}
-      <CollapsibleSection title="Structure" defaultExpanded={true}>
+      <CollapsibleSection title="Structure" defaultExpanded={false}>
         <div className="space-y-4">
           {/* Layout Type */}
           <div>
@@ -795,7 +795,7 @@ export default memo(function LayoutTab({
       </CollapsibleSection>
 
       {/* Text Alignment Section */}
-      <CollapsibleSection title="Text Alignment" defaultExpanded={true}>
+      <CollapsibleSection title="Text Alignment" defaultExpanded={false}>
         <div className="space-y-3">
           {/* Context-aware label */}
           <div className="text-xs text-gray-500 dark:text-gray-400">

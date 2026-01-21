@@ -136,7 +136,7 @@ function AIPromptHelper({ theme }) {
   const [mood, setMood] = useState('neutral')
   const [purpose, setPurpose] = useState('background')
   const [orientation, setOrientation] = useState('landscape')
-  const [useThemeColors, setUseThemeColors] = useState(true)
+  const [useThemeColors, setUseThemeColors] = useState(false)
   const [customColors, setCustomColors] = useState('')
   const [context, setContext] = useState('')
   const [copied, setCopied] = useState(false)
@@ -465,7 +465,7 @@ export default memo(function MediaTab({
       </CollapsibleSection>
 
       {/* Background Image Section */}
-      <CollapsibleSection title="Background Image" defaultExpanded={true}>
+      <CollapsibleSection title="Background Image" defaultExpanded={false}>
         <div className="space-y-3">
           {/* Upload area */}
           <div
@@ -675,7 +675,7 @@ export default memo(function MediaTab({
 
       {/* Image Overlay Section - only when image exists */}
       {image && (
-        <CollapsibleSection title="Image Overlay" defaultExpanded={overlay?.opacity > 0}>
+        <CollapsibleSection title="Image Overlay" defaultExpanded={false}>
           <div className="space-y-3">
             {/* On/Off Toggle */}
             <div className="space-y-2">
@@ -936,7 +936,7 @@ export default memo(function MediaTab({
 
       {/* Logo Section */}
       {onLogoChange && (
-        <CollapsibleSection title="Logo" defaultExpanded={!!logo}>
+        <CollapsibleSection title="Logo" defaultExpanded={false}>
           {!logo ? (
             <div
               className="border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl p-4 text-center cursor-pointer hover:border-blue-400 hover:bg-blue-50/30 dark:hover:bg-blue-900/20 transition-all"
