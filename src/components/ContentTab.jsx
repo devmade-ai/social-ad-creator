@@ -155,7 +155,7 @@ function MiniCellGrid({ layout, imageCell, highlightCell, onSelectCell, platform
             bgClass = 'bg-primary hover:bg-primary-hover'
             content = <span className="text-white text-[8px]">✓</span>
           } else if (isImage) {
-            bgClass = 'bg-blue-400 hover:bg-primary'
+            bgClass = 'bg-primary hover:bg-primary-hover'
             content = <span className="text-white text-[8px]">📷</span>
           } else {
             bgClass = 'bg-zinc-200 dark:bg-dark-subtle hover:bg-zinc-300 dark:hover:bg-dark-elevated'

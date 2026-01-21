@@ -167,10 +167,10 @@ function CellGrid({
         bgClass = 'bg-primary hover:bg-primary-hover'
         textClass = 'text-white'
       } else if (isSectionSelected) {
-        bgClass = 'bg-blue-200 dark:bg-blue-800 hover:bg-blue-300 dark:hover:bg-blue-700'
+        bgClass = 'bg-violet-100 dark:bg-violet-900/30 hover:bg-violet-200 dark:hover:bg-violet-900/40'
         textClass = 'text-violet-700 dark:text-violet-300'
       } else if (isImage) {
-        bgClass = 'bg-blue-400 hover:bg-primary'
+        bgClass = 'bg-primary hover:bg-primary-hover'
         textClass = 'text-white'
       } else {
         bgClass = 'bg-zinc-100 dark:bg-dark-subtle hover:bg-zinc-200 dark:hover:bg-dark-elevated'
@@ -183,7 +183,7 @@ function CellGrid({
         textClass = 'text-white'
         content = '✓'
       } else if (isImage) {
-        bgClass = 'bg-blue-400 hover:bg-primary'
+        bgClass = 'bg-primary hover:bg-primary-hover'
         textClass = 'text-white'
         content = '📷'
       } else {
@@ -699,8 +699,8 @@ export default memo(function LayoutTab({
                     disabled={(selectedSection.subdivisions || 1) <= 1}
                     className={`w-9 h-9 text-base rounded-lg font-medium ${
                       (selectedSection.subdivisions || 1) <= 1
-                        ? 'bg-violet-100 dark:bg-blue-800/50 text-violet-300 dark:text-primary cursor-not-allowed'
-                        : 'bg-blue-200 dark:bg-blue-800 text-violet-700 dark:text-violet-300 hover:bg-blue-300 dark:hover:bg-blue-700'
+                        ? 'bg-violet-100 dark:bg-violet-900/30 text-violet-300 dark:text-primary cursor-not-allowed'
+                        : 'bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300 hover:bg-violet-200 dark:hover:bg-violet-900/40'
                     }`}
                   >
                     −
@@ -713,8 +713,8 @@ export default memo(function LayoutTab({
                     disabled={(selectedSection.subdivisions || 1) >= 3}
                     className={`w-9 h-9 text-base rounded-lg font-medium ${
                       (selectedSection.subdivisions || 1) >= 3
-                        ? 'bg-violet-100 dark:bg-blue-800/50 text-violet-300 dark:text-primary cursor-not-allowed'
-                        : 'bg-blue-200 dark:bg-blue-800 text-violet-700 dark:text-violet-300 hover:bg-blue-300 dark:hover:bg-blue-700'
+                        ? 'bg-violet-100 dark:bg-violet-900/30 text-violet-300 dark:text-primary cursor-not-allowed'
+                        : 'bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300 hover:bg-violet-200 dark:hover:bg-violet-900/40'
                     }`}
                   >
                     +
@@ -775,7 +775,7 @@ export default memo(function LayoutTab({
 
               <button
                 onClick={() => setStructureSelection({ type: 'section', index: selectedCellInfo.sectionIndex })}
-                className="w-full px-3 py-2 text-sm bg-blue-200 dark:bg-blue-800 text-violet-700 dark:text-violet-300 hover:bg-blue-300 dark:hover:bg-blue-700 rounded-lg font-medium"
+                className="w-full px-3 py-2 text-sm bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300 hover:bg-violet-200 dark:hover:bg-violet-900/40 rounded-lg font-medium"
               >
                 Edit Parent {type === 'rows' ? 'Row' : 'Column'}
               </button>
