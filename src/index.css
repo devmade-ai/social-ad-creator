@@ -12,6 +12,8 @@ body {
   background: #FAFAFA;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* Prevent accidental pull-to-refresh on mobile */
+  overscroll-behavior-y: contain;
 }
 
 .dark body,
