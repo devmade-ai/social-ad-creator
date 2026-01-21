@@ -5,7 +5,7 @@ Compact context summary for session continuity. Rewrite at session end.
 ---
 
 ## Worked on
-Created a fun, vibrant style guide adapted from a fintech design system (Koinz)
+Created a fun, vibrant style guide for the Social Ad Creator
 
 ## Accomplished
 
@@ -29,4 +29,4 @@ Created a fun, vibrant style guide adapted from a fintech design system (Koinz)
 - This is a reference document, not implemented code
 - Could be used to guide future UI updates
 - Existing app already has some vibrant themes (Vibrant, Neon, Candy) that align with this direction
-- The style guide maintains the systematic structure of Koinz but with creative energy
+- The style guide uses a systematic structure with creative energy
