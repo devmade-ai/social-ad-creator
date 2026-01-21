@@ -279,7 +279,7 @@ function AIPromptHelper({ platform, theme }) {
 
       {/* Colors */}
       <div className="space-y-1.5">
-        <label className="block text-xs font-medium text-gray-600 dark:text-gray-300">Colors</label>
+        <label className="block text-xs font-medium text-gray-600 dark:text-gray-300">Colors (optional)</label>
         <div className="flex gap-1.5 mb-2">
           <button
             onClick={() => setUseThemeColors(true)}
@@ -302,13 +302,19 @@ function AIPromptHelper({ platform, theme }) {
             Custom
           </button>
         </div>
-        {useThemeColors && theme ? (
-          <div className="flex gap-2 items-center text-xs text-gray-500 dark:text-gray-400">
-            <span className="inline-block w-4 h-4 rounded border" style={{ backgroundColor: theme.primary }} />
-            <span className="inline-block w-4 h-4 rounded border" style={{ backgroundColor: theme.secondary }} />
-            <span className="inline-block w-4 h-4 rounded border" style={{ backgroundColor: theme.accent }} />
-            <span>Current theme colors</span>
-          </div>
+        {useThemeColors ? (
+          theme ? (
+            <div className="flex gap-2 items-center text-xs text-gray-500 dark:text-gray-400">
+              <span className="inline-block w-4 h-4 rounded border" style={{ backgroundColor: theme.primary }} />
+              <span className="inline-block w-4 h-4 rounded border" style={{ backgroundColor: theme.secondary }} />
+              <span className="inline-block w-4 h-4 rounded border" style={{ backgroundColor: theme.accent }} />
+              <span>From Style tab</span>
+            </div>
+          ) : (
+            <p className="text-[10px] text-gray-400 dark:text-gray-500">
+              Select a theme in the Style tab, or switch to Custom
+            </p>
+          )
         ) : (
           <input
             type="text"
@@ -323,11 +329,15 @@ function AIPromptHelper({ platform, theme }) {
       {/* Format Info */}
       <div className="text-xs text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 rounded-lg px-3 py-2">
         <span className="font-medium">Format:</span> {platformData.name} ({platformData.width}×{platformData.height}, {aspectRatio}, {orientation})
+        <span className="block text-[10px] mt-0.5">Change platform in the Export section below</span>
       </div>
 
       {/* Generated Prompt */}
       <div className="space-y-1.5">
-        <label className="block text-xs font-medium text-gray-600 dark:text-gray-300">Generated Prompt</label>
+        <div className="flex justify-between items-center">
+          <label className="block text-xs font-medium text-gray-600 dark:text-gray-300">Generated Prompt</label>
+          <span className="text-[10px] text-gray-400 dark:text-gray-500">Updates as you change options</span>
+        </div>
         <div className="relative">
           <div className="w-full px-3 py-2 text-xs bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-700 dark:text-gray-300 max-h-24 overflow-y-auto">
             {generatedPrompt}
