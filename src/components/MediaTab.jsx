@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState, memo, useMemo } from 'react'
+import { useCallback, useRef, useState, memo, useMemo, useEffect } from 'react'
 import CollapsibleSection from './CollapsibleSection'
 import { sampleImages } from '../config/sampleImages'
 import { platforms } from '../config/platforms'
@@ -45,7 +45,7 @@ const orientationOptions = [
 ]
 
 // Cell grid for image assignment
-function CellGrid({ layout, cellImages, selectedCell, onSelectCell, platform }) {
+function CellGrid({ layout, cellImages, selectedCell, onSelectCell, platform, highlightImageId }) {
   const { type, structure } = layout
   const isFullbleed = type === 'fullbleed'
   const isRows = type === 'rows'
@@ -78,8 +78,11 @@ function CellGrid({ layout, cellImages, selectedCell, onSelectCell, platform }) 
         const sectionCells = []
         for (let subIndex = 0; subIndex < subdivisions; subIndex++) {
           const currentCellIndex = cellIndex
-          const hasImage = cellImages && cellImages[currentCellIndex]
+          const cellImageId = cellImages && cellImages[currentCellIndex]
+          const hasImage = !!cellImageId
           const isSelected = selectedCell === currentCellIndex
+          // When highlightImageId is provided, highlight cells with that image
+          const isHighlighted = highlightImageId && cellImageId === highlightImageId
           cellIndex++
 
           sectionCells.push(
@@ -87,7 +90,9 @@ function CellGrid({ layout, cellImages, selectedCell, onSelectCell, platform }) 
               key={`cell-${currentCellIndex}`}
               onClick={() => onSelectCell(currentCellIndex)}
               className={`flex items-center justify-center text-xs font-medium transition-colors ${
-                isSelected
+                isHighlighted
+                  ? 'bg-primary hover:bg-primary-hover text-white ring-2 ring-primary ring-offset-1'
+                  : isSelected
                   ? 'bg-primary hover:bg-primary-hover text-white ring-2 ring-primary ring-offset-1'
                   : hasImage
                   ? 'bg-violet-200 dark:bg-violet-800 hover:bg-violet-300 dark:hover:bg-violet-700 text-violet-700 dark:text-violet-200'
@@ -366,12 +371,12 @@ export default memo(function MediaTab({
   images = [],
   onAddImage,
   onRemoveImage,
-  // Cell images
+  onUpdateImage,
+  onUpdateImageFilters,
+  onUpdateImagePosition,
+  // Cell assignments
   cellImages = {},
   onSetCellImage,
-  onUpdateCellImage,
-  onUpdateCellImageFilters,
-  onUpdateCellImagePosition,
   // Logo props
   logo,
   onLogoChange,
@@ -391,7 +396,19 @@ export default memo(function MediaTab({
   const logoInputRef = useRef(null)
   const [loadingSample, setLoadingSample] = useState(null)
   const [sampleError, setSampleError] = useState(null)
-  const [selectedCell, setSelectedCell] = useState(0) // Currently selected cell for editing
+  const [selectedImageId, setSelectedImageId] = useState(null) // Currently selected image for editing
+
+  // Get selected image data
+  const selectedImage = images.find((img) => img.id === selectedImageId) || null
+
+  // Auto-select first image when images are added
+  useEffect(() => {
+    if (images.length > 0 && !selectedImage) {
+      setSelectedImageId(images[0].id)
+    } else if (images.length === 0) {
+      setSelectedImageId(null)
+    }
+  }, [images, selectedImage])
 
   // Get total cell count
   const totalCells = useMemo(() => {
@@ -403,11 +420,12 @@ export default memo(function MediaTab({
     return count
   }, [layout])
 
-  // Get selected cell's image data
-  const selectedCellImage = cellImages[selectedCell]
-  const selectedImageData = selectedCellImage
-    ? images.find((img) => img.id === selectedCellImage.imageId)
-    : null
+  // Find which cells this image is assigned to
+  const getImageCells = useCallback((imageId) => {
+    return Object.entries(cellImages)
+      .filter(([, id]) => id === imageId)
+      .map(([cellIdx]) => parseInt(cellIdx))
+  }, [cellImages])
 
   // Load a sample image
   const loadSampleImage = useCallback(
@@ -421,10 +439,7 @@ export default memo(function MediaTab({
         const reader = new FileReader()
         reader.onload = (event) => {
           const imageId = onAddImage(event.target.result, sample.name)
-          // Auto-assign to selected cell if no image there
-          if (!cellImages[selectedCell]) {
-            onSetCellImage(selectedCell, imageId)
-          }
+          setSelectedImageId(imageId)
           setLoadingSample(null)
         }
         reader.onerror = () => {
@@ -437,28 +452,29 @@ export default memo(function MediaTab({
         setLoadingSample(null)
       }
     },
-    [onAddImage, onSetCellImage, cellImages, selectedCell]
+    [onAddImage]
   )
 
   const handleDrop = useCallback(
     (e) => {
       e.preventDefault()
       const files = Array.from(e.dataTransfer.files || [])
-      files.forEach((file, index) => {
+      let firstImageId = null
+      files.forEach((file) => {
         if (file && file.type.startsWith('image/')) {
           const reader = new FileReader()
           reader.onload = (event) => {
             const imageId = onAddImage(event.target.result, file.name)
-            // Auto-assign first uploaded image to selected cell if no image there
-            if (index === 0 && !cellImages[selectedCell]) {
-              onSetCellImage(selectedCell, imageId)
+            if (!firstImageId) {
+              firstImageId = imageId
+              setSelectedImageId(imageId)
             }
           }
           reader.readAsDataURL(file)
         }
       })
     },
-    [onAddImage, onSetCellImage, cellImages, selectedCell]
+    [onAddImage]
   )
 
   const handleDragOver = useCallback((e) => {
@@ -468,35 +484,39 @@ export default memo(function MediaTab({
   const handleFileSelect = useCallback(
     (e) => {
       const files = Array.from(e.target.files || [])
-      files.forEach((file, index) => {
+      let firstImageId = null
+      files.forEach((file) => {
         if (file && file.type.startsWith('image/')) {
           const reader = new FileReader()
           reader.onload = (event) => {
             const imageId = onAddImage(event.target.result, file.name)
-            // Auto-assign first uploaded image to selected cell if no image there
-            if (index === 0 && !cellImages[selectedCell]) {
-              onSetCellImage(selectedCell, imageId)
+            if (!firstImageId) {
+              firstImageId = imageId
+              setSelectedImageId(imageId)
             }
           }
           reader.readAsDataURL(file)
         }
       })
     },
-    [onAddImage, onSetCellImage, cellImages, selectedCell]
+    [onAddImage]
   )
 
-  // Assign an image from pool to selected cell
-  const assignImageToCell = useCallback(
-    (imageId) => {
-      onSetCellImage(selectedCell, imageId)
+  // Toggle assignment of selected image to a cell
+  const toggleCellAssignment = useCallback(
+    (cellIndex) => {
+      if (!selectedImageId) return
+      const currentImageId = cellImages[cellIndex]
+      if (currentImageId === selectedImageId) {
+        // Remove assignment
+        onSetCellImage(cellIndex, null)
+      } else {
+        // Assign selected image to this cell
+        onSetCellImage(cellIndex, selectedImageId)
+      }
     },
-    [onSetCellImage, selectedCell]
+    [selectedImageId, cellImages, onSetCellImage]
   )
-
-  // Remove image from selected cell
-  const removeImageFromCell = useCallback(() => {
-    onSetCellImage(selectedCell, null)
-  }, [onSetCellImage, selectedCell])
 
   return (
     <div className="space-y-3">
@@ -578,30 +598,29 @@ export default memo(function MediaTab({
             </div>
           )}
 
-          {/* Image Library - show when there are images */}
+          {/* Image Library - click to select an image */}
           {images.length > 0 && (
             <div className="space-y-2">
-              <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-300">Image Library</label>
+              <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-300">
+                Select Image <span className="text-zinc-400 dark:text-zinc-500 font-normal">(click to edit)</span>
+              </label>
               <div className="grid grid-cols-4 gap-1.5">
                 {images.map((img) => {
-                  // Find which cells this image is assigned to
-                  const assignedCells = Object.entries(cellImages)
-                    .filter(([, ci]) => ci?.imageId === img.id)
-                    .map(([cellIdx]) => parseInt(cellIdx) + 1)
-                  const isAssignedToSelected = selectedCellImage?.imageId === img.id
+                  const isSelected = selectedImageId === img.id
+                  const assignedCells = getImageCells(img.id)
 
                   return (
                     <div key={img.id} className="relative group">
                       <button
-                        onClick={() => assignImageToCell(img.id)}
+                        onClick={() => setSelectedImageId(img.id)}
                         className={`aspect-square rounded-lg overflow-hidden border-2 transition-all w-full ${
-                          isAssignedToSelected
+                          isSelected
                             ? 'border-primary ring-2 ring-primary/30'
                             : assignedCells.length > 0
-                            ? 'border-violet-300 dark:border-violet-600'
+                            ? 'border-violet-300 dark:border-violet-600 hover:border-violet-400'
                             : 'border-zinc-200 dark:border-zinc-700 hover:border-violet-400'
                         }`}
-                        title={assignedCells.length > 0 ? `Assigned to cell${assignedCells.length > 1 ? 's' : ''} ${assignedCells.join(', ')}` : `Click to assign to Cell ${selectedCell + 1}`}
+                        title={isSelected ? 'Selected' : 'Click to select'}
                       >
                         <img src={img.src} alt={img.name} className="w-full h-full object-cover" />
                       </button>
@@ -616,10 +635,10 @@ export default memo(function MediaTab({
                       >
                         ×
                       </button>
-                      {/* Assignment indicator - show all assigned cells */}
+                      {/* Assignment indicator */}
                       {assignedCells.length > 0 && (
-                        <div className="absolute bottom-0.5 left-0.5 bg-primary text-white text-[8px] px-1 rounded">
-                          {assignedCells.length > 2 ? `${assignedCells.length} cells` : assignedCells.join(', ')}
+                        <div className="absolute bottom-0.5 left-0.5 bg-violet-600 text-white text-[8px] px-1 rounded">
+                          {assignedCells.length > 2 ? `${assignedCells.length} cells` : assignedCells.map(c => c + 1).join(', ')}
                         </div>
                       )}
                     </div>
@@ -629,43 +648,14 @@ export default memo(function MediaTab({
             </div>
           )}
 
-          {/* Cell Assignment Section - show when there are images */}
-          {images.length > 0 && (
-            <div className="space-y-2 pt-3 border-t border-zinc-100 dark:border-zinc-800">
-              <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-300">Assign to Cell</label>
-              <div className="flex items-center gap-3">
-                <CellGrid
-                  layout={layout}
-                  cellImages={cellImages}
-                  selectedCell={selectedCell}
-                  onSelectCell={setSelectedCell}
-                  platform={platform}
-                />
-                <div className="text-xs text-zinc-500 dark:text-zinc-400">
-                  <div className="font-medium text-zinc-700 dark:text-zinc-300">Cell {selectedCell + 1}</div>
-                  <div>{selectedImageData ? selectedImageData.name : 'No image'}</div>
-                  {selectedCellImage && (
-                    <button
-                      onClick={removeImageFromCell}
-                      className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 mt-0.5"
-                    >
-                      Remove
-                    </button>
-                  )}
-                </div>
-              </div>
-              <p className="text-[10px] text-zinc-400 dark:text-zinc-500">
-                Select a cell, then click an image above to assign it
-              </p>
-            </div>
-          )}
-
-          {/* Selected Cell Image Settings */}
-          {selectedCellImage && selectedImageData && (
+          {/* Selected Image Settings */}
+          {selectedImage && (
             <div className="space-y-3 pt-3 border-t border-zinc-100 dark:border-zinc-800">
-              <span className="text-xs font-medium text-zinc-700 dark:text-zinc-300">
-                Cell {selectedCell + 1} Settings
-              </span>
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-medium text-zinc-700 dark:text-zinc-300">
+                  {selectedImage.name}
+                </span>
+              </div>
 
               {/* Object Fit */}
               <div className="space-y-2">
@@ -674,9 +664,9 @@ export default memo(function MediaTab({
                   {['cover', 'contain'].map((fit) => (
                     <button
                       key={fit}
-                      onClick={() => onUpdateCellImage(selectedCell, { fit })}
+                      onClick={() => onUpdateImage(selectedImageId, { fit })}
                       className={`flex-1 px-3 py-2 text-sm rounded-lg capitalize font-medium ${
-                        selectedCellImage.fit === fit
+                        selectedImage.fit === fit
                           ? 'bg-primary text-white shadow-sm'
                           : 'bg-zinc-100 dark:bg-dark-subtle text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-dark-elevated'
                       }`}
@@ -690,7 +680,6 @@ export default memo(function MediaTab({
               {/* Position */}
               <div className="space-y-2">
                 <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-300">Position</label>
-                {/* Quick presets */}
                 <div className="grid grid-cols-3 gap-1">
                   {[
                     { x: 0, y: 0, label: '↖' },
@@ -705,9 +694,9 @@ export default memo(function MediaTab({
                   ].map((preset) => (
                     <button
                       key={`${preset.x}-${preset.y}`}
-                      onClick={() => onUpdateCellImagePosition(selectedCell, { x: preset.x, y: preset.y })}
+                      onClick={() => onUpdateImagePosition(selectedImageId, { x: preset.x, y: preset.y })}
                       className={`px-2 py-1.5 text-sm rounded font-medium ${
-                        selectedCellImage.position?.x === preset.x && selectedCellImage.position?.y === preset.y
+                        selectedImage.position?.x === preset.x && selectedImage.position?.y === preset.y
                           ? 'bg-primary text-white shadow-sm'
                           : 'bg-zinc-100 dark:bg-dark-subtle text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-dark-elevated'
                       }`}
@@ -723,30 +712,53 @@ export default memo(function MediaTab({
                 <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-300">Grayscale</label>
                 <button
                   onClick={() =>
-                    onUpdateCellImageFilters(selectedCell, {
-                      grayscale: (selectedCellImage.filters?.grayscale || 0) > 0 ? 0 : 100,
+                    onUpdateImageFilters(selectedImageId, {
+                      grayscale: (selectedImage.filters?.grayscale || 0) > 0 ? 0 : 100,
                     })
                   }
                   className={`w-full px-3 py-2 text-sm rounded-lg font-medium ${
-                    (selectedCellImage.filters?.grayscale || 0) > 0
+                    (selectedImage.filters?.grayscale || 0) > 0
                       ? 'bg-primary text-white shadow-sm'
                       : 'bg-zinc-100 dark:bg-dark-subtle text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-dark-elevated'
                   }`}
                 >
-                  {(selectedCellImage.filters?.grayscale || 0) > 0 ? 'On' : 'Off'}
+                  {(selectedImage.filters?.grayscale || 0) > 0 ? 'On' : 'Off'}
                 </button>
+              </div>
+
+              {/* Assign to Cells */}
+              <div className="space-y-2 pt-3 border-t border-zinc-100 dark:border-zinc-800">
+                <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-300">Assign to Cells</label>
+                <div className="flex items-center gap-3">
+                  <CellGrid
+                    layout={layout}
+                    cellImages={cellImages}
+                    selectedCell={null}
+                    onSelectCell={toggleCellAssignment}
+                    platform={platform}
+                    highlightImageId={selectedImageId}
+                  />
+                  <div className="text-xs text-zinc-500 dark:text-zinc-400">
+                    <div>Click cells to assign/unassign</div>
+                    <div className="text-violet-600 dark:text-violet-400">
+                      {getImageCells(selectedImageId).length > 0
+                        ? `In cells: ${getImageCells(selectedImageId).map(c => c + 1).join(', ')}`
+                        : 'Not assigned'}
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           )}
         </div>
       </CollapsibleSection>
 
-      {/* Image Overlay Section - only when cell has image */}
-      {selectedCellImage && (
+      {/* Image Overlay Section - only when image is selected */}
+      {selectedImage && (
         <CollapsibleSection title="Image Overlay" defaultExpanded={false}>
           <div className="space-y-3">
             <p className="text-xs text-zinc-500 dark:text-zinc-400">
-              Overlay for Cell {selectedCell + 1}
+              Overlay for {selectedImage.name}
             </p>
 
             {/* On/Off Toggle */}
@@ -919,26 +931,26 @@ export default memo(function MediaTab({
         </CollapsibleSection>
       )}
 
-      {/* Advanced Filters Section - only when cell has image */}
-      {selectedCellImage && (
+      {/* Advanced Filters Section - only when image is selected */}
+      {selectedImage && (
         <CollapsibleSection title="Advanced Filters" defaultExpanded={false}>
           <div className="space-y-3">
             <p className="text-xs text-zinc-500 dark:text-zinc-400">
-              Filters for Cell {selectedCell + 1}
+              Filters for {selectedImage.name}
             </p>
 
             <div className="space-y-1">
               <div className="flex justify-between">
                 <label className="text-xs font-medium text-zinc-600 dark:text-zinc-300">Grayscale</label>
-                <span className="text-xs text-zinc-500 dark:text-zinc-400">{selectedCellImage.filters?.grayscale || 0}%</span>
+                <span className="text-xs text-zinc-500 dark:text-zinc-400">{selectedImage.filters?.grayscale || 0}%</span>
               </div>
               <input
                 type="range"
                 min="0"
                 max="100"
                 step="5"
-                value={selectedCellImage.filters?.grayscale || 0}
-                onChange={(e) => onUpdateCellImageFilters(selectedCell, { grayscale: parseInt(e.target.value, 10) })}
+                value={selectedImage.filters?.grayscale || 0}
+                onChange={(e) => onUpdateImageFilters(selectedImageId, { grayscale: parseInt(e.target.value, 10) })}
                 className="w-full h-2 bg-zinc-200 dark:bg-dark-subtle rounded-lg appearance-none cursor-pointer"
               />
             </div>
@@ -946,15 +958,15 @@ export default memo(function MediaTab({
             <div className="space-y-1">
               <div className="flex justify-between">
                 <label className="text-xs font-medium text-zinc-600 dark:text-zinc-300">Sepia</label>
-                <span className="text-xs text-zinc-500 dark:text-zinc-400">{selectedCellImage.filters?.sepia || 0}%</span>
+                <span className="text-xs text-zinc-500 dark:text-zinc-400">{selectedImage.filters?.sepia || 0}%</span>
               </div>
               <input
                 type="range"
                 min="0"
                 max="100"
                 step="5"
-                value={selectedCellImage.filters?.sepia || 0}
-                onChange={(e) => onUpdateCellImageFilters(selectedCell, { sepia: parseInt(e.target.value, 10) })}
+                value={selectedImage.filters?.sepia || 0}
+                onChange={(e) => onUpdateImageFilters(selectedImageId, { sepia: parseInt(e.target.value, 10) })}
                 className="w-full h-2 bg-zinc-200 dark:bg-dark-subtle rounded-lg appearance-none cursor-pointer"
               />
             </div>
@@ -962,15 +974,15 @@ export default memo(function MediaTab({
             <div className="space-y-1">
               <div className="flex justify-between">
                 <label className="text-xs font-medium text-zinc-600 dark:text-zinc-300">Blur</label>
-                <span className="text-xs text-zinc-500 dark:text-zinc-400">{selectedCellImage.filters?.blur || 0}px</span>
+                <span className="text-xs text-zinc-500 dark:text-zinc-400">{selectedImage.filters?.blur || 0}px</span>
               </div>
               <input
                 type="range"
                 min="0"
                 max="10"
                 step="0.5"
-                value={selectedCellImage.filters?.blur || 0}
-                onChange={(e) => onUpdateCellImageFilters(selectedCell, { blur: parseFloat(e.target.value) })}
+                value={selectedImage.filters?.blur || 0}
+                onChange={(e) => onUpdateImageFilters(selectedImageId, { blur: parseFloat(e.target.value) })}
                 className="w-full h-2 bg-zinc-200 dark:bg-dark-subtle rounded-lg appearance-none cursor-pointer"
               />
             </div>
@@ -978,15 +990,15 @@ export default memo(function MediaTab({
             <div className="space-y-1">
               <div className="flex justify-between">
                 <label className="text-xs font-medium text-zinc-600 dark:text-zinc-300">Contrast</label>
-                <span className="text-xs text-zinc-500 dark:text-zinc-400">{selectedCellImage.filters?.contrast || 100}%</span>
+                <span className="text-xs text-zinc-500 dark:text-zinc-400">{selectedImage.filters?.contrast || 100}%</span>
               </div>
               <input
                 type="range"
                 min="50"
                 max="150"
                 step="5"
-                value={selectedCellImage.filters?.contrast || 100}
-                onChange={(e) => onUpdateCellImageFilters(selectedCell, { contrast: parseInt(e.target.value, 10) })}
+                value={selectedImage.filters?.contrast || 100}
+                onChange={(e) => onUpdateImageFilters(selectedImageId, { contrast: parseInt(e.target.value, 10) })}
                 className="w-full h-2 bg-zinc-200 dark:bg-dark-subtle rounded-lg appearance-none cursor-pointer"
               />
             </div>
@@ -994,15 +1006,15 @@ export default memo(function MediaTab({
             <div className="space-y-1">
               <div className="flex justify-between">
                 <label className="text-xs font-medium text-zinc-600 dark:text-zinc-300">Brightness</label>
-                <span className="text-xs text-zinc-500 dark:text-zinc-400">{selectedCellImage.filters?.brightness || 100}%</span>
+                <span className="text-xs text-zinc-500 dark:text-zinc-400">{selectedImage.filters?.brightness || 100}%</span>
               </div>
               <input
                 type="range"
                 min="50"
                 max="150"
                 step="5"
-                value={selectedCellImage.filters?.brightness || 100}
-                onChange={(e) => onUpdateCellImageFilters(selectedCell, { brightness: parseInt(e.target.value, 10) })}
+                value={selectedImage.filters?.brightness || 100}
+                onChange={(e) => onUpdateImageFilters(selectedImageId, { brightness: parseInt(e.target.value, 10) })}
                 className="w-full h-2 bg-zinc-200 dark:bg-dark-subtle rounded-lg appearance-none cursor-pointer"
               />
             </div>

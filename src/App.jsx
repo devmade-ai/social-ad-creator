@@ -27,10 +27,10 @@ function App() {
     // Image pool management
     addImage,
     removeImage,
+    updateImage,
+    updateImageFilters,
+    updateImagePosition,
     setCellImage,
-    updateCellImage,
-    updateCellImageFilters,
-    updateCellImagePosition,
     // Other state
     setLogo,
     setLogoPosition,
@@ -212,12 +212,12 @@ function App() {
                     images={state.images}
                     onAddImage={addImage}
                     onRemoveImage={removeImage}
-                    // Cell images
+                    onUpdateImage={updateImage}
+                    onUpdateImageFilters={updateImageFilters}
+                    onUpdateImagePosition={updateImagePosition}
+                    // Cell assignments
                     cellImages={state.cellImages}
                     onSetCellImage={setCellImage}
-                    onUpdateCellImage={updateCellImage}
-                    onUpdateCellImageFilters={updateCellImageFilters}
-                    onUpdateCellImagePosition={updateCellImagePosition}
                     // Logo
                     logo={state.logo}
                     onLogoChange={setLogo}

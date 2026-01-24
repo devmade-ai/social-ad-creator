@@ -203,16 +203,17 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
   }, [layout.structure])
 
   // Helper to get image data for a cell
+  // cellImages now stores just imageId per cell, settings are on the image itself
   const getCellImageData = (cellIndex) => {
-    const cellImage = cellImages[cellIndex]
-    if (!cellImage) return null
-    const imageData = images.find((img) => img.id === cellImage.imageId)
+    const imageId = cellImages[cellIndex]
+    if (!imageId) return null
+    const imageData = images.find((img) => img.id === imageId)
     if (!imageData) return null
     return {
       src: imageData.src,
-      fit: cellImage.fit || 'cover',
-      position: cellImage.position || { x: 50, y: 50 },
-      filters: cellImage.filters || {},
+      fit: imageData.fit || 'cover',
+      position: imageData.position || { x: 50, y: 50 },
+      filters: imageData.filters || {},
     }
   }
 

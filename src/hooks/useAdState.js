@@ -8,15 +8,15 @@ export const defaultState = {
   // Track active style preset (null = custom/no preset)
   activeStylePreset: null,
 
-  // Media pool - all uploaded images
-  // Each image: { id: string, src: string, name: string }
+  // Media pool - all uploaded images with their settings
+  // Each image: { id, src, name, fit, position, filters }
   images: [],
 
-  // Per-cell image assignments with individual settings
-  // { cellIndex: { imageId, fit, position, filters, overlay } }
+  // Per-cell image assignments (just the image ID)
+  // { cellIndex: imageId }
   cellImages: {},
 
-  // Default settings for new cell images
+  // Default settings for new images
   defaultImageSettings: {
     fit: 'cover',
     position: { x: 50, y: 50 },
@@ -112,12 +112,19 @@ export const defaultState = {
 export function useAdState() {
   const { state, setState, undo, redo, canUndo, canRedo, resetHistory } = useHistory(defaultState)
 
-  // Add an image to the media pool
+  // Add an image to the media pool with default settings
   const addImage = useCallback((src, name = 'Image') => {
     const id = `img-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
     setState((prev) => ({
       ...prev,
-      images: [...prev.images, { id, src, name }],
+      images: [...prev.images, {
+        id,
+        src,
+        name,
+        fit: prev.defaultImageSettings.fit,
+        position: { ...prev.defaultImageSettings.position },
+        filters: { ...prev.defaultImageSettings.filters },
+      }],
     }))
     return id
   }, [setState])
@@ -145,67 +152,44 @@ export function useAdState() {
       if (imageId === null) {
         delete newCellImages[cellIndex]
       } else {
-        // Initialize with default settings if new assignment
-        newCellImages[cellIndex] = {
-          imageId,
-          fit: prev.defaultImageSettings.fit,
-          position: { ...prev.defaultImageSettings.position },
-          filters: { ...prev.defaultImageSettings.filters },
-        }
+        newCellImages[cellIndex] = imageId
       }
       return { ...prev, cellImages: newCellImages }
     })
   }, [setState])
 
-  // Update settings for a cell's image
-  const updateCellImage = useCallback((cellIndex, updates) => {
-    setState((prev) => {
-      const cellImage = prev.cellImages[cellIndex]
-      if (!cellImage) return prev
-      return {
-        ...prev,
-        cellImages: {
-          ...prev.cellImages,
-          [cellIndex]: { ...cellImage, ...updates },
-        },
-      }
-    })
+  // Update settings for an image in the library
+  const updateImage = useCallback((imageId, updates) => {
+    setState((prev) => ({
+      ...prev,
+      images: prev.images.map((img) =>
+        img.id === imageId ? { ...img, ...updates } : img
+      ),
+    }))
   }, [setState])
 
-  // Update filters for a cell's image
-  const updateCellImageFilters = useCallback((cellIndex, filters) => {
-    setState((prev) => {
-      const cellImage = prev.cellImages[cellIndex]
-      if (!cellImage) return prev
-      return {
-        ...prev,
-        cellImages: {
-          ...prev.cellImages,
-          [cellIndex]: {
-            ...cellImage,
-            filters: { ...cellImage.filters, ...filters },
-          },
-        },
-      }
-    })
+  // Update filters for an image
+  const updateImageFilters = useCallback((imageId, filters) => {
+    setState((prev) => ({
+      ...prev,
+      images: prev.images.map((img) =>
+        img.id === imageId
+          ? { ...img, filters: { ...img.filters, ...filters } }
+          : img
+      ),
+    }))
   }, [setState])
 
-  // Update position for a cell's image
-  const updateCellImagePosition = useCallback((cellIndex, position) => {
-    setState((prev) => {
-      const cellImage = prev.cellImages[cellIndex]
-      if (!cellImage) return prev
-      return {
-        ...prev,
-        cellImages: {
-          ...prev.cellImages,
-          [cellIndex]: {
-            ...cellImage,
-            position: { ...cellImage.position, ...position },
-          },
-        },
-      }
-    })
+  // Update position for an image
+  const updateImagePosition = useCallback((imageId, position) => {
+    setState((prev) => ({
+      ...prev,
+      images: prev.images.map((img) =>
+        img.id === imageId
+          ? { ...img, position: { ...img.position, ...position } }
+          : img
+      ),
+    }))
   }, [setState])
 
   const setLogo = useCallback((logo) => {
@@ -396,10 +380,10 @@ export function useAdState() {
     // Image pool management
     addImage,
     removeImage,
+    updateImage,
+    updateImageFilters,
+    updateImagePosition,
     setCellImage,
-    updateCellImage,
-    updateCellImageFilters,
-    updateCellImagePosition,
     // Other media
     setLogo,
     setLogoPosition,
