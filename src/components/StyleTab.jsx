@@ -39,7 +39,7 @@ function getCellInfo(layout) {
 }
 
 // Mini cell grid for overlay/spacing selection
-function MiniCellGrid({ layout, imageCell, selectedCell, onSelectCell, platform }) {
+function MiniCellGrid({ layout, cellImages = {}, selectedCell, onSelectCell, platform }) {
   const { type, structure } = layout
   const isFullbleed = type === 'fullbleed'
   const isRows = type === 'rows'
@@ -72,7 +72,7 @@ function MiniCellGrid({ layout, imageCell, selectedCell, onSelectCell, platform 
         const sectionCells = []
         for (let subIndex = 0; subIndex < subdivisions; subIndex++) {
           const currentCellIndex = cellIndex
-          const isImage = currentCellIndex === imageCell
+          const hasImage = !!cellImages[currentCellIndex]
           const isSelected = selectedCell === currentCellIndex
           cellIndex++
 
@@ -80,9 +80,9 @@ function MiniCellGrid({ layout, imageCell, selectedCell, onSelectCell, platform 
           if (isSelected) {
             bgClass = 'bg-primary hover:bg-primary-hover'
             content = <span className="text-white text-[10px]">✓</span>
-          } else if (isImage) {
-            bgClass = 'bg-primary hover:bg-primary-hover'
-            content = <span className="text-white text-[10px]">📷</span>
+          } else if (hasImage) {
+            bgClass = 'bg-violet-200 dark:bg-violet-800 hover:bg-violet-300 dark:hover:bg-violet-700'
+            content = <span className="text-violet-700 dark:text-violet-200 text-[10px]">📷</span>
           } else {
             bgClass = 'bg-zinc-200 dark:bg-dark-subtle hover:bg-zinc-300 dark:hover:bg-dark-elevated'
             content = <span className="text-zinc-500 dark:text-zinc-400 text-[10px]">{currentCellIndex + 1}</span>
@@ -149,10 +149,16 @@ export default memo(function StyleTab({
   platform,
   padding = { global: 5, cellOverrides: {} },
   onPaddingChange,
+  frame = { outer: { percent: 0, color: 'primary' }, cellFrames: {} },
+  onFrameChange,
+  cellImages = {},
 }) {
-  const { imageCell = 0, cellOverlays = {} } = layout
+  const { cellOverlays = {} } = layout
   const [selectedOverlayCell, setSelectedOverlayCell] = useState(null)
   const [selectedSpacingCell, setSelectedSpacingCell] = useState(null)
+
+  // Determine which cells have images
+  const cellHasImage = (cellIndex) => !!cellImages[cellIndex]
 
   const isCustomTheme = theme.preset === 'custom'
   const cellInfoList = useMemo(() => getCellInfo(layout), [layout])
@@ -175,7 +181,7 @@ export default memo(function StyleTab({
   const isCellOverlayEnabled = (cellIndex) => {
     const config = cellOverlays[cellIndex]
     if (config === undefined) {
-      return cellIndex === imageCell
+      return cellHasImage(cellIndex)
     }
     return config.enabled !== false
   }
@@ -312,7 +318,7 @@ export default memo(function StyleTab({
             <label className="text-xs font-medium text-zinc-600 dark:text-zinc-300">Select Cell</label>
             <MiniCellGrid
               layout={layout}
-              imageCell={imageCell}
+              cellImages={cellImages}
               selectedCell={selectedOverlayCell}
               onSelectCell={(idx) => setSelectedOverlayCell(selectedOverlayCell === idx ? null : idx)}
               platform={platform}
@@ -326,7 +332,7 @@ export default memo(function StyleTab({
             ) : (
               <span className="text-primary dark:text-violet-400">
                 Editing: <strong>Cell {selectedOverlayCell + 1}</strong>
-                {selectedOverlayCell === imageCell && <span className="text-violet-400 ml-1">(image)</span>}
+                {cellHasImage(selectedOverlayCell) && <span className="text-violet-400 ml-1">(image)</span>}
               </span>
             )}
           </div>
@@ -559,7 +565,7 @@ export default memo(function StyleTab({
                 >
                   <span className="text-zinc-600 dark:text-zinc-400">
                     Cell {cell.index + 1}
-                    {cell.index === imageCell && <span className="text-primary ml-1">(img)</span>}
+                    {cellHasImage(cell.index) && <span className="text-primary ml-1">(img)</span>}
                   </span>
                   <span className={isCellOverlayEnabled(cell.index) ? 'text-green-600' : 'text-zinc-400'}>
                     {isCellOverlayEnabled(cell.index) ? 'On' : 'Off'}
@@ -597,7 +603,7 @@ export default memo(function StyleTab({
               <label className="text-xs font-medium text-zinc-600 dark:text-zinc-300">Cell Padding</label>
               <MiniCellGrid
                 layout={layout}
-                imageCell={imageCell}
+                cellImages={cellImages}
                 selectedCell={selectedSpacingCell}
                 onSelectCell={(idx) => setSelectedSpacingCell(selectedSpacingCell === idx ? null : idx)}
                 platform={platform}
@@ -684,6 +690,173 @@ export default memo(function StyleTab({
                     </span>
                   </div>
                 ))}
+              </div>
+            )}
+          </div>
+
+          {/* Frame Section */}
+          <div className="pt-3 border-t border-zinc-100 dark:border-zinc-800 space-y-3">
+            <label className="text-xs font-medium text-zinc-600 dark:text-zinc-300">Frame (Border)</label>
+            <p className="text-[10px] text-zinc-400 dark:text-zinc-500">
+              Frame uses a percentage of padding as a colored border
+            </p>
+
+            {/* Outer Frame */}
+            <div className="space-y-2 p-3 bg-zinc-50 dark:bg-dark-subtle rounded-lg">
+              <span className="text-xs font-medium text-zinc-700 dark:text-zinc-300">Outer Frame</span>
+
+              <div className="space-y-1">
+                <div className="flex justify-between">
+                  <label className="text-xs text-zinc-600 dark:text-zinc-400">Frame %</label>
+                  <span className="text-xs text-zinc-500 dark:text-zinc-400">
+                    {frame.outer?.percent || 0}%
+                  </span>
+                </div>
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  step="10"
+                  value={frame.outer?.percent || 0}
+                  onChange={(e) => onFrameChange?.({ outer: { ...frame.outer, percent: parseInt(e.target.value, 10) } })}
+                  className="w-full h-2 bg-zinc-200 dark:bg-dark-subtle rounded-lg appearance-none cursor-pointer"
+                />
+              </div>
+
+              {(frame.outer?.percent || 0) > 0 && (
+                <div className="space-y-1.5">
+                  <label className="text-xs text-zinc-600 dark:text-zinc-400">Color</label>
+                  <div className="flex gap-1">
+                    {themeColorOptions.map((c) => (
+                      <button
+                        key={c.id}
+                        onClick={() => onFrameChange?.({ outer: { ...frame.outer, color: c.id } })}
+                        className={`flex-1 px-2 py-1.5 text-[10px] rounded ${
+                          frame.outer?.color === c.id
+                            ? 'ring-2 ring-primary ring-offset-1'
+                            : ''
+                        }`}
+                        style={{ backgroundColor: theme?.[c.id] || '#000' }}
+                      >
+                        <span style={{ color: c.id === 'primary' ? theme?.secondary : theme?.primary }}>
+                          {c.name}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[10px] text-zinc-500 dark:text-zinc-400">Neutrals:</span>
+                    {neutralColors.map((c) => (
+                      <button
+                        key={c.id}
+                        onClick={() => onFrameChange?.({ outer: { ...frame.outer, color: c.id } })}
+                        title={c.name}
+                        className={`w-5 h-5 rounded-full border transition-transform hover:scale-110 ${
+                          frame.outer?.color === c.id
+                            ? 'ring-2 ring-primary ring-offset-1 border-transparent'
+                            : 'border-zinc-300 dark:border-zinc-600'
+                        }`}
+                        style={{ backgroundColor: c.hex }}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Per-cell frame - only show when a cell is selected in spacing */}
+            {selectedSpacingCell !== null && (
+              <div className="space-y-2 p-3 bg-zinc-50 dark:bg-dark-subtle rounded-lg">
+                <span className="text-xs font-medium text-zinc-700 dark:text-zinc-300">
+                  Cell {selectedSpacingCell + 1} Frame
+                </span>
+
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    id={`frame-custom-${selectedSpacingCell}`}
+                    checked={frame.cellFrames?.[selectedSpacingCell] !== undefined}
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        const newCellFrames = { ...frame.cellFrames, [selectedSpacingCell]: { percent: 50, color: 'primary' } }
+                        onFrameChange?.({ cellFrames: newCellFrames })
+                      } else {
+                        const newCellFrames = { ...frame.cellFrames }
+                        delete newCellFrames[selectedSpacingCell]
+                        onFrameChange?.({ cellFrames: newCellFrames })
+                      }
+                    }}
+                    className="w-4 h-4 text-primary rounded border-zinc-300 focus:ring-primary"
+                  />
+                  <label
+                    htmlFor={`frame-custom-${selectedSpacingCell}`}
+                    className="text-xs text-zinc-600 dark:text-zinc-400"
+                  >
+                    Custom cell frame
+                  </label>
+                </div>
+
+                {frame.cellFrames?.[selectedSpacingCell] !== undefined && (
+                  <>
+                    <div className="space-y-1">
+                      <div className="flex justify-between">
+                        <label className="text-xs text-zinc-600 dark:text-zinc-400">Frame %</label>
+                        <span className="text-xs text-zinc-500 dark:text-zinc-400">
+                          {frame.cellFrames[selectedSpacingCell]?.percent || 0}%
+                        </span>
+                      </div>
+                      <input
+                        type="range"
+                        min="0"
+                        max="100"
+                        step="10"
+                        value={frame.cellFrames[selectedSpacingCell]?.percent || 0}
+                        onChange={(e) => {
+                          const newCellFrames = {
+                            ...frame.cellFrames,
+                            [selectedSpacingCell]: {
+                              ...frame.cellFrames[selectedSpacingCell],
+                              percent: parseInt(e.target.value, 10),
+                            },
+                          }
+                          onFrameChange?.({ cellFrames: newCellFrames })
+                        }}
+                        className="w-full h-2 bg-zinc-200 dark:bg-dark-subtle rounded-lg appearance-none cursor-pointer"
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-xs text-zinc-600 dark:text-zinc-400">Color</label>
+                      <div className="flex gap-1">
+                        {themeColorOptions.map((c) => (
+                          <button
+                            key={c.id}
+                            onClick={() => {
+                              const newCellFrames = {
+                                ...frame.cellFrames,
+                                [selectedSpacingCell]: {
+                                  ...frame.cellFrames[selectedSpacingCell],
+                                  color: c.id,
+                                },
+                              }
+                              onFrameChange?.({ cellFrames: newCellFrames })
+                            }}
+                            className={`flex-1 px-2 py-1.5 text-[10px] rounded ${
+                              frame.cellFrames[selectedSpacingCell]?.color === c.id
+                                ? 'ring-2 ring-primary ring-offset-1'
+                                : ''
+                            }`}
+                            style={{ backgroundColor: theme?.[c.id] || '#000' }}
+                          >
+                            <span style={{ color: c.id === 'primary' ? theme?.secondary : theme?.primary }}>
+                              {c.name}
+                            </span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </>
+                )}
               </div>
             )}
           </div>

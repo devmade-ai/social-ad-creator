@@ -41,12 +41,31 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
   const titleFont = fonts.find((f) => f.id === state.fonts.title) || fonts[0]
   const bodyFont = fonts.find((f) => f.id === state.fonts.body) || fonts[0]
   const paddingConfig = state.padding || { global: 20, cellOverrides: {} }
+  const frameConfig = state.frame || { outer: { percent: 0, color: 'primary' }, cellFrames: {} }
+  const images = state.images || []
+  const cellImages = state.cellImages || {}
+
+  // Get padding for a specific cell (returns number in px)
+  const getCellPaddingValue = (cellIndex) => {
+    const override = paddingConfig.cellOverrides?.[cellIndex]
+    return override !== undefined ? override : paddingConfig.global
+  }
 
   // Get padding for a specific cell (returns px string like "20px")
   const getCellPadding = (cellIndex) => {
-    const override = paddingConfig.cellOverrides?.[cellIndex]
-    const value = override !== undefined ? override : paddingConfig.global
-    return `${value}px`
+    return `${getCellPaddingValue(cellIndex)}px`
+  }
+
+  // Get cell frame config
+  const getCellFrame = (cellIndex) => {
+    return frameConfig.cellFrames?.[cellIndex] || null
+  }
+
+  // Calculate frame and inner padding from total padding and frame percentage
+  const getFrameDimensions = (totalPadding, framePercent) => {
+    const frameWidth = Math.round(totalPadding * (framePercent / 100))
+    const innerPadding = totalPadding - frameWidth
+    return { frameWidth, innerPadding }
   }
 
   const themeColors = useMemo(() => ({
@@ -138,30 +157,13 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
     return null
   }
 
-  // Global overlay style (for backward compatibility)
-  const overlayStyle = getOverlayStyle(state.overlay)
-
-  // Get overlay config for a specific cell (cell-specific only, not global fallback)
-  // For image cells: global overlay is applied separately, this returns additional cell overlay
-  // For non-image cells: this returns the cell overlay (no global overlay applies)
-  const getCellOverlay = (cellIndex, hasImage) => {
-    const cellOverlays = layout.cellOverlays || {}
-    const cellConfig = cellOverlays[cellIndex]
-
-    // No explicit config for this cell
-    if (cellConfig === undefined) return null
-
-    // Cell has explicit config
-    if (cellConfig.enabled === false) return { enabled: false }
-    return {
-      type: cellConfig.type || state.overlay.type,
-      color: cellConfig.color || state.overlay.color,
-      opacity: cellConfig.opacity ?? state.overlay.opacity,
-    }
-  }
-
   const getTextColor = (colorKey) => resolveColor(colorKey, themeColors.secondary)
   const getTextLayer = (layerId) => state.text?.[layerId] || defaultTextLayer
+
+  // Get outer frame dimensions
+  const outerFrame = frameConfig.outer || { percent: 0, color: 'primary' }
+  const outerFrameColor = resolveColor(outerFrame.color, themeColors.primary)
+  const outerFrameWidth = Math.round(paddingConfig.global * (outerFrame.percent / 100))
 
   const containerStyle = {
     width: platform.width,
@@ -171,6 +173,10 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
     position: 'relative',
     overflow: 'hidden',
     backgroundColor: themeColors.primary,
+    // Outer frame as box-shadow (inset)
+    ...(outerFrameWidth > 0 && {
+      boxShadow: `inset 0 0 0 ${outerFrameWidth}px ${outerFrameColor}`,
+    }),
   }
 
   // Calculate total cell count and build cell map from structure
@@ -196,10 +202,24 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
     return { cells, totalCells: cellIndex }
   }, [layout.structure])
 
-  const imageCell = layout.imageCell ?? 0
+  // Helper to get image data for a cell
+  const getCellImageData = (cellIndex) => {
+    const cellImage = cellImages[cellIndex]
+    if (!cellImage) return null
+    const imageData = images.find((img) => img.id === cellImage.imageId)
+    if (!imageData) return null
+    return {
+      src: imageData.src,
+      fit: cellImage.fit || 'cover',
+      position: cellImage.position || { x: 50, y: 50 },
+      filters: cellImage.filters || {},
+    }
+  }
 
-  // Check if a cell is the image cell
-  const isImageCell = (cellIndex) => cellIndex === imageCell
+  // Check if a cell has an image
+  const cellHasImage = (cellIndex) => {
+    return getCellImageData(cellIndex) !== null
+  }
 
   // Logo position styles
   const getLogoPositionStyle = () => {
@@ -243,17 +263,17 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
     )
   }
 
-  // Build image filter string from state
-  const imageFilterStyle = useMemo(() => {
-    const filters = state.imageFilters || {}
+  // Build image filter string from cell-specific filters
+  const buildFilterStyle = (filters) => {
+    if (!filters) return 'none'
     const parts = []
     if (filters.grayscale > 0) parts.push(`grayscale(${filters.grayscale}%)`)
     if (filters.sepia > 0) parts.push(`sepia(${filters.sepia}%)`)
     if (filters.blur > 0) parts.push(`blur(${filters.blur}px)`)
-    if (filters.contrast !== 100) parts.push(`contrast(${filters.contrast}%)`)
-    if (filters.brightness !== 100) parts.push(`brightness(${filters.brightness}%)`)
+    if (filters.contrast && filters.contrast !== 100) parts.push(`contrast(${filters.contrast}%)`)
+    if (filters.brightness && filters.brightness !== 100) parts.push(`brightness(${filters.brightness}%)`)
     return parts.length > 0 ? parts.join(' ') : 'none'
-  }, [state.imageFilters])
+  }
 
   // Render a single overlay layer with support for blend modes and special effects
   const renderOverlayLayer = (overlayConfig, key = 'overlay') => {
@@ -288,9 +308,16 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
     return type.special === 'duotone'
   }
 
-  // Render image with overlay (for fullbleed or image cells)
+  // Render image with overlay for a specific cell
   // Supports stacking: global overlay (Image tab) + cell overlay (Layout > Overlay)
-  const renderImage = (style = {}, cellOverlayConfig = null) => {
+  const renderCellImage = (cellIndex, style = {}) => {
+    const imageData = getCellImageData(cellIndex)
+    if (!imageData) return null
+
+    // Get cell-specific overlay config
+    const cellOverlays = layout.cellOverlays || {}
+    const cellOverlayConfig = cellOverlays[cellIndex]
+
     // Global overlay from Image tab (always applied if opacity > 0)
     const globalOverlay = state.overlay
     const hasGlobalOverlay = globalOverlay && globalOverlay.opacity > 0
@@ -303,23 +330,22 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
     // Check for duotone effect (applies grayscale to image)
     const hasDuotone = isDuotoneOverlay(globalOverlay) || isDuotoneOverlay(cellOverlayConfig)
     const duotoneFilter = hasDuotone ? 'grayscale(100%)' : ''
-    const combinedFilter = [imageFilterStyle, duotoneFilter].filter(Boolean).join(' ') || 'none'
+    const imageFilterStyle = buildFilterStyle(imageData.filters)
+    const combinedFilter = [imageFilterStyle, duotoneFilter].filter(f => f && f !== 'none').join(' ') || 'none'
 
     return (
       <div style={{ position: 'relative', backgroundColor: themeColors.primary, ...style }}>
-        {state.image && (
-          <div
-            style={{
-              position: 'absolute',
-              inset: 0,
-              backgroundImage: `url(${state.image})`,
-              backgroundSize: state.imageObjectFit,
-              backgroundPosition: `${state.imagePosition.x}% ${state.imagePosition.y}%`,
-              backgroundRepeat: 'no-repeat',
-              filter: combinedFilter,
-            }}
-          />
-        )}
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            backgroundImage: `url(${imageData.src})`,
+            backgroundSize: imageData.fit,
+            backgroundPosition: `${imageData.position.x}% ${imageData.position.y}%`,
+            backgroundRepeat: 'no-repeat',
+            filter: combinedFilter,
+          }}
+        />
         {/* Global overlay layer (from Image tab) */}
         {hasGlobalOverlay && renderOverlayLayer(globalOverlay, 'global-overlay')}
         {/* Cell overlay layer (from Layout > Overlay) - stacks on top */}
@@ -368,16 +394,24 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
   // Find the first non-image cell for auto text placement
   const getFirstNonImageCellIndex = () => {
     for (let i = 0; i < cellInfo.totalCells; i++) {
-      if (!isImageCell(i)) return i
+      if (!cellHasImage(i)) return i
     }
-    return -1 // All cells have image (only possible with 1 cell)
+    return -1 // All cells have images
+  }
+
+  // Find the first image cell for fullbleed default behavior
+  const getFirstImageCellIndex = () => {
+    for (let i = 0; i < cellInfo.totalCells; i++) {
+      if (cellHasImage(i)) return i
+    }
+    return -1 // No cells have images
   }
 
   // Get text elements for a specific cell
   const getElementsForCell = (cellIndex, onImageLayer) => {
     const elements = []
     const elementIds = ['title', 'tagline', 'bodyHeading', 'bodyText', 'cta', 'footnote']
-    const hasImage = isImageCell(cellIndex)
+    const hasImage = cellHasImage(cellIndex)
 
     for (const elementId of elementIds) {
       const assignedCell = textCells[elementId]
@@ -395,13 +429,14 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
         } else {
           // Grid layout: distribute based on image placement
           const firstNonImageCell = getFirstNonImageCellIndex()
+          const firstImageCell = getFirstImageCellIndex()
           const onlyOneCell = cellInfo.totalCells === 1
 
           if (onlyOneCell) {
             // Single cell: all text goes here
             if (onImageLayer) elements.push(elementId)
-          } else if (hasImage && onImageLayer) {
-            // Image cell gets: title, tagline, cta
+          } else if (hasImage && onImageLayer && cellIndex === firstImageCell) {
+            // First image cell gets: title, tagline, cta
             if (['title', 'tagline', 'cta'].includes(elementId)) {
               elements.push(elementId)
             }
@@ -554,12 +589,33 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
   const renderFullbleed = () => {
     const padding = getCellPadding(0)
     const verticalAlign = getCellVerticalAlign(0)
-    const cellOverlay = getCellOverlay(0, true)
+    const hasImage = cellHasImage(0)
     const allElements = ['title', 'tagline', 'bodyHeading', 'bodyText', 'cta', 'footnote']
+
+    // Cell frame for fullbleed (cell 0)
+    const cellFrame = getCellFrame(0)
+    const cellPadding = getCellPaddingValue(0)
+    const frameWidth = cellFrame ? Math.round(cellPadding * (cellFrame.percent / 100)) : 0
+    const frameColor = cellFrame ? resolveColor(cellFrame.color, themeColors.primary) : null
 
     return (
       <>
-        {renderImage({ position: 'absolute', inset: 0 }, cellOverlay)}
+        {/* Background color */}
+        <div style={{ position: 'absolute', inset: 0, backgroundColor: themeColors.primary }} />
+        {/* Image layer */}
+        {hasImage && renderCellImage(0, { position: 'absolute', inset: 0 })}
+        {/* Cell frame (inset border) */}
+        {frameWidth > 0 && (
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              boxShadow: `inset 0 0 0 ${frameWidth}px ${frameColor}`,
+              pointerEvents: 'none',
+              zIndex: 5,
+            }}
+          />
+        )}
         {/* Elements can have individual horizontal alignment via alignSelf */}
         <div
           style={{
@@ -575,7 +631,7 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
             overflow: 'hidden',
           }}
         >
-          {allElements.map(elementId => renderTextElement(elementId, true, 0))}
+          {allElements.map(elementId => renderTextElement(elementId, hasImage, 0))}
         </div>
       </>
     )
@@ -583,23 +639,41 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
 
   // Render a single cell content
   const renderCellContent = (cellIndex) => {
-    const hasImage = isImageCell(cellIndex)
+    const hasImage = cellHasImage(cellIndex)
     const textElementsOnImage = hasImage ? getElementsForCell(cellIndex, true) : []
     const textElementsOnBackground = getElementsForCell(cellIndex, false)
-    const cellOverlay = getCellOverlay(cellIndex, hasImage)
+    const cellOverlays = layout.cellOverlays || {}
+    const cellOverlay = cellOverlays[cellIndex]
+
+    // Cell frame
+    const cellFrame = getCellFrame(cellIndex)
+    const cellPadding = getCellPaddingValue(cellIndex)
+    const frameWidth = cellFrame ? Math.round(cellPadding * (cellFrame.percent / 100)) : 0
+    const frameColor = cellFrame ? resolveColor(cellFrame.color, themeColors.primary) : null
 
     return (
       <>
-        {/* Background for non-image cells */}
-        {!hasImage && (
-          <div style={{ position: 'absolute', inset: 0, backgroundColor: themeColors.primary }} />
-        )}
+        {/* Background for all cells */}
+        <div style={{ position: 'absolute', inset: 0, backgroundColor: themeColors.primary }} />
 
-        {/* Image for image cells */}
-        {hasImage && renderImage({ position: 'absolute', inset: 0 }, cellOverlay)}
+        {/* Image for cells with images */}
+        {hasImage && renderCellImage(cellIndex, { position: 'absolute', inset: 0 })}
 
         {/* Overlay for non-image cells (if enabled) */}
         {!hasImage && cellOverlay && cellOverlay.enabled !== false && renderOverlayLayer(cellOverlay, `cell-${cellIndex}-overlay`)}
+
+        {/* Cell frame (inset border) */}
+        {frameWidth > 0 && (
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              boxShadow: `inset 0 0 0 ${frameWidth}px ${frameColor}`,
+              pointerEvents: 'none',
+              zIndex: 5,
+            }}
+          />
+        )}
 
         {/* Text on image layer */}
         {hasImage && textElementsOnImage.length > 0 && (

@@ -178,8 +178,12 @@ Social Ad Creator - A browser-based tool for creating social media advertisement
 
 Core features working:
 
-- Image upload with drag-drop, object fit (cover/contain), position, grayscale
+- Multi-image system: Image library with per-cell assignment
+  - Upload multiple images to a shared library
+  - Assign different images to different cells (1 per cell)
+  - Per-cell image settings: fit, position, filters
 - Logo upload with position (corners, center) and size options
+- Frame system: Colored borders using percentage of padding
 - Flexible layout system with sub-tab organization (see Layout Tab Sub-tabs below)
 - Text groups with cell assignment:
   - Title + Tagline (paired)
@@ -210,10 +214,10 @@ Core features working:
 
 This is a workflow-based organization (as of January 2026 refactor):
 - **Templates** - Start here: Complete designs (style presets) + Layout-only presets
-- **Media** - Upload background image and logo, adjust fit/position/filters
+- **Media** - Upload images to library, assign to cells, per-cell settings, logo
 - **Content** - Write text, set visibility, cell assignment, alignment, color, size
 - **Layout** - Fine-tune grid structure and cell alignment
-- **Style** - Themes, typography, per-cell overlay, spacing
+- **Style** - Themes, typography, per-cell overlay, spacing, frames
 
 ## Tech Stack
 
@@ -267,16 +271,32 @@ src/
 ## Key State Structure
 
 ```js
+// Image library - all uploaded images
+images: [
+  { id: 'img-123', src: 'data:...', name: 'hero.jpg' },
+]
+
+// Per-cell image assignments with individual settings
+cellImages: {
+  0: { imageId: 'img-123', fit: 'cover', position: { x: 50, y: 50 }, filters: {...} },
+}
+
 layout: {
   type: 'fullbleed' | 'rows' | 'columns',
   structure: [
     { size: 50, subdivisions: 1, subSizes: [100] },  // Section with optional subdivisions
     { size: 50, subdivisions: 2, subSizes: [50, 50] }
   ],
-  imageCell: 0,  // Which cell the image appears in
   textAlign: 'center',           // Global horizontal alignment fallback
   textVerticalAlign: 'center',   // Global vertical alignment fallback
   cellAlignments: [{ textAlign, textVerticalAlign }, ...]  // Per-cell overrides
+  cellOverlays: {}  // Per-cell overlay settings
+}
+
+// Frame settings (colored border using percentage of padding)
+frame: {
+  outer: { percent: 0, color: 'primary' },  // Outer canvas frame
+  cellFrames: { 0: { percent: 50, color: 'accent' } }  // Per-cell frames
 }
 
 text: {
@@ -286,7 +306,6 @@ text: {
     color: 'secondary',
     size: 1,
     textAlign: null,         // Per-element horizontal alignment (null = use cell default)
-    textVerticalAlign: null  // Reserved for future use
   },
   // ... same structure for tagline, bodyHeading, bodyText, cta, footnote
 }
@@ -294,10 +313,7 @@ text: {
 textCells: {
   title: null,      // null = auto, number = specific cell index
   tagline: null,
-  bodyHeading: null,
-  bodyText: null,
-  cta: null,
-  footnote: null
+  // ...
 }
 
 // Alignment fallback chain: element.textAlign → cellAlignments[cell] → layout.textAlign
@@ -312,9 +328,10 @@ Entry point for users. Two sections:
 
 ### Media Tab
 Collapsible sections:
-- **Background Image** - Upload, fit, position, grayscale toggle, sample images, image cell selector (for multi-cell layouts)
-- **Advanced Filters** - Grayscale slider, sepia, blur, contrast, brightness
-- **Image Overlay** - Type (solid/gradient/vignette), color, opacity (uses global overlay system)
+- **AI Image Prompt** - Helper for generating AI image prompts
+- **Images** - Upload to library, cell selector, assign images to cells, per-cell settings (fit, position, grayscale)
+- **Image Overlay** - Overlay controls for selected cell's image
+- **Advanced Filters** - Per-cell: grayscale, sepia, blur, contrast, brightness
 - **Logo** - Upload, position (corners/center), size
 
 ### Content Tab

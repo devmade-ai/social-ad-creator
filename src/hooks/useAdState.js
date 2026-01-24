@@ -7,15 +7,26 @@ const defaultTheme = presetThemes[0] // Dark theme
 export const defaultState = {
   // Track active style preset (null = custom/no preset)
   activeStylePreset: null,
-  image: null,
-  imageObjectFit: 'cover',
-  imagePosition: { x: 50, y: 50 }, // Percentage-based (0-100)
-  imageFilters: {
-    grayscale: 0,
-    sepia: 0,
-    blur: 0,
-    contrast: 100,
-    brightness: 100,
+
+  // Media pool - all uploaded images
+  // Each image: { id: string, src: string, name: string }
+  images: [],
+
+  // Per-cell image assignments with individual settings
+  // { cellIndex: { imageId, fit, position, filters, overlay } }
+  cellImages: {},
+
+  // Default settings for new cell images
+  defaultImageSettings: {
+    fit: 'cover',
+    position: { x: 50, y: 50 },
+    filters: {
+      grayscale: 0,
+      sepia: 0,
+      blur: 0,
+      contrast: 100,
+      brightness: 100,
+    },
   },
 
   overlay: {
@@ -60,7 +71,6 @@ export const defaultState = {
     structure: [
       { size: 100, subdivisions: 1, subSizes: [100] },
     ],
-    imageCell: 0, // flat cell index where image appears (single cell, no spanning)
     textAlign: 'center', // 'left' | 'center' | 'right' - global fallback
     textVerticalAlign: 'center', // 'start' | 'center' | 'end' - global fallback
     // Per-cell alignment overrides (flat cell index)
@@ -88,27 +98,115 @@ export const defaultState = {
     cellOverrides: {}, // { cellIndex: paddingValue } for per-cell overrides
   },
 
+  // Frame settings (colored border that uses percentage of padding)
+  frame: {
+    // Outer frame around entire canvas
+    outer: { percent: 0, color: 'primary' },
+    // Per-cell frames { cellIndex: { percent, color } }
+    cellFrames: {},
+  },
+
   platform: 'instagram-square',
 }
 
 export function useAdState() {
   const { state, setState, undo, redo, canUndo, canRedo, resetHistory } = useHistory(defaultState)
 
-  const setImage = useCallback((image) => {
-    setState((prev) => ({ ...prev, image }))
-  }, [])
+  // Add an image to the media pool
+  const addImage = useCallback((src, name = 'Image') => {
+    const id = `img-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+    setState((prev) => ({
+      ...prev,
+      images: [...prev.images, { id, src, name }],
+    }))
+    return id
+  }, [setState])
 
-  const setImageObjectFit = useCallback((imageObjectFit) => {
-    setState((prev) => ({ ...prev, imageObjectFit }))
-  }, [])
+  // Remove an image from the media pool (and any cell assignments)
+  const removeImage = useCallback((imageId) => {
+    setState((prev) => {
+      // Remove from pool
+      const newImages = prev.images.filter((img) => img.id !== imageId)
+      // Remove from cell assignments
+      const newCellImages = { ...prev.cellImages }
+      Object.keys(newCellImages).forEach((cellIndex) => {
+        if (newCellImages[cellIndex]?.imageId === imageId) {
+          delete newCellImages[cellIndex]
+        }
+      })
+      return { ...prev, images: newImages, cellImages: newCellImages }
+    })
+  }, [setState])
 
-  const setImagePosition = useCallback((position) => {
-    setState((prev) => ({ ...prev, imagePosition: { ...prev.imagePosition, ...position } }))
-  }, [])
+  // Assign an image to a cell (or remove assignment if imageId is null)
+  const setCellImage = useCallback((cellIndex, imageId) => {
+    setState((prev) => {
+      const newCellImages = { ...prev.cellImages }
+      if (imageId === null) {
+        delete newCellImages[cellIndex]
+      } else {
+        // Initialize with default settings if new assignment
+        newCellImages[cellIndex] = {
+          imageId,
+          fit: prev.defaultImageSettings.fit,
+          position: { ...prev.defaultImageSettings.position },
+          filters: { ...prev.defaultImageSettings.filters },
+        }
+      }
+      return { ...prev, cellImages: newCellImages }
+    })
+  }, [setState])
 
-  const setImageFilters = useCallback((filters) => {
-    setState((prev) => ({ ...prev, imageFilters: { ...prev.imageFilters, ...filters } }))
-  }, [])
+  // Update settings for a cell's image
+  const updateCellImage = useCallback((cellIndex, updates) => {
+    setState((prev) => {
+      const cellImage = prev.cellImages[cellIndex]
+      if (!cellImage) return prev
+      return {
+        ...prev,
+        cellImages: {
+          ...prev.cellImages,
+          [cellIndex]: { ...cellImage, ...updates },
+        },
+      }
+    })
+  }, [setState])
+
+  // Update filters for a cell's image
+  const updateCellImageFilters = useCallback((cellIndex, filters) => {
+    setState((prev) => {
+      const cellImage = prev.cellImages[cellIndex]
+      if (!cellImage) return prev
+      return {
+        ...prev,
+        cellImages: {
+          ...prev.cellImages,
+          [cellIndex]: {
+            ...cellImage,
+            filters: { ...cellImage.filters, ...filters },
+          },
+        },
+      }
+    })
+  }, [setState])
+
+  // Update position for a cell's image
+  const updateCellImagePosition = useCallback((cellIndex, position) => {
+    setState((prev) => {
+      const cellImage = prev.cellImages[cellIndex]
+      if (!cellImage) return prev
+      return {
+        ...prev,
+        cellImages: {
+          ...prev.cellImages,
+          [cellIndex]: {
+            ...cellImage,
+            position: { ...cellImage.position, ...position },
+          },
+        },
+      }
+    })
+  }, [setState])
 
   const setLogo = useCallback((logo) => {
     setState((prev) => ({ ...prev, logo }))
@@ -175,7 +273,36 @@ export function useAdState() {
 
   const setPadding = useCallback((padding) => {
     setState((prev) => ({ ...prev, padding: { ...prev.padding, ...padding } }))
-  }, [])
+  }, [setState])
+
+  // Update frame settings
+  const setFrame = useCallback((frame) => {
+    setState((prev) => ({ ...prev, frame: { ...prev.frame, ...frame } }))
+  }, [setState])
+
+  // Update outer frame
+  const setOuterFrame = useCallback((outerFrame) => {
+    setState((prev) => ({
+      ...prev,
+      frame: { ...prev.frame, outer: { ...prev.frame.outer, ...outerFrame } },
+    }))
+  }, [setState])
+
+  // Update cell frame
+  const setCellFrame = useCallback((cellIndex, frameConfig) => {
+    setState((prev) => {
+      const newCellFrames = { ...prev.frame.cellFrames }
+      if (frameConfig === null) {
+        delete newCellFrames[cellIndex]
+      } else {
+        newCellFrames[cellIndex] = { ...(newCellFrames[cellIndex] || {}), ...frameConfig }
+      }
+      return {
+        ...prev,
+        frame: { ...prev.frame, cellFrames: newCellFrames },
+      }
+    })
+  }, [setState])
 
   const setPlatform = useCallback((platform) => {
     setState((prev) => ({ ...prev, platform }))
@@ -266,10 +393,14 @@ export function useAdState() {
 
   return {
     state,
-    setImage,
-    setImageObjectFit,
-    setImagePosition,
-    setImageFilters,
+    // Image pool management
+    addImage,
+    removeImage,
+    setCellImage,
+    updateCellImage,
+    updateCellImageFilters,
+    updateCellImagePosition,
+    // Other media
     setLogo,
     setLogoPosition,
     setLogoSize,
@@ -281,6 +412,9 @@ export function useAdState() {
     setThemePreset,
     setFonts,
     setPadding,
+    setFrame,
+    setOuterFrame,
+    setCellFrame,
     setPlatform,
     resetState,
     applyStylePreset,

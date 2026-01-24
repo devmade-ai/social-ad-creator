@@ -17,17 +17,21 @@ function App() {
   const canvasRef = useRef(null)
   const previewContainerRef = useRef(null)
   const [activeSection, setActiveSection] = useState('templates')
-  const [imageAspectRatio, setImageAspectRatio] = useState(null)
+  const [imageAspectRatio] = useState(null) // TODO: Calculate from first image in pool
   const [containerWidth, setContainerWidth] = useState(600)
   const [isExporting, setIsExporting] = useState(false)
   const { isDark, toggle: toggleDarkMode } = useDarkMode()
 
   const {
     state,
-    setImage,
-    setImageObjectFit,
-    setImagePosition,
-    setImageFilters,
+    // Image pool management
+    addImage,
+    removeImage,
+    setCellImage,
+    updateCellImage,
+    updateCellImageFilters,
+    updateCellImagePosition,
+    // Other state
     setLogo,
     setLogoPosition,
     setLogoSize,
@@ -39,6 +43,9 @@ function App() {
     setThemePreset,
     setFonts,
     setPadding,
+    setFrame,
+    setOuterFrame,
+    setCellFrame,
     setPlatform,
     applyStylePreset,
     applyLayoutPreset,
@@ -50,19 +57,7 @@ function App() {
 
   const platform = platforms.find((p) => p.id === state.platform) || platforms[0]
 
-  // Calculate image aspect ratio when image changes
-  useEffect(() => {
-    if (!state.image) {
-      setImageAspectRatio(null)
-      return
-    }
-
-    const img = new Image()
-    img.onload = () => {
-      setImageAspectRatio(img.width / img.height)
-    }
-    img.src = state.image
-  }, [state.image])
+  // TODO: Calculate image aspect ratio from first image in pool for layout suggestions
 
   // Keyboard shortcuts for undo/redo
   useEffect(() => {
@@ -213,22 +208,25 @@ function App() {
               <ErrorBoundary title="Media error" message="Failed to load media controls.">
                 {activeSection === 'media' && (
                   <MediaTab
-                    image={state.image}
-                    onImageChange={setImage}
-                    objectFit={state.imageObjectFit}
-                    onObjectFitChange={setImageObjectFit}
-                    position={state.imagePosition}
-                    onPositionChange={setImagePosition}
-                    filters={state.imageFilters}
-                    onFiltersChange={setImageFilters}
+                    // Image pool
+                    images={state.images}
+                    onAddImage={addImage}
+                    onRemoveImage={removeImage}
+                    // Cell images
+                    cellImages={state.cellImages}
+                    onSetCellImage={setCellImage}
+                    onUpdateCellImage={updateCellImage}
+                    onUpdateCellImageFilters={updateCellImageFilters}
+                    onUpdateCellImagePosition={updateCellImagePosition}
+                    // Logo
                     logo={state.logo}
                     onLogoChange={setLogo}
                     logoPosition={state.logoPosition}
                     onLogoPositionChange={setLogoPosition}
                     logoSize={state.logoSize}
                     onLogoSizeChange={setLogoSize}
+                    // Layout and other
                     layout={state.layout}
-                    onLayoutChange={setLayout}
                     platform={state.platform}
                     theme={state.theme}
                     overlay={state.overlay}
@@ -277,6 +275,9 @@ function App() {
                     platform={state.platform}
                     padding={state.padding}
                     onPaddingChange={setPadding}
+                    frame={state.frame}
+                    onFrameChange={setFrame}
+                    cellImages={state.cellImages}
                   />
                 )}
               </ErrorBoundary>
