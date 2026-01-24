@@ -19,4 +19,11 @@ export const platforms = [
   { id: 'email-header', name: 'Email Header', width: 800, height: 400, category: 'email' },
   { id: 'zoom-background', name: 'Zoom Background', width: 1920, height: 1080, category: 'other' },
   { id: 'og-image', name: 'OG Image', width: 1200, height: 630, category: 'web' },
+  // Print Sizes (150 DPI)
+  { id: 'a3-portrait', name: 'A3 Portrait', width: 1754, height: 2480, category: 'print' },
+  { id: 'a3-landscape', name: 'A3 Landscape', width: 2480, height: 1754, category: 'print' },
+  { id: 'a4-portrait', name: 'A4 Portrait', width: 1240, height: 1754, category: 'print' },
+  { id: 'a4-landscape', name: 'A4 Landscape', width: 1754, height: 1240, category: 'print' },
+  { id: 'a5-portrait', name: 'A5 Portrait', width: 874, height: 1240, category: 'print' },
+  { id: 'a5-landscape', name: 'A5 Landscape', width: 1240, height: 874, category: 'print' },
 ]

@@ -195,10 +195,11 @@ Core features working:
   - Blend modes: Multiply, Screen, Overlay, Color Burn
   - Textures: Noise, Film Grain
 - 15 Google Fonts (sans-serif, serif, display categories)
-- Export to 14 platforms:
+- Export to 20 platforms:
   - Social: Instagram Square/Story, TikTok, LinkedIn, Facebook, Twitter/X
   - Website: Hero (Standard/Tall/Full HD), OG Image
   - Banners: LinkedIn Banner, YouTube Banner
+  - Print: A3, A4, A5 (Portrait & Landscape at 150 DPI)
   - Other: Email Header, Zoom Background
 - Single download and ZIP batch download
 - Responsive preview that adapts to device width

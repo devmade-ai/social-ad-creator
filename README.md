@@ -44,7 +44,13 @@ Each text element supports:
 - **Spacing** - Global padding plus per-cell custom padding
 
 ### Export
-- **6 platforms** - LinkedIn, Facebook, Instagram (Square & Story), Twitter/X, TikTok
+- **20 platforms** across 6 categories:
+  - **Social** - Instagram Square/Story, TikTok, LinkedIn Post, Facebook Post, Twitter/X
+  - **Website** - Hero (Standard/Tall/Full HD), OG Image
+  - **Banners** - LinkedIn Banner, YouTube Banner
+  - **Email** - Email Header
+  - **Print** - A3, A4, A5 (Portrait & Landscape at 150 DPI)
+  - **Other** - Zoom Background
 - **Single download** - Export current platform as PNG
 - **Batch download** - ZIP file with all platform sizes
 - **Progress indicator** - Visual feedback during export

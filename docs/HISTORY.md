@@ -1,5 +1,23 @@
 # Changelog
 
+## 2026-01-24
+
+### Added paper size export options (6 new platforms)
+
+Added A3, A4, and A5 paper sizes in both portrait and landscape orientations for print use:
+
+**Print (new category)**
+- A3 Portrait (1754×2480) - Large poster size
+- A3 Landscape (2480×1754)
+- A4 Portrait (1240×1754) - Standard document size
+- A4 Landscape (1754×1240)
+- A5 Portrait (874×1240) - Flyer size
+- A5 Landscape (1240×874)
+
+All dimensions calculated at 150 DPI (suitable for screen/web exports). Total platforms now 20.
+
+---
+
 ## 2026-01-20
 
 ### Added new platform dimensions (8 new platforms)

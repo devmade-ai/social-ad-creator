@@ -7,6 +7,7 @@ const categoryLabels = {
   web: 'Website',
   banner: 'Banners',
   email: 'Email',
+  print: 'Print',
   other: 'Other',
 }
 
@@ -26,7 +27,7 @@ export default memo(function PlatformPreview({ selectedPlatform, onPlatformChang
   }, [])
 
   // Order of categories to display
-  const categoryOrder = ['social', 'web', 'banner', 'email', 'other']
+  const categoryOrder = ['social', 'web', 'banner', 'email', 'print', 'other']
 
   // Get which category the selected platform belongs to
   const selectedCategory = platform.category || 'other'
