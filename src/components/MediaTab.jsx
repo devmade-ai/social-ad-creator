@@ -443,18 +443,20 @@ export default memo(function MediaTab({
   const handleDrop = useCallback(
     (e) => {
       e.preventDefault()
-      const file = e.dataTransfer.files[0]
-      if (file && file.type.startsWith('image/')) {
-        const reader = new FileReader()
-        reader.onload = (event) => {
-          const imageId = onAddImage(event.target.result, file.name)
-          // Auto-assign to selected cell if no image there
-          if (!cellImages[selectedCell]) {
-            onSetCellImage(selectedCell, imageId)
+      const files = Array.from(e.dataTransfer.files || [])
+      files.forEach((file, index) => {
+        if (file && file.type.startsWith('image/')) {
+          const reader = new FileReader()
+          reader.onload = (event) => {
+            const imageId = onAddImage(event.target.result, file.name)
+            // Auto-assign first uploaded image to selected cell if no image there
+            if (index === 0 && !cellImages[selectedCell]) {
+              onSetCellImage(selectedCell, imageId)
+            }
           }
+          reader.readAsDataURL(file)
         }
-        reader.readAsDataURL(file)
-      }
+      })
     },
     [onAddImage, onSetCellImage, cellImages, selectedCell]
   )
@@ -465,18 +467,20 @@ export default memo(function MediaTab({
 
   const handleFileSelect = useCallback(
     (e) => {
-      const file = e.target.files[0]
-      if (file && file.type.startsWith('image/')) {
-        const reader = new FileReader()
-        reader.onload = (event) => {
-          const imageId = onAddImage(event.target.result, file.name)
-          // Auto-assign to selected cell if no image there
-          if (!cellImages[selectedCell]) {
-            onSetCellImage(selectedCell, imageId)
+      const files = Array.from(e.target.files || [])
+      files.forEach((file, index) => {
+        if (file && file.type.startsWith('image/')) {
+          const reader = new FileReader()
+          reader.onload = (event) => {
+            const imageId = onAddImage(event.target.result, file.name)
+            // Auto-assign first uploaded image to selected cell if no image there
+            if (index === 0 && !cellImages[selectedCell]) {
+              onSetCellImage(selectedCell, imageId)
+            }
           }
+          reader.readAsDataURL(file)
         }
-        reader.readAsDataURL(file)
-      }
+      })
     },
     [onAddImage, onSetCellImage, cellImages, selectedCell]
   )
@@ -506,25 +510,7 @@ export default memo(function MediaTab({
       {/* Images Section */}
       <CollapsibleSection title="Images" defaultExpanded={true}>
         <div className="space-y-3">
-          {/* Cell Selector */}
-          <div className="space-y-2">
-            <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-300">Select Cell</label>
-            <div className="flex items-center gap-3">
-              <CellGrid
-                layout={layout}
-                cellImages={cellImages}
-                selectedCell={selectedCell}
-                onSelectCell={setSelectedCell}
-                platform={platform}
-              />
-              <div className="text-xs text-zinc-500 dark:text-zinc-400">
-                <div className="font-medium text-zinc-700 dark:text-zinc-300">Cell {selectedCell + 1}</div>
-                <div>{selectedImageData ? selectedImageData.name : 'No image'}</div>
-              </div>
-            </div>
-          </div>
-
-          {/* Upload area */}
+          {/* Upload area - first, to build library */}
           <div
             className="border-2 border-dashed border-zinc-200 dark:border-zinc-700 rounded-xl p-4 text-center cursor-pointer hover:border-violet-400 hover:bg-violet-50/30 dark:hover:bg-violet-900/30 transition-all"
             onDrop={handleDrop}
@@ -550,59 +536,10 @@ export default memo(function MediaTab({
                 {images.length === 0 ? 'Add images to your library' : `${images.length} image${images.length !== 1 ? 's' : ''} in library`}
               </p>
             </div>
-            <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileSelect} />
+            <input ref={fileInputRef} type="file" accept="image/*" multiple className="hidden" onChange={handleFileSelect} />
           </div>
 
-          {/* Image Pool / Library */}
-          {images.length > 0 && (
-            <div className="space-y-2">
-              <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-300">Image Library</label>
-              <div className="grid grid-cols-4 gap-1.5">
-                {images.map((img) => {
-                  const isAssignedToSelected = selectedCellImage?.imageId === img.id
-                  const isAssignedElsewhere = Object.values(cellImages).some(
-                    (ci) => ci?.imageId === img.id && ci !== selectedCellImage
-                  )
-                  return (
-                    <div key={img.id} className="relative group">
-                      <button
-                        onClick={() => assignImageToCell(img.id)}
-                        className={`aspect-square rounded-lg overflow-hidden border-2 transition-all w-full ${
-                          isAssignedToSelected
-                            ? 'border-primary ring-2 ring-primary/30'
-                            : isAssignedElsewhere
-                            ? 'border-violet-300 dark:border-violet-600'
-                            : 'border-zinc-200 dark:border-zinc-700 hover:border-violet-400'
-                        }`}
-                        title={isAssignedToSelected ? 'Assigned to this cell' : `Click to assign to Cell ${selectedCell + 1}`}
-                      >
-                        <img src={img.src} alt={img.name} className="w-full h-full object-cover" />
-                      </button>
-                      {/* Remove button */}
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          onRemoveImage(img.id)
-                        }}
-                        className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-sm hover:bg-red-600"
-                        title="Remove from library"
-                      >
-                        ×
-                      </button>
-                      {/* Assignment indicator */}
-                      {isAssignedToSelected && (
-                        <div className="absolute bottom-0.5 left-0.5 bg-primary text-white text-[8px] px-1 rounded">
-                          Cell {selectedCell + 1}
-                        </div>
-                      )}
-                    </div>
-                  )
-                })}
-              </div>
-            </div>
-          )}
-
-          {/* Sample Images */}
+          {/* Sample Images - show when library is empty */}
           {images.length === 0 && (
             <div className="space-y-2">
               <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-300">Or try a sample</label>
@@ -641,20 +578,94 @@ export default memo(function MediaTab({
             </div>
           )}
 
+          {/* Image Library - show when there are images */}
+          {images.length > 0 && (
+            <div className="space-y-2">
+              <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-300">Image Library</label>
+              <div className="grid grid-cols-4 gap-1.5">
+                {images.map((img) => {
+                  // Find which cells this image is assigned to
+                  const assignedCells = Object.entries(cellImages)
+                    .filter(([, ci]) => ci?.imageId === img.id)
+                    .map(([cellIdx]) => parseInt(cellIdx) + 1)
+                  const isAssignedToSelected = selectedCellImage?.imageId === img.id
+
+                  return (
+                    <div key={img.id} className="relative group">
+                      <button
+                        onClick={() => assignImageToCell(img.id)}
+                        className={`aspect-square rounded-lg overflow-hidden border-2 transition-all w-full ${
+                          isAssignedToSelected
+                            ? 'border-primary ring-2 ring-primary/30'
+                            : assignedCells.length > 0
+                            ? 'border-violet-300 dark:border-violet-600'
+                            : 'border-zinc-200 dark:border-zinc-700 hover:border-violet-400'
+                        }`}
+                        title={assignedCells.length > 0 ? `Assigned to cell${assignedCells.length > 1 ? 's' : ''} ${assignedCells.join(', ')}` : `Click to assign to Cell ${selectedCell + 1}`}
+                      >
+                        <img src={img.src} alt={img.name} className="w-full h-full object-cover" />
+                      </button>
+                      {/* Remove button */}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          onRemoveImage(img.id)
+                        }}
+                        className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-sm hover:bg-red-600"
+                        title="Remove from library"
+                      >
+                        ×
+                      </button>
+                      {/* Assignment indicator - show all assigned cells */}
+                      {assignedCells.length > 0 && (
+                        <div className="absolute bottom-0.5 left-0.5 bg-primary text-white text-[8px] px-1 rounded">
+                          {assignedCells.length > 2 ? `${assignedCells.length} cells` : assignedCells.join(', ')}
+                        </div>
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Cell Assignment Section - show when there are images */}
+          {images.length > 0 && (
+            <div className="space-y-2 pt-3 border-t border-zinc-100 dark:border-zinc-800">
+              <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-300">Assign to Cell</label>
+              <div className="flex items-center gap-3">
+                <CellGrid
+                  layout={layout}
+                  cellImages={cellImages}
+                  selectedCell={selectedCell}
+                  onSelectCell={setSelectedCell}
+                  platform={platform}
+                />
+                <div className="text-xs text-zinc-500 dark:text-zinc-400">
+                  <div className="font-medium text-zinc-700 dark:text-zinc-300">Cell {selectedCell + 1}</div>
+                  <div>{selectedImageData ? selectedImageData.name : 'No image'}</div>
+                  {selectedCellImage && (
+                    <button
+                      onClick={removeImageFromCell}
+                      className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 mt-0.5"
+                    >
+                      Remove
+                    </button>
+                  )}
+                </div>
+              </div>
+              <p className="text-[10px] text-zinc-400 dark:text-zinc-500">
+                Select a cell, then click an image above to assign it
+              </p>
+            </div>
+          )}
+
           {/* Selected Cell Image Settings */}
           {selectedCellImage && selectedImageData && (
             <div className="space-y-3 pt-3 border-t border-zinc-100 dark:border-zinc-800">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-medium text-zinc-700 dark:text-zinc-300">
-                  Cell {selectedCell + 1} Settings
-                </span>
-                <button
-                  onClick={removeImageFromCell}
-                  className="text-xs text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300"
-                >
-                  Remove
-                </button>
-              </div>
+              <span className="text-xs font-medium text-zinc-700 dark:text-zinc-300">
+                Cell {selectedCell + 1} Settings
+              </span>
 
               {/* Object Fit */}
               <div className="space-y-2">
