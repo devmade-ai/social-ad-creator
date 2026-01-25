@@ -210,13 +210,13 @@ Core features working:
 
 ## Current Tab Structure
 
-**Top-level tabs:** Templates, Media, Content, Layout, Style
+**Top-level tabs:** Presets, Media, Content, Structure, Style
 
 This is a workflow-based organization (as of January 2026 refactor):
-- **Templates** - Start here: Complete designs (style presets) + Layout-only presets
-- **Media** - Upload images to library, assign to cells, per-cell settings, logo
+- **Presets** - Start here: Complete designs (style presets) + Layout-only presets with aspect ratio filtering
+- **Media** - Upload images to library, assign to cells, per-image overlay & filters, logo
 - **Content** - Write text, set visibility, cell assignment, alignment, color, size
-- **Layout** - Fine-tune grid structure and cell alignment
+- **Structure** - Fine-tune grid structure and cell alignment
 - **Style** - Themes, typography, per-cell overlay, spacing, frames
 
 ## Tech Stack
@@ -271,14 +271,22 @@ src/
 ## Key State Structure
 
 ```js
-// Image library - all uploaded images
+// Image library - all uploaded images with individual settings including overlay
 images: [
-  { id: 'img-123', src: 'data:...', name: 'hero.jpg' },
+  {
+    id: 'img-123',
+    src: 'data:...',
+    name: 'hero.jpg',
+    fit: 'cover',
+    position: { x: 50, y: 50 },
+    filters: { grayscale: 0, sepia: 0, blur: 0, contrast: 100, brightness: 100 },
+    overlay: { type: 'solid', color: 'primary', opacity: 0 }  // Per-image overlay
+  },
 ]
 
-// Per-cell image assignments with individual settings
+// Per-cell image assignments (just the image ID - settings are on the image itself)
 cellImages: {
-  0: { imageId: 'img-123', fit: 'cover', position: { x: 50, y: 50 }, filters: {...} },
+  0: 'img-123',  // Maps cell index to image ID
 }
 
 layout: {
@@ -321,17 +329,17 @@ textCells: {
 
 ## Tab Details (New Workflow-Based UI)
 
-### Templates Tab
+### Presets Tab (formerly Templates)
 Entry point for users. Two sections:
-- **Complete Designs** - Style presets that apply theme, fonts, layout, overlay, filters all at once
-- **Layout Only** - Layout presets that only change grid structure (keeps current colors/fonts)
+- **Complete Designs** - Style presets that apply theme, fonts, layout all at once
+- **Layout Only** - Layout presets with aspect ratio filtering (Square, Portrait, Landscape)
 
 ### Media Tab
 Collapsible sections:
 - **AI Image Prompt** - Helper for generating AI image prompts
-- **Images** - Upload to library, cell selector, assign images to cells, per-cell settings (fit, position, grayscale)
-- **Image Overlay** - Overlay controls for selected cell's image
-- **Advanced Filters** - Per-cell: grayscale, sepia, blur, contrast, brightness
+- **Images** - Upload to library, cell selector, assign images to cells, per-image settings (fit, position)
+- **Image Overlay** - Per-image overlay controls (type, color, opacity) for selected image
+- **Advanced Filters** - Per-image: grayscale, sepia, blur, contrast, brightness
 - **Logo** - Upload, position (corners/center), size
 
 ### Content Tab
@@ -343,7 +351,7 @@ Text editing organized by groups, each in a collapsible section:
 
 Each text element has: visibility toggle, text input, cell assignment, alignment, color, size, bold/italic, letter spacing
 
-### Layout Tab
+### Structure Tab (formerly Layout)
 Collapsible sections:
 - **Structure** - Layout type (Full/Rows/Columns), interactive grid for editing section/cell sizes, add/remove sections and subdivisions
 - **Text Alignment** - Context-aware alignment controls (section selected = all cells in section, cell selected = that cell, nothing = global)
@@ -352,13 +360,13 @@ Collapsible sections:
 Collapsible sections:
 - **Themes** - 12 preset themes + custom color inputs
 - **Typography** - Title font + body font selectors with preview
-- **Overlay** - Per-cell overlay controls (type, color, opacity)
-- **Spacing** - Global padding + per-cell custom padding
+- **Overlay** - Per-cell overlay controls (stacks on top of image overlay)
+- **Spacing** - Global padding + per-cell custom padding, outer frame + cell frames
 
 ## Preset Types
 
 | Name | Location | What It Applies | Config File |
 |------|----------|-----------------|-------------|
-| **Complete Designs** | Templates → Complete Designs | Everything (theme, fonts, layout, overlay, filters) | `stylePresets.js` |
-| **Layouts** | Templates → Layout Only | Grid structure + text cell placements only | `layoutPresets.js` |
+| **Complete Designs** | Presets → Complete Designs | Theme, fonts, layout, text placements | `stylePresets.js` |
+| **Layouts** | Presets → Layout Only | Grid structure + text cell placements (filterable by aspect ratio) | `layoutPresets.js` |
 | **Themes** | Style → Themes | Color scheme only | `themes.js` |

@@ -173,10 +173,6 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
     position: 'relative',
     overflow: 'hidden',
     backgroundColor: themeColors.primary,
-    // Outer frame as box-shadow (inset)
-    ...(outerFrameWidth > 0 && {
-      boxShadow: `inset 0 0 0 ${outerFrameWidth}px ${outerFrameColor}`,
-    }),
   }
 
   // Calculate total cell count and build cell map from structure
@@ -214,6 +210,7 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
       fit: imageData.fit || 'cover',
       position: imageData.position || { x: 50, y: 50 },
       filters: imageData.filters || {},
+      overlay: imageData.overlay || { type: 'solid', color: 'primary', opacity: 0 },
     }
   }
 
@@ -310,7 +307,7 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
   }
 
   // Render image with overlay for a specific cell
-  // Supports stacking: global overlay (Image tab) + cell overlay (Layout > Overlay)
+  // Supports stacking: per-image overlay (Media tab) + cell overlay (Style > Overlay)
   const renderCellImage = (cellIndex, style = {}) => {
     const imageData = getCellImageData(cellIndex)
     if (!imageData) return null
@@ -319,17 +316,17 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
     const cellOverlays = layout.cellOverlays || {}
     const cellOverlayConfig = cellOverlays[cellIndex]
 
-    // Global overlay from Image tab (always applied if opacity > 0)
-    const globalOverlay = state.overlay
-    const hasGlobalOverlay = globalOverlay && globalOverlay.opacity > 0
+    // Per-image overlay from Media tab (stored on the image itself)
+    const imageOverlay = imageData.overlay
+    const hasImageOverlay = imageOverlay && imageOverlay.opacity > 0
 
-    // Cell-specific overlay (stacks on top if different from global)
+    // Cell-specific overlay (stacks on top if different from image overlay)
     const hasCellOverlay = cellOverlayConfig &&
-      cellOverlayConfig !== globalOverlay &&
+      cellOverlayConfig !== imageOverlay &&
       cellOverlayConfig.enabled !== false
 
     // Check for duotone effect (applies grayscale to image)
-    const hasDuotone = isDuotoneOverlay(globalOverlay) || isDuotoneOverlay(cellOverlayConfig)
+    const hasDuotone = isDuotoneOverlay(imageOverlay) || isDuotoneOverlay(cellOverlayConfig)
     const duotoneFilter = hasDuotone ? 'grayscale(100%)' : ''
     const imageFilterStyle = buildFilterStyle(imageData.filters)
     const combinedFilter = [imageFilterStyle, duotoneFilter].filter(f => f && f !== 'none').join(' ') || 'none'
@@ -347,9 +344,9 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
             filter: combinedFilter,
           }}
         />
-        {/* Global overlay layer (from Image tab) */}
-        {hasGlobalOverlay && renderOverlayLayer(globalOverlay, 'global-overlay')}
-        {/* Cell overlay layer (from Layout > Overlay) - stacks on top */}
+        {/* Per-image overlay layer (from Media tab) */}
+        {hasImageOverlay && renderOverlayLayer(imageOverlay, 'image-overlay')}
+        {/* Cell overlay layer (from Style > Overlay) - stacks on top */}
         {hasCellOverlay && renderOverlayLayer(cellOverlayConfig, 'cell-overlay')}
       </div>
     )
@@ -768,6 +765,18 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
       <SvgFilters />
       {renderLayout()}
       {renderLogo()}
+      {/* Outer frame (rendered on top of everything except logo) */}
+      {outerFrameWidth > 0 && (
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            boxShadow: `inset 0 0 0 ${outerFrameWidth}px ${outerFrameColor}`,
+            pointerEvents: 'none',
+            zIndex: 9,
+          }}
+        />
+      )}
     </div>
   )
 })

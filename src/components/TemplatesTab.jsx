@@ -7,6 +7,8 @@ import {
   presetIcons,
   getPresetsByCategory,
   getSuggestedLayouts,
+  aspectRatioCategories,
+  getPresetsByAspectRatio,
 } from '../config/layoutPresets'
 
 // Preview swatch component for style presets
@@ -166,19 +168,28 @@ export default memo(function TemplatesTab({
 }) {
   const [styleCategory, setStyleCategory] = useState('all')
   const [layoutCategory, setLayoutCategory] = useState('all')
+  const [aspectRatioFilter, setAspectRatioFilter] = useState('all')
 
   const displayStylePresets = useMemo(() => {
     return getStylePresetsByCategory(styleCategory)
   }, [styleCategory])
 
   const displayLayoutPresets = useMemo(() => {
-    if (layoutCategory === 'all') return layoutPresets
+    // First filter by aspect ratio
+    let presets = aspectRatioFilter === 'all'
+      ? layoutPresets
+      : getPresetsByAspectRatio(aspectRatioFilter)
+
+    // Then filter by category
     if (layoutCategory === 'suggested') {
       const suggestedIds = getSuggestedLayouts(imageAspectRatio, platform)
-      return layoutPresets.filter((p) => suggestedIds.includes(p.id))
+      presets = presets.filter((p) => suggestedIds.includes(p.id))
+    } else if (layoutCategory !== 'all') {
+      presets = presets.filter((p) => p.category === layoutCategory)
     }
-    return getPresetsByCategory(layoutCategory)
-  }, [layoutCategory, imageAspectRatio, platform])
+
+    return presets
+  }, [layoutCategory, aspectRatioFilter, imageAspectRatio, platform])
 
   const activeStylePresetData = stylePresets.find((p) => p.id === activeStylePreset)
 
@@ -193,7 +204,7 @@ export default memo(function TemplatesTab({
 
   return (
     <div className="space-y-3">
-      <h3 className="text-sm font-semibold text-zinc-800 dark:text-zinc-100">Templates</h3>
+      <h3 className="text-sm font-semibold text-zinc-800 dark:text-zinc-100">Presets</h3>
 
       {/* Style Presets - Complete designs */}
       <CollapsibleSection title="Complete Designs" defaultExpanded={false}>
@@ -262,41 +273,64 @@ export default memo(function TemplatesTab({
       {/* Layout Presets - Structure only */}
       <CollapsibleSection title="Layout Only" defaultExpanded={false}>
         <div className="space-y-3">
+          {/* Aspect Ratio Filter */}
+          <div className="space-y-1.5">
+            <label className="block text-[10px] text-zinc-500 dark:text-zinc-400 uppercase tracking-wide">Aspect Ratio</label>
+            <div className="flex gap-1">
+              {aspectRatioCategories.map((ar) => (
+                <button
+                  key={ar.id}
+                  onClick={() => setAspectRatioFilter(ar.id)}
+                  className={`flex-1 px-2 py-1.5 text-xs rounded-lg font-medium transition-all ${
+                    aspectRatioFilter === ar.id
+                      ? 'bg-violet-600 text-white shadow-sm'
+                      : 'bg-zinc-100 dark:bg-dark-subtle text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-dark-elevated'
+                  }`}
+                >
+                  {ar.name}
+                </button>
+              ))}
+            </div>
+          </div>
+
           {/* Category pills */}
-          <div className="flex flex-wrap gap-1.5">
-            <button
-              onClick={() => setLayoutCategory('all')}
-              className={`px-2.5 py-1 text-xs rounded-lg font-medium ${
-                layoutCategory === 'all'
-                  ? 'bg-primary text-white shadow-sm'
-                  : 'bg-zinc-100 dark:bg-dark-subtle text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-dark-elevated'
-              }`}
-            >
-              All
-            </button>
-            <button
-              onClick={() => setLayoutCategory('suggested')}
-              className={`px-2.5 py-1 text-xs rounded-lg font-medium ${
-                layoutCategory === 'suggested'
-                  ? 'bg-primary text-white shadow-sm'
-                  : 'bg-zinc-100 dark:bg-dark-subtle text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-dark-elevated'
-              }`}
-            >
-              Suggested
-            </button>
-            {presetCategories.map((cat) => (
+          <div className="space-y-1.5">
+            <label className="block text-[10px] text-zinc-500 dark:text-zinc-400 uppercase tracking-wide">Category</label>
+            <div className="flex flex-wrap gap-1.5">
               <button
-                key={cat.id}
-                onClick={() => setLayoutCategory(cat.id)}
+                onClick={() => setLayoutCategory('all')}
                 className={`px-2.5 py-1 text-xs rounded-lg font-medium ${
-                  layoutCategory === cat.id
+                  layoutCategory === 'all'
                     ? 'bg-primary text-white shadow-sm'
                     : 'bg-zinc-100 dark:bg-dark-subtle text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-dark-elevated'
                 }`}
               >
-                {cat.name}
+                All
               </button>
-            ))}
+              <button
+                onClick={() => setLayoutCategory('suggested')}
+                className={`px-2.5 py-1 text-xs rounded-lg font-medium ${
+                  layoutCategory === 'suggested'
+                    ? 'bg-primary text-white shadow-sm'
+                    : 'bg-zinc-100 dark:bg-dark-subtle text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-dark-elevated'
+                }`}
+              >
+                Suggested
+              </button>
+              {presetCategories.map((cat) => (
+                <button
+                  key={cat.id}
+                  onClick={() => setLayoutCategory(cat.id)}
+                  className={`px-2.5 py-1 text-xs rounded-lg font-medium ${
+                    layoutCategory === cat.id
+                      ? 'bg-primary text-white shadow-sm'
+                      : 'bg-zinc-100 dark:bg-dark-subtle text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-dark-elevated'
+                  }`}
+                >
+                  {cat.name}
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* Layout preset grid */}
