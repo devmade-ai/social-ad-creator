@@ -544,7 +544,7 @@ export default memo(function LayoutTab({
 
   return (
     <div className="space-y-3">
-      <h3 className="text-sm font-semibold text-zinc-800 dark:text-zinc-100">Layout</h3>
+      <h3 className="text-sm font-semibold text-zinc-800 dark:text-zinc-100">Structure</h3>
 
       {/* Structure Section */}
       <CollapsibleSection title="Structure" defaultExpanded={false}>

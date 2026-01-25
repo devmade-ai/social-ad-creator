@@ -145,7 +145,6 @@ export default memo(function StyleTab({
   onFontsChange,
   layout,
   onLayoutChange,
-  overlay,
   platform,
   padding = { global: 5, cellOverrides: {} },
   onPaddingChange,
@@ -369,9 +368,9 @@ export default memo(function StyleTab({
                         if (e.target.checked) {
                           updateCellOverlay(selectedOverlayCell, {
                             enabled: true,
-                            type: overlay?.type || 'solid',
-                            color: overlay?.color || 'primary',
-                            opacity: overlay?.opacity ?? 50,
+                            type: 'solid',
+                            color: 'primary',
+                            opacity: 50,
                           })
                         } else {
                           updateCellOverlay(selectedOverlayCell, {

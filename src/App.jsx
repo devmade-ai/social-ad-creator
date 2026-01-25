@@ -30,12 +30,12 @@ function App() {
     updateImage,
     updateImageFilters,
     updateImagePosition,
+    updateImageOverlay,
     setCellImage,
     // Other state
     setLogo,
     setLogoPosition,
     setLogoSize,
-    setOverlay,
     setText,
     setTextCells,
     setLayout,
@@ -115,10 +115,10 @@ function App() {
 
   // New workflow-based tabs
   const sections = [
-    { id: 'templates', label: 'Templates' },
+    { id: 'templates', label: 'Presets' },
     { id: 'media', label: 'Media' },
     { id: 'content', label: 'Content' },
-    { id: 'layout', label: 'Layout' },
+    { id: 'layout', label: 'Structure' },
     { id: 'style', label: 'Style' },
   ]
 
@@ -215,6 +215,7 @@ function App() {
                     onUpdateImage={updateImage}
                     onUpdateImageFilters={updateImageFilters}
                     onUpdateImagePosition={updateImagePosition}
+                    onUpdateImageOverlay={updateImageOverlay}
                     // Cell assignments
                     cellImages={state.cellImages}
                     onSetCellImage={setCellImage}
@@ -229,8 +230,6 @@ function App() {
                     layout={state.layout}
                     platform={state.platform}
                     theme={state.theme}
-                    overlay={state.overlay}
-                    onOverlayChange={setOverlay}
                   />
                 )}
               </ErrorBoundary>
@@ -271,7 +270,6 @@ function App() {
                     onFontsChange={setFonts}
                     layout={state.layout}
                     onLayoutChange={setLayout}
-                    overlay={state.overlay}
                     platform={state.platform}
                     padding={state.padding}
                     onPaddingChange={setPadding}

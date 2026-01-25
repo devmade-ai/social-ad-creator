@@ -5,32 +5,39 @@ Compact context summary for session continuity. Rewrite at session end.
 ---
 
 ## Worked on
-Multi-image system and frame borders
+Overlay system fixes, tab naming, aspect ratio filtering
 
 ## Accomplished
 
-- **Multi-image system**: Replaced single image with image library + per-cell assignment
-  - `images` array holds all uploaded images
-  - `cellImages` object maps cells to image IDs with per-cell settings
-  - Each cell can have its own fit, position, and filters
-  - MediaTab redesigned: upload to library, cell selector, assign images
+- **Per-image overlay**: Fixed overlay applying to all images - now each image has its own overlay settings
+  - Overlay settings stored on each image in `images` array
+  - Removed global `state.overlay` in favor of per-image `image.overlay`
+  - MediaTab now uses `onUpdateImageOverlay` to modify selected image's overlay
+  - AdCanvas reads overlay from image data when rendering
 
-- **Frame system**: Added colored borders using percentage of padding
-  - Outer frame: Canvas-wide border
-  - Per-cell frames: Individual cell borders
-  - Frame width calculated as % of padding (keeps dimensions stable)
-  - Controls in Style > Spacing section
+- **Outer border fix**: Fixed outer frame not displaying
+  - Outer frame was using `boxShadow: inset` on container, but children covered it
+  - Changed to separate absolute-positioned div with `zIndex: 9`
+  - Frame now renders correctly on top of content
 
-- **Paper sizes**: Added A3, A4, A5 in portrait/landscape (150 DPI)
+- **Tab renaming**: Renamed confusing tabs for clarity
+  - "Templates" tab renamed to "Presets"
+  - "Layout" tab renamed to "Structure"
+
+- **Aspect ratio filtering**: Added layout filtering by aspect ratio in Presets tab
+  - Added `aspectRatios` property to each layout preset (square, portrait, landscape)
+  - New `aspectRatioCategories` and `getPresetsByAspectRatio` helpers
+  - TemplatesTab now shows aspect ratio filter buttons (All, Square, Portrait, Landscape)
+  - Filters combine with category filters
 
 ## Current state
 - **Build**: Passes
-- **Breaking change**: Old `image`, `imageObjectFit`, `imagePosition`, `imageFilters` state fields removed
-- **New state fields**: `images`, `cellImages`, `frame`
+- **Breaking change**: Global `state.overlay` removed, now per-image
+- **Tab structure**: Presets, Media, Content, Structure, Style
 
 ## Key context
 
-- Image cells determined by `cellImages` presence, not `imageCell` index
-- `cellHasImage(cellIndex)` helper used throughout for consistency
-- Frame renders as `box-shadow: inset` for clean borders
-- StyleTab now receives `cellImages` prop for cell indicators
+- Image overlay stored in `image.overlay` with defaults `{ type: 'solid', color: 'primary', opacity: 0 }`
+- Style presets no longer apply overlay (since it's per-image)
+- Layout presets have `aspectRatios` array for filtering
+- Outer frame rendered as separate div, not box-shadow on container

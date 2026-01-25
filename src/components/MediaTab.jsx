@@ -374,6 +374,7 @@ export default memo(function MediaTab({
   onUpdateImage,
   onUpdateImageFilters,
   onUpdateImagePosition,
+  onUpdateImageOverlay,
   // Cell assignments
   cellImages = {},
   onSetCellImage,
@@ -388,9 +389,6 @@ export default memo(function MediaTab({
   layout,
   platform,
   theme,
-  // Overlay props (global overlay for image)
-  overlay,
-  onOverlayChange,
 }) {
   const fileInputRef = useRef(null)
   const logoInputRef = useRef(null)
@@ -765,19 +763,19 @@ export default memo(function MediaTab({
             <div className="space-y-2">
               <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-300">Overlay</label>
               <button
-                onClick={() => onOverlayChange({ opacity: (overlay?.opacity ?? 0) > 0 ? 0 : 50 })}
+                onClick={() => onUpdateImageOverlay(selectedImageId, { opacity: (selectedImage.overlay?.opacity ?? 0) > 0 ? 0 : 50 })}
                 className={`w-full px-3 py-2 text-sm rounded-lg font-medium ${
-                  (overlay?.opacity ?? 0) > 0
+                  (selectedImage.overlay?.opacity ?? 0) > 0
                     ? 'bg-primary text-white shadow-sm'
                     : 'bg-zinc-100 dark:bg-dark-subtle text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-dark-elevated'
                 }`}
               >
-                {(overlay?.opacity ?? 0) > 0 ? 'On' : 'Off'}
+                {(selectedImage.overlay?.opacity ?? 0) > 0 ? 'On' : 'Off'}
               </button>
             </div>
 
             {/* Only show controls when overlay is enabled */}
-            {(overlay?.opacity ?? 0) > 0 && (
+            {(selectedImage.overlay?.opacity ?? 0) > 0 && (
               <>
                 {/* Overlay Type - organized by category */}
                 <div className="space-y-3">
@@ -789,9 +787,9 @@ export default memo(function MediaTab({
                       {overlayTypes.filter(t => t.category === 'basic' || t.category === 'linear').map((t) => (
                         <button
                           key={t.id}
-                          onClick={() => onOverlayChange({ type: overlay?.type === t.id ? null : t.id })}
+                          onClick={() => onUpdateImageOverlay(selectedImageId, { type: t.id })}
                           className={`px-1.5 py-1.5 text-[10px] rounded-lg font-medium truncate ${
-                            overlay?.type === t.id
+                            selectedImage.overlay?.type === t.id
                               ? 'bg-primary text-white shadow-sm'
                               : 'bg-zinc-100 dark:bg-dark-subtle text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-dark-elevated'
                           }`}
@@ -809,9 +807,9 @@ export default memo(function MediaTab({
                       {overlayTypes.filter(t => t.category === 'radial').map((t) => (
                         <button
                           key={t.id}
-                          onClick={() => onOverlayChange({ type: overlay?.type === t.id ? null : t.id })}
+                          onClick={() => onUpdateImageOverlay(selectedImageId, { type: t.id })}
                           className={`px-1.5 py-1.5 text-[10px] rounded-lg font-medium truncate ${
-                            overlay?.type === t.id
+                            selectedImage.overlay?.type === t.id
                               ? 'bg-primary text-white shadow-sm'
                               : 'bg-zinc-100 dark:bg-dark-subtle text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-dark-elevated'
                           }`}
@@ -829,9 +827,9 @@ export default memo(function MediaTab({
                       {overlayTypes.filter(t => t.category === 'effect' || t.category === 'texture').map((t) => (
                         <button
                           key={t.id}
-                          onClick={() => onOverlayChange({ type: overlay?.type === t.id ? null : t.id })}
+                          onClick={() => onUpdateImageOverlay(selectedImageId, { type: t.id })}
                           className={`px-1.5 py-1.5 text-[10px] rounded-lg font-medium truncate ${
-                            overlay?.type === t.id
+                            selectedImage.overlay?.type === t.id
                               ? 'bg-primary text-white shadow-sm'
                               : 'bg-zinc-100 dark:bg-dark-subtle text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-dark-elevated'
                           }`}
@@ -849,9 +847,9 @@ export default memo(function MediaTab({
                       {overlayTypes.filter(t => t.category === 'blend').map((t) => (
                         <button
                           key={t.id}
-                          onClick={() => onOverlayChange({ type: overlay?.type === t.id ? null : t.id })}
+                          onClick={() => onUpdateImageOverlay(selectedImageId, { type: t.id })}
                           className={`px-1.5 py-1.5 text-[10px] rounded-lg font-medium truncate ${
-                            overlay?.type === t.id
+                            selectedImage.overlay?.type === t.id
                               ? 'bg-primary text-white shadow-sm'
                               : 'bg-zinc-100 dark:bg-dark-subtle text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-dark-elevated'
                           }`}
@@ -872,9 +870,9 @@ export default memo(function MediaTab({
                     {themeColorOptions.map((c) => (
                       <button
                         key={c.id}
-                        onClick={() => onOverlayChange({ color: overlay?.color === c.id ? null : c.id })}
+                        onClick={() => onUpdateImageOverlay(selectedImageId, { color: c.id })}
                         className={`px-2.5 py-1.5 text-xs rounded-lg font-medium ${
-                          overlay?.color === c.id
+                          selectedImage.overlay?.color === c.id
                             ? 'bg-primary text-white shadow-sm'
                             : 'bg-zinc-100 dark:bg-dark-subtle text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-dark-elevated'
                         }`}
@@ -890,9 +888,9 @@ export default memo(function MediaTab({
                     {neutralColors.map((c) => (
                       <button
                         key={c.id}
-                        onClick={() => onOverlayChange({ color: overlay?.color === c.id ? null : c.id })}
+                        onClick={() => onUpdateImageOverlay(selectedImageId, { color: c.id })}
                         className={`px-2.5 py-1.5 text-xs rounded-lg font-medium ${
-                          overlay?.color === c.id
+                          selectedImage.overlay?.color === c.id
                             ? 'bg-primary text-white shadow-sm'
                             : 'bg-zinc-100 dark:bg-dark-subtle text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-dark-elevated'
                         }`}
@@ -912,7 +910,7 @@ export default memo(function MediaTab({
                   <div className="flex justify-between">
                     <label className="text-xs font-medium text-zinc-600 dark:text-zinc-300">Opacity</label>
                     <span className="text-xs text-zinc-500 dark:text-zinc-400">
-                      {overlay?.opacity ?? 0}%
+                      {selectedImage.overlay?.opacity ?? 0}%
                     </span>
                   </div>
                   <input
@@ -920,8 +918,8 @@ export default memo(function MediaTab({
                     min="0"
                     max="100"
                     step="5"
-                    value={overlay?.opacity ?? 0}
-                    onChange={(e) => onOverlayChange({ opacity: parseInt(e.target.value, 10) })}
+                    value={selectedImage.overlay?.opacity ?? 0}
+                    onChange={(e) => onUpdateImageOverlay(selectedImageId, { opacity: parseInt(e.target.value, 10) })}
                     className="w-full h-2 bg-zinc-200 dark:bg-dark-subtle rounded-lg appearance-none cursor-pointer"
                   />
                 </div>

@@ -27,12 +27,11 @@ export const defaultState = {
       contrast: 100,
       brightness: 100,
     },
-  },
-
-  overlay: {
-    type: 'solid',
-    color: 'primary',
-    opacity: 50,
+    overlay: {
+      type: 'solid',
+      color: 'primary',
+      opacity: 0,
+    },
   },
 
   text: {
@@ -124,6 +123,7 @@ export function useAdState() {
         fit: prev.defaultImageSettings.fit,
         position: { ...prev.defaultImageSettings.position },
         filters: { ...prev.defaultImageSettings.filters },
+        overlay: { ...prev.defaultImageSettings.overlay },
       }],
     }))
     return id
@@ -192,6 +192,18 @@ export function useAdState() {
     }))
   }, [setState])
 
+  // Update overlay for an image
+  const updateImageOverlay = useCallback((imageId, overlay) => {
+    setState((prev) => ({
+      ...prev,
+      images: prev.images.map((img) =>
+        img.id === imageId
+          ? { ...img, overlay: { ...img.overlay, ...overlay } }
+          : img
+      ),
+    }))
+  }, [setState])
+
   const setLogo = useCallback((logo) => {
     setState((prev) => ({ ...prev, logo }))
   }, [])
@@ -202,10 +214,6 @@ export function useAdState() {
 
   const setLogoSize = useCallback((logoSize) => {
     setState((prev) => ({ ...prev, logoSize }))
-  }, [])
-
-  const setOverlay = useCallback((overlay) => {
-    setState((prev) => ({ ...prev, overlay: { ...prev.overlay, ...overlay } }))
   }, [])
 
   const setText = useCallback((layer, updates) => {
@@ -296,8 +304,9 @@ export function useAdState() {
     setState(defaultState)
   }, [])
 
-  // Apply a complete style preset (theme, fonts, layout, overlay, filters, textCells)
+  // Apply a complete style preset (theme, fonts, layout, textCells)
   // Preserves: image, logo, text content, platform
+  // Note: Overlay and filters are now per-image, so presets don't affect them
   const applyStylePreset = useCallback((preset) => {
     if (!preset || !preset.settings) return
 
@@ -322,20 +331,6 @@ export function useAdState() {
       layout: settings.layout ? {
         ...settings.layout,
       } : prev.layout,
-      // Apply overlay
-      overlay: settings.overlay ? {
-        type: settings.overlay.type,
-        color: settings.overlay.color,
-        opacity: settings.overlay.opacity,
-      } : prev.overlay,
-      // Apply image filters (preserve grayscale - user controls this independently)
-      imageFilters: settings.imageFilters ? {
-        grayscale: prev.imageFilters.grayscale,
-        sepia: settings.imageFilters.sepia,
-        blur: settings.imageFilters.blur,
-        contrast: settings.imageFilters.contrast,
-        brightness: settings.imageFilters.brightness,
-      } : prev.imageFilters,
       // Apply text cell placements
       textCells: settings.textCells ? {
         title: settings.textCells.title ?? null,
@@ -383,12 +378,12 @@ export function useAdState() {
     updateImage,
     updateImageFilters,
     updateImagePosition,
+    updateImageOverlay,
     setCellImage,
     // Other media
     setLogo,
     setLogoPosition,
     setLogoSize,
-    setOverlay,
     setText,
     setTextCells,
     setLayout,
