@@ -352,7 +352,7 @@ export default memo(function TemplatesTab({
           </div>
 
           <p className="text-[10px] text-zinc-500 dark:text-zinc-400 text-center">
-            Looks apply overlay, fonts, alignment &amp; filters without changing layout or colors
+            Looks apply overlay, fonts &amp; filters without changing layout or colors
           </p>
         </div>
       </CollapsibleSection>
