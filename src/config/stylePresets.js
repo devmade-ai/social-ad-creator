@@ -566,3 +566,18 @@ export const getStylePresetsByCategory = (categoryId) => {
   if (categoryId === 'all') return stylePresets
   return stylePresets.filter(preset => preset.category === categoryId)
 }
+
+// Get presets filtered by layout type
+export const getStylePresetsByLayout = (presets, layoutType) => {
+  if (!layoutType) return presets
+  return presets.filter(preset => preset.settings.layout.type === layoutType)
+}
+
+// Get presets filtered by both category and layout
+export const getFilteredStylePresets = (categoryId, layoutType) => {
+  let result = categoryId === 'all' ? stylePresets : stylePresets.filter(preset => preset.category === categoryId)
+  if (layoutType) {
+    result = result.filter(preset => preset.settings.layout.type === layoutType)
+  }
+  return result
+}

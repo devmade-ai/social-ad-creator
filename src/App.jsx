@@ -285,14 +285,16 @@ function App() {
 
         {/* Preview Area */}
         <main className="flex-1 p-4 lg:p-5 space-y-4">
-          <div className="bg-white dark:bg-dark-card rounded-xl border border-zinc-200/80 dark:border-zinc-700/50 shadow-card p-4 lg:p-6">
-            {/* Platform Selector */}
+          {/* Platform Selector - Separate section */}
+          <div className="bg-white dark:bg-dark-card rounded-xl border border-zinc-200/80 dark:border-zinc-700/50 shadow-card p-4 lg:p-5">
             <PlatformPreview selectedPlatform={state.platform} onPlatformChange={setPlatform} />
+          </div>
 
-            {/* Canvas Preview */}
+          {/* Canvas Preview - Separate section */}
+          <div className="bg-white dark:bg-dark-card rounded-xl border border-zinc-200/80 dark:border-zinc-700/50 shadow-card p-4 lg:p-6">
             <div
               ref={previewContainerRef}
-              className="relative mt-5 bg-gradient-to-br from-zinc-50 to-zinc-100 dark:from-dark-subtle dark:to-dark-page rounded-xl overflow-hidden flex items-center justify-center border border-zinc-200/50 dark:border-zinc-700/50"
+              className="relative bg-gradient-to-br from-zinc-50 to-zinc-100 dark:from-dark-subtle dark:to-dark-page rounded-xl overflow-hidden flex items-center justify-center border border-zinc-200/50 dark:border-zinc-700/50"
               style={{
                 minHeight: platform.height * previewScale + 40,
               }}
