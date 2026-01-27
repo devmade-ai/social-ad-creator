@@ -1,5 +1,39 @@
 # Changelog
 
+## 2026-01-27
+
+### UI Reorganization and Export Improvements
+
+Completed high-priority TODO items focused on UI workflow and export improvements:
+
+**Presets Tab Changes**
+- Swapped section order: Layout presets now appear before Complete Designs (layout-first workflow)
+- Layout section expanded by default, Complete Designs collapsed
+- Complete Designs now filter by current layout type (only shows presets matching fullbleed/rows/columns)
+- Added "No designs match the current layout type" message when filtered list is empty
+
+**Platform Selector Improvements**
+- Separated into its own card/section (was combined with canvas preview)
+- Entire platform list wrapped in collapsible section (collapsed by default)
+- All categories collapsed by default for less overwhelming initial view
+- Header shows current platform name and dimensions
+
+**Export Improvements**
+- Changed "Download All (ZIP)" to "Download Multiple (ZIP)"
+- Added platform selection UI with category grouping
+- Select All / Clear buttons for quick selection
+- Per-category selection by clicking category name
+- Shows count of selected platforms
+- Only exports selected platforms instead of all 20
+
+**Cell Assignment Cleanup**
+- Added automatic cleanup when layout changes reduce cell count
+- Cleans up: textCells, cellImages, cellAlignments, cellOverlays, padding.cellOverrides, frame.cellFrames
+- Prevents stale references to non-existent cells
+- Applied to setLayout, applyStylePreset, and applyLayoutPreset functions
+
+---
+
 ## 2026-01-25
 
 ### Redesigned layout presets with more complex options

@@ -1,5 +1,6 @@
 import { memo, useMemo, useState } from 'react'
 import { platforms } from '../config/platforms'
+import CollapsibleSection from './CollapsibleSection'
 
 // Category labels for display
 const categoryLabels = {
@@ -40,11 +41,11 @@ export default memo(function PlatformPreview({ selectedPlatform, onPlatformChang
   }
 
   const isCategoryExpanded = (category) => {
-    // Default: expanded if it contains the selected platform, collapsed otherwise
+    // Default: all categories collapsed for less overwhelming initial load
     if (expandedCategories[category] !== undefined) {
       return expandedCategories[category]
     }
-    return category === selectedCategory
+    return false
   }
 
   return (
@@ -52,61 +53,63 @@ export default memo(function PlatformPreview({ selectedPlatform, onPlatformChang
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold text-zinc-800 dark:text-zinc-100">Platform</h3>
         <span className="text-sm text-zinc-500 dark:text-zinc-400 font-medium">
-          {platform.width} × {platform.height}
+          {platform.name} ({platform.width} × {platform.height})
         </span>
       </div>
 
-      <div className="space-y-1">
-        {categoryOrder.map((category) => {
-          const categoryPlatforms = groupedPlatforms[category]
-          if (!categoryPlatforms || categoryPlatforms.length === 0) return null
+      <CollapsibleSection title="Select Platform" defaultExpanded={false}>
+        <div className="space-y-1">
+          {categoryOrder.map((category) => {
+            const categoryPlatforms = groupedPlatforms[category]
+            if (!categoryPlatforms || categoryPlatforms.length === 0) return null
 
-          const isExpanded = isCategoryExpanded(category)
-          const hasSelectedPlatform = categoryPlatforms.some((p) => p.id === selectedPlatform)
+            const isExpanded = isCategoryExpanded(category)
+            const hasSelectedPlatform = categoryPlatforms.some((p) => p.id === selectedPlatform)
 
-          return (
-            <div key={category} className="space-y-1">
-              <button
-                onClick={() => toggleCategory(category)}
-                className="w-full flex items-center justify-between py-1 hover:bg-zinc-50 dark:hover:bg-dark-subtle rounded transition-colors"
-              >
-                <span className="text-[10px] text-zinc-400 dark:text-zinc-500 uppercase tracking-wide font-medium flex items-center gap-1">
-                  <svg
-                    className={`w-3 h-3 transition-transform duration-200 ${isExpanded ? 'rotate-90' : ''}`}
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
-                  {categoryLabels[category] || category}
-                </span>
-                {hasSelectedPlatform && !isExpanded && (
-                  <span className="text-[10px] text-primary font-medium">{platform.name}</span>
-                )}
-              </button>
-              {isExpanded && (
-                <div className="flex flex-wrap gap-1 pl-4">
-                  {categoryPlatforms.map((p) => (
-                    <button
-                      key={p.id}
-                      onClick={() => onPlatformChange(p.id)}
-                      title={`${p.width} × ${p.height}`}
-                      className={`px-2.5 py-1 text-xs rounded-lg font-medium transition-all ${
-                        selectedPlatform === p.id
-                          ? 'bg-primary text-white shadow-sm'
-                          : 'bg-zinc-100 dark:bg-dark-subtle text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-dark-elevated'
-                      }`}
+            return (
+              <div key={category} className="space-y-1">
+                <button
+                  onClick={() => toggleCategory(category)}
+                  className="w-full flex items-center justify-between py-1 hover:bg-zinc-50 dark:hover:bg-dark-subtle rounded transition-colors"
+                >
+                  <span className="text-[10px] text-zinc-400 dark:text-zinc-500 uppercase tracking-wide font-medium flex items-center gap-1">
+                    <svg
+                      className={`w-3 h-3 transition-transform duration-200 ${isExpanded ? 'rotate-90' : ''}`}
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
                     >
-                      {p.name}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          )
-        })}
-      </div>
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                    {categoryLabels[category] || category}
+                  </span>
+                  {hasSelectedPlatform && !isExpanded && (
+                    <span className="text-[10px] text-primary font-medium">{platform.name}</span>
+                  )}
+                </button>
+                {isExpanded && (
+                  <div className="flex flex-wrap gap-1 pl-4">
+                    {categoryPlatforms.map((p) => (
+                      <button
+                        key={p.id}
+                        onClick={() => onPlatformChange(p.id)}
+                        title={`${p.width} × ${p.height}`}
+                        className={`px-2.5 py-1 text-xs rounded-lg font-medium transition-all ${
+                          selectedPlatform === p.id
+                            ? 'bg-primary text-white shadow-sm'
+                            : 'bg-zinc-100 dark:bg-dark-subtle text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-dark-elevated'
+                        }`}
+                      >
+                        {p.name}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )
+          })}
+        </div>
+      </CollapsibleSection>
     </div>
   )
 })

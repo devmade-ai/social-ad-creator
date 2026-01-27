@@ -1,12 +1,66 @@
-import { useState, useCallback, memo } from 'react'
+import { useState, useCallback, memo, useMemo } from 'react'
 import { toPng } from 'html-to-image'
 import JSZip from 'jszip'
 import { saveAs } from 'file-saver'
 import { platforms } from '../config/platforms'
 
+// Category labels for display
+const categoryLabels = {
+  social: 'Social Media',
+  web: 'Website',
+  banner: 'Banners',
+  email: 'Email',
+  print: 'Print',
+  other: 'Other',
+}
+
 export default memo(function ExportButtons({ canvasRef, state, onPlatformChange, onExportingChange }) {
   const [isExporting, setIsExporting] = useState(false)
   const [exportProgress, setExportProgress] = useState(null)
+  const [showMultiSelect, setShowMultiSelect] = useState(false)
+  const [selectedPlatforms, setSelectedPlatforms] = useState(() => new Set())
+
+  // Group platforms by category
+  const groupedPlatforms = useMemo(() => {
+    const groups = {}
+    platforms.forEach((p) => {
+      const cat = p.category || 'other'
+      if (!groups[cat]) groups[cat] = []
+      groups[cat].push(p)
+    })
+    return groups
+  }, [])
+
+  const categoryOrder = ['social', 'web', 'banner', 'email', 'print', 'other']
+
+  const togglePlatform = useCallback((platformId) => {
+    setSelectedPlatforms((prev) => {
+      const next = new Set(prev)
+      if (next.has(platformId)) {
+        next.delete(platformId)
+      } else {
+        next.add(platformId)
+      }
+      return next
+    })
+  }, [])
+
+  const selectAll = useCallback(() => {
+    setSelectedPlatforms(new Set(platforms.map((p) => p.id)))
+  }, [])
+
+  const selectNone = useCallback(() => {
+    setSelectedPlatforms(new Set())
+  }, [])
+
+  const selectCategory = useCallback((category) => {
+    const categoryPlatforms = platforms.filter((p) => (p.category || 'other') === category)
+    setSelectedPlatforms((prev) => {
+      const next = new Set(prev)
+      categoryPlatforms.forEach((p) => next.add(p.id))
+      return next
+    })
+  }, [])
 
   // Update both local state and notify parent
   const updateExporting = useCallback((value) => {
@@ -57,21 +111,28 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
     }
   }, [canvasRef, state.platform, updateExporting])
 
-  const handleExportAll = useCallback(async () => {
+  const handleExportMultiple = useCallback(async () => {
     if (!canvasRef.current) return
+    if (selectedPlatforms.size === 0) {
+      alert('Please select at least one platform to export.')
+      return
+    }
 
     updateExporting(true)
     const zip = new JSZip()
     const originalPlatform = state.platform
+
+    // Get the platforms to export
+    const platformsToExport = platforms.filter((p) => selectedPlatforms.has(p.id))
 
     // Hide canvas during batch export to prevent visible flashing
     const originalOpacity = canvasRef.current.style.opacity
     canvasRef.current.style.opacity = '0'
 
     try {
-      for (let i = 0; i < platforms.length; i++) {
-        const platform = platforms[i]
-        setExportProgress({ current: i + 1, total: platforms.length, name: platform.name })
+      for (let i = 0; i < platformsToExport.length; i++) {
+        const platform = platformsToExport[i]
+        setExportProgress({ current: i + 1, total: platformsToExport.length, name: platform.name })
 
         // Switch to this platform temporarily
         onPlatformChange(platform.id)
@@ -109,8 +170,9 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
 
       // Restore original platform
       onPlatformChange(originalPlatform)
+      setShowMultiSelect(false)
     } catch (error) {
-      console.error('Export all failed:', error)
+      console.error('Export failed:', error)
       alert('Export failed. Please try again.')
       onPlatformChange(originalPlatform)
     } finally {
@@ -119,7 +181,7 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
       updateExporting(false)
       setExportProgress(null)
     }
-  }, [canvasRef, state.platform, onPlatformChange, updateExporting])
+  }, [canvasRef, state.platform, onPlatformChange, updateExporting, selectedPlatforms])
 
   return (
     <div className="space-y-3">
@@ -132,14 +194,85 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
       </button>
 
       <button
-        onClick={handleExportAll}
+        onClick={() => setShowMultiSelect(!showMultiSelect)}
         disabled={isExporting}
         className="w-full px-4 py-3 text-sm font-semibold text-primary dark:text-violet-400 bg-violet-50 dark:bg-violet-900/20 rounded-xl hover:bg-violet-100 dark:hover:bg-violet-900/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-[0.98]"
       >
-        {exportProgress
-          ? `Exporting ${exportProgress.current}/${exportProgress.total}...`
-          : 'Download All (ZIP)'}
+        {showMultiSelect ? 'Hide Selection' : 'Download Multiple (ZIP)'}
       </button>
+
+      {/* Multi-select platform UI */}
+      {showMultiSelect && (
+        <div className="space-y-3 p-3 bg-zinc-50 dark:bg-dark-subtle rounded-lg border border-zinc-200 dark:border-zinc-700">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-medium text-zinc-600 dark:text-zinc-300">
+              {selectedPlatforms.size} of {platforms.length} selected
+            </span>
+            <div className="flex gap-2">
+              <button
+                onClick={selectAll}
+                className="text-xs text-primary hover:underline"
+              >
+                Select All
+              </button>
+              <button
+                onClick={selectNone}
+                className="text-xs text-zinc-500 hover:underline"
+              >
+                Clear
+              </button>
+            </div>
+          </div>
+
+          <div className="space-y-2 max-h-48 overflow-y-auto">
+            {categoryOrder.map((category) => {
+              const categoryPlatforms = groupedPlatforms[category]
+              if (!categoryPlatforms || categoryPlatforms.length === 0) return null
+
+              const allSelected = categoryPlatforms.every((p) => selectedPlatforms.has(p.id))
+              const someSelected = categoryPlatforms.some((p) => selectedPlatforms.has(p.id))
+
+              return (
+                <div key={category} className="space-y-1">
+                  <button
+                    onClick={() => selectCategory(category)}
+                    className="text-[10px] text-zinc-400 dark:text-zinc-500 uppercase tracking-wide font-medium hover:text-primary transition-colors"
+                  >
+                    {categoryLabels[category] || category}
+                    {someSelected && !allSelected && <span className="ml-1 text-primary">+</span>}
+                  </button>
+                  <div className="flex flex-wrap gap-1">
+                    {categoryPlatforms.map((p) => (
+                      <button
+                        key={p.id}
+                        onClick={() => togglePlatform(p.id)}
+                        title={`${p.width} × ${p.height}`}
+                        className={`px-2 py-0.5 text-xs rounded font-medium transition-all ${
+                          selectedPlatforms.has(p.id)
+                            ? 'bg-primary text-white'
+                            : 'bg-white dark:bg-dark-elevated text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-dark-card border border-zinc-200 dark:border-zinc-600'
+                        }`}
+                      >
+                        {p.name}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+
+          <button
+            onClick={handleExportMultiple}
+            disabled={isExporting || selectedPlatforms.size === 0}
+            className="w-full px-4 py-2.5 text-sm font-semibold text-white bg-primary rounded-lg hover:bg-primary-hover disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+          >
+            {exportProgress
+              ? `Exporting ${exportProgress.current}/${exportProgress.total}...`
+              : `Export ${selectedPlatforms.size} Platform${selectedPlatforms.size !== 1 ? 's' : ''}`}
+          </button>
+        </div>
+      )}
 
       {exportProgress && (
         <div className="space-y-2">

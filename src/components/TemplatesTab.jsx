@@ -1,6 +1,6 @@
 import { useState, useMemo, memo } from 'react'
 import CollapsibleSection from './CollapsibleSection'
-import { stylePresets, styleCategories, getStylePresetsByCategory } from '../config/stylePresets'
+import { stylePresets, styleCategories, getFilteredStylePresets } from '../config/stylePresets'
 import {
   layoutPresets,
   presetCategories,
@@ -171,8 +171,8 @@ export default memo(function TemplatesTab({
   const [aspectRatioFilter, setAspectRatioFilter] = useState('all')
 
   const displayStylePresets = useMemo(() => {
-    return getStylePresetsByCategory(styleCategory)
-  }, [styleCategory])
+    return getFilteredStylePresets(styleCategory, layout.type)
+  }, [styleCategory, layout.type])
 
   const displayLayoutPresets = useMemo(() => {
     // First filter by aspect ratio
@@ -206,72 +206,8 @@ export default memo(function TemplatesTab({
     <div className="space-y-3">
       <h3 className="text-sm font-semibold text-zinc-800 dark:text-zinc-100">Presets</h3>
 
-      {/* Style Presets - Complete designs */}
-      <CollapsibleSection title="Complete Designs" defaultExpanded={false}>
-        <div className="space-y-3">
-          {/* Active preset indicator */}
-          {activeStylePresetData && (
-            <div className="flex items-center gap-2 px-3 py-2 bg-violet-50 dark:bg-violet-900/20 rounded-lg">
-              <PresetSwatch preset={activeStylePresetData} isActive={true} />
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-violet-700 dark:text-violet-300">{activeStylePresetData.name}</p>
-                <p className="text-xs text-primary dark:text-violet-400 truncate">{activeStylePresetData.description}</p>
-              </div>
-            </div>
-          )}
-
-          {/* Category pills */}
-          <div className="flex flex-wrap gap-1.5">
-            {styleCategories.map((cat) => (
-              <button
-                key={cat.id}
-                onClick={() => setStyleCategory(cat.id)}
-                className={`px-2.5 py-1 text-xs rounded-lg font-medium transition-all ${
-                  styleCategory === cat.id
-                    ? 'bg-primary text-white shadow-sm'
-                    : 'bg-zinc-100 dark:bg-dark-subtle text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-dark-elevated'
-                }`}
-              >
-                {cat.name}
-              </button>
-            ))}
-          </div>
-
-          {/* Style preset grid */}
-          <div className="grid grid-cols-3 gap-2">
-            {displayStylePresets.map((preset) => (
-              <button
-                key={preset.id}
-                onClick={() => onSelectStylePreset(preset)}
-                title={`${preset.name}: ${preset.description}`}
-                className={`flex flex-col items-center gap-1.5 p-2 rounded-lg transition-all ${
-                  activeStylePreset === preset.id
-                    ? 'bg-violet-50 dark:bg-violet-900/20 ring-2 ring-primary'
-                    : 'hover:bg-zinc-50 dark:hover:bg-dark-subtle'
-                }`}
-              >
-                <PresetSwatch preset={preset} isActive={activeStylePreset === preset.id} />
-                <span
-                  className={`text-[10px] leading-tight text-center line-clamp-1 ${
-                    activeStylePreset === preset.id
-                      ? 'text-violet-700 dark:text-violet-300 font-medium'
-                      : 'text-zinc-600 dark:text-zinc-400'
-                  }`}
-                >
-                  {preset.name}
-                </span>
-              </button>
-            ))}
-          </div>
-
-          <p className="text-[10px] text-zinc-500 dark:text-zinc-400 text-center">
-            Complete designs apply theme, fonts, layout, and effects
-          </p>
-        </div>
-      </CollapsibleSection>
-
-      {/* Layout Presets - Structure only */}
-      <CollapsibleSection title="Layout Only" defaultExpanded={false}>
+      {/* Layout Presets - Structure only (shown first) */}
+      <CollapsibleSection title="Layout" defaultExpanded={true}>
         <div className="space-y-3">
           {/* Aspect Ratio Filter */}
           <div className="space-y-1.5">
@@ -360,7 +296,75 @@ export default memo(function TemplatesTab({
           )}
 
           <p className="text-[10px] text-zinc-500 dark:text-zinc-400 text-center">
-            Layout only presets change structure without affecting colors or fonts
+            Layout presets change structure without affecting colors or fonts
+          </p>
+        </div>
+      </CollapsibleSection>
+
+      {/* Style Presets - Complete designs */}
+      <CollapsibleSection title="Complete Designs" defaultExpanded={false}>
+        <div className="space-y-3">
+          {/* Active preset indicator */}
+          {activeStylePresetData && (
+            <div className="flex items-center gap-2 px-3 py-2 bg-violet-50 dark:bg-violet-900/20 rounded-lg">
+              <PresetSwatch preset={activeStylePresetData} isActive={true} />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-violet-700 dark:text-violet-300">{activeStylePresetData.name}</p>
+                <p className="text-xs text-primary dark:text-violet-400 truncate">{activeStylePresetData.description}</p>
+              </div>
+            </div>
+          )}
+
+          {/* Category pills */}
+          <div className="flex flex-wrap gap-1.5">
+            {styleCategories.map((cat) => (
+              <button
+                key={cat.id}
+                onClick={() => setStyleCategory(cat.id)}
+                className={`px-2.5 py-1 text-xs rounded-lg font-medium transition-all ${
+                  styleCategory === cat.id
+                    ? 'bg-primary text-white shadow-sm'
+                    : 'bg-zinc-100 dark:bg-dark-subtle text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-dark-elevated'
+                }`}
+              >
+                {cat.name}
+              </button>
+            ))}
+          </div>
+
+          {/* Style preset grid */}
+          <div className="grid grid-cols-3 gap-2">
+            {displayStylePresets.map((preset) => (
+              <button
+                key={preset.id}
+                onClick={() => onSelectStylePreset(preset)}
+                title={`${preset.name}: ${preset.description}`}
+                className={`flex flex-col items-center gap-1.5 p-2 rounded-lg transition-all ${
+                  activeStylePreset === preset.id
+                    ? 'bg-violet-50 dark:bg-violet-900/20 ring-2 ring-primary'
+                    : 'hover:bg-zinc-50 dark:hover:bg-dark-subtle'
+                }`}
+              >
+                <PresetSwatch preset={preset} isActive={activeStylePreset === preset.id} />
+                <span
+                  className={`text-[10px] leading-tight text-center line-clamp-1 ${
+                    activeStylePreset === preset.id
+                      ? 'text-violet-700 dark:text-violet-300 font-medium'
+                      : 'text-zinc-600 dark:text-zinc-400'
+                  }`}
+                >
+                  {preset.name}
+                </span>
+              </button>
+            ))}
+          </div>
+
+          {displayStylePresets.length === 0 && (
+            <p className="text-sm text-zinc-500 dark:text-zinc-400 text-center py-4">No designs match the current layout type</p>
+          )}
+
+          <p className="text-[10px] text-zinc-500 dark:text-zinc-400 text-center">
+            Showing designs that match your current layout ({layout.type})
           </p>
         </div>
       </CollapsibleSection>

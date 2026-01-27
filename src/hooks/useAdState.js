@@ -233,11 +233,65 @@ export function useAdState() {
     }))
   }, [])
 
+  // Helper to count cells in a layout structure
+  const countCells = (structure) => {
+    if (!structure || structure.length === 0) return 1
+    return structure.reduce((total, section) => total + (section.subdivisions || 1), 0)
+  }
+
   const setLayout = useCallback((updates) => {
-    setState((prev) => ({
-      ...prev,
-      layout: { ...prev.layout, ...updates },
-    }))
+    setState((prev) => {
+      const newLayout = { ...prev.layout, ...updates }
+      const newCellCount = countCells(newLayout.structure)
+
+      // Clean up stale cell assignments when cell count decreases
+      // Filter out textCells, cellImages, cellAlignments, cellOverrides, cellFrames that reference non-existent cells
+      const cleanTextCells = { ...prev.textCells }
+      Object.keys(cleanTextCells).forEach((key) => {
+        if (cleanTextCells[key] !== null && cleanTextCells[key] >= newCellCount) {
+          cleanTextCells[key] = null // Reset to auto
+        }
+      })
+
+      const cleanCellImages = { ...prev.cellImages }
+      Object.keys(cleanCellImages).forEach((cellIndex) => {
+        if (parseInt(cellIndex) >= newCellCount) {
+          delete cleanCellImages[cellIndex]
+        }
+      })
+
+      const cleanCellAlignments = (newLayout.cellAlignments || []).slice(0, newCellCount)
+
+      const cleanCellOverlays = { ...newLayout.cellOverlays }
+      Object.keys(cleanCellOverlays).forEach((cellIndex) => {
+        if (parseInt(cellIndex) >= newCellCount) {
+          delete cleanCellOverlays[cellIndex]
+        }
+      })
+
+      const cleanPaddingOverrides = { ...prev.padding.cellOverrides }
+      Object.keys(cleanPaddingOverrides).forEach((cellIndex) => {
+        if (parseInt(cellIndex) >= newCellCount) {
+          delete cleanPaddingOverrides[cellIndex]
+        }
+      })
+
+      const cleanCellFrames = { ...prev.frame.cellFrames }
+      Object.keys(cleanCellFrames).forEach((cellIndex) => {
+        if (parseInt(cellIndex) >= newCellCount) {
+          delete cleanCellFrames[cellIndex]
+        }
+      })
+
+      return {
+        ...prev,
+        layout: { ...newLayout, cellAlignments: cleanCellAlignments, cellOverlays: cleanCellOverlays },
+        textCells: cleanTextCells,
+        cellImages: cleanCellImages,
+        padding: { ...prev.padding, cellOverrides: cleanPaddingOverrides },
+        frame: { ...prev.frame, cellFrames: cleanCellFrames },
+      }
+    })
   }, [])
 
   const setTheme = useCallback((theme) => {
@@ -312,35 +366,67 @@ export function useAdState() {
 
     const { settings } = preset
 
-    setState((prev) => ({
-      ...prev,
-      activeStylePreset: preset.id,
-      // Apply theme
-      theme: settings.theme ? {
-        preset: settings.theme.preset,
-        primary: settings.theme.primary,
-        secondary: settings.theme.secondary,
-        accent: settings.theme.accent,
-      } : prev.theme,
-      // Apply fonts
-      fonts: settings.fonts ? {
-        title: settings.fonts.title,
-        body: settings.fonts.body,
-      } : prev.fonts,
-      // Apply layout
-      layout: settings.layout ? {
-        ...settings.layout,
-      } : prev.layout,
-      // Apply text cell placements
-      textCells: settings.textCells ? {
-        title: settings.textCells.title ?? null,
-        tagline: settings.textCells.tagline ?? null,
-        bodyHeading: settings.textCells.bodyHeading ?? null,
-        bodyText: settings.textCells.bodyText ?? null,
-        cta: settings.textCells.cta ?? null,
-        footnote: settings.textCells.footnote ?? null,
-      } : prev.textCells,
-    }))
+    setState((prev) => {
+      const newLayout = settings.layout || prev.layout
+      const newCellCount = countCells(newLayout.structure)
+
+      // Clean up cell images for cells that no longer exist
+      const cleanCellImages = { ...prev.cellImages }
+      Object.keys(cleanCellImages).forEach((cellIndex) => {
+        if (parseInt(cellIndex) >= newCellCount) {
+          delete cleanCellImages[cellIndex]
+        }
+      })
+
+      // Clean up padding overrides
+      const cleanPaddingOverrides = { ...prev.padding.cellOverrides }
+      Object.keys(cleanPaddingOverrides).forEach((cellIndex) => {
+        if (parseInt(cellIndex) >= newCellCount) {
+          delete cleanPaddingOverrides[cellIndex]
+        }
+      })
+
+      // Clean up cell frames
+      const cleanCellFrames = { ...prev.frame.cellFrames }
+      Object.keys(cleanCellFrames).forEach((cellIndex) => {
+        if (parseInt(cellIndex) >= newCellCount) {
+          delete cleanCellFrames[cellIndex]
+        }
+      })
+
+      return {
+        ...prev,
+        activeStylePreset: preset.id,
+        // Apply theme
+        theme: settings.theme ? {
+          preset: settings.theme.preset,
+          primary: settings.theme.primary,
+          secondary: settings.theme.secondary,
+          accent: settings.theme.accent,
+        } : prev.theme,
+        // Apply fonts
+        fonts: settings.fonts ? {
+          title: settings.fonts.title,
+          body: settings.fonts.body,
+        } : prev.fonts,
+        // Apply layout
+        layout: settings.layout ? {
+          ...settings.layout,
+        } : prev.layout,
+        // Apply text cell placements (preset provides valid placements)
+        textCells: settings.textCells ? {
+          title: settings.textCells.title ?? null,
+          tagline: settings.textCells.tagline ?? null,
+          bodyHeading: settings.textCells.bodyHeading ?? null,
+          bodyText: settings.textCells.bodyText ?? null,
+          cta: settings.textCells.cta ?? null,
+          footnote: settings.textCells.footnote ?? null,
+        } : prev.textCells,
+        cellImages: cleanCellImages,
+        padding: { ...prev.padding, cellOverrides: cleanPaddingOverrides },
+        frame: { ...prev.frame, cellFrames: cleanCellFrames },
+      }
+    })
   }, [])
 
   // Clear style preset tracking (called when user customizes something)
@@ -352,22 +438,53 @@ export function useAdState() {
   const applyLayoutPreset = useCallback((preset) => {
     if (!preset) return
 
-    setState((prev) => ({
-      ...prev,
-      // Apply layout settings
-      layout: {
-        ...preset.layout,
-      },
-      // Apply text cell placements
-      textCells: preset.textCells ? {
-        title: preset.textCells.title ?? null,
-        tagline: preset.textCells.tagline ?? null,
-        bodyHeading: preset.textCells.bodyHeading ?? null,
-        bodyText: preset.textCells.bodyText ?? null,
-        cta: preset.textCells.cta ?? null,
-        footnote: preset.textCells.footnote ?? null,
-      } : prev.textCells,
-    }))
+    setState((prev) => {
+      const newCellCount = countCells(preset.layout.structure)
+
+      // Clean up cell images for cells that no longer exist
+      const cleanCellImages = { ...prev.cellImages }
+      Object.keys(cleanCellImages).forEach((cellIndex) => {
+        if (parseInt(cellIndex) >= newCellCount) {
+          delete cleanCellImages[cellIndex]
+        }
+      })
+
+      // Clean up padding overrides
+      const cleanPaddingOverrides = { ...prev.padding.cellOverrides }
+      Object.keys(cleanPaddingOverrides).forEach((cellIndex) => {
+        if (parseInt(cellIndex) >= newCellCount) {
+          delete cleanPaddingOverrides[cellIndex]
+        }
+      })
+
+      // Clean up cell frames
+      const cleanCellFrames = { ...prev.frame.cellFrames }
+      Object.keys(cleanCellFrames).forEach((cellIndex) => {
+        if (parseInt(cellIndex) >= newCellCount) {
+          delete cleanCellFrames[cellIndex]
+        }
+      })
+
+      return {
+        ...prev,
+        // Apply layout settings
+        layout: {
+          ...preset.layout,
+        },
+        // Apply text cell placements (preset provides valid placements)
+        textCells: preset.textCells ? {
+          title: preset.textCells.title ?? null,
+          tagline: preset.textCells.tagline ?? null,
+          bodyHeading: preset.textCells.bodyHeading ?? null,
+          bodyText: preset.textCells.bodyText ?? null,
+          cta: preset.textCells.cta ?? null,
+          footnote: preset.textCells.footnote ?? null,
+        } : prev.textCells,
+        cellImages: cleanCellImages,
+        padding: { ...prev.padding, cellOverrides: cleanPaddingOverrides },
+        frame: { ...prev.frame, cellFrames: cleanCellFrames },
+      }
+    })
   }, [])
 
   return {
