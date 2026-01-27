@@ -295,6 +295,7 @@ layout: {
     { size: 50, subdivisions: 1, subSizes: [100] },  // Section with optional subdivisions
     { size: 50, subdivisions: 2, subSizes: [50, 50] }
   ],
+  imageCells: [0],               // Array of cell indices that contain images (supports multi-image layouts)
   textAlign: 'center',           // Global horizontal alignment fallback
   textVerticalAlign: 'center',   // Global vertical alignment fallback
   cellAlignments: [{ textAlign, textVerticalAlign }, ...]  // Per-cell overrides
@@ -368,5 +369,5 @@ Collapsible sections:
 | Name | Location | What It Applies | Config File |
 |------|----------|-----------------|-------------|
 | **Complete Designs** | Presets → Complete Designs | Theme, fonts, layout, text placements | `stylePresets.js` |
-| **Layouts** | Presets → Layout Only | Grid structure + text cell placements (filterable by aspect ratio) | `layoutPresets.js` |
+| **Layouts** | Presets → Layout Only | Grid structure + image/text cell placements (filterable by aspect ratio) | `layoutPresets.js` |
 | **Themes** | Style → Themes | Color scheme only | `themes.js` |
