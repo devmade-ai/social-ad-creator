@@ -2,6 +2,29 @@
 
 ## 2026-01-27
 
+### Layout-Aware Looks System
+
+Implemented intelligent Look presets that apply visual styling based on the current layout:
+
+**Per-layout settings for all 12 Looks**
+- Clean, Minimal, Soft (Clean category)
+- Bold, Dramatic, Punch (Bold category)
+- Vintage, Retro, Film (Vintage category)
+- Noir, Mono, Duotone (Mono category)
+
+Each Look now has unique `imageOverlay` settings for all 28 layouts (336 total combinations).
+
+**Clear separation of concerns**
+- **Looks control**: Fonts, image filters (grayscale, sepia, blur, contrast, brightness), image overlay
+- **Layouts control**: Grid structure, text cell placements, per-cell text alignments (both global and cellAlignments)
+- Looks do NOT override text alignment - this is entirely controlled by the layout preset
+
+**Auto-load sample images**
+- Random sample image loads automatically on app start when no images uploaded
+- Image assigned to layout's image cell
+
+---
+
 ### UI Reorganization and Export Improvements
 
 Completed high-priority TODO items focused on UI workflow and export improvements:

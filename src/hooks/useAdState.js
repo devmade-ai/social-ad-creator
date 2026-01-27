@@ -379,6 +379,8 @@ export function useAdState() {
       if (!settings) return prev
 
       // Apply overlay and filters to all images
+      // Looks only affect visual styling (fonts, filters, overlay)
+      // Text alignment is controlled entirely by the layout preset
       const updatedImages = prev.images.map(img => ({
         ...img,
         // Apply image filters from preset
@@ -397,23 +399,14 @@ export function useAdState() {
         } : img.overlay,
       }))
 
-      // Update layout alignment if specified (layout-aware)
-      const updatedLayout = {
-        ...prev.layout,
-        textAlign: settings.textAlign ?? prev.layout.textAlign,
-        textVerticalAlign: settings.textVerticalAlign ?? prev.layout.textVerticalAlign,
-      }
-
       return {
         ...prev,
         activeStylePreset: preset.id,
-        // Apply fonts
+        // Apply fonts only - alignment is controlled by layout preset
         fonts: settings.fonts ? {
           title: settings.fonts.title,
           body: settings.fonts.body,
         } : prev.fonts,
-        // Apply layout alignment only (not structure)
-        layout: updatedLayout,
         // Apply filters and overlay to images
         images: updatedImages,
       }

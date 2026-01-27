@@ -5,24 +5,28 @@ Compact context summary for session continuity. Rewrite at session end.
 ---
 
 ## Worked on
-High-priority TODO items: UI reorganization and export improvements
+Layout-Aware Looks System - making each Look apply intelligently based on the current layout
 
 ## Accomplished
 
-- **Presets Tab reorder**: Layout section now first, Complete Designs second. Layout expanded by default.
-- **Layout-specific presets**: Complete Designs now filtered by current layout type (fullbleed/rows/columns)
-- **Separated platform and canvas**: Platform selector is now in its own card section
-- **Platform selector collapsed**: Entire list collapsible and collapsed by default, categories also collapsed
-- **Download Multiple**: Replaced "Download All" with selection UI for choosing which platforms to export
-- **Cell cleanup on layout change**: Added automatic cleanup of stale cell references (textCells, cellImages, alignments, overlays, padding, frames) when layout reduces cell count
+- **Per-layout Look settings**: All 12 Looks now have unique imageOverlay settings for all 28 layouts (336 combinations)
+- **Looks don't override alignment**: Fixed applyStylePreset to NOT override text alignment - alignment is now fully controlled by layouts
+- **Auto-load sample images**: Random sample image loads on app start when no images uploaded
+- **Active layout preset tracking**: Added `activeLayoutPreset` state to track which layout is active for Look settings
 
 ## Current state
-- **Build**: Should pass (no structural changes, just logic updates)
-- **All high-priority TODO items**: Complete
+- **Build**: Passing
+- **Layout-Aware Looks**: Complete and working
+- All completed tasks documented in HISTORY.md
 
 ## Key context
 
-- `TemplatesTab.jsx`: Layout section first, uses `getFilteredStylePresets(category, layoutType)` for Complete Designs
-- `PlatformPreview.jsx`: Wrapped in CollapsibleSection, all categories collapsed by default
-- `ExportButtons.jsx`: New multi-select UI with `selectedPlatforms` state, `handleExportMultiple` function
-- `useAdState.js`: `setLayout`, `applyStylePreset`, `applyLayoutPreset` all clean up stale cell references using `countCells()` helper
+- **Separation of concerns**:
+  - Looks control: fonts, image filters, image overlay (per-layout)
+  - Layouts control: structure, text cells, all text alignments (global + per-cell)
+- `stylePresets.js`: Each Look has a `layouts` object with settings per layout ID
+- `getLookSettingsForLayout(lookId, layoutId)`: Returns layout-specific settings for a Look
+- `useAdState.js`:
+  - `applyStylePreset` only applies fonts, filters, overlay - NOT alignment
+  - `loadSampleImage` loads random sample on app start if no images
+  - `activeLayoutPreset` tracks current layout for Look settings
