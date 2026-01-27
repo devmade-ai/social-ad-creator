@@ -473,35 +473,53 @@ export function useAdState() {
     })
   }, [])
 
-  // Load a random sample image and assign it to the layout's image cell
+  // Load sample images and assign them to the layout's image cells
   const loadSampleImage = useCallback(() => {
     setState((prev) => {
       // Don't load if there are already images
       if (prev.images.length > 0) return prev
 
-      // Pick a random sample image
-      const randomIndex = Math.floor(Math.random() * sampleImages.length)
-      const sample = sampleImages[randomIndex]
+      // Get the image cells from the current layout (default to [0])
+      // Support both old imageCell (single) and new imageCells (array) format
+      const imageCells = prev.layout.imageCells ?? (prev.layout.imageCell !== undefined ? [prev.layout.imageCell] : [0])
 
-      // Create image entry
-      const id = `img-sample-${Date.now()}`
-      const newImage = {
-        id,
-        src: sample.file,
-        name: sample.name,
-        fit: prev.defaultImageSettings.fit,
-        position: { ...prev.defaultImageSettings.position },
-        filters: { ...prev.defaultImageSettings.filters },
-        overlay: { ...prev.defaultImageSettings.overlay },
-      }
+      // Pick random sample images for each image cell
+      const newImages = []
+      const newCellImages = {}
+      const usedIndices = new Set()
 
-      // Get the image cell from the current layout (default to cell 0)
-      const imageCell = prev.layout.imageCell ?? 0
+      imageCells.forEach((cellIndex, i) => {
+        // Pick a random sample that hasn't been used yet (if possible)
+        let randomIndex
+        let attempts = 0
+        do {
+          randomIndex = Math.floor(Math.random() * sampleImages.length)
+          attempts++
+        } while (usedIndices.has(randomIndex) && attempts < sampleImages.length)
+
+        usedIndices.add(randomIndex)
+        const sample = sampleImages[randomIndex]
+
+        // Create image entry
+        const id = `img-sample-${Date.now()}-${i}`
+        const newImage = {
+          id,
+          src: sample.file,
+          name: sample.name,
+          fit: prev.defaultImageSettings.fit,
+          position: { ...prev.defaultImageSettings.position },
+          filters: { ...prev.defaultImageSettings.filters },
+          overlay: { ...prev.defaultImageSettings.overlay },
+        }
+
+        newImages.push(newImage)
+        newCellImages[cellIndex] = id
+      })
 
       return {
         ...prev,
-        images: [newImage],
-        cellImages: { [imageCell]: id },
+        images: newImages,
+        cellImages: newCellImages,
       }
     })
   }, [])

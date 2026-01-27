@@ -147,9 +147,12 @@ export default memo(function TemplatesTab({
 
   // Check if a layout preset matches current layout
   const isLayoutPresetActive = (preset) => {
+    // Support both old imageCell (single) and new imageCells (array) format
+    const currentImageCells = layout.imageCells ?? (layout.imageCell !== undefined ? [layout.imageCell] : [0])
+    const presetImageCells = preset.layout.imageCells ?? (preset.layout.imageCell !== undefined ? [preset.layout.imageCell] : [0])
     return (
       layout.type === preset.layout.type &&
-      layout.imageCell === preset.layout.imageCell &&
+      JSON.stringify(currentImageCells) === JSON.stringify(presetImageCells) &&
       JSON.stringify(layout.structure) === JSON.stringify(preset.layout.structure)
     )
   }

@@ -259,7 +259,7 @@ export const layoutPresets = [
     layout: {
       type: 'fullbleed',
       structure: [{ size: 100, subdivisions: 1, subSizes: [100] }],
-      imageCell: 0,
+      imageCells: [0],
       textAlign: 'center',
       textVerticalAlign: 'center',
       cellAlignments: [],
@@ -280,7 +280,7 @@ export const layoutPresets = [
         { size: 50, subdivisions: 1, subSizes: [100] },
         { size: 50, subdivisions: 1, subSizes: [100] },
       ],
-      imageCell: 0,
+      imageCells: [0],
       textAlign: 'center',
       textVerticalAlign: 'center',
       cellAlignments: [
@@ -304,7 +304,7 @@ export const layoutPresets = [
         { size: 50, subdivisions: 1, subSizes: [100] },
         { size: 50, subdivisions: 1, subSizes: [100] },
       ],
-      imageCell: 0,
+      imageCells: [0],
       textAlign: 'left',
       textVerticalAlign: 'center',
       cellAlignments: [
@@ -330,7 +330,7 @@ export const layoutPresets = [
         { size: 62, subdivisions: 1, subSizes: [100] },
         { size: 38, subdivisions: 1, subSizes: [100] },
       ],
-      imageCell: 0,
+      imageCells: [0],
       textAlign: 'left',
       textVerticalAlign: 'center',
       cellAlignments: [
@@ -354,7 +354,7 @@ export const layoutPresets = [
         { size: 38, subdivisions: 1, subSizes: [100] },
         { size: 62, subdivisions: 1, subSizes: [100] },
       ],
-      imageCell: 1,
+      imageCells: [1],
       textAlign: 'left',
       textVerticalAlign: 'center',
       cellAlignments: [
@@ -378,7 +378,7 @@ export const layoutPresets = [
         { size: 62, subdivisions: 1, subSizes: [100] },
         { size: 38, subdivisions: 1, subSizes: [100] },
       ],
-      imageCell: 0,
+      imageCells: [0],
       textAlign: 'center',
       textVerticalAlign: 'center',
       cellAlignments: [
@@ -402,7 +402,7 @@ export const layoutPresets = [
         { size: 38, subdivisions: 1, subSizes: [100] },
         { size: 62, subdivisions: 1, subSizes: [100] },
       ],
-      imageCell: 1,
+      imageCells: [1],
       textAlign: 'center',
       textVerticalAlign: 'center',
       cellAlignments: [
@@ -427,7 +427,7 @@ export const layoutPresets = [
         { size: 34, subdivisions: 1, subSizes: [100] },
         { size: 33, subdivisions: 1, subSizes: [100] },
       ],
-      imageCell: 1,
+      imageCells: [1],
       textAlign: 'center',
       textVerticalAlign: 'center',
       cellAlignments: [
@@ -453,7 +453,7 @@ export const layoutPresets = [
         { size: 34, subdivisions: 1, subSizes: [100] },
         { size: 33, subdivisions: 1, subSizes: [100] },
       ],
-      imageCell: 1,
+      imageCells: [1],
       textAlign: 'center',
       textVerticalAlign: 'center',
       cellAlignments: [
@@ -471,7 +471,7 @@ export const layoutPresets = [
   {
     id: 'quad-grid',
     name: '2×2 Grid',
-    description: 'Four equal cells - versatile multi-image layout',
+    description: 'Four equal cells - diagonal images layout',
     category: 'grid',
     aspectRatios: ['square', 'landscape'],
     layout: {
@@ -480,7 +480,7 @@ export const layoutPresets = [
         { size: 50, subdivisions: 2, subSizes: [50, 50] },
         { size: 50, subdivisions: 2, subSizes: [50, 50] },
       ],
-      imageCell: 0,
+      imageCells: [0, 3],  // Diagonal: top-left and bottom-right
       textAlign: 'center',
       textVerticalAlign: 'center',
       cellAlignments: [
@@ -491,7 +491,7 @@ export const layoutPresets = [
       ],
     },
     textCells: {
-      title: 1, tagline: 1, bodyHeading: 2, bodyText: 2, cta: 3, footnote: 3,
+      title: 1, tagline: 1, bodyHeading: 2, bodyText: 2, cta: 2, footnote: 2,
     },
   },
   {
@@ -506,7 +506,7 @@ export const layoutPresets = [
         { size: 60, subdivisions: 1, subSizes: [100] },
         { size: 40, subdivisions: 2, subSizes: [50, 50] },
       ],
-      imageCell: 0,
+      imageCells: [0],
       textAlign: 'left',
       textVerticalAlign: 'center',
       cellAlignments: [
@@ -531,7 +531,7 @@ export const layoutPresets = [
         { size: 40, subdivisions: 2, subSizes: [50, 50] },
         { size: 60, subdivisions: 1, subSizes: [100] },
       ],
-      imageCell: 2,
+      imageCells: [2],
       textAlign: 'left',
       textVerticalAlign: 'center',
       cellAlignments: [
@@ -556,7 +556,7 @@ export const layoutPresets = [
         { size: 60, subdivisions: 1, subSizes: [100] },
         { size: 40, subdivisions: 2, subSizes: [50, 50] },
       ],
-      imageCell: 0,
+      imageCells: [0],
       textAlign: 'center',
       textVerticalAlign: 'center',
       cellAlignments: [
@@ -581,7 +581,7 @@ export const layoutPresets = [
         { size: 40, subdivisions: 2, subSizes: [50, 50] },
         { size: 60, subdivisions: 1, subSizes: [100] },
       ],
-      imageCell: 2,
+      imageCells: [2],
       textAlign: 'center',
       textVerticalAlign: 'center',
       cellAlignments: [
@@ -606,7 +606,7 @@ export const layoutPresets = [
         { size: 30, subdivisions: 1, subSizes: [100] },
         { size: 70, subdivisions: 2, subSizes: [50, 50] },
       ],
-      imageCell: 1,
+      imageCells: [1],
       textAlign: 'center',
       textVerticalAlign: 'center',
       cellAlignments: [
@@ -631,7 +631,7 @@ export const layoutPresets = [
         { size: 70, subdivisions: 2, subSizes: [50, 50] },
         { size: 30, subdivisions: 1, subSizes: [100] },
       ],
-      imageCell: 0,
+      imageCells: [0],
       textAlign: 'center',
       textVerticalAlign: 'center',
       cellAlignments: [
@@ -657,7 +657,7 @@ export const layoutPresets = [
         { size: 50, subdivisions: 1, subSizes: [100] },
         { size: 25, subdivisions: 1, subSizes: [100] },
       ],
-      imageCell: 1,
+      imageCells: [1],
       textAlign: 'center',
       textVerticalAlign: 'center',
       cellAlignments: [
@@ -683,7 +683,7 @@ export const layoutPresets = [
         { size: 60, subdivisions: 1, subSizes: [100] },
         { size: 20, subdivisions: 1, subSizes: [100] },
       ],
-      imageCell: 1,
+      imageCells: [1],
       textAlign: 'center',
       textVerticalAlign: 'center',
       cellAlignments: [
@@ -710,7 +710,7 @@ export const layoutPresets = [
         { size: 65, subdivisions: 2, subSizes: [60, 40] },
         { size: 35, subdivisions: 1, subSizes: [100] },
       ],
-      imageCell: 0,
+      imageCells: [0],
       textAlign: 'center',
       textVerticalAlign: 'center',
       cellAlignments: [
@@ -735,7 +735,7 @@ export const layoutPresets = [
         { size: 65, subdivisions: 2, subSizes: [40, 60] },
         { size: 35, subdivisions: 1, subSizes: [100] },
       ],
-      imageCell: 1,
+      imageCells: [1],
       textAlign: 'center',
       textVerticalAlign: 'center',
       cellAlignments: [
@@ -751,7 +751,7 @@ export const layoutPresets = [
   {
     id: 'stacked-quad',
     name: 'Four Rows',
-    description: 'Four stacked rows - story-style layout',
+    description: 'Four stacked rows - dual image story layout',
     category: 'asymmetric',
     aspectRatios: ['portrait'],
     layout: {
@@ -762,7 +762,7 @@ export const layoutPresets = [
         { size: 30, subdivisions: 1, subSizes: [100] },
         { size: 15, subdivisions: 1, subSizes: [100] },
       ],
-      imageCell: 1,
+      imageCells: [1, 2],  // Two images stacked
       textAlign: 'center',
       textVerticalAlign: 'center',
       cellAlignments: [
@@ -773,7 +773,7 @@ export const layoutPresets = [
       ],
     },
     textCells: {
-      title: 0, tagline: 0, bodyHeading: 2, bodyText: 2, cta: 3, footnote: 3,
+      title: 0, tagline: 0, bodyHeading: 0, bodyText: 0, cta: 3, footnote: 3,
     },
   },
   {
@@ -788,7 +788,7 @@ export const layoutPresets = [
         { size: 35, subdivisions: 1, subSizes: [100] },
         { size: 65, subdivisions: 3, subSizes: [33, 34, 33] },
       ],
-      imageCell: 0,
+      imageCells: [0],
       textAlign: 'left',
       textVerticalAlign: 'center',
       cellAlignments: [
@@ -805,7 +805,7 @@ export const layoutPresets = [
   {
     id: 'header-quad',
     name: 'Header + 2×2',
-    description: 'Header row with four cells below',
+    description: 'Header row with two images in grid below',
     category: 'asymmetric',
     aspectRatios: ['square', 'portrait'],
     layout: {
@@ -815,7 +815,7 @@ export const layoutPresets = [
         { size: 35, subdivisions: 2, subSizes: [50, 50] },
         { size: 35, subdivisions: 2, subSizes: [50, 50] },
       ],
-      imageCell: 1,
+      imageCells: [1, 4],  // Top-left and bottom-right of grid
       textAlign: 'center',
       textVerticalAlign: 'center',
       cellAlignments: [
@@ -827,13 +827,13 @@ export const layoutPresets = [
       ],
     },
     textCells: {
-      title: 0, tagline: 0, bodyHeading: 2, bodyText: 2, cta: 3, footnote: 4,
+      title: 0, tagline: 0, bodyHeading: 2, bodyText: 2, cta: 3, footnote: 3,
     },
   },
   {
     id: 'wide-feature',
     name: 'Wide Feature',
-    description: 'Four columns with wide center feature',
+    description: 'Four columns with two images',
     category: 'asymmetric',
     aspectRatios: ['landscape'],
     layout: {
@@ -844,7 +844,7 @@ export const layoutPresets = [
         { size: 40, subdivisions: 1, subSizes: [100] },
         { size: 20, subdivisions: 1, subSizes: [100] },
       ],
-      imageCell: 2,
+      imageCells: [0, 2],  // First column and wide feature
       textAlign: 'center',
       textVerticalAlign: 'center',
       cellAlignments: [
@@ -855,13 +855,13 @@ export const layoutPresets = [
       ],
     },
     textCells: {
-      title: 0, tagline: 0, bodyHeading: 1, bodyText: 1, cta: 3, footnote: 3,
+      title: 1, tagline: 1, bodyHeading: 1, bodyText: 1, cta: 3, footnote: 3,
     },
   },
   {
     id: 'tall-feature',
     name: 'Tall Feature',
-    description: 'Four rows with tall center feature',
+    description: 'Four rows with two images',
     category: 'asymmetric',
     aspectRatios: ['portrait'],
     layout: {
@@ -872,7 +872,7 @@ export const layoutPresets = [
         { size: 45, subdivisions: 1, subSizes: [100] },
         { size: 20, subdivisions: 1, subSizes: [100] },
       ],
-      imageCell: 2,
+      imageCells: [1, 2],  // Second row and tall feature
       textAlign: 'center',
       textVerticalAlign: 'center',
       cellAlignments: [
@@ -883,13 +883,13 @@ export const layoutPresets = [
       ],
     },
     textCells: {
-      title: 0, tagline: 0, bodyHeading: 1, bodyText: 1, cta: 3, footnote: 3,
+      title: 0, tagline: 0, bodyHeading: 0, bodyText: 0, cta: 3, footnote: 3,
     },
   },
   {
     id: 'columns-four',
     name: 'Four Columns',
-    description: 'Four equal columns - banner style',
+    description: 'Four columns with alternating images',
     category: 'asymmetric',
     aspectRatios: ['landscape'],
     layout: {
@@ -900,7 +900,7 @@ export const layoutPresets = [
         { size: 25, subdivisions: 1, subSizes: [100] },
         { size: 25, subdivisions: 1, subSizes: [100] },
       ],
-      imageCell: 0,
+      imageCells: [0, 2],  // Alternating: image, text, image, text
       textAlign: 'center',
       textVerticalAlign: 'center',
       cellAlignments: [
@@ -911,13 +911,13 @@ export const layoutPresets = [
       ],
     },
     textCells: {
-      title: 1, tagline: 1, bodyHeading: 2, bodyText: 2, cta: 3, footnote: 3,
+      title: 1, tagline: 1, bodyHeading: 3, bodyText: 3, cta: 3, footnote: 3,
     },
   },
   {
     id: 'asymmetric-grid',
     name: 'Asymmetric Grid',
-    description: 'Uneven 2×2 grid with varied cell sizes',
+    description: 'Uneven 2×2 grid with diagonal images',
     category: 'asymmetric',
     aspectRatios: ['square', 'landscape'],
     layout: {
@@ -926,7 +926,7 @@ export const layoutPresets = [
         { size: 60, subdivisions: 2, subSizes: [62, 38] },
         { size: 40, subdivisions: 2, subSizes: [38, 62] },
       ],
-      imageCell: 0,
+      imageCells: [0, 3],  // Diagonal: large top-left and large bottom-right
       textAlign: 'center',
       textVerticalAlign: 'center',
       cellAlignments: [
@@ -937,7 +937,7 @@ export const layoutPresets = [
       ],
     },
     textCells: {
-      title: 1, tagline: 1, bodyHeading: 2, bodyText: 3, cta: 3, footnote: 3,
+      title: 1, tagline: 1, bodyHeading: 2, bodyText: 2, cta: 2, footnote: 2,
     },
   },
 ]

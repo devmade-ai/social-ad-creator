@@ -114,10 +114,12 @@ function getCellInfo(layout) {
 }
 
 // Mini cell grid for text element cell assignment
-function MiniCellGrid({ layout, imageCell, highlightCell, onSelectCell, platform }) {
+function MiniCellGrid({ layout, imageCells = [], highlightCell, onSelectCell, platform }) {
   const { type, structure } = layout
   const isFullbleed = type === 'fullbleed'
   const isRows = type === 'rows'
+  // Normalize imageCells to always be an array
+  const normalizedImageCells = Array.isArray(imageCells) ? imageCells : [imageCells]
 
   const normalizedStructure =
     isFullbleed || !structure || structure.length === 0
@@ -146,7 +148,7 @@ function MiniCellGrid({ layout, imageCell, highlightCell, onSelectCell, platform
         const sectionCells = []
         for (let subIndex = 0; subIndex < subdivisions; subIndex++) {
           const currentCellIndex = cellIndex
-          const isImage = currentCellIndex === imageCell
+          const isImage = normalizedImageCells.includes(currentCellIndex)
           const isHighlighted = highlightCell === currentCellIndex
           cellIndex++
 
@@ -199,7 +201,8 @@ function TextElementEditor({
   theme,
   platform,
 }) {
-  const { imageCell = 0 } = layout
+  // Support both old imageCell (single) and new imageCells (array) format
+  const imageCells = layout.imageCells ?? (layout.imageCell !== undefined ? [layout.imageCell] : [0])
   const layerState = text?.[element.id] || {
     content: '',
     visible: false,
@@ -236,7 +239,7 @@ function TextElementEditor({
         {/* Cell Selector */}
         <MiniCellGrid
           layout={layout}
-          imageCell={imageCell}
+          imageCells={imageCells}
           highlightCell={currentCell}
           onSelectCell={(idx) => onTextCellsChange?.({ [element.id]: idx })}
           platform={platform}

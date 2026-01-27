@@ -121,7 +121,7 @@ function getCellInfo(layout) {
 // Unified grid component for cell selection
 function CellGrid({
   layout,
-  imageCell,
+  imageCells = [],  // Array of image cell indices
   selectedCell = null,
   mode = 'cell', // 'cell' | 'image' | 'structure'
   onSelectCell,
@@ -131,6 +131,8 @@ function CellGrid({
   size = 'normal',
 }) {
   const { type, structure } = layout
+  // Normalize imageCells to always be an array
+  const normalizedImageCells = Array.isArray(imageCells) ? imageCells : [imageCells]
   const isFullbleed = type === 'fullbleed'
   const isRows = type === 'rows'
 
@@ -214,7 +216,7 @@ function CellGrid({
         const sectionCells = []
         for (let subIndex = 0; subIndex < subdivisions; subIndex++) {
           const currentCellIndex = cellIndex
-          const isImage = currentCellIndex === imageCell
+          const isImage = normalizedImageCells.includes(currentCellIndex)
           const isCellSelected =
             mode === 'structure'
               ? structureSelection?.type === 'cell' && structureSelection.cellIndex === currentCellIndex
@@ -311,7 +313,9 @@ export default memo(function LayoutTab({
   onTextCellsChange,
   platform,
 }) {
-  const { type = 'fullbleed', structure = [], imageCell = 0, textAlign, textVerticalAlign, cellAlignments = [] } = layout
+  const { type = 'fullbleed', structure = [], textAlign, textVerticalAlign, cellAlignments = [] } = layout
+  // Support both old imageCell (single) and new imageCells (array) format
+  const imageCells = layout.imageCells ?? (layout.imageCell !== undefined ? [layout.imageCell] : [0])
   const [structureSelection, setStructureSelection] = useState(null)
 
   const cellInfoList = useMemo(() => getCellInfo(layout), [layout])
@@ -327,7 +331,7 @@ export default memo(function LayoutTab({
       onLayoutChange({
         type: 'fullbleed',
         structure: [{ size: 100, subdivisions: 1, subSizes: [100] }],
-        imageCell: 0,
+        imageCells: [0],
       })
       if (onTextCellsChange) {
         const validatedTextCells = validateTextCells(textCells, 1)
@@ -342,7 +346,7 @@ export default memo(function LayoutTab({
           { size: 50, subdivisions: 1, subSizes: [100] },
           { size: 50, subdivisions: 1, subSizes: [100] },
         ],
-        imageCell: 0,
+        imageCells: [0],
       })
       if (onTextCellsChange) {
         const validatedTextCells = validateTextCells(textCells, 2)
@@ -371,8 +375,11 @@ export default memo(function LayoutTab({
       .filter((_, i) => i !== index)
       .map((s) => ({ ...s, size: newSize }))
     const newTotalCells = getTotalCells(newStructure)
-    const newImageCell = imageCell >= newTotalCells ? 0 : imageCell
-    onLayoutChange({ structure: newStructure, imageCell: newImageCell })
+    // Filter out image cells that no longer exist
+    const newImageCells = imageCells.filter(cell => cell < newTotalCells)
+    // Ensure at least one image cell remains
+    const finalImageCells = newImageCells.length > 0 ? newImageCells : [0]
+    onLayoutChange({ structure: newStructure, imageCells: finalImageCells })
     const validatedTextCells = validateTextCells(textCells, newTotalCells)
     if (validatedTextCells && onTextCellsChange) {
       onTextCellsChange(validatedTextCells)
@@ -451,8 +458,11 @@ export default memo(function LayoutTab({
     newStructure[sectionIndex] = { ...section, subdivisions: newSubs, subSizes: newSubSizes }
 
     const newTotalCells = getTotalCells(newStructure)
-    const newImageCell = imageCell >= newTotalCells ? 0 : imageCell
-    onLayoutChange({ structure: newStructure, imageCell: newImageCell })
+    // Filter out image cells that no longer exist
+    const newImageCells = imageCells.filter(cell => cell < newTotalCells)
+    // Ensure at least one image cell remains
+    const finalImageCells = newImageCells.length > 0 ? newImageCells : [0]
+    onLayoutChange({ structure: newStructure, imageCells: finalImageCells })
     const validatedTextCells = validateTextCells(textCells, newTotalCells)
     if (validatedTextCells && onTextCellsChange) {
       onTextCellsChange(validatedTextCells)
@@ -581,7 +591,7 @@ export default memo(function LayoutTab({
             <div className="flex justify-center">
               <CellGrid
                 layout={layout}
-                imageCell={imageCell}
+                imageCells={imageCells}
                 mode="structure"
                 structureSelection={structureSelection}
                 aspectRatio={platformAspectRatio}

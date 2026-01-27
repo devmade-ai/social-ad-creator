@@ -5,28 +5,28 @@ Compact context summary for session continuity. Rewrite at session end.
 ---
 
 ## Worked on
-Layout-Aware Looks System - making each Look apply intelligently based on the current layout
+Multi-image layout support and Layout-Aware Looks System refinements
 
 ## Accomplished
 
-- **Per-layout Look settings**: All 12 Looks now have unique imageOverlay settings for all 28 layouts (336 combinations)
-- **Looks don't override alignment**: Fixed applyStylePreset to NOT override text alignment - alignment is now fully controlled by layouts
-- **Auto-load sample images**: Random sample image loads on app start when no images uploaded
-- **Active layout preset tracking**: Added `activeLayoutPreset` state to track which layout is active for Look settings
+- **Multi-image layouts**: Changed `imageCell` to `imageCells` array for layouts that benefit from multiple images
+- **7 multi-image layouts**: quad-grid, stacked-quad, header-quad, wide-feature, tall-feature, columns-four, asymmetric-grid
+- **Sample images for multi-image**: `loadSampleImage` now loads different sample images for each image cell
+- **Looks don't override alignment**: Fixed applyStylePreset to NOT override text alignment - fully controlled by layouts
+- **Backward compatibility**: All code supports both old `imageCell` and new `imageCells` format
 
 ## Current state
 - **Build**: Passing
-- **Layout-Aware Looks**: Complete and working
-- All completed tasks documented in HISTORY.md
+- All layouts updated to use `imageCells` array
+- Multi-image support working end-to-end
 
 ## Key context
 
-- **Separation of concerns**:
-  - Looks control: fonts, image filters, image overlay (per-layout)
-  - Layouts control: structure, text cells, all text alignments (global + per-cell)
-- `stylePresets.js`: Each Look has a `layouts` object with settings per layout ID
-- `getLookSettingsForLayout(lookId, layoutId)`: Returns layout-specific settings for a Look
-- `useAdState.js`:
-  - `applyStylePreset` only applies fonts, filters, overlay - NOT alignment
-  - `loadSampleImage` loads random sample on app start if no images
-  - `activeLayoutPreset` tracks current layout for Look settings
+- **imageCells array**: Layout presets now use `imageCells: [0, 3]` instead of `imageCell: 0`
+- **Backward compat pattern**: `const imageCells = layout.imageCells ?? (layout.imageCell !== undefined ? [layout.imageCell] : [0])`
+- Files updated:
+  - `layoutPresets.js` - all 28 presets use `imageCells` array
+  - `useAdState.js` - `loadSampleImage` handles multiple images
+  - `LayoutTab.jsx` - `CellGrid` and handlers use `imageCells`
+  - `ContentTab.jsx` - `MiniCellGrid` uses `imageCells`
+  - `TemplatesTab.jsx` - `isLayoutPresetActive` compares `imageCells` arrays
