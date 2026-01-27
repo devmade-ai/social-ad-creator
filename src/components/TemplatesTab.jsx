@@ -37,7 +37,8 @@ const ColorInput = memo(function ColorInput({ label, value, onChange }) {
 // Simple look preview swatch
 function LookSwatch({ preset, isActive, theme }) {
   const { style } = preset.preview
-  const { overlay, imageFilters } = preset.settings
+  const imageFilters = preset.imageFilters
+  const overlay = preset.layouts?.['hero']?.imageOverlay
 
   // Use theme colors for the swatch
   const primaryColor = theme?.primary || '#3b82f6'
@@ -351,7 +352,7 @@ export default memo(function TemplatesTab({
           </div>
 
           <p className="text-[10px] text-zinc-500 dark:text-zinc-400 text-center">
-            Looks apply overlay, fonts, alignment &amp; filters without changing layout or colors
+            Looks apply overlay, fonts &amp; filters without changing layout or colors
           </p>
         </div>
       </CollapsibleSection>
