@@ -23,7 +23,7 @@ Making each Look apply intelligently based on the current layout (e.g., "Bold" o
 - [x] Implement 'Mono' look for all 28 layouts
 - [x] Implement 'Duotone' look for all 28 layouts
 - [x] Update applyStylePreset to use layout-aware settings
-- [ ] Auto-load sample image when no images uploaded
+- [x] Auto-load sample image when no images uploaded
 
 ---
 
@@ -33,6 +33,10 @@ Making each Look apply intelligently based on the current layout (e.g., "Bold" o
 
 - [ ] Save/load designs to localStorage
 - [ ] Template gallery with complete designs
+- [ ] Looks define per-element text colors (title, tagline, CTA, etc.)
+- [ ] Looks define per-element text weight/style (bold, italic)
+- [ ] Looks define per-element text alignment overrides
+- [ ] Looks define text visibility per layout
 
 ### Visual Effects
 

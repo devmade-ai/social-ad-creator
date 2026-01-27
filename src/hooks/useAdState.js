@@ -1,6 +1,7 @@
 import { useCallback } from 'react'
 import { presetThemes } from '../config/themes'
 import { getLookSettingsForLayout } from '../config/stylePresets'
+import { sampleImages } from '../config/sampleImages'
 import { useHistory } from './useHistory'
 
 const defaultTheme = presetThemes[0] // Dark theme
@@ -479,6 +480,39 @@ export function useAdState() {
     })
   }, [])
 
+  // Load a random sample image and assign it to the layout's image cell
+  const loadSampleImage = useCallback(() => {
+    setState((prev) => {
+      // Don't load if there are already images
+      if (prev.images.length > 0) return prev
+
+      // Pick a random sample image
+      const randomIndex = Math.floor(Math.random() * sampleImages.length)
+      const sample = sampleImages[randomIndex]
+
+      // Create image entry
+      const id = `img-sample-${Date.now()}`
+      const newImage = {
+        id,
+        src: sample.file,
+        name: sample.name,
+        fit: prev.defaultImageSettings.fit,
+        position: { ...prev.defaultImageSettings.position },
+        filters: { ...prev.defaultImageSettings.filters },
+        overlay: { ...prev.defaultImageSettings.overlay },
+      }
+
+      // Get the image cell from the current layout (default to cell 0)
+      const imageCell = prev.layout.imageCell ?? 0
+
+      return {
+        ...prev,
+        images: [newImage],
+        cellImages: { [imageCell]: id },
+      }
+    })
+  }, [])
+
   return {
     state,
     // Image pool management
@@ -508,6 +542,7 @@ export function useAdState() {
     applyStylePreset,
     clearStylePreset,
     applyLayoutPreset,
+    loadSampleImage,
     undo,
     redo,
     canUndo,

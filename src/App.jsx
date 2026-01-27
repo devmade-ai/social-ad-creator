@@ -49,11 +49,17 @@ function App() {
     setPlatform,
     applyStylePreset,
     applyLayoutPreset,
+    loadSampleImage,
     undo,
     redo,
     canUndo,
     canRedo,
   } = useAdState()
+
+  // Auto-load sample image on initial mount if no images exist
+  useEffect(() => {
+    loadSampleImage()
+  }, [loadSampleImage])
 
   const platform = platforms.find((p) => p.id === state.platform) || platforms[0]
 
