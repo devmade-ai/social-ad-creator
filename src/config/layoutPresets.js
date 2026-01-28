@@ -97,7 +97,7 @@ export const presetIcons = {
       { type: 'rect', props: { x: 0, y: 0, width: 20, height: 15, fill: '#3b82f6' } },
       { type: 'rect', props: { x: 20, y: 0, width: 20, height: 15, fill: '#e5e7eb' } },
       { type: 'rect', props: { x: 0, y: 15, width: 20, height: 15, fill: '#d1d5db' } },
-      { type: 'rect', props: { x: 20, y: 15, width: 20, height: 15, fill: '#c4c9cf' } },
+      { type: 'rect', props: { x: 20, y: 15, width: 20, height: 15, fill: '#3b82f6' } },
     ]
   },
   'l-shape-right': {
@@ -187,7 +187,7 @@ export const presetIcons = {
     elements: [
       { type: 'rect', props: { x: 0, y: 0, width: 40, height: 8, fill: '#e5e7eb' } },
       { type: 'rect', props: { x: 0, y: 8, width: 40, height: 8, fill: '#3b82f6' } },
-      { type: 'rect', props: { x: 0, y: 16, width: 40, height: 8, fill: '#d1d5db' } },
+      { type: 'rect', props: { x: 0, y: 16, width: 40, height: 8, fill: '#3b82f6' } },
       { type: 'rect', props: { x: 0, y: 24, width: 40, height: 6, fill: '#c4c9cf' } },
     ]
   },
@@ -207,14 +207,14 @@ export const presetIcons = {
       { type: 'rect', props: { x: 0, y: 10, width: 20, height: 10, fill: '#3b82f6' } },
       { type: 'rect', props: { x: 20, y: 10, width: 20, height: 10, fill: '#d1d5db' } },
       { type: 'rect', props: { x: 0, y: 20, width: 20, height: 10, fill: '#c4c9cf' } },
-      { type: 'rect', props: { x: 20, y: 20, width: 20, height: 10, fill: '#b0b5bb' } },
+      { type: 'rect', props: { x: 20, y: 20, width: 20, height: 10, fill: '#3b82f6' } },
     ]
   },
   'wide-feature': {
     viewBox: '0 0 40 30',
     elements: [
-      { type: 'rect', props: { x: 0, y: 0, width: 8, height: 30, fill: '#e5e7eb' } },
-      { type: 'rect', props: { x: 8, y: 0, width: 8, height: 30, fill: '#d1d5db' } },
+      { type: 'rect', props: { x: 0, y: 0, width: 8, height: 30, fill: '#3b82f6' } },
+      { type: 'rect', props: { x: 8, y: 0, width: 8, height: 30, fill: '#e5e7eb' } },
       { type: 'rect', props: { x: 16, y: 0, width: 16, height: 30, fill: '#3b82f6' } },
       { type: 'rect', props: { x: 32, y: 0, width: 8, height: 30, fill: '#c4c9cf' } },
     ]
@@ -223,7 +223,7 @@ export const presetIcons = {
     viewBox: '0 0 40 30',
     elements: [
       { type: 'rect', props: { x: 0, y: 0, width: 40, height: 6, fill: '#e5e7eb' } },
-      { type: 'rect', props: { x: 0, y: 6, width: 40, height: 6, fill: '#d1d5db' } },
+      { type: 'rect', props: { x: 0, y: 6, width: 40, height: 6, fill: '#3b82f6' } },
       { type: 'rect', props: { x: 0, y: 12, width: 40, height: 12, fill: '#3b82f6' } },
       { type: 'rect', props: { x: 0, y: 24, width: 40, height: 6, fill: '#c4c9cf' } },
     ]
@@ -233,7 +233,7 @@ export const presetIcons = {
     elements: [
       { type: 'rect', props: { x: 0, y: 0, width: 10, height: 30, fill: '#3b82f6' } },
       { type: 'rect', props: { x: 10, y: 0, width: 10, height: 30, fill: '#e5e7eb' } },
-      { type: 'rect', props: { x: 20, y: 0, width: 10, height: 30, fill: '#d1d5db' } },
+      { type: 'rect', props: { x: 20, y: 0, width: 10, height: 30, fill: '#3b82f6' } },
       { type: 'rect', props: { x: 30, y: 0, width: 10, height: 30, fill: '#c4c9cf' } },
     ]
   },
@@ -243,7 +243,7 @@ export const presetIcons = {
       { type: 'rect', props: { x: 0, y: 0, width: 25, height: 18, fill: '#3b82f6' } },
       { type: 'rect', props: { x: 25, y: 0, width: 15, height: 18, fill: '#e5e7eb' } },
       { type: 'rect', props: { x: 0, y: 18, width: 15, height: 12, fill: '#d1d5db' } },
-      { type: 'rect', props: { x: 15, y: 18, width: 25, height: 12, fill: '#c4c9cf' } },
+      { type: 'rect', props: { x: 15, y: 18, width: 25, height: 12, fill: '#3b82f6' } },
     ]
   },
 }
@@ -773,7 +773,7 @@ export const layoutPresets = [
       ],
     },
     textCells: {
-      title: 0, tagline: 0, bodyHeading: 0, bodyText: 0, cta: 3, footnote: 3,
+      title: 0, tagline: 0, bodyHeading: 1, bodyText: 1, cta: 3, footnote: 3,
     },
   },
   {
@@ -855,7 +855,7 @@ export const layoutPresets = [
       ],
     },
     textCells: {
-      title: 1, tagline: 1, bodyHeading: 1, bodyText: 1, cta: 3, footnote: 3,
+      title: 1, tagline: 1, bodyHeading: 2, bodyText: 2, cta: 3, footnote: 3,
     },
   },
   {
@@ -883,7 +883,7 @@ export const layoutPresets = [
       ],
     },
     textCells: {
-      title: 0, tagline: 0, bodyHeading: 0, bodyText: 0, cta: 3, footnote: 3,
+      title: 0, tagline: 0, bodyHeading: 2, bodyText: 2, cta: 3, footnote: 3,
     },
   },
   {
@@ -911,7 +911,7 @@ export const layoutPresets = [
       ],
     },
     textCells: {
-      title: 1, tagline: 1, bodyHeading: 3, bodyText: 3, cta: 3, footnote: 3,
+      title: 1, tagline: 1, bodyHeading: 2, bodyText: 2, cta: 3, footnote: 3,
     },
   },
   {

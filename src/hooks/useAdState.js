@@ -74,6 +74,7 @@ export const defaultState = {
     structure: [
       { size: 100, subdivisions: 1, subSizes: [100] },
     ],
+    imageCells: [0], // Array of cell indices that contain images
     textAlign: 'center', // 'left' | 'center' | 'right' - global fallback
     textVerticalAlign: 'center', // 'start' | 'center' | 'end' - global fallback
     // Per-cell alignment overrides (flat cell index)
@@ -141,7 +142,7 @@ export function useAdState() {
       // Remove from cell assignments
       const newCellImages = { ...prev.cellImages }
       Object.keys(newCellImages).forEach((cellIndex) => {
-        if (newCellImages[cellIndex]?.imageId === imageId) {
+        if (newCellImages[cellIndex] === imageId) {
           delete newCellImages[cellIndex]
         }
       })
