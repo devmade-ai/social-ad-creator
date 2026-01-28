@@ -62,7 +62,7 @@ function CellGrid({ layout, cellImages, selectedCell, onSelectCell, platform, hi
 
   return (
     <div
-      className="rounded overflow-hidden border border-zinc-300 dark:border-zinc-600 flex"
+      className="rounded overflow-hidden border border-ui-border-strong flex"
       style={{
         aspectRatio,
         maxWidth: '140px',
@@ -96,7 +96,7 @@ function CellGrid({ layout, cellImages, selectedCell, onSelectCell, platform, hi
                   ? 'bg-primary hover:bg-primary-hover text-white ring-2 ring-primary ring-offset-1'
                   : hasImage
                   ? 'bg-violet-200 dark:bg-violet-800 hover:bg-violet-300 dark:hover:bg-violet-700 text-violet-700 dark:text-violet-200'
-                  : 'bg-zinc-200 dark:bg-dark-subtle hover:bg-zinc-300 dark:hover:bg-dark-elevated text-zinc-500 dark:text-zinc-400'
+                  : 'bg-ui-surface-inset hover:bg-ui-surface-hover text-ui-text-subtle'
               }`}
               style={{ flex: `0 0 ${subSizes[subIndex]}%` }}
             >
@@ -198,19 +198,19 @@ function AIPromptHelper({ theme }) {
     <div className="space-y-3">
       {/* Subject/Context */}
       <div className="space-y-1.5">
-        <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-300">Subject / Context</label>
+        <label className="block text-xs font-medium text-ui-text-muted">Subject / Context</label>
         <textarea
           value={context}
           onChange={(e) => setContext(e.target.value)}
           placeholder="e.g., coffee shop interior, mountain landscape, abstract geometric shapes..."
-          className="w-full px-3 py-2 text-sm bg-white dark:bg-dark-subtle border border-zinc-200 dark:border-zinc-700 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
+          className="w-full px-3 py-2 text-sm bg-white dark:bg-dark-subtle border border-ui-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
           rows={2}
         />
       </div>
 
       {/* Style */}
       <div className="space-y-1.5">
-        <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-300">Style</label>
+        <label className="block text-xs font-medium text-ui-text-muted">Style</label>
         <div className="flex flex-wrap gap-1">
           {styleOptions.map((opt) => (
             <button
@@ -219,7 +219,7 @@ function AIPromptHelper({ theme }) {
               className={`px-2 py-1 text-xs rounded-lg font-medium ${
                 style === opt.id
                   ? 'bg-primary text-white shadow-sm'
-                  : 'bg-zinc-100 dark:bg-dark-subtle text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-dark-elevated'
+                  : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
               }`}
             >
               {opt.name}
@@ -230,7 +230,7 @@ function AIPromptHelper({ theme }) {
 
       {/* Mood */}
       <div className="space-y-1.5">
-        <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-300">Mood / Lighting</label>
+        <label className="block text-xs font-medium text-ui-text-muted">Mood / Lighting</label>
         <div className="flex flex-wrap gap-1">
           {moodOptions.map((opt) => (
             <button
@@ -239,7 +239,7 @@ function AIPromptHelper({ theme }) {
               className={`px-2 py-1 text-xs rounded-lg font-medium ${
                 mood === opt.id
                   ? 'bg-primary text-white shadow-sm'
-                  : 'bg-zinc-100 dark:bg-dark-subtle text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-dark-elevated'
+                  : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
               }`}
             >
               {opt.name}
@@ -250,7 +250,7 @@ function AIPromptHelper({ theme }) {
 
       {/* Purpose */}
       <div className="space-y-1.5">
-        <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-300">Image Purpose</label>
+        <label className="block text-xs font-medium text-ui-text-muted">Image Purpose</label>
         <div className="flex gap-1.5">
           {purposeOptions.map((opt) => (
             <button
@@ -259,21 +259,21 @@ function AIPromptHelper({ theme }) {
               className={`flex-1 px-2 py-1.5 text-xs rounded-lg font-medium ${
                 purpose === opt.id
                   ? 'bg-primary text-white shadow-sm'
-                  : 'bg-zinc-100 dark:bg-dark-subtle text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-dark-elevated'
+                  : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
               }`}
             >
               {opt.name}
             </button>
           ))}
         </div>
-        <p className="text-[10px] text-zinc-400 dark:text-zinc-500">
+        <p className="text-[10px] text-ui-text-faint">
           {purpose === 'hero' ? 'Clean focal point for featured images' : 'Subtle details, good for text overlays'}
         </p>
       </div>
 
       {/* Orientation */}
       <div className="space-y-1.5">
-        <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-300">Orientation</label>
+        <label className="block text-xs font-medium text-ui-text-muted">Orientation</label>
         <div className="flex gap-1">
           {orientationOptions.map((opt) => (
             <button
@@ -282,7 +282,7 @@ function AIPromptHelper({ theme }) {
               className={`flex-1 px-2 py-1.5 text-xs rounded-lg font-medium ${
                 orientation === opt.id
                   ? 'bg-primary text-white shadow-sm'
-                  : 'bg-zinc-100 dark:bg-dark-subtle text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-dark-elevated'
+                  : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
               }`}
             >
               {opt.name}
@@ -293,14 +293,14 @@ function AIPromptHelper({ theme }) {
 
       {/* Colors */}
       <div className="space-y-1.5">
-        <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-300">Colors (optional)</label>
+        <label className="block text-xs font-medium text-ui-text-muted">Colors (optional)</label>
         <div className="flex gap-1.5 mb-2">
           <button
             onClick={() => setUseThemeColors(true)}
             className={`flex-1 px-2 py-1.5 text-xs rounded-lg font-medium ${
               useThemeColors
                 ? 'bg-primary text-white shadow-sm'
-                : 'bg-zinc-100 dark:bg-dark-subtle text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-dark-elevated'
+                : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
             }`}
           >
             Use Theme
@@ -310,7 +310,7 @@ function AIPromptHelper({ theme }) {
             className={`flex-1 px-2 py-1.5 text-xs rounded-lg font-medium ${
               !useThemeColors
                 ? 'bg-primary text-white shadow-sm'
-                : 'bg-zinc-100 dark:bg-dark-subtle text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-dark-elevated'
+                : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
             }`}
           >
             Custom
@@ -318,14 +318,14 @@ function AIPromptHelper({ theme }) {
         </div>
         {useThemeColors ? (
           theme ? (
-            <div className="flex gap-2 items-center text-xs text-zinc-500 dark:text-zinc-400">
+            <div className="flex gap-2 items-center text-xs text-ui-text-subtle">
               <span className="inline-block w-4 h-4 rounded border" style={{ backgroundColor: theme.primary }} />
               <span className="inline-block w-4 h-4 rounded border" style={{ backgroundColor: theme.secondary }} />
               <span className="inline-block w-4 h-4 rounded border" style={{ backgroundColor: theme.accent }} />
               <span>From Style tab</span>
             </div>
           ) : (
-            <p className="text-[10px] text-zinc-400 dark:text-zinc-500">
+            <p className="text-[10px] text-ui-text-faint">
               Select a theme in the Style tab, or switch to Custom
             </p>
           )
@@ -335,7 +335,7 @@ function AIPromptHelper({ theme }) {
             value={customColors}
             onChange={(e) => setCustomColors(e.target.value)}
             placeholder="e.g., blue and orange, muted earth tones..."
-            className="w-full px-3 py-1.5 text-sm bg-white dark:bg-dark-subtle border border-zinc-200 dark:border-zinc-700 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+            className="w-full px-3 py-1.5 text-sm bg-white dark:bg-dark-subtle border border-ui-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
           />
         )}
       </div>
@@ -343,11 +343,11 @@ function AIPromptHelper({ theme }) {
       {/* Generated Prompt */}
       <div className="space-y-1.5">
         <div className="flex justify-between items-center">
-          <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-300">Generated Prompt</label>
-          <span className="text-[10px] text-zinc-400 dark:text-zinc-500">Updates as you change options</span>
+          <label className="block text-xs font-medium text-ui-text-muted">Generated Prompt</label>
+          <span className="text-[10px] text-ui-text-faint">Updates as you change options</span>
         </div>
         <div className="relative">
-          <div className="w-full px-3 py-2 text-xs bg-zinc-50 dark:bg-dark-subtle border border-zinc-200 dark:border-zinc-700 rounded-lg text-zinc-700 dark:text-zinc-300 max-h-24 overflow-y-auto">
+          <div className="w-full px-3 py-2 text-xs bg-ui-surface-elevated border border-ui-border rounded-lg text-ui-text-muted max-h-24 overflow-y-auto">
             {generatedPrompt}
           </div>
           <button
@@ -362,6 +362,68 @@ function AIPromptHelper({ theme }) {
           </button>
         </div>
       </div>
+    </div>
+  )
+}
+
+// Sample Images Section - inline collapsible within Images section
+function SampleImagesSection({ images, sampleImages, loadingSample, sampleError, onLoadSample }) {
+  const [isExpanded, setIsExpanded] = useState(images.length === 0)
+
+  return (
+    <div className="border-t border-ui-border-subtle pt-3">
+      <button
+        onClick={() => setIsExpanded(!isExpanded)}
+        className="flex items-center justify-between w-full text-left"
+      >
+        <span className="text-xs font-medium text-ui-text-muted">
+          {images.length === 0 ? 'Try a sample image' : 'Sample Images'}
+        </span>
+        <svg
+          className={`w-3.5 h-3.5 text-ui-text-faint transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+      {isExpanded && (
+        <div className="mt-2 space-y-2">
+          <div className="grid grid-cols-5 gap-1.5">
+            {sampleImages.map((sample) => (
+              <button
+                key={sample.id}
+                onClick={() => onLoadSample(sample)}
+                disabled={loadingSample === sample.id}
+                title={`Add ${sample.name} to library`}
+                className={`aspect-square rounded-lg overflow-hidden border-2 transition-all ${
+                  loadingSample === sample.id
+                    ? 'border-violet-400 opacity-50 scale-95'
+                    : 'border-ui-border hover:border-violet-400 hover:shadow-sm active:scale-95'
+                }`}
+              >
+                <img
+                  src={import.meta.env.BASE_URL + sample.file.slice(1)}
+                  alt={sample.name}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    e.target.style.display = 'none'
+                    e.target.nextSibling.style.display = 'flex'
+                  }}
+                />
+                <div
+                  className="w-full h-full bg-ui-surface-inset items-center justify-center text-ui-text-faint text-[9px] text-center p-0.5"
+                  style={{ display: 'none' }}
+                >
+                  {sample.name}
+                </div>
+              </button>
+            ))}
+          </div>
+          {sampleError && <p className="text-xs text-red-600 dark:text-red-400">{sampleError}</p>}
+        </div>
+      )}
     </div>
   )
 }
@@ -518,7 +580,7 @@ export default memo(function MediaTab({
 
   return (
     <div className="space-y-3">
-      <h3 className="text-sm font-semibold text-zinc-800 dark:text-zinc-100">Media</h3>
+      <h3 className="text-sm font-semibold text-ui-text">Media</h3>
 
       {/* AI Image Prompt Helper Section - collapsed by default */}
       <CollapsibleSection title="AI Image Prompt" defaultExpanded={false}>
@@ -530,14 +592,14 @@ export default memo(function MediaTab({
         <div className="space-y-3">
           {/* Upload area - first, to build library */}
           <div
-            className="border-2 border-dashed border-zinc-200 dark:border-zinc-700 rounded-xl p-4 text-center cursor-pointer hover:border-violet-400 hover:bg-violet-50/30 dark:hover:bg-violet-900/30 transition-all"
+            className="border-2 border-dashed border-ui-border rounded-xl p-4 text-center cursor-pointer hover:border-violet-400 hover:bg-violet-50/30 dark:hover:bg-violet-900/30 transition-all"
             onDrop={handleDrop}
             onDragOver={handleDragOver}
             onClick={() => fileInputRef.current?.click()}
           >
             <div className="py-2">
               <svg
-                className="w-8 h-8 mx-auto text-zinc-300 dark:text-zinc-600 mb-2"
+                className="w-8 h-8 mx-auto text-ui-text-faint mb-2"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -549,58 +611,28 @@ export default memo(function MediaTab({
                   d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
                 />
               </svg>
-              <p className="text-sm text-zinc-600 dark:text-zinc-300 font-medium">Drop image or click to upload</p>
-              <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-1">
+              <p className="text-sm text-ui-text-muted font-medium">Drop image or click to upload</p>
+              <p className="text-xs text-ui-text-faint mt-1">
                 {images.length === 0 ? 'Add images to your library' : `${images.length} image${images.length !== 1 ? 's' : ''} in library`}
               </p>
             </div>
             <input ref={fileInputRef} type="file" accept="image/*" multiple className="hidden" onChange={handleFileSelect} />
           </div>
 
-          {/* Sample Images - show when library is empty */}
-          {images.length === 0 && (
-            <div className="space-y-2">
-              <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-300">Or try a sample</label>
-              <div className="grid grid-cols-5 gap-1.5">
-                {sampleImages.map((sample) => (
-                  <button
-                    key={sample.id}
-                    onClick={() => loadSampleImage(sample)}
-                    disabled={loadingSample === sample.id}
-                    title={sample.name}
-                    className={`aspect-square rounded-lg overflow-hidden border-2 transition-all ${
-                      loadingSample === sample.id
-                        ? 'border-violet-400 opacity-50 scale-95'
-                        : 'border-zinc-200 dark:border-zinc-700 hover:border-violet-400 hover:shadow-sm active:scale-95'
-                    }`}
-                  >
-                    <img
-                      src={import.meta.env.BASE_URL + sample.file.slice(1)}
-                      alt={sample.name}
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        e.target.style.display = 'none'
-                        e.target.nextSibling.style.display = 'flex'
-                      }}
-                    />
-                    <div
-                      className="w-full h-full bg-zinc-100 dark:bg-dark-subtle items-center justify-center text-zinc-400 text-[9px] text-center p-0.5"
-                      style={{ display: 'none' }}
-                    >
-                      {sample.name}
-                    </div>
-                  </button>
-                ))}
-              </div>
-              {sampleError && <p className="text-xs text-red-600 dark:text-red-400">{sampleError}</p>}
-            </div>
-          )}
+          {/* Sample Images - always available as collapsible section */}
+          <SampleImagesSection
+            images={images}
+            sampleImages={sampleImages}
+            loadingSample={loadingSample}
+            sampleError={sampleError}
+            onLoadSample={loadSampleImage}
+          />
 
           {/* Image Library - click to select an image */}
           {images.length > 0 && (
             <div className="space-y-2">
-              <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-300">
-                Select Image <span className="text-zinc-400 dark:text-zinc-500 font-normal">(click to edit)</span>
+              <label className="block text-xs font-medium text-ui-text-muted">
+                Select Image <span className="text-ui-text-faint font-normal">(click to edit)</span>
               </label>
               <div className="grid grid-cols-4 gap-1.5">
                 {images.map((img) => {
@@ -616,7 +648,7 @@ export default memo(function MediaTab({
                             ? 'border-primary ring-2 ring-primary/30'
                             : assignedCells.length > 0
                             ? 'border-violet-300 dark:border-violet-600 hover:border-violet-400'
-                            : 'border-zinc-200 dark:border-zinc-700 hover:border-violet-400'
+                            : 'border-ui-border hover:border-violet-400'
                         }`}
                         title={isSelected ? 'Selected' : 'Click to select'}
                       >
@@ -648,16 +680,16 @@ export default memo(function MediaTab({
 
           {/* Selected Image Settings */}
           {selectedImage && (
-            <div className="space-y-3 pt-3 border-t border-zinc-100 dark:border-zinc-800">
+            <div className="space-y-3 pt-3 border-t border-ui-border-subtle">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-medium text-zinc-700 dark:text-zinc-300">
+                <span className="text-xs font-medium text-ui-text-muted">
                   {selectedImage.name}
                 </span>
               </div>
 
               {/* Object Fit */}
               <div className="space-y-2">
-                <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-300">Fit</label>
+                <label className="block text-xs font-medium text-ui-text-muted">Fit</label>
                 <div className="flex gap-2">
                   {['cover', 'contain'].map((fit) => (
                     <button
@@ -666,7 +698,7 @@ export default memo(function MediaTab({
                       className={`flex-1 px-3 py-2 text-sm rounded-lg capitalize font-medium ${
                         selectedImage.fit === fit
                           ? 'bg-primary text-white shadow-sm'
-                          : 'bg-zinc-100 dark:bg-dark-subtle text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-dark-elevated'
+                          : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
                       }`}
                     >
                       {fit}
@@ -677,7 +709,7 @@ export default memo(function MediaTab({
 
               {/* Position */}
               <div className="space-y-2">
-                <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-300">Position</label>
+                <label className="block text-xs font-medium text-ui-text-muted">Position</label>
                 <div className="grid grid-cols-3 gap-1">
                   {[
                     { x: 0, y: 0, label: '↖' },
@@ -696,7 +728,7 @@ export default memo(function MediaTab({
                       className={`px-2 py-1.5 text-sm rounded font-medium ${
                         selectedImage.position?.x === preset.x && selectedImage.position?.y === preset.y
                           ? 'bg-primary text-white shadow-sm'
-                          : 'bg-zinc-100 dark:bg-dark-subtle text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-dark-elevated'
+                          : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
                       }`}
                     >
                       {preset.label}
@@ -707,7 +739,7 @@ export default memo(function MediaTab({
 
               {/* Grayscale toggle */}
               <div className="space-y-2">
-                <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-300">Grayscale</label>
+                <label className="block text-xs font-medium text-ui-text-muted">Grayscale</label>
                 <button
                   onClick={() =>
                     onUpdateImageFilters(selectedImageId, {
@@ -717,7 +749,7 @@ export default memo(function MediaTab({
                   className={`w-full px-3 py-2 text-sm rounded-lg font-medium ${
                     (selectedImage.filters?.grayscale || 0) > 0
                       ? 'bg-primary text-white shadow-sm'
-                      : 'bg-zinc-100 dark:bg-dark-subtle text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-dark-elevated'
+                      : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
                   }`}
                 >
                   {(selectedImage.filters?.grayscale || 0) > 0 ? 'On' : 'Off'}
@@ -725,8 +757,8 @@ export default memo(function MediaTab({
               </div>
 
               {/* Assign to Cells */}
-              <div className="space-y-2 pt-3 border-t border-zinc-100 dark:border-zinc-800">
-                <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-300">Assign to Cells</label>
+              <div className="space-y-2 pt-3 border-t border-ui-border-subtle">
+                <label className="block text-xs font-medium text-ui-text-muted">Assign to Cells</label>
                 <div className="flex items-center gap-3">
                   <CellGrid
                     layout={layout}
@@ -736,7 +768,7 @@ export default memo(function MediaTab({
                     platform={platform}
                     highlightImageId={selectedImageId}
                   />
-                  <div className="text-xs text-zinc-500 dark:text-zinc-400">
+                  <div className="text-xs text-ui-text-subtle">
                     <div>Click cells to assign/unassign</div>
                     <div className="text-violet-600 dark:text-violet-400">
                       {getImageCells(selectedImageId).length > 0
@@ -755,19 +787,19 @@ export default memo(function MediaTab({
       {selectedImage && (
         <CollapsibleSection title="Image Overlay" defaultExpanded={false}>
           <div className="space-y-3">
-            <p className="text-xs text-zinc-500 dark:text-zinc-400">
+            <p className="text-xs text-ui-text-subtle">
               Overlay for {selectedImage.name}
             </p>
 
             {/* On/Off Toggle */}
             <div className="space-y-2">
-              <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-300">Overlay</label>
+              <label className="block text-xs font-medium text-ui-text-muted">Overlay</label>
               <button
                 onClick={() => onUpdateImageOverlay(selectedImageId, { opacity: (selectedImage.overlay?.opacity ?? 0) > 0 ? 0 : 50 })}
                 className={`w-full px-3 py-2 text-sm rounded-lg font-medium ${
                   (selectedImage.overlay?.opacity ?? 0) > 0
                     ? 'bg-primary text-white shadow-sm'
-                    : 'bg-zinc-100 dark:bg-dark-subtle text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-dark-elevated'
+                    : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
                 }`}
               >
                 {(selectedImage.overlay?.opacity ?? 0) > 0 ? 'On' : 'Off'}
@@ -779,10 +811,10 @@ export default memo(function MediaTab({
               <>
                 {/* Overlay Type - organized by category */}
                 <div className="space-y-3">
-                  <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-300">Type</label>
+                  <label className="block text-xs font-medium text-ui-text-muted">Type</label>
                   {/* Basic & Linear Gradients */}
                   <div className="space-y-1.5">
-                    <span className="text-[10px] text-zinc-400 dark:text-zinc-500 uppercase tracking-wide">Basic & Gradients</span>
+                    <span className="text-[10px] text-ui-text-faint uppercase tracking-wide">Basic & Gradients</span>
                     <div className="grid grid-cols-5 gap-1">
                       {overlayTypes.filter(t => t.category === 'basic' || t.category === 'linear').map((t) => (
                         <button
@@ -791,7 +823,7 @@ export default memo(function MediaTab({
                           className={`px-1.5 py-1.5 text-[10px] rounded-lg font-medium truncate ${
                             selectedImage.overlay?.type === t.id
                               ? 'bg-primary text-white shadow-sm'
-                              : 'bg-zinc-100 dark:bg-dark-subtle text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-dark-elevated'
+                              : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
                           }`}
                           title={t.name}
                         >
@@ -802,7 +834,7 @@ export default memo(function MediaTab({
                   </div>
                   {/* Radial */}
                   <div className="space-y-1.5">
-                    <span className="text-[10px] text-zinc-400 dark:text-zinc-500 uppercase tracking-wide">Radial</span>
+                    <span className="text-[10px] text-ui-text-faint uppercase tracking-wide">Radial</span>
                     <div className="grid grid-cols-4 gap-1">
                       {overlayTypes.filter(t => t.category === 'radial').map((t) => (
                         <button
@@ -811,7 +843,7 @@ export default memo(function MediaTab({
                           className={`px-1.5 py-1.5 text-[10px] rounded-lg font-medium truncate ${
                             selectedImage.overlay?.type === t.id
                               ? 'bg-primary text-white shadow-sm'
-                              : 'bg-zinc-100 dark:bg-dark-subtle text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-dark-elevated'
+                              : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
                           }`}
                           title={t.name}
                         >
@@ -822,7 +854,7 @@ export default memo(function MediaTab({
                   </div>
                   {/* Effects & Textures */}
                   <div className="space-y-1.5">
-                    <span className="text-[10px] text-zinc-400 dark:text-zinc-500 uppercase tracking-wide">Effects</span>
+                    <span className="text-[10px] text-ui-text-faint uppercase tracking-wide">Effects</span>
                     <div className="grid grid-cols-4 gap-1">
                       {overlayTypes.filter(t => t.category === 'effect' || t.category === 'texture').map((t) => (
                         <button
@@ -831,7 +863,7 @@ export default memo(function MediaTab({
                           className={`px-1.5 py-1.5 text-[10px] rounded-lg font-medium truncate ${
                             selectedImage.overlay?.type === t.id
                               ? 'bg-primary text-white shadow-sm'
-                              : 'bg-zinc-100 dark:bg-dark-subtle text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-dark-elevated'
+                              : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
                           }`}
                           title={t.name}
                         >
@@ -842,7 +874,7 @@ export default memo(function MediaTab({
                   </div>
                   {/* Blend Modes */}
                   <div className="space-y-1.5">
-                    <span className="text-[10px] text-zinc-400 dark:text-zinc-500 uppercase tracking-wide">Blend Modes</span>
+                    <span className="text-[10px] text-ui-text-faint uppercase tracking-wide">Blend Modes</span>
                     <div className="grid grid-cols-4 gap-1">
                       {overlayTypes.filter(t => t.category === 'blend').map((t) => (
                         <button
@@ -851,7 +883,7 @@ export default memo(function MediaTab({
                           className={`px-1.5 py-1.5 text-[10px] rounded-lg font-medium truncate ${
                             selectedImage.overlay?.type === t.id
                               ? 'bg-primary text-white shadow-sm'
-                              : 'bg-zinc-100 dark:bg-dark-subtle text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-dark-elevated'
+                              : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
                           }`}
                           title={t.name}
                         >
@@ -864,7 +896,7 @@ export default memo(function MediaTab({
 
                 {/* Overlay Color */}
                 <div className="space-y-2">
-                  <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-300">Color</label>
+                  <label className="block text-xs font-medium text-ui-text-muted">Color</label>
                   <div className="flex flex-wrap gap-1.5">
                     {/* Theme colors */}
                     {themeColorOptions.map((c) => (
@@ -874,11 +906,11 @@ export default memo(function MediaTab({
                         className={`px-2.5 py-1.5 text-xs rounded-lg font-medium ${
                           selectedImage.overlay?.color === c.id
                             ? 'bg-primary text-white shadow-sm'
-                            : 'bg-zinc-100 dark:bg-dark-subtle text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-dark-elevated'
+                            : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
                         }`}
                       >
                         <span
-                          className="inline-block w-2.5 h-2.5 rounded-full mr-1.5 border border-zinc-300 dark:border-zinc-600"
+                          className="inline-block w-2.5 h-2.5 rounded-full mr-1.5 border border-ui-border-strong"
                           style={{ backgroundColor: theme?.[c.id] || '#000' }}
                         />
                         {c.name}
@@ -892,11 +924,11 @@ export default memo(function MediaTab({
                         className={`px-2.5 py-1.5 text-xs rounded-lg font-medium ${
                           selectedImage.overlay?.color === c.id
                             ? 'bg-primary text-white shadow-sm'
-                            : 'bg-zinc-100 dark:bg-dark-subtle text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-dark-elevated'
+                            : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
                         }`}
                       >
                         <span
-                          className="inline-block w-2.5 h-2.5 rounded-full mr-1.5 border border-zinc-300 dark:border-zinc-600"
+                          className="inline-block w-2.5 h-2.5 rounded-full mr-1.5 border border-ui-border-strong"
                           style={{ backgroundColor: c.color }}
                         />
                         {c.name}
@@ -908,8 +940,8 @@ export default memo(function MediaTab({
                 {/* Overlay Opacity */}
                 <div className="space-y-1">
                   <div className="flex justify-between">
-                    <label className="text-xs font-medium text-zinc-600 dark:text-zinc-300">Opacity</label>
-                    <span className="text-xs text-zinc-500 dark:text-zinc-400">
+                    <label className="text-xs font-medium text-ui-text-muted">Opacity</label>
+                    <span className="text-xs text-ui-text-subtle">
                       {selectedImage.overlay?.opacity ?? 0}%
                     </span>
                   </div>
@@ -920,7 +952,7 @@ export default memo(function MediaTab({
                     step="5"
                     value={selectedImage.overlay?.opacity ?? 0}
                     onChange={(e) => onUpdateImageOverlay(selectedImageId, { opacity: parseInt(e.target.value, 10) })}
-                    className="w-full h-2 bg-zinc-200 dark:bg-dark-subtle rounded-lg appearance-none cursor-pointer"
+                    className="w-full h-2 bg-ui-surface-hover rounded-lg appearance-none cursor-pointer"
                   />
                 </div>
               </>
@@ -933,14 +965,14 @@ export default memo(function MediaTab({
       {selectedImage && (
         <CollapsibleSection title="Advanced Filters" defaultExpanded={false}>
           <div className="space-y-3">
-            <p className="text-xs text-zinc-500 dark:text-zinc-400">
+            <p className="text-xs text-ui-text-subtle">
               Filters for {selectedImage.name}
             </p>
 
             <div className="space-y-1">
               <div className="flex justify-between">
-                <label className="text-xs font-medium text-zinc-600 dark:text-zinc-300">Grayscale</label>
-                <span className="text-xs text-zinc-500 dark:text-zinc-400">{selectedImage.filters?.grayscale || 0}%</span>
+                <label className="text-xs font-medium text-ui-text-muted">Grayscale</label>
+                <span className="text-xs text-ui-text-subtle">{selectedImage.filters?.grayscale || 0}%</span>
               </div>
               <input
                 type="range"
@@ -949,14 +981,14 @@ export default memo(function MediaTab({
                 step="5"
                 value={selectedImage.filters?.grayscale || 0}
                 onChange={(e) => onUpdateImageFilters(selectedImageId, { grayscale: parseInt(e.target.value, 10) })}
-                className="w-full h-2 bg-zinc-200 dark:bg-dark-subtle rounded-lg appearance-none cursor-pointer"
+                className="w-full h-2 bg-ui-surface-hover rounded-lg appearance-none cursor-pointer"
               />
             </div>
 
             <div className="space-y-1">
               <div className="flex justify-between">
-                <label className="text-xs font-medium text-zinc-600 dark:text-zinc-300">Sepia</label>
-                <span className="text-xs text-zinc-500 dark:text-zinc-400">{selectedImage.filters?.sepia || 0}%</span>
+                <label className="text-xs font-medium text-ui-text-muted">Sepia</label>
+                <span className="text-xs text-ui-text-subtle">{selectedImage.filters?.sepia || 0}%</span>
               </div>
               <input
                 type="range"
@@ -965,14 +997,14 @@ export default memo(function MediaTab({
                 step="5"
                 value={selectedImage.filters?.sepia || 0}
                 onChange={(e) => onUpdateImageFilters(selectedImageId, { sepia: parseInt(e.target.value, 10) })}
-                className="w-full h-2 bg-zinc-200 dark:bg-dark-subtle rounded-lg appearance-none cursor-pointer"
+                className="w-full h-2 bg-ui-surface-hover rounded-lg appearance-none cursor-pointer"
               />
             </div>
 
             <div className="space-y-1">
               <div className="flex justify-between">
-                <label className="text-xs font-medium text-zinc-600 dark:text-zinc-300">Blur</label>
-                <span className="text-xs text-zinc-500 dark:text-zinc-400">{selectedImage.filters?.blur || 0}px</span>
+                <label className="text-xs font-medium text-ui-text-muted">Blur</label>
+                <span className="text-xs text-ui-text-subtle">{selectedImage.filters?.blur || 0}px</span>
               </div>
               <input
                 type="range"
@@ -981,14 +1013,14 @@ export default memo(function MediaTab({
                 step="0.5"
                 value={selectedImage.filters?.blur || 0}
                 onChange={(e) => onUpdateImageFilters(selectedImageId, { blur: parseFloat(e.target.value) })}
-                className="w-full h-2 bg-zinc-200 dark:bg-dark-subtle rounded-lg appearance-none cursor-pointer"
+                className="w-full h-2 bg-ui-surface-hover rounded-lg appearance-none cursor-pointer"
               />
             </div>
 
             <div className="space-y-1">
               <div className="flex justify-between">
-                <label className="text-xs font-medium text-zinc-600 dark:text-zinc-300">Contrast</label>
-                <span className="text-xs text-zinc-500 dark:text-zinc-400">{selectedImage.filters?.contrast || 100}%</span>
+                <label className="text-xs font-medium text-ui-text-muted">Contrast</label>
+                <span className="text-xs text-ui-text-subtle">{selectedImage.filters?.contrast || 100}%</span>
               </div>
               <input
                 type="range"
@@ -997,14 +1029,14 @@ export default memo(function MediaTab({
                 step="5"
                 value={selectedImage.filters?.contrast || 100}
                 onChange={(e) => onUpdateImageFilters(selectedImageId, { contrast: parseInt(e.target.value, 10) })}
-                className="w-full h-2 bg-zinc-200 dark:bg-dark-subtle rounded-lg appearance-none cursor-pointer"
+                className="w-full h-2 bg-ui-surface-hover rounded-lg appearance-none cursor-pointer"
               />
             </div>
 
             <div className="space-y-1">
               <div className="flex justify-between">
-                <label className="text-xs font-medium text-zinc-600 dark:text-zinc-300">Brightness</label>
-                <span className="text-xs text-zinc-500 dark:text-zinc-400">{selectedImage.filters?.brightness || 100}%</span>
+                <label className="text-xs font-medium text-ui-text-muted">Brightness</label>
+                <span className="text-xs text-ui-text-subtle">{selectedImage.filters?.brightness || 100}%</span>
               </div>
               <input
                 type="range"
@@ -1013,7 +1045,7 @@ export default memo(function MediaTab({
                 step="5"
                 value={selectedImage.filters?.brightness || 100}
                 onChange={(e) => onUpdateImageFilters(selectedImageId, { brightness: parseInt(e.target.value, 10) })}
-                className="w-full h-2 bg-zinc-200 dark:bg-dark-subtle rounded-lg appearance-none cursor-pointer"
+                className="w-full h-2 bg-ui-surface-hover rounded-lg appearance-none cursor-pointer"
               />
             </div>
           </div>
@@ -1025,11 +1057,11 @@ export default memo(function MediaTab({
         <CollapsibleSection title="Logo" defaultExpanded={false}>
           {!logo ? (
             <div
-              className="border-2 border-dashed border-zinc-200 dark:border-zinc-700 rounded-xl p-4 text-center cursor-pointer hover:border-violet-400 hover:bg-violet-50/30 dark:hover:bg-violet-900/30 transition-all"
+              className="border-2 border-dashed border-ui-border rounded-xl p-4 text-center cursor-pointer hover:border-violet-400 hover:bg-violet-50/30 dark:hover:bg-violet-900/30 transition-all"
               onClick={() => logoInputRef.current?.click()}
             >
               <svg
-                className="w-8 h-8 mx-auto text-zinc-300 dark:text-zinc-600 mb-2"
+                className="w-8 h-8 mx-auto text-ui-text-faint mb-2"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -1041,8 +1073,8 @@ export default memo(function MediaTab({
                   d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
                 />
               </svg>
-              <p className="text-sm text-zinc-500 dark:text-zinc-400">Click to upload logo</p>
-              <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-1">Optional</p>
+              <p className="text-sm text-ui-text-subtle">Click to upload logo</p>
+              <p className="text-xs text-ui-text-faint mt-1">Optional</p>
               <input
                 ref={logoInputRef}
                 type="file"
@@ -1061,7 +1093,7 @@ export default memo(function MediaTab({
           ) : (
             <div className="space-y-3">
               {/* Logo preview */}
-              <div className="relative bg-zinc-50 dark:bg-dark-subtle rounded-xl p-3">
+              <div className="relative bg-ui-surface-elevated rounded-xl p-3">
                 <img src={logo} alt="Logo" className="max-h-16 mx-auto object-contain" />
                 <button
                   onClick={() => {
@@ -1076,7 +1108,7 @@ export default memo(function MediaTab({
 
               {/* Logo position */}
               <div className="space-y-2">
-                <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-300">Position</label>
+                <label className="block text-xs font-medium text-ui-text-muted">Position</label>
                 <div className="grid grid-cols-3 gap-1.5">
                   {logoPositionOptions.map((opt) => (
                     <button
@@ -1085,7 +1117,7 @@ export default memo(function MediaTab({
                       className={`px-2 py-1.5 text-xs rounded-lg font-medium ${
                         logoPosition === opt.id
                           ? 'bg-primary text-white shadow-sm'
-                          : 'bg-zinc-100 dark:bg-dark-subtle text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-dark-elevated'
+                          : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
                       }`}
                     >
                       {opt.name}
@@ -1096,7 +1128,7 @@ export default memo(function MediaTab({
 
               {/* Logo size */}
               <div className="space-y-2">
-                <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-300">Size</label>
+                <label className="block text-xs font-medium text-ui-text-muted">Size</label>
                 <div className="flex gap-1.5">
                   {logoSizeOptions.map((opt) => (
                     <button
@@ -1105,7 +1137,7 @@ export default memo(function MediaTab({
                       className={`flex-1 px-2 py-1.5 text-xs rounded-lg font-medium ${
                         logoSize === opt.id
                           ? 'bg-primary text-white shadow-sm'
-                          : 'bg-zinc-100 dark:bg-dark-subtle text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-dark-elevated'
+                          : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
                       }`}
                     >
                       {opt.name}

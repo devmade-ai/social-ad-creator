@@ -22,7 +22,7 @@ export default {
           DEFAULT: '#06B6D4',
           hover: '#0891B2',
         },
-        // Semantic
+        // Semantic status colors
         success: {
           DEFAULT: '#10B981',
           bg: 'rgba(16, 185, 129, 0.15)',
@@ -45,6 +45,26 @@ export default {
           card: '#1A1A2E',
           subtle: '#16213E',
           elevated: '#1E1E3F',
+        },
+        // Semantic UI colors (auto-switch light/dark via CSS variables)
+        ui: {
+          text: {
+            DEFAULT: 'var(--color-text-default)',
+            muted: 'var(--color-text-muted)',
+            subtle: 'var(--color-text-subtle)',
+            faint: 'var(--color-text-faint)',
+          },
+          surface: {
+            DEFAULT: 'var(--color-surface)',
+            elevated: 'var(--color-surface-elevated)',
+            inset: 'var(--color-surface-inset)',
+            hover: 'var(--color-surface-hover)',
+          },
+          border: {
+            DEFAULT: 'var(--color-border)',
+            subtle: 'var(--color-border-subtle)',
+            strong: 'var(--color-border-strong)',
+          },
         },
       },
       fontFamily: {

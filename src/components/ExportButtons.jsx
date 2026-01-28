@@ -203,9 +203,9 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
 
       {/* Multi-select platform UI */}
       {showMultiSelect && (
-        <div className="space-y-3 p-3 bg-zinc-50 dark:bg-dark-subtle rounded-lg border border-zinc-200 dark:border-zinc-700">
+        <div className="space-y-3 p-3 bg-ui-surface-elevated rounded-lg border border-ui-border">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-zinc-600 dark:text-zinc-300">
+            <span className="text-xs font-medium text-ui-text-muted">
               {selectedPlatforms.size} of {platforms.length} selected
             </span>
             <div className="flex gap-2">
@@ -217,7 +217,7 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
               </button>
               <button
                 onClick={selectNone}
-                className="text-xs text-zinc-500 hover:underline"
+                className="text-xs text-ui-text-subtle hover:underline"
               >
                 Clear
               </button>
@@ -236,7 +236,7 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
                 <div key={category} className="space-y-1">
                   <button
                     onClick={() => selectCategory(category)}
-                    className="text-[10px] text-zinc-400 dark:text-zinc-500 uppercase tracking-wide font-medium hover:text-primary transition-colors"
+                    className="text-[10px] text-ui-text-faint uppercase tracking-wide font-medium hover:text-primary transition-colors"
                   >
                     {categoryLabels[category] || category}
                     {someSelected && !allSelected && <span className="ml-1 text-primary">+</span>}
@@ -250,7 +250,7 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
                         className={`px-2 py-0.5 text-xs rounded font-medium transition-all ${
                           selectedPlatforms.has(p.id)
                             ? 'bg-primary text-white'
-                            : 'bg-white dark:bg-dark-elevated text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-dark-card border border-zinc-200 dark:border-zinc-600'
+                            : 'bg-ui-surface text-ui-text-muted hover:bg-ui-surface-inset border border-ui-border'
                         }`}
                       >
                         {p.name}
@@ -276,13 +276,13 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
 
       {exportProgress && (
         <div className="space-y-2">
-          <div className="w-full bg-zinc-200 dark:bg-zinc-700 rounded-full h-1.5 overflow-hidden">
+          <div className="w-full bg-ui-surface-hover rounded-full h-1.5 overflow-hidden">
             <div
               className="bg-gradient-creative h-1.5 rounded-full transition-all duration-300"
               style={{ width: `${(exportProgress.current / exportProgress.total) * 100}%` }}
             />
           </div>
-          <p className="text-sm text-center text-zinc-500 dark:text-zinc-400">
+          <p className="text-sm text-center text-ui-text-subtle">
             Processing: {exportProgress.name}
           </p>
         </div>

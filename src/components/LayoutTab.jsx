@@ -161,8 +161,8 @@ function CellGrid({
     let bgClass, textClass, content
 
     if (mode === 'image') {
-      bgClass = isImage ? 'bg-primary hover:bg-primary-hover' : 'bg-zinc-200 dark:bg-dark-subtle hover:bg-zinc-300 dark:hover:bg-dark-elevated'
-      textClass = isImage ? 'text-white' : 'text-zinc-500 dark:text-zinc-400'
+      bgClass = isImage ? 'bg-primary hover:bg-primary-hover' : 'bg-ui-surface-inset hover:bg-ui-surface-hover'
+      textClass = isImage ? 'text-white' : 'text-ui-text-subtle'
       content = isImage ? '📷' : cellIndex + 1
     } else if (mode === 'structure') {
       if (isSelected) {
@@ -175,8 +175,8 @@ function CellGrid({
         bgClass = 'bg-primary hover:bg-primary-hover'
         textClass = 'text-white'
       } else {
-        bgClass = 'bg-zinc-100 dark:bg-dark-subtle hover:bg-zinc-200 dark:hover:bg-dark-elevated'
-        textClass = 'text-zinc-500 dark:text-zinc-400'
+        bgClass = 'bg-ui-surface-inset hover:bg-ui-surface-hover'
+        textClass = 'text-ui-text-subtle'
       }
       content = isImage ? '📷' : subdivisions > 1 ? `${Math.round(subSize)}%` : ''
     } else {
@@ -189,8 +189,8 @@ function CellGrid({
         textClass = 'text-white'
         content = '📷'
       } else {
-        bgClass = 'bg-zinc-200 dark:bg-dark-subtle hover:bg-zinc-300 dark:hover:bg-dark-elevated'
-        textClass = 'text-zinc-500 dark:text-zinc-400'
+        bgClass = 'bg-ui-surface-inset hover:bg-ui-surface-hover'
+        textClass = 'text-ui-text-subtle'
         content = cellIndex + 1
       }
     }
@@ -202,7 +202,7 @@ function CellGrid({
 
   const renderCells = () => (
     <div
-      className={`flex-1 ${showSectionLabels ? 'rounded-r' : 'rounded'} overflow-hidden border border-zinc-300 dark:border-zinc-600 flex h-full ${
+      className={`flex-1 ${showSectionLabels ? 'rounded-r' : 'rounded'} overflow-hidden border border-ui-border-strong flex h-full ${
         isRows || isFullbleed ? 'flex-col' : 'flex-row'
       }`}
     >
@@ -236,7 +236,7 @@ function CellGrid({
             <div
               key={`cell-${currentCellIndex}`}
               className={`relative cursor-pointer transition-colors min-h-[20px] ${bgClass} ${
-                mode === 'structure' && subdivisions > 1 ? 'border border-zinc-200 dark:border-zinc-600' : ''
+                mode === 'structure' && subdivisions > 1 ? 'border border-ui-border' : ''
               }`}
               style={{ flex: `1 1 ${subSizes[subIndex]}%` }}
               onClick={(e) => {
@@ -284,7 +284,7 @@ function CellGrid({
               } ${
                 isSelected
                   ? 'bg-primary text-white'
-                  : 'bg-zinc-200 dark:bg-dark-subtle text-zinc-600 dark:text-zinc-400 hover:bg-zinc-300 dark:hover:bg-dark-elevated'
+                  : 'bg-ui-surface-inset text-ui-text-subtle hover:bg-ui-surface-hover'
               }`}
               style={{ flex: `0 0 ${sectionSize}%` }}
               onClick={() => onSelectSection?.(sectionIndex)}
@@ -554,14 +554,14 @@ export default memo(function LayoutTab({
 
   return (
     <div className="space-y-3">
-      <h3 className="text-sm font-semibold text-zinc-800 dark:text-zinc-100">Structure</h3>
+      <h3 className="text-sm font-semibold text-ui-text">Structure</h3>
 
       {/* Structure Section */}
       <CollapsibleSection title="Structure" defaultExpanded={false}>
         <div className="space-y-4">
           {/* Layout Type */}
           <div>
-            <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-300 mb-2">Layout Type</label>
+            <label className="block text-xs font-medium text-ui-text-muted mb-2">Layout Type</label>
             <div className="flex gap-1.5">
               {layoutTypes.map((lt) => (
                 <button
@@ -573,7 +573,7 @@ export default memo(function LayoutTab({
                   className={`flex-1 px-3 py-2.5 text-sm rounded-lg flex flex-col items-center gap-1 font-medium ${
                     type === lt.id
                       ? 'bg-primary text-white shadow-sm'
-                      : 'bg-zinc-100 dark:bg-dark-subtle text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-dark-elevated'
+                      : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
                   }`}
                 >
                   <span className="text-base">{lt.icon}</span>
@@ -585,8 +585,8 @@ export default memo(function LayoutTab({
 
           {/* Structure Grid */}
           <div className="space-y-3">
-            <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-300 text-center">
-              Select Cell <span className="text-zinc-400 font-normal">(to configure)</span>
+            <label className="block text-xs font-medium text-ui-text-muted text-center">
+              Select Cell <span className="text-ui-text-faint font-normal">(to configure)</span>
             </label>
             <div className="flex justify-center">
               <CellGrid
@@ -625,9 +625,9 @@ export default memo(function LayoutTab({
                 }}
               />
             </div>
-            <div className="text-sm text-center py-2 bg-zinc-50 dark:bg-dark-subtle rounded-lg">
+            <div className="text-sm text-center py-2 bg-ui-surface-elevated rounded-lg">
               {structureSelection === null ? (
-                <span className="text-zinc-600 dark:text-zinc-400">
+                <span className="text-ui-text-subtle">
                   {type === 'fullbleed' ? 'Single cell layout' : `Select a ${type === 'rows' ? 'row' : 'column'} or cell to edit`}
                 </span>
               ) : structureSelection.type === 'section' ? (
@@ -645,7 +645,7 @@ export default memo(function LayoutTab({
           {/* Add section button */}
           {type !== 'fullbleed' && structureSelection === null && (
             <div className="flex items-center justify-between">
-              <span className="text-sm text-zinc-600 dark:text-zinc-400">
+              <span className="text-sm text-ui-text-subtle">
                 {structure.length} {type === 'rows' ? 'rows' : 'columns'}
               </span>
               <button
@@ -653,7 +653,7 @@ export default memo(function LayoutTab({
                 disabled={structure.length >= 4}
                 className={`px-3 py-1.5 text-sm rounded-lg font-medium ${
                   structure.length >= 4
-                    ? 'bg-zinc-100 dark:bg-dark-subtle text-zinc-400 cursor-not-allowed'
+                    ? 'bg-ui-surface-inset text-ui-text-faint cursor-not-allowed'
                     : 'bg-primary text-white hover:bg-primary-hover shadow-sm'
                 }`}
               >
@@ -797,7 +797,7 @@ export default memo(function LayoutTab({
               handleReset()
               setStructureSelection(null)
             }}
-            className="w-full px-3 py-2.5 text-sm bg-zinc-100 dark:bg-dark-subtle text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-dark-elevated rounded-lg font-medium"
+            className="w-full px-3 py-2.5 text-sm bg-zinc-100 dark:bg-dark-subtle text-ui-text-muted hover:bg-zinc-200 dark:hover:bg-dark-elevated rounded-lg font-medium"
           >
             Reset to Default
           </button>
@@ -808,7 +808,7 @@ export default memo(function LayoutTab({
       <CollapsibleSection title="Text Alignment" defaultExpanded={false}>
         <div className="space-y-3">
           {/* Context-aware label */}
-          <div className="text-xs text-zinc-500 dark:text-zinc-400">
+          <div className="text-xs text-ui-text-subtle">
             {type === 'fullbleed' ? (
               'Global alignment for all text'
             ) : structureSelection?.type === 'section' ? (
@@ -822,7 +822,7 @@ export default memo(function LayoutTab({
 
           <div className="flex gap-4">
             <div className="flex-1">
-              <span className="text-xs text-zinc-500 dark:text-zinc-400 block mb-1.5">Horizontal</span>
+              <span className="text-xs text-ui-text-subtle block mb-1.5">Horizontal</span>
               <div className="flex gap-1.5">
                 {textAlignOptions.map((align) => {
                   const targetCell = structureSelection?.type === 'cell' ? structureSelection.cellIndex : null
@@ -853,7 +853,7 @@ export default memo(function LayoutTab({
                       className={`flex-1 px-2 py-2 rounded-lg flex items-center justify-center ${
                         isActive
                           ? 'bg-primary text-white shadow-sm'
-                          : 'bg-zinc-100 dark:bg-dark-subtle text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-dark-elevated'
+                          : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
                       }`}
                     >
                       <align.Icon />
@@ -863,7 +863,7 @@ export default memo(function LayoutTab({
               </div>
             </div>
             <div className="flex-1">
-              <span className="text-xs text-zinc-500 dark:text-zinc-400 block mb-1.5">Vertical</span>
+              <span className="text-xs text-ui-text-subtle block mb-1.5">Vertical</span>
               <div className="flex gap-1.5">
                 {verticalAlignOptions.map((align) => {
                   const targetCell = structureSelection?.type === 'cell' ? structureSelection.cellIndex : null
@@ -894,7 +894,7 @@ export default memo(function LayoutTab({
                       className={`flex-1 px-2 py-2 rounded-lg flex items-center justify-center ${
                         isActive
                           ? 'bg-primary text-white shadow-sm'
-                          : 'bg-zinc-100 dark:bg-dark-subtle text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-dark-elevated'
+                          : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
                       }`}
                     >
                       <align.Icon />

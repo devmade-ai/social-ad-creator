@@ -2,6 +2,46 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Semantic color tokens - Light mode (default) */
+:root {
+  /* Text colors */
+  --color-text-default: theme('colors.zinc.800');
+  --color-text-muted: theme('colors.zinc.600');
+  --color-text-subtle: theme('colors.zinc.500');
+  --color-text-faint: theme('colors.zinc.400');
+
+  /* Surface/background colors */
+  --color-surface: theme('colors.white');
+  --color-surface-elevated: theme('colors.zinc.50');
+  --color-surface-inset: theme('colors.zinc.100');
+  --color-surface-hover: theme('colors.zinc.200');
+
+  /* Border colors */
+  --color-border: theme('colors.zinc.200');
+  --color-border-subtle: theme('colors.zinc.100');
+  --color-border-strong: theme('colors.zinc.300');
+}
+
+/* Semantic color tokens - Dark mode */
+.dark {
+  /* Text colors */
+  --color-text-default: theme('colors.zinc.100');
+  --color-text-muted: theme('colors.zinc.300');
+  --color-text-subtle: theme('colors.zinc.400');
+  --color-text-faint: theme('colors.zinc.500');
+
+  /* Surface/background colors - using our custom dark palette */
+  --color-surface: #1A1A2E;           /* dark-card */
+  --color-surface-elevated: #16213E;  /* dark-subtle */
+  --color-surface-inset: #1E1E3F;     /* dark-elevated */
+  --color-surface-hover: #252550;
+
+  /* Border colors */
+  --color-border: theme('colors.zinc.700');
+  --color-border-subtle: theme('colors.zinc.800');
+  --color-border-strong: theme('colors.zinc.600');
+}
+
 * {
   box-sizing: border-box;
 }

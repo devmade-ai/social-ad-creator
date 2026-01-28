@@ -51,8 +51,8 @@ export default memo(function PlatformPreview({ selectedPlatform, onPlatformChang
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-zinc-800 dark:text-zinc-100">Platform</h3>
-        <span className="text-sm text-zinc-500 dark:text-zinc-400 font-medium">
+        <h3 className="text-sm font-semibold text-ui-text">Platform</h3>
+        <span className="text-sm text-ui-text-subtle font-medium">
           {platform.name} ({platform.width} × {platform.height})
         </span>
       </div>
@@ -70,9 +70,9 @@ export default memo(function PlatformPreview({ selectedPlatform, onPlatformChang
               <div key={category} className="space-y-1">
                 <button
                   onClick={() => toggleCategory(category)}
-                  className="w-full flex items-center justify-between py-1 hover:bg-zinc-50 dark:hover:bg-dark-subtle rounded transition-colors"
+                  className="w-full flex items-center justify-between py-1 hover:bg-ui-surface-elevated rounded transition-colors"
                 >
-                  <span className="text-[10px] text-zinc-400 dark:text-zinc-500 uppercase tracking-wide font-medium flex items-center gap-1">
+                  <span className="text-[10px] text-ui-text-faint uppercase tracking-wide font-medium flex items-center gap-1">
                     <svg
                       className={`w-3 h-3 transition-transform duration-200 ${isExpanded ? 'rotate-90' : ''}`}
                       fill="none"
@@ -97,7 +97,7 @@ export default memo(function PlatformPreview({ selectedPlatform, onPlatformChang
                         className={`px-2.5 py-1 text-xs rounded-lg font-medium transition-all ${
                           selectedPlatform === p.id
                             ? 'bg-primary text-white shadow-sm'
-                            : 'bg-zinc-100 dark:bg-dark-subtle text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-dark-elevated'
+                            : 'bg-ui-surface-inset text-ui-text hover:bg-ui-surface-hover'
                         }`}
                       >
                         {p.name}

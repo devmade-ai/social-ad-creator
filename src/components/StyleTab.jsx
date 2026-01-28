@@ -57,7 +57,7 @@ function MiniCellGrid({ layout, cellImages = {}, selectedCell, onSelectCell, pla
 
   return (
     <div
-      className="flex overflow-hidden border border-zinc-300 dark:border-zinc-600 rounded"
+      className="flex overflow-hidden border border-ui-border-strong rounded"
       style={{
         width: '120px',
         height: `${120 / aspectRatio}px`,
@@ -84,8 +84,8 @@ function MiniCellGrid({ layout, cellImages = {}, selectedCell, onSelectCell, pla
             bgClass = 'bg-violet-200 dark:bg-violet-800 hover:bg-violet-300 dark:hover:bg-violet-700'
             content = <span className="text-violet-700 dark:text-violet-200 text-[10px]">📷</span>
           } else {
-            bgClass = 'bg-zinc-200 dark:bg-dark-subtle hover:bg-zinc-300 dark:hover:bg-dark-elevated'
-            content = <span className="text-zinc-500 dark:text-zinc-400 text-[10px]">{currentCellIndex + 1}</span>
+            bgClass = 'bg-ui-surface-inset hover:bg-ui-surface-hover'
+            content = <span className="text-ui-text-subtle text-[10px]">{currentCellIndex + 1}</span>
           }
 
           sectionCells.push(
@@ -176,17 +176,17 @@ export default memo(function StyleTab({
 
   return (
     <div className="space-y-3">
-      <h3 className="text-sm font-semibold text-zinc-800 dark:text-zinc-100">Style</h3>
+      <h3 className="text-sm font-semibold text-ui-text">Style</h3>
 
       {/* Typography Section */}
       <CollapsibleSection title="Typography" defaultExpanded={false}>
         <div className="space-y-3">
           <div className="space-y-2">
-            <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-300">Title Font</label>
+            <label className="block text-xs font-medium text-ui-text-muted">Title Font</label>
             <select
               value={selectedFonts.title}
               onChange={(e) => onFontsChange({ title: e.target.value })}
-              className="w-full px-3 py-2 text-sm border border-zinc-200 dark:border-zinc-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-white dark:bg-dark-subtle dark:text-zinc-100"
+              className="w-full px-3 py-2 text-sm border border-ui-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-white dark:bg-dark-subtle dark:text-zinc-100"
             >
               {fonts.map((font) => (
                 <option key={font.id} value={font.id}>
@@ -197,11 +197,11 @@ export default memo(function StyleTab({
           </div>
 
           <div className="space-y-2">
-            <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-300">Body Font</label>
+            <label className="block text-xs font-medium text-ui-text-muted">Body Font</label>
             <select
               value={selectedFonts.body}
               onChange={(e) => onFontsChange({ body: e.target.value })}
-              className="w-full px-3 py-2 text-sm border border-zinc-200 dark:border-zinc-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-white dark:bg-dark-subtle dark:text-zinc-100"
+              className="w-full px-3 py-2 text-sm border border-ui-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-white dark:bg-dark-subtle dark:text-zinc-100"
             >
               {fonts.map((font) => (
                 <option key={font.id} value={font.id}>
@@ -212,16 +212,16 @@ export default memo(function StyleTab({
           </div>
 
           {/* Preview */}
-          <div className="p-3 bg-zinc-50 dark:bg-dark-subtle rounded-lg">
-            <p className="text-[10px] text-zinc-500 dark:text-zinc-400 mb-1">Preview:</p>
+          <div className="p-3 bg-ui-surface-elevated rounded-lg">
+            <p className="text-[10px] text-ui-text-subtle mb-1">Preview:</p>
             <p
-              className="text-lg font-bold text-zinc-800 dark:text-zinc-100"
+              className="text-lg font-bold text-ui-text"
               style={{ fontFamily: fonts.find((f) => f.id === selectedFonts.title)?.family }}
             >
               Title Text
             </p>
             <p
-              className="text-sm text-zinc-600 dark:text-zinc-300 mt-0.5"
+              className="text-sm text-ui-text-muted mt-0.5"
               style={{ fontFamily: fonts.find((f) => f.id === selectedFonts.body)?.family }}
             >
               Body text preview
@@ -235,7 +235,7 @@ export default memo(function StyleTab({
         <div className="space-y-3">
           {/* Cell Selector */}
           <div className="flex items-center justify-between">
-            <label className="text-xs font-medium text-zinc-600 dark:text-zinc-300">Select Cell</label>
+            <label className="text-xs font-medium text-ui-text-muted">Select Cell</label>
             <MiniCellGrid
               layout={layout}
               cellImages={cellImages}
@@ -246,9 +246,9 @@ export default memo(function StyleTab({
           </div>
 
           {/* Selection indicator */}
-          <div className="text-xs text-center py-1.5 bg-zinc-50 dark:bg-dark-subtle rounded">
+          <div className="text-xs text-center py-1.5 bg-ui-surface-elevated rounded">
             {selectedOverlayCell === null ? (
-              <span className="text-zinc-500 dark:text-zinc-400">Select a cell to configure overlay</span>
+              <span className="text-ui-text-subtle">Select a cell to configure overlay</span>
             ) : (
               <span className="text-primary dark:text-violet-400">
                 Editing: <strong>Cell {selectedOverlayCell + 1}</strong>
@@ -259,7 +259,7 @@ export default memo(function StyleTab({
 
           {/* Cell Overlay Controls */}
           {selectedOverlayCell !== null && (
-            <div className="space-y-3 p-3 bg-zinc-50 dark:bg-dark-subtle rounded-lg">
+            <div className="space-y-3 p-3 bg-ui-surface-elevated rounded-lg">
               {/* Enable/Disable */}
               <div className="flex items-center gap-2">
                 <input
@@ -271,7 +271,7 @@ export default memo(function StyleTab({
                 />
                 <label
                   htmlFor={`overlay-enabled-${selectedOverlayCell}`}
-                  className="text-xs font-medium text-zinc-700 dark:text-zinc-300"
+                  className="text-xs font-medium text-ui-text-muted"
                 >
                   Enable Overlay
                 </label>
@@ -306,7 +306,7 @@ export default memo(function StyleTab({
                     />
                     <label
                       htmlFor={`overlay-custom-${selectedOverlayCell}`}
-                      className="text-xs text-zinc-600 dark:text-zinc-400"
+                      className="text-xs text-ui-text-subtle"
                     >
                       Custom settings
                     </label>
@@ -314,13 +314,13 @@ export default memo(function StyleTab({
 
                   {/* Custom overlay settings */}
                   {getCellOverlayConfig(selectedOverlayCell)?.type !== undefined && (
-                    <div className="space-y-3 pt-2 border-t border-zinc-200 dark:border-zinc-700">
+                    <div className="space-y-3 pt-2 border-t border-ui-border">
                       {/* Type - organized by category */}
                       <div className="space-y-2">
-                        <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-300">Type</label>
+                        <label className="block text-xs font-medium text-ui-text-muted">Type</label>
                         {/* Basic & Linear */}
                         <div className="space-y-1">
-                          <span className="text-[9px] text-zinc-400 dark:text-zinc-500 uppercase tracking-wide">Basic & Gradients</span>
+                          <span className="text-[9px] text-ui-text-faint uppercase tracking-wide">Basic & Gradients</span>
                           <div className="grid grid-cols-3 gap-1">
                             {overlayTypes.filter(t => t.category === 'basic' || t.category === 'linear').map((t) => (
                               <button
@@ -329,7 +329,7 @@ export default memo(function StyleTab({
                                 className={`px-1.5 py-1 text-[9px] rounded truncate ${
                                   getCellOverlayConfig(selectedOverlayCell)?.type === t.id
                                     ? 'bg-primary text-white'
-                                    : 'bg-zinc-200 dark:bg-dark-subtle text-zinc-700 dark:text-zinc-300 hover:bg-zinc-300 dark:hover:bg-dark-elevated'
+                                    : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
                                 }`}
                                 title={t.name}
                               >
@@ -340,7 +340,7 @@ export default memo(function StyleTab({
                         </div>
                         {/* Radial */}
                         <div className="space-y-1">
-                          <span className="text-[9px] text-zinc-400 dark:text-zinc-500 uppercase tracking-wide">Radial</span>
+                          <span className="text-[9px] text-ui-text-faint uppercase tracking-wide">Radial</span>
                           <div className="grid grid-cols-3 gap-1">
                             {overlayTypes.filter(t => t.category === 'radial').map((t) => (
                               <button
@@ -349,7 +349,7 @@ export default memo(function StyleTab({
                                 className={`px-1.5 py-1 text-[9px] rounded truncate ${
                                   getCellOverlayConfig(selectedOverlayCell)?.type === t.id
                                     ? 'bg-primary text-white'
-                                    : 'bg-zinc-200 dark:bg-dark-subtle text-zinc-700 dark:text-zinc-300 hover:bg-zinc-300 dark:hover:bg-dark-elevated'
+                                    : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
                                 }`}
                                 title={t.name}
                               >
@@ -360,7 +360,7 @@ export default memo(function StyleTab({
                         </div>
                         {/* Effects */}
                         <div className="space-y-1">
-                          <span className="text-[9px] text-zinc-400 dark:text-zinc-500 uppercase tracking-wide">Effects</span>
+                          <span className="text-[9px] text-ui-text-faint uppercase tracking-wide">Effects</span>
                           <div className="grid grid-cols-3 gap-1">
                             {overlayTypes.filter(t => t.category === 'effect' || t.category === 'texture').map((t) => (
                               <button
@@ -369,7 +369,7 @@ export default memo(function StyleTab({
                                 className={`px-1.5 py-1 text-[9px] rounded truncate ${
                                   getCellOverlayConfig(selectedOverlayCell)?.type === t.id
                                     ? 'bg-primary text-white'
-                                    : 'bg-zinc-200 dark:bg-dark-subtle text-zinc-700 dark:text-zinc-300 hover:bg-zinc-300 dark:hover:bg-dark-elevated'
+                                    : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
                                 }`}
                                 title={t.name}
                               >
@@ -380,7 +380,7 @@ export default memo(function StyleTab({
                         </div>
                         {/* Blend Modes */}
                         <div className="space-y-1">
-                          <span className="text-[9px] text-zinc-400 dark:text-zinc-500 uppercase tracking-wide">Blend Modes</span>
+                          <span className="text-[9px] text-ui-text-faint uppercase tracking-wide">Blend Modes</span>
                           <div className="grid grid-cols-3 gap-1">
                             {overlayTypes.filter(t => t.category === 'blend').map((t) => (
                               <button
@@ -389,7 +389,7 @@ export default memo(function StyleTab({
                                 className={`px-1.5 py-1 text-[9px] rounded truncate ${
                                   getCellOverlayConfig(selectedOverlayCell)?.type === t.id
                                     ? 'bg-primary text-white'
-                                    : 'bg-zinc-200 dark:bg-dark-subtle text-zinc-700 dark:text-zinc-300 hover:bg-zinc-300 dark:hover:bg-dark-elevated'
+                                    : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
                                 }`}
                                 title={t.name}
                               >
@@ -402,7 +402,7 @@ export default memo(function StyleTab({
 
                       {/* Color */}
                       <div className="space-y-1.5">
-                        <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-300">Color</label>
+                        <label className="block text-xs font-medium text-ui-text-muted">Color</label>
                         <div className="flex gap-1">
                           {themeColorOptions.map((c) => (
                             <button
@@ -423,7 +423,7 @@ export default memo(function StyleTab({
                         </div>
                         {/* Neutral colors */}
                         <div className="flex items-center gap-1.5">
-                          <span className="text-[10px] text-zinc-500 dark:text-zinc-400">Neutrals:</span>
+                          <span className="text-[10px] text-ui-text-subtle">Neutrals:</span>
                           {neutralColors.map((c) => (
                             <button
                               key={c.id}
@@ -432,7 +432,7 @@ export default memo(function StyleTab({
                               className={`w-5 h-5 rounded-full border transition-transform hover:scale-110 ${
                                 getCellOverlayConfig(selectedOverlayCell)?.color === c.id
                                   ? 'ring-2 ring-primary ring-offset-1 border-transparent'
-                                  : 'border-zinc-300 dark:border-zinc-600'
+                                  : 'border-ui-border-strong'
                               }`}
                               style={{ backgroundColor: c.hex }}
                             />
@@ -443,8 +443,8 @@ export default memo(function StyleTab({
                       {/* Opacity */}
                       <div className="space-y-1">
                         <div className="flex justify-between">
-                          <label className="text-xs font-medium text-zinc-600 dark:text-zinc-300">Opacity</label>
-                          <span className="text-xs text-zinc-500 dark:text-zinc-400">
+                          <label className="text-xs font-medium text-ui-text-muted">Opacity</label>
+                          <span className="text-xs text-ui-text-subtle">
                             {getCellOverlayConfig(selectedOverlayCell)?.opacity ?? 50}%
                           </span>
                         </div>
@@ -457,7 +457,7 @@ export default memo(function StyleTab({
                           onChange={(e) =>
                             updateCellOverlay(selectedOverlayCell, { opacity: parseInt(e.target.value, 10) })
                           }
-                          className="w-full h-2 bg-zinc-200 dark:bg-dark-subtle rounded-lg appearance-none cursor-pointer"
+                          className="w-full h-2 bg-ui-surface-hover rounded-lg appearance-none cursor-pointer"
                         />
                       </div>
                     </div>
@@ -468,7 +468,7 @@ export default memo(function StyleTab({
               {/* Reset */}
               <button
                 onClick={() => updateCellOverlay(selectedOverlayCell, null)}
-                className="w-full px-2 py-1.5 text-xs bg-zinc-200 dark:bg-dark-subtle text-zinc-600 dark:text-zinc-300 hover:bg-zinc-300 dark:hover:bg-dark-elevated rounded"
+                className="w-full px-2 py-1.5 text-xs bg-zinc-200 dark:bg-dark-subtle text-ui-text-muted hover:bg-zinc-300 dark:hover:bg-dark-elevated rounded"
               >
                 Reset to Default
               </button>
@@ -481,13 +481,13 @@ export default memo(function StyleTab({
               {cellInfoList.map((cell) => (
                 <div
                   key={cell.index}
-                  className="flex items-center justify-between px-2 py-1.5 bg-zinc-50 dark:bg-dark-subtle rounded text-xs"
+                  className="flex items-center justify-between px-2 py-1.5 bg-ui-surface-elevated rounded text-xs"
                 >
-                  <span className="text-zinc-600 dark:text-zinc-400">
+                  <span className="text-ui-text-subtle">
                     Cell {cell.index + 1}
                     {cellHasImage(cell.index) && <span className="text-primary ml-1">(img)</span>}
                   </span>
-                  <span className={isCellOverlayEnabled(cell.index) ? 'text-green-600' : 'text-zinc-400'}>
+                  <span className={isCellOverlayEnabled(cell.index) ? 'text-green-600 dark:text-green-400' : 'text-ui-text-faint'}>
                     {isCellOverlayEnabled(cell.index) ? 'On' : 'Off'}
                   </span>
                 </div>
@@ -503,8 +503,8 @@ export default memo(function StyleTab({
           {/* Global Padding */}
           <div className="space-y-2">
             <div className="flex justify-between">
-              <label className="text-xs font-medium text-zinc-600 dark:text-zinc-300">Global Padding</label>
-              <span className="text-xs text-zinc-500 dark:text-zinc-400">{padding.global}px</span>
+              <label className="text-xs font-medium text-ui-text-muted">Global Padding</label>
+              <span className="text-xs text-ui-text-subtle">{padding.global}px</span>
             </div>
             <input
               type="range"
@@ -513,14 +513,82 @@ export default memo(function StyleTab({
               step="5"
               value={padding.global}
               onChange={(e) => onPaddingChange?.({ global: parseInt(e.target.value, 10) })}
-              className="w-full h-2 bg-zinc-200 dark:bg-dark-subtle rounded-lg appearance-none cursor-pointer"
+              className="w-full h-2 bg-ui-surface-hover rounded-lg appearance-none cursor-pointer"
             />
           </div>
 
-          {/* Per-cell padding */}
-          <div className="pt-3 border-t border-zinc-100 dark:border-zinc-800 space-y-3">
+          {/* Outer Frame - right after global padding since it's also a global setting */}
+          <div className="space-y-2 p-3 bg-ui-surface-elevated rounded-lg">
             <div className="flex items-center justify-between">
-              <label className="text-xs font-medium text-zinc-600 dark:text-zinc-300">Cell Padding</label>
+              <span className="text-xs font-medium text-ui-text-muted">Outer Frame</span>
+              <span className="text-[10px] text-ui-text-faint">
+                % of padding as border
+              </span>
+            </div>
+
+            <div className="space-y-1">
+              <div className="flex justify-between">
+                <label className="text-xs text-ui-text-subtle">Frame %</label>
+                <span className="text-xs text-ui-text-subtle">
+                  {frame.outer?.percent || 0}%
+                </span>
+              </div>
+              <input
+                type="range"
+                min="0"
+                max="100"
+                step="10"
+                value={frame.outer?.percent || 0}
+                onChange={(e) => onFrameChange?.({ outer: { ...frame.outer, percent: parseInt(e.target.value, 10) } })}
+                className="w-full h-2 bg-ui-surface-hover rounded-lg appearance-none cursor-pointer"
+              />
+            </div>
+
+            {(frame.outer?.percent || 0) > 0 && (
+              <div className="space-y-1.5">
+                <label className="text-xs text-ui-text-subtle">Color</label>
+                <div className="flex gap-1">
+                  {themeColorOptions.map((c) => (
+                    <button
+                      key={c.id}
+                      onClick={() => onFrameChange?.({ outer: { ...frame.outer, color: c.id } })}
+                      className={`flex-1 px-2 py-1.5 text-[10px] rounded ${
+                        frame.outer?.color === c.id
+                          ? 'ring-2 ring-primary ring-offset-1'
+                          : ''
+                      }`}
+                      style={{ backgroundColor: theme?.[c.id] || '#000' }}
+                    >
+                      <span style={{ color: c.id === 'primary' ? theme?.secondary : theme?.primary }}>
+                        {c.name}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-[10px] text-ui-text-subtle">Neutrals:</span>
+                  {neutralColors.map((c) => (
+                    <button
+                      key={c.id}
+                      onClick={() => onFrameChange?.({ outer: { ...frame.outer, color: c.id } })}
+                      title={c.name}
+                      className={`w-5 h-5 rounded-full border transition-transform hover:scale-110 ${
+                        frame.outer?.color === c.id
+                          ? 'ring-2 ring-primary ring-offset-1 border-transparent'
+                          : 'border-ui-border-strong'
+                      }`}
+                      style={{ backgroundColor: c.hex }}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Per-cell settings */}
+          <div className="pt-3 border-t border-ui-border-subtle space-y-3">
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-medium text-ui-text-muted">Per-Cell Settings</label>
               <MiniCellGrid
                 layout={layout}
                 cellImages={cellImages}
@@ -530,11 +598,11 @@ export default memo(function StyleTab({
               />
             </div>
 
-            {/* Selected cell padding */}
+            {/* Selected cell settings */}
             {selectedSpacingCell !== null && (
-              <div className="space-y-2 p-3 bg-zinc-50 dark:bg-dark-subtle rounded-lg">
+              <div className="space-y-3 p-3 bg-ui-surface-elevated rounded-lg">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-medium text-zinc-700 dark:text-zinc-300">
+                  <span className="text-xs font-medium text-ui-text-muted">
                     Cell {selectedSpacingCell + 1}
                   </span>
                   <button
@@ -545,47 +613,140 @@ export default memo(function StyleTab({
                   </button>
                 </div>
 
-                <div className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    id={`padding-custom-${selectedSpacingCell}`}
-                    checked={padding.cellOverrides?.[selectedSpacingCell] !== undefined}
-                    onChange={(e) => {
-                      if (e.target.checked) {
-                        updateCellPadding(selectedSpacingCell, padding.global)
-                      } else {
-                        updateCellPadding(selectedSpacingCell, null)
-                      }
-                    }}
-                    className="w-4 h-4 text-primary rounded border-zinc-300 focus:ring-primary"
-                  />
-                  <label
-                    htmlFor={`padding-custom-${selectedSpacingCell}`}
-                    className="text-xs text-zinc-600 dark:text-zinc-400"
-                  >
-                    Custom padding
-                  </label>
+                {/* Custom padding */}
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      id={`padding-custom-${selectedSpacingCell}`}
+                      checked={padding.cellOverrides?.[selectedSpacingCell] !== undefined}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          updateCellPadding(selectedSpacingCell, padding.global)
+                        } else {
+                          updateCellPadding(selectedSpacingCell, null)
+                        }
+                      }}
+                      className="w-4 h-4 text-primary rounded border-zinc-300 focus:ring-primary"
+                    />
+                    <label
+                      htmlFor={`padding-custom-${selectedSpacingCell}`}
+                      className="text-xs text-ui-text-subtle"
+                    >
+                      Custom padding
+                    </label>
+                  </div>
+
+                  {padding.cellOverrides?.[selectedSpacingCell] !== undefined && (
+                    <div className="space-y-1 pl-6">
+                      <div className="flex justify-between">
+                        <label className="text-xs text-ui-text-subtle">Padding</label>
+                        <span className="text-xs text-ui-text-subtle">
+                          {getCellPaddingValue(selectedSpacingCell)}px
+                        </span>
+                      </div>
+                      <input
+                        type="range"
+                        min="0"
+                        max="60"
+                        step="5"
+                        value={getCellPaddingValue(selectedSpacingCell)}
+                        onChange={(e) => updateCellPadding(selectedSpacingCell, parseInt(e.target.value, 10))}
+                        className="w-full h-2 bg-ui-surface-hover rounded-lg appearance-none cursor-pointer"
+                      />
+                    </div>
+                  )}
                 </div>
 
-                {padding.cellOverrides?.[selectedSpacingCell] !== undefined && (
-                  <div className="space-y-1">
-                    <div className="flex justify-between">
-                      <label className="text-xs text-zinc-600 dark:text-zinc-400">Padding</label>
-                      <span className="text-xs text-zinc-500 dark:text-zinc-400">
-                        {getCellPaddingValue(selectedSpacingCell)}px
-                      </span>
-                    </div>
+                {/* Custom frame */}
+                <div className="space-y-2 pt-2 border-t border-ui-border">
+                  <div className="flex items-center gap-2">
                     <input
-                      type="range"
-                      min="0"
-                      max="60"
-                      step="5"
-                      value={getCellPaddingValue(selectedSpacingCell)}
-                      onChange={(e) => updateCellPadding(selectedSpacingCell, parseInt(e.target.value, 10))}
-                      className="w-full h-2 bg-zinc-200 dark:bg-dark-subtle rounded-lg appearance-none cursor-pointer"
+                      type="checkbox"
+                      id={`frame-custom-${selectedSpacingCell}`}
+                      checked={frame.cellFrames?.[selectedSpacingCell] !== undefined}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          const newCellFrames = { ...frame.cellFrames, [selectedSpacingCell]: { percent: 50, color: 'primary' } }
+                          onFrameChange?.({ cellFrames: newCellFrames })
+                        } else {
+                          const newCellFrames = { ...frame.cellFrames }
+                          delete newCellFrames[selectedSpacingCell]
+                          onFrameChange?.({ cellFrames: newCellFrames })
+                        }
+                      }}
+                      className="w-4 h-4 text-primary rounded border-zinc-300 focus:ring-primary"
                     />
+                    <label
+                      htmlFor={`frame-custom-${selectedSpacingCell}`}
+                      className="text-xs text-ui-text-subtle"
+                    >
+                      Custom frame
+                    </label>
                   </div>
-                )}
+
+                  {frame.cellFrames?.[selectedSpacingCell] !== undefined && (
+                    <div className="space-y-2 pl-6">
+                      <div className="space-y-1">
+                        <div className="flex justify-between">
+                          <label className="text-xs text-ui-text-subtle">Frame %</label>
+                          <span className="text-xs text-ui-text-subtle">
+                            {frame.cellFrames[selectedSpacingCell]?.percent || 0}%
+                          </span>
+                        </div>
+                        <input
+                          type="range"
+                          min="0"
+                          max="100"
+                          step="10"
+                          value={frame.cellFrames[selectedSpacingCell]?.percent || 0}
+                          onChange={(e) => {
+                            const newCellFrames = {
+                              ...frame.cellFrames,
+                              [selectedSpacingCell]: {
+                                ...frame.cellFrames[selectedSpacingCell],
+                                percent: parseInt(e.target.value, 10),
+                              },
+                            }
+                            onFrameChange?.({ cellFrames: newCellFrames })
+                          }}
+                          className="w-full h-2 bg-ui-surface-hover rounded-lg appearance-none cursor-pointer"
+                        />
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <label className="text-xs text-ui-text-subtle">Color</label>
+                        <div className="flex gap-1">
+                          {themeColorOptions.map((c) => (
+                            <button
+                              key={c.id}
+                              onClick={() => {
+                                const newCellFrames = {
+                                  ...frame.cellFrames,
+                                  [selectedSpacingCell]: {
+                                    ...frame.cellFrames[selectedSpacingCell],
+                                    color: c.id,
+                                  },
+                                }
+                                onFrameChange?.({ cellFrames: newCellFrames })
+                              }}
+                              className={`flex-1 px-2 py-1.5 text-[10px] rounded ${
+                                frame.cellFrames[selectedSpacingCell]?.color === c.id
+                                  ? 'ring-2 ring-primary ring-offset-1'
+                                  : ''
+                              }`}
+                              style={{ backgroundColor: theme?.[c.id] || '#000' }}
+                            >
+                              <span style={{ color: c.id === 'primary' ? theme?.secondary : theme?.primary }}>
+                                {c.name}
+                              </span>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
 
@@ -595,188 +756,20 @@ export default memo(function StyleTab({
                 {cellInfoList.map((cell) => (
                   <div
                     key={cell.index}
-                    className="flex items-center justify-between px-2 py-1.5 bg-zinc-50 dark:bg-dark-subtle rounded text-xs"
+                    className="flex items-center justify-between px-2 py-1.5 bg-ui-surface-elevated rounded text-xs"
                   >
-                    <span className="text-zinc-600 dark:text-zinc-400">Cell {cell.index + 1}</span>
-                    <span
-                      className={
-                        padding.cellOverrides?.[cell.index] !== undefined
-                          ? 'text-primary dark:text-violet-400'
-                          : 'text-zinc-400'
-                      }
-                    >
+                    <span className="text-ui-text-subtle">Cell {cell.index + 1}</span>
+                    <span className="text-ui-text-faint">
                       {getCellPaddingValue(cell.index)}px
-                      {padding.cellOverrides?.[cell.index] !== undefined && ' (custom)'}
+                      {padding.cellOverrides?.[cell.index] !== undefined && (
+                        <span className="text-primary dark:text-violet-400"> (custom)</span>
+                      )}
+                      {frame.cellFrames?.[cell.index] !== undefined && (
+                        <span className="text-primary dark:text-violet-400"> +frame</span>
+                      )}
                     </span>
                   </div>
                 ))}
-              </div>
-            )}
-          </div>
-
-          {/* Frame Section */}
-          <div className="pt-3 border-t border-zinc-100 dark:border-zinc-800 space-y-3">
-            <label className="text-xs font-medium text-zinc-600 dark:text-zinc-300">Frame (Border)</label>
-            <p className="text-[10px] text-zinc-400 dark:text-zinc-500">
-              Frame uses a percentage of padding as a colored border
-            </p>
-
-            {/* Outer Frame */}
-            <div className="space-y-2 p-3 bg-zinc-50 dark:bg-dark-subtle rounded-lg">
-              <span className="text-xs font-medium text-zinc-700 dark:text-zinc-300">Outer Frame</span>
-
-              <div className="space-y-1">
-                <div className="flex justify-between">
-                  <label className="text-xs text-zinc-600 dark:text-zinc-400">Frame %</label>
-                  <span className="text-xs text-zinc-500 dark:text-zinc-400">
-                    {frame.outer?.percent || 0}%
-                  </span>
-                </div>
-                <input
-                  type="range"
-                  min="0"
-                  max="100"
-                  step="10"
-                  value={frame.outer?.percent || 0}
-                  onChange={(e) => onFrameChange?.({ outer: { ...frame.outer, percent: parseInt(e.target.value, 10) } })}
-                  className="w-full h-2 bg-zinc-200 dark:bg-dark-subtle rounded-lg appearance-none cursor-pointer"
-                />
-              </div>
-
-              {(frame.outer?.percent || 0) > 0 && (
-                <div className="space-y-1.5">
-                  <label className="text-xs text-zinc-600 dark:text-zinc-400">Color</label>
-                  <div className="flex gap-1">
-                    {themeColorOptions.map((c) => (
-                      <button
-                        key={c.id}
-                        onClick={() => onFrameChange?.({ outer: { ...frame.outer, color: c.id } })}
-                        className={`flex-1 px-2 py-1.5 text-[10px] rounded ${
-                          frame.outer?.color === c.id
-                            ? 'ring-2 ring-primary ring-offset-1'
-                            : ''
-                        }`}
-                        style={{ backgroundColor: theme?.[c.id] || '#000' }}
-                      >
-                        <span style={{ color: c.id === 'primary' ? theme?.secondary : theme?.primary }}>
-                          {c.name}
-                        </span>
-                      </button>
-                    ))}
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-[10px] text-zinc-500 dark:text-zinc-400">Neutrals:</span>
-                    {neutralColors.map((c) => (
-                      <button
-                        key={c.id}
-                        onClick={() => onFrameChange?.({ outer: { ...frame.outer, color: c.id } })}
-                        title={c.name}
-                        className={`w-5 h-5 rounded-full border transition-transform hover:scale-110 ${
-                          frame.outer?.color === c.id
-                            ? 'ring-2 ring-primary ring-offset-1 border-transparent'
-                            : 'border-zinc-300 dark:border-zinc-600'
-                        }`}
-                        style={{ backgroundColor: c.hex }}
-                      />
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Per-cell frame - only show when a cell is selected in spacing */}
-            {selectedSpacingCell !== null && (
-              <div className="space-y-2 p-3 bg-zinc-50 dark:bg-dark-subtle rounded-lg">
-                <span className="text-xs font-medium text-zinc-700 dark:text-zinc-300">
-                  Cell {selectedSpacingCell + 1} Frame
-                </span>
-
-                <div className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    id={`frame-custom-${selectedSpacingCell}`}
-                    checked={frame.cellFrames?.[selectedSpacingCell] !== undefined}
-                    onChange={(e) => {
-                      if (e.target.checked) {
-                        const newCellFrames = { ...frame.cellFrames, [selectedSpacingCell]: { percent: 50, color: 'primary' } }
-                        onFrameChange?.({ cellFrames: newCellFrames })
-                      } else {
-                        const newCellFrames = { ...frame.cellFrames }
-                        delete newCellFrames[selectedSpacingCell]
-                        onFrameChange?.({ cellFrames: newCellFrames })
-                      }
-                    }}
-                    className="w-4 h-4 text-primary rounded border-zinc-300 focus:ring-primary"
-                  />
-                  <label
-                    htmlFor={`frame-custom-${selectedSpacingCell}`}
-                    className="text-xs text-zinc-600 dark:text-zinc-400"
-                  >
-                    Custom cell frame
-                  </label>
-                </div>
-
-                {frame.cellFrames?.[selectedSpacingCell] !== undefined && (
-                  <>
-                    <div className="space-y-1">
-                      <div className="flex justify-between">
-                        <label className="text-xs text-zinc-600 dark:text-zinc-400">Frame %</label>
-                        <span className="text-xs text-zinc-500 dark:text-zinc-400">
-                          {frame.cellFrames[selectedSpacingCell]?.percent || 0}%
-                        </span>
-                      </div>
-                      <input
-                        type="range"
-                        min="0"
-                        max="100"
-                        step="10"
-                        value={frame.cellFrames[selectedSpacingCell]?.percent || 0}
-                        onChange={(e) => {
-                          const newCellFrames = {
-                            ...frame.cellFrames,
-                            [selectedSpacingCell]: {
-                              ...frame.cellFrames[selectedSpacingCell],
-                              percent: parseInt(e.target.value, 10),
-                            },
-                          }
-                          onFrameChange?.({ cellFrames: newCellFrames })
-                        }}
-                        className="w-full h-2 bg-zinc-200 dark:bg-dark-subtle rounded-lg appearance-none cursor-pointer"
-                      />
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <label className="text-xs text-zinc-600 dark:text-zinc-400">Color</label>
-                      <div className="flex gap-1">
-                        {themeColorOptions.map((c) => (
-                          <button
-                            key={c.id}
-                            onClick={() => {
-                              const newCellFrames = {
-                                ...frame.cellFrames,
-                                [selectedSpacingCell]: {
-                                  ...frame.cellFrames[selectedSpacingCell],
-                                  color: c.id,
-                                },
-                              }
-                              onFrameChange?.({ cellFrames: newCellFrames })
-                            }}
-                            className={`flex-1 px-2 py-1.5 text-[10px] rounded ${
-                              frame.cellFrames[selectedSpacingCell]?.color === c.id
-                                ? 'ring-2 ring-primary ring-offset-1'
-                                : ''
-                            }`}
-                            style={{ backgroundColor: theme?.[c.id] || '#000' }}
-                          >
-                            <span style={{ color: c.id === 'primary' ? theme?.secondary : theme?.primary }}>
-                              {c.name}
-                            </span>
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  </>
-                )}
               </div>
             )}
           </div>

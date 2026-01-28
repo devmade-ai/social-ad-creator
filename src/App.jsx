@@ -137,7 +137,12 @@ function App() {
 
       {/* Header */}
       <header className="bg-white/80 dark:bg-dark-card/80 backdrop-blur-sm border-b border-zinc-200/60 dark:border-zinc-700/60 px-4 py-3 flex items-center justify-between sticky top-0 z-10">
-        <h1 className="text-lg font-display font-bold text-zinc-800 dark:text-zinc-100 tracking-tight">Social Ad Creator</h1>
+        <div className="flex items-center gap-2">
+          <h1 className="text-lg font-display font-bold text-ui-text tracking-tight">Social Ad Creator</h1>
+          <span className="px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300 rounded">
+            Alpha
+          </span>
+        </div>
         <div className="flex gap-1.5">
           <button
             onClick={undo}
@@ -145,7 +150,7 @@ function App() {
             title="Undo (Ctrl+Z)"
             className={`px-3 py-1.5 text-sm rounded-lg flex items-center gap-1.5 font-medium transition-all ${
               canUndo
-                ? 'bg-zinc-100 dark:bg-dark-subtle text-zinc-700 dark:text-zinc-200 hover:bg-zinc-200 dark:hover:bg-dark-elevated active:scale-95'
+                ? 'bg-zinc-100 dark:bg-dark-subtle text-ui-text hover:bg-zinc-200 dark:hover:bg-dark-elevated active:scale-95'
                 : 'bg-zinc-50 dark:bg-dark-subtle/50 text-zinc-300 dark:text-zinc-600 cursor-not-allowed'
             }`}
           >
@@ -158,7 +163,7 @@ function App() {
             title="Redo (Ctrl+Y)"
             className={`px-3 py-1.5 text-sm rounded-lg flex items-center gap-1.5 font-medium transition-all ${
               canRedo
-                ? 'bg-zinc-100 dark:bg-dark-subtle text-zinc-700 dark:text-zinc-200 hover:bg-zinc-200 dark:hover:bg-dark-elevated active:scale-95'
+                ? 'bg-zinc-100 dark:bg-dark-subtle text-ui-text hover:bg-zinc-200 dark:hover:bg-dark-elevated active:scale-95'
                 : 'bg-zinc-50 dark:bg-dark-subtle/50 text-zinc-300 dark:text-zinc-600 cursor-not-allowed'
             }`}
           >
@@ -168,7 +173,7 @@ function App() {
           <button
             onClick={toggleDarkMode}
             title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-            className="px-3 py-1.5 text-sm rounded-lg flex items-center gap-1.5 font-medium bg-zinc-100 dark:bg-dark-subtle text-zinc-700 dark:text-zinc-200 hover:bg-zinc-200 dark:hover:bg-dark-elevated active:scale-95 transition-all"
+            className="px-3 py-1.5 text-sm rounded-lg flex items-center gap-1.5 font-medium bg-zinc-100 dark:bg-dark-subtle text-ui-text hover:bg-zinc-200 dark:hover:bg-dark-elevated active:scale-95 transition-all"
           >
             {isDark ? '☀️' : '🌙'}
           </button>
@@ -188,7 +193,7 @@ function App() {
                   className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-all ${
                     activeSection === section.id
                       ? 'bg-primary text-white shadow-sm hover:bg-primary-hover'
-                      : 'bg-zinc-100 dark:bg-dark-subtle text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-dark-elevated hover:text-zinc-800 dark:hover:text-zinc-100'
+                      : 'bg-zinc-100 dark:bg-dark-subtle text-ui-text-muted hover:bg-zinc-200 dark:hover:bg-dark-elevated hover:text-zinc-800 dark:hover:text-zinc-100'
                   }`}
                 >
                   {section.label}

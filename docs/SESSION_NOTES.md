@@ -5,28 +5,29 @@ Compact context summary for session continuity. Rewrite at session end.
 ---
 
 ## Worked on
-Multi-image layout support and Layout-Aware Looks System refinements
+Semantic color system completion
 
 ## Accomplished
 
-- **Multi-image layouts**: Changed `imageCell` to `imageCells` array for layouts that benefit from multiple images
-- **7 multi-image layouts**: quad-grid, stacked-quad, header-quad, wide-feature, tall-feature, columns-four, asymmetric-grid
-- **Sample images for multi-image**: `loadSampleImage` now loads different sample images for each image cell
-- **Looks don't override alignment**: Fixed applyStylePreset to NOT override text alignment - fully controlled by layouts
-- **Backward compatibility**: All code supports both old `imageCell` and new `imageCells` format
+- **Complete semantic color migration**: All 8 components now use semantic color tokens
+  - LogoUploader, ContentTab, PlatformPreview, TemplatesTab
+  - MediaTab, LayoutTab, ExportButtons, StyleTab
+- **CSS reduced**: 32.98 kB → 32.13 kB (fewer duplicate dark mode classes)
+- **Previous session work preserved**:
+  - Collapsible sample images
+  - Two sample images by default
+  - Alpha label in header
+  - Dark mode color fixes
 
 ## Current state
 - **Build**: Passing
-- All layouts updated to use `imageCells` array
-- Multi-image support working end-to-end
+- **Semantic colors**: Fully adopted across all components
+- Colors auto-switch between light/dark via CSS variables
 
 ## Key context
 
-- **imageCells array**: Layout presets now use `imageCells: [0, 3]` instead of `imageCell: 0`
-- **Backward compat pattern**: `const imageCells = layout.imageCells ?? (layout.imageCell !== undefined ? [layout.imageCell] : [0])`
-- Files updated:
-  - `layoutPresets.js` - all 28 presets use `imageCells` array
-  - `useAdState.js` - `loadSampleImage` handles multiple images
-  - `LayoutTab.jsx` - `CellGrid` and handlers use `imageCells`
-  - `ContentTab.jsx` - `MiniCellGrid` uses `imageCells`
-  - `TemplatesTab.jsx` - `isLayoutPresetActive` compares `imageCells` arrays
+- **Color tokens**: CSS variables in `src/index.css`, Tailwind config under `ui` namespace
+- **Text colors**: `text-ui-text`, `text-ui-text-muted`, `text-ui-text-subtle`, `text-ui-text-faint`
+- **Backgrounds**: `bg-ui-surface`, `bg-ui-surface-elevated`, `bg-ui-surface-inset`, `bg-ui-surface-hover`
+- **Borders**: `border-ui-border`, `border-ui-border-subtle`, `border-ui-border-strong`
+- To change theme colors globally, edit CSS variables in `index.css`
