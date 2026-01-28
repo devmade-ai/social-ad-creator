@@ -5,28 +5,28 @@ Compact context summary for session continuity. Rewrite at session end.
 ---
 
 ## Worked on
-Multi-image layout support and Layout-Aware Looks System refinements
+Sample images UX improvement - collapsible section and default loading
 
 ## Accomplished
 
-- **Multi-image layouts**: Changed `imageCell` to `imageCells` array for layouts that benefit from multiple images
-- **7 multi-image layouts**: quad-grid, stacked-quad, header-quad, wide-feature, tall-feature, columns-four, asymmetric-grid
-- **Sample images for multi-image**: `loadSampleImage` now loads different sample images for each image cell
-- **Looks don't override alignment**: Fixed applyStylePreset to NOT override text alignment - fully controlled by layouts
-- **Backward compatibility**: All code supports both old `imageCell` and new `imageCells` format
+- **Collapsible sample images**: Sample images now shown in an inline collapsible section within the Images section
+  - Expanded by default when library is empty
+  - Collapsed (but accessible) when user has uploaded images
+  - Allows adding more samples even after uploading images
+- **Two sample images by default**: On initial load, 2 random sample images are loaded into the library
+  - First image assigned to the layout's image cell
+  - Second image available in library for use with multi-image layouts
+- **Future-ready design**: Sets up for a future image library feature
 
 ## Current state
 - **Build**: Passing
-- All layouts updated to use `imageCells` array
-- Multi-image support working end-to-end
+- Sample images always accessible (collapsed when library has images)
+- 2 sample images loaded by default on app start
 
 ## Key context
 
-- **imageCells array**: Layout presets now use `imageCells: [0, 3]` instead of `imageCell: 0`
-- **Backward compat pattern**: `const imageCells = layout.imageCells ?? (layout.imageCell !== undefined ? [layout.imageCell] : [0])`
+- **SampleImagesSection component**: New inline collapsible component in MediaTab.jsx
+- **loadSampleImage change**: Now loads `Math.max(2, imageCells.length)` images
 - Files updated:
-  - `layoutPresets.js` - all 28 presets use `imageCells` array
-  - `useAdState.js` - `loadSampleImage` handles multiple images
-  - `LayoutTab.jsx` - `CellGrid` and handlers use `imageCells`
-  - `ContentTab.jsx` - `MiniCellGrid` uses `imageCells`
-  - `TemplatesTab.jsx` - `isLayoutPresetActive` compares `imageCells` arrays
+  - `MediaTab.jsx` - Added SampleImagesSection component, replaced conditional rendering
+  - `useAdState.js` - Updated loadSampleImage to load 2 images by default

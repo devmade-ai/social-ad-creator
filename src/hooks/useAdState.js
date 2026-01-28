@@ -475,6 +475,7 @@ export function useAdState() {
   }, [])
 
   // Load sample images and assign them to the layout's image cells
+  // Called on initial load to populate the library with 2 sample images
   const loadSampleImage = useCallback(() => {
     setState((prev) => {
       // Don't load if there are already images
@@ -484,12 +485,15 @@ export function useAdState() {
       // Support both old imageCell (single) and new imageCells (array) format
       const imageCells = prev.layout.imageCells ?? (prev.layout.imageCell !== undefined ? [prev.layout.imageCell] : [0])
 
-      // Pick random sample images for each image cell
+      // Load 2 sample images by default (or more if layout needs more image cells)
+      const numImagesToLoad = Math.max(2, imageCells.length)
+
+      // Pick random sample images
       const newImages = []
       const newCellImages = {}
       const usedIndices = new Set()
 
-      imageCells.forEach((cellIndex, i) => {
+      for (let i = 0; i < numImagesToLoad; i++) {
         // Pick a random sample that hasn't been used yet (if possible)
         let randomIndex
         let attempts = 0
@@ -514,8 +518,12 @@ export function useAdState() {
         }
 
         newImages.push(newImage)
-        newCellImages[cellIndex] = id
-      })
+
+        // Assign to cell if there's a corresponding image cell
+        if (i < imageCells.length) {
+          newCellImages[imageCells[i]] = id
+        }
+      }
 
       return {
         ...prev,
