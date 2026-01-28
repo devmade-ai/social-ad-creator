@@ -288,7 +288,7 @@ export default memo(function TemplatesTab({
         <div className="space-y-2 pt-3 border-t border-zinc-100 dark:border-zinc-800">
           <div className="flex items-center justify-between">
             <label className="text-xs font-medium text-zinc-600 dark:text-zinc-300">Custom Colors</label>
-            {!isCustomTheme && <span className="text-[10px] text-zinc-400">(Edit to customize)</span>}
+            {!isCustomTheme && <span className="text-[10px] text-zinc-400 dark:text-zinc-500">(Edit to customize)</span>}
           </div>
           <div className="space-y-2">
             <ColorInput

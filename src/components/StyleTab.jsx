@@ -487,7 +487,7 @@ export default memo(function StyleTab({
                     Cell {cell.index + 1}
                     {cellHasImage(cell.index) && <span className="text-primary ml-1">(img)</span>}
                   </span>
-                  <span className={isCellOverlayEnabled(cell.index) ? 'text-green-600' : 'text-zinc-400'}>
+                  <span className={isCellOverlayEnabled(cell.index) ? 'text-green-600 dark:text-green-400' : 'text-zinc-400 dark:text-zinc-500'}>
                     {isCellOverlayEnabled(cell.index) ? 'On' : 'Off'}
                   </span>
                 </div>

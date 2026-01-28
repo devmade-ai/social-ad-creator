@@ -380,7 +380,7 @@ function SampleImagesSection({ images, sampleImages, loadingSample, sampleError,
           {images.length === 0 ? 'Try a sample image' : 'Sample Images'}
         </span>
         <svg
-          className={`w-3.5 h-3.5 text-zinc-400 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}
+          className={`w-3.5 h-3.5 text-zinc-400 dark:text-zinc-500 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"

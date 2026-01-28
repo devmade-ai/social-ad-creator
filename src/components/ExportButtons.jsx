@@ -217,7 +217,7 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
               </button>
               <button
                 onClick={selectNone}
-                className="text-xs text-zinc-500 hover:underline"
+                className="text-xs text-zinc-500 dark:text-zinc-400 hover:underline"
               >
                 Clear
               </button>
