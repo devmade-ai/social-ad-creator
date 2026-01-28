@@ -219,64 +219,6 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
     return getCellImageData(cellIndex) !== null
   }
 
-  // Check if a cell is designated as an image cell (in layout.imageCells)
-  const isImageCell = (cellIndex) => {
-    const imageCells = layout.imageCells || [0]
-    return imageCells.includes(cellIndex)
-  }
-
-  // Render placeholder for empty image cells
-  const renderEmptyImagePlaceholder = () => {
-    return (
-      <div
-        style={{
-          position: 'absolute',
-          inset: 0,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          backgroundColor: themeColors.primary,
-          backgroundImage: `
-            linear-gradient(45deg, rgba(255,255,255,0.03) 25%, transparent 25%),
-            linear-gradient(-45deg, rgba(255,255,255,0.03) 25%, transparent 25%),
-            linear-gradient(45deg, transparent 75%, rgba(255,255,255,0.03) 75%),
-            linear-gradient(-45deg, transparent 75%, rgba(255,255,255,0.03) 75%)
-          `,
-          backgroundSize: '20px 20px',
-          backgroundPosition: '0 0, 0 10px, 10px -10px, -10px 0px',
-        }}
-      >
-        <svg
-          width="48"
-          height="48"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke={themeColors.secondary}
-          strokeWidth="1"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          style={{ opacity: 0.3 }}
-        >
-          <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-          <circle cx="8.5" cy="8.5" r="1.5" />
-          <polyline points="21 15 16 10 5 21" />
-        </svg>
-        <span
-          style={{
-            marginTop: '8px',
-            fontSize: '12px',
-            color: themeColors.secondary,
-            opacity: 0.3,
-            fontFamily: 'system-ui, sans-serif',
-          }}
-        >
-          Add image
-        </span>
-      </div>
-    )
-  }
-
   // Logo position styles
   const getLogoPositionStyle = () => {
     const logoWidth = platform.width * (state.logoSize || 0.15)
@@ -646,7 +588,6 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
     const padding = getCellPadding(0)
     const verticalAlign = getCellVerticalAlign(0)
     const hasImage = cellHasImage(0)
-    const isDesignatedImageCell = isImageCell(0)
     const allElements = ['title', 'tagline', 'bodyHeading', 'bodyText', 'cta', 'footnote']
 
     // Cell frame for fullbleed (cell 0)
@@ -659,8 +600,6 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
       <>
         {/* Background color */}
         <div style={{ position: 'absolute', inset: 0, backgroundColor: themeColors.primary }} />
-        {/* Placeholder for empty image cell */}
-        {!hasImage && isDesignatedImageCell && renderEmptyImagePlaceholder()}
         {/* Image layer */}
         {hasImage && renderCellImage(0, { position: 'absolute', inset: 0 })}
         {/* Cell frame (inset border) */}
@@ -699,7 +638,6 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
   // Render a single cell content
   const renderCellContent = (cellIndex) => {
     const hasImage = cellHasImage(cellIndex)
-    const isDesignatedImageCell = isImageCell(cellIndex)
     const textElementsOnImage = hasImage ? getElementsForCell(cellIndex, true) : []
     const textElementsOnBackground = getElementsForCell(cellIndex, false)
     const cellOverlays = layout.cellOverlays || {}
@@ -715,9 +653,6 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
       <>
         {/* Background for all cells */}
         <div style={{ position: 'absolute', inset: 0, backgroundColor: themeColors.primary }} />
-
-        {/* Placeholder for designated image cells without images */}
-        {!hasImage && isDesignatedImageCell && renderEmptyImagePlaceholder()}
 
         {/* Image for cells with images */}
         {hasImage && renderCellImage(cellIndex, { position: 'absolute', inset: 0 })}
