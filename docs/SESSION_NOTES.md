@@ -5,28 +5,27 @@ Compact context summary for session continuity. Rewrite at session end.
 ---
 
 ## Worked on
-Sample images UX improvement - collapsible section and default loading
+Sample images UX + Semantic color system
 
 ## Accomplished
 
-- **Collapsible sample images**: Sample images now shown in an inline collapsible section within the Images section
-  - Expanded by default when library is empty
-  - Collapsed (but accessible) when user has uploaded images
-  - Allows adding more samples even after uploading images
-- **Two sample images by default**: On initial load, 2 random sample images are loaded into the library
-  - First image assigned to the layout's image cell
-  - Second image available in library for use with multi-image layouts
-- **Future-ready design**: Sets up for a future image library feature
+- **Collapsible sample images**: Sample images now in collapsible section within Images
+- **Two sample images by default**: 2 random samples loaded on app start
+- **Spacing section reorganization**: Outer frame moved below global padding
+- **Alpha label**: Added "Alpha" badge to header
+- **Dark mode color fixes**: Fixed missing dark: variants across 6 components
+- **Semantic color system**: Created CSS variables and Tailwind tokens for theming:
+  - `text-ui-text-*` (default, muted, subtle, faint)
+  - `bg-ui-surface-*` (default, elevated, inset, hover)
+  - `border-ui-border-*` (default, subtle, strong)
 
 ## Current state
 - **Build**: Passing
-- Sample images always accessible (collapsed when library has images)
-- 2 sample images loaded by default on app start
+- Semantic colors partially adopted (text colors mostly done, some bg/border patterns remain)
+- Colors auto-switch between light/dark via CSS variables
 
 ## Key context
 
-- **SampleImagesSection component**: New inline collapsible component in MediaTab.jsx
-- **loadSampleImage change**: Now loads `Math.max(2, imageCells.length)` images
-- Files updated:
-  - `MediaTab.jsx` - Added SampleImagesSection component, replaced conditional rendering
-  - `useAdState.js` - Updated loadSampleImage to load 2 images by default
+- **Color token location**: CSS variables in `src/index.css`, Tailwind config in `tailwind.config.js` under `ui` namespace
+- **Usage pattern**: `text-ui-text-muted` instead of `text-zinc-600 dark:text-zinc-300`
+- Remaining old patterns can be refactored incrementally
