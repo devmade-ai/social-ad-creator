@@ -241,7 +241,7 @@ export default memo(function TemplatesTab({
                   title={preset.description}
                 >
                   <LayoutPresetIcon presetId={preset.id} isActive={isActive} />
-                  <span className="text-[10px] font-medium leading-tight text-center">{preset.name}</span>
+                  <span className={`text-[10px] font-medium leading-tight text-center ${isActive ? '' : 'text-ui-text'}`}>{preset.name}</span>
                 </button>
               )
             })}

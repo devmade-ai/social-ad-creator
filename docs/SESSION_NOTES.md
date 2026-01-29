@@ -5,24 +5,22 @@ Compact context summary for session continuity. Rewrite at session end.
 ---
 
 ## Worked on
-Fixed sample images path issue for GitHub Pages
+Removed image placeholders and fixed dark mode text contrast across components
 
 ## Accomplished
 
-- **Fixed sample images not loading on GitHub Pages**: BASE_URL was being added twice
-  - `sampleImages.js` was prepending BASE_URL to paths
-  - `MediaTab.jsx` was adding BASE_URL again when using the paths
-  - Result: `/social-ad-creator/social-ad-creator/samples/...` (404)
-- **Fix**: Removed BASE_URL from `sampleImages.js`, paths are now relative (`samples/sample-01.jpg`)
-- **Documented in AI_MISTAKES.md**: This issue was reported 7+ times by user
+- **Removed image placeholder from empty image cells**: Deleted the `renderEmptyImagePlaceholder` function and all calls to it in `AdCanvas.jsx`
+- **Fixed layout preset text contrast**: Added `text-ui-text` class to inactive layout preset button labels in `TemplatesTab.jsx`
+- **Fixed MediaTab input field contrast**: Added `dark:text-zinc-100` and `dark:placeholder-zinc-500` to:
+  - AI prompt helper textarea (line 206)
+  - Custom colors input field (line 338)
 
 ## Current state
 - **Build**: Passing
-- Sample images should now work on GitHub Pages deployment
-- Sample images available via Media tab > Images > Sample Images section
+- All dark mode text contrast issues resolved across components
 
 ## Key context
 
-- Sample image paths in `sampleImages.js` are relative to public folder (no leading slash, no BASE_URL)
-- `MediaTab.jsx` adds `import.meta.env.BASE_URL` when constructing full URLs
-- This pattern ensures paths work both in dev (BASE_URL = `/`) and prod (BASE_URL = `/social-ad-creator/`)
+- Empty image cells now show plain theme primary background (no placeholder)
+- All input fields and text elements now have proper dark mode text colors
+- Audit confirmed other components (ContentTab, StyleTab, TemplatesTab ColorInput) already had proper dark mode styling
