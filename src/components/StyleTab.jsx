@@ -186,7 +186,7 @@ export default memo(function StyleTab({
             <select
               value={selectedFonts.title}
               onChange={(e) => onFontsChange({ title: e.target.value })}
-              className="w-full px-3 py-2 text-sm border border-ui-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-white dark:bg-dark-subtle dark:text-zinc-100"
+              className="w-full px-3 py-2 text-sm text-ui-text border border-ui-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-white dark:bg-dark-subtle"
             >
               {fonts.map((font) => (
                 <option key={font.id} value={font.id}>
@@ -201,7 +201,7 @@ export default memo(function StyleTab({
             <select
               value={selectedFonts.body}
               onChange={(e) => onFontsChange({ body: e.target.value })}
-              className="w-full px-3 py-2 text-sm border border-ui-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-white dark:bg-dark-subtle dark:text-zinc-100"
+              className="w-full px-3 py-2 text-sm text-ui-text border border-ui-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-white dark:bg-dark-subtle"
             >
               {fonts.map((font) => (
                 <option key={font.id} value={font.id}>

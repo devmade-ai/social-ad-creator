@@ -27,7 +27,7 @@ const ColorInput = memo(function ColorInput({ label, value, onChange }) {
           type="text"
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className="w-full px-2 py-1.5 text-sm font-mono border border-ui-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-white dark:bg-dark-subtle dark:text-zinc-100"
+          className="w-full px-2 py-1.5 text-sm text-ui-text font-mono border border-ui-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-white dark:bg-dark-subtle"
         />
       </div>
     </div>
@@ -241,7 +241,7 @@ export default memo(function TemplatesTab({
                   title={preset.description}
                 >
                   <LayoutPresetIcon presetId={preset.id} isActive={isActive} />
-                  <span className="text-[10px] font-medium leading-tight text-center">{preset.name}</span>
+                  <span className={`text-[10px] font-medium leading-tight text-center ${isActive ? '' : 'text-ui-text'}`}>{preset.name}</span>
                 </button>
               )
             })}
