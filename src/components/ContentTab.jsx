@@ -268,7 +268,7 @@ function TextElementEditor({
         onChange={(e) => onTextChange(element.id, { content: e.target.value })}
         placeholder={element.placeholder}
         rows={2}
-        className="w-full px-3 py-2 text-sm text-ui-text border border-ui-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary resize-none bg-white dark:bg-dark-subtle dark:placeholder-zinc-500"
+        className="w-full px-3 py-2 text-sm text-ui-text border border-ui-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary resize-none bg-white dark:bg-dark-subtle placeholder-zinc-400 dark:placeholder-zinc-500"
       />
 
       {/* Row 3: Alignment */}
