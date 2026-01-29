@@ -203,7 +203,7 @@ function AIPromptHelper({ theme }) {
           value={context}
           onChange={(e) => setContext(e.target.value)}
           placeholder="e.g., coffee shop interior, mountain landscape, abstract geometric shapes..."
-          className="w-full px-3 py-2 text-sm bg-white dark:bg-dark-subtle dark:text-zinc-100 dark:placeholder-zinc-500 border border-ui-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
+          className="w-full px-3 py-2 text-sm text-ui-text bg-white dark:bg-dark-subtle dark:placeholder-zinc-500 border border-ui-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
           rows={2}
         />
       </div>
@@ -335,7 +335,7 @@ function AIPromptHelper({ theme }) {
             value={customColors}
             onChange={(e) => setCustomColors(e.target.value)}
             placeholder="e.g., blue and orange, muted earth tones..."
-            className="w-full px-3 py-1.5 text-sm bg-white dark:bg-dark-subtle dark:text-zinc-100 dark:placeholder-zinc-500 border border-ui-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+            className="w-full px-3 py-1.5 text-sm text-ui-text bg-white dark:bg-dark-subtle dark:placeholder-zinc-500 border border-ui-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
           />
         )}
       </div>
