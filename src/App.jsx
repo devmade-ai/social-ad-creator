@@ -13,6 +13,7 @@ import PlatformPreview from './components/PlatformPreview'
 import ExportButtons from './components/ExportButtons'
 import ErrorBoundary from './components/ErrorBoundary'
 import InstallInstructionsModal from './components/InstallInstructionsModal'
+import TutorialModal from './components/TutorialModal'
 import { platforms } from './config/platforms'
 import { fonts } from './config/fonts'
 
@@ -24,6 +25,7 @@ function App() {
   const [containerWidth, setContainerWidth] = useState(600)
   const [isExporting, setIsExporting] = useState(false)
   const [showInstallModal, setShowInstallModal] = useState(false)
+  const [showTutorial, setShowTutorial] = useState(false)
   const { isDark, toggle: toggleDarkMode } = useDarkMode()
   const { canInstall, install, showManualInstructions, getInstallInstructions, isInstalled } = usePWAInstall()
   const { hasUpdate, update } = usePWAUpdate()
@@ -169,6 +171,16 @@ function App() {
           >
             <span>↷</span>
             <span className="hidden sm:inline">Redo</span>
+          </button>
+          <button
+            onClick={() => setShowTutorial(true)}
+            title="Help & Tutorial"
+            className="px-3 py-1.5 text-sm rounded-lg flex items-center gap-1.5 font-medium bg-zinc-100 dark:bg-dark-subtle text-ui-text hover:bg-zinc-200 dark:hover:bg-dark-elevated active:scale-95 transition-all"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span className="hidden sm:inline">Help</span>
           </button>
           <button
             onClick={toggleDarkMode}
@@ -383,6 +395,12 @@ function App() {
         isOpen={showInstallModal}
         onClose={() => setShowInstallModal(false)}
         instructions={getInstallInstructions()}
+      />
+
+      {/* Tutorial Modal */}
+      <TutorialModal
+        isOpen={showTutorial}
+        onClose={() => setShowTutorial(false)}
       />
     </div>
   )
