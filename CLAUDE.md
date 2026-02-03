@@ -214,7 +214,7 @@ Core features working:
 **Top-level tabs:** Presets, Media, Content, Structure, Style
 
 This is a workflow-based organization (as of January 2026 refactor):
-- **Presets** - Start here: Complete designs (style presets) + Layout-only presets with aspect ratio filtering
+- **Presets** - Start here: Layout presets (with aspect ratio filtering), color themes, and visual looks
 - **Media** - Upload images to library, assign to cells, per-image overlay & filters, logo
 - **Content** - Write text, set visibility, cell assignment, alignment, color, size
 - **Structure** - Fine-tune grid structure and cell alignment
@@ -244,7 +244,7 @@ src/
 ├── components/     # React components
 │   ├── AdCanvas.jsx           # Core rendering (cell-based layout)
 │   ├── CollapsibleSection.jsx # Reusable collapsible section for tab content
-│   ├── TemplatesTab.jsx       # Complete designs + layout-only presets
+│   ├── TemplatesTab.jsx       # Layout presets, themes, and looks
 │   ├── MediaTab.jsx           # Image + logo upload, fit, position, filters
 │   ├── ContentTab.jsx         # Text editing with cell assignment
 │   ├── LayoutTab.jsx          # Grid structure + cell alignment
@@ -255,7 +255,7 @@ src/
 ├── config/         # Configuration
 │   ├── layouts.js        # 20+ overlay types (solid, gradients, radial, effects, blends, textures)
 │   ├── layoutPresets.js  # 20 layouts with SVG icons and categories
-│   ├── stylePresets.js   # Complete design presets (theme + fonts + layout + effects)
+│   ├── stylePresets.js   # Look presets (fonts + filters + overlay effects per layout)
 │   ├── platforms.js      # 14 platform sizes (social, web, banners, other)
 │   ├── themes.js         # 12 color themes
 │   └── fonts.js          # 15 Google Fonts
@@ -334,9 +334,10 @@ textCells: {
 ## Tab Details (New Workflow-Based UI)
 
 ### Presets Tab (formerly Templates)
-Entry point for users. Two sections:
-- **Complete Designs** - Style presets that apply theme, fonts, layout all at once
-- **Layout Only** - Layout presets with aspect ratio filtering (Square, Portrait, Landscape)
+Entry point for users. Three sections:
+- **Layout** - Grid structure presets with aspect ratio filtering (All, Square, Portrait, Landscape) and category filtering
+- **Themes** - 12 preset color themes + custom color inputs
+- **Looks** - Visual effect presets that apply overlay, fonts, and filters without changing layout or colors
 
 ### Media Tab
 Collapsible sections:
@@ -371,6 +372,6 @@ Collapsible sections:
 
 | Name | Location | What It Applies | Config File |
 |------|----------|-----------------|-------------|
-| **Complete Designs** | Presets → Complete Designs | Theme, fonts, layout, text placements | `stylePresets.js` |
-| **Layouts** | Presets → Layout Only | Grid structure + image/text cell placements (filterable by aspect ratio) | `layoutPresets.js` |
-| **Themes** | Style → Themes | Color scheme only | `themes.js` |
+| **Layouts** | Presets → Layout | Grid structure + image/text cell placements (filterable by aspect ratio) | `layoutPresets.js` |
+| **Themes** | Presets → Themes | Color scheme only (primary, secondary, accent) | `themes.js` |
+| **Looks** | Presets → Looks | Fonts + image filters + overlay (without changing layout or colors) | `stylePresets.js` |
