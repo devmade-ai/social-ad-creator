@@ -10,6 +10,7 @@ import StyleTab from './components/StyleTab'
 import PlatformPreview from './components/PlatformPreview'
 import ExportButtons from './components/ExportButtons'
 import ErrorBoundary from './components/ErrorBoundary'
+import PWAUpdatePrompt from './components/PWAUpdatePrompt'
 import { platforms } from './config/platforms'
 import { fonts } from './config/fonts'
 
@@ -124,6 +125,7 @@ function App() {
 
   return (
     <div className="min-h-screen">
+      <PWAUpdatePrompt />
       {/* Load fonts */}
       {fonts.map((font) => (
         <link key={font.id} rel="stylesheet" href={font.url} />
