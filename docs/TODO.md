@@ -28,4 +28,3 @@ Future enhancements and ideas for the Social Ad Creator.
 
 - [ ] TypeScript migration
 - [ ] Unit tests for config utilities
-- [ ] PWA support for offline use

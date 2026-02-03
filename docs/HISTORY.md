@@ -1,5 +1,32 @@
 # Changelog
 
+## 2026-02-03
+
+### PWA Support
+
+Added Progressive Web App support for installable app and offline capability:
+
+**Core PWA Setup**
+- Added `vite-plugin-pwa` with Workbox service worker
+- Created app icon (SVG in `public/icon.svg`, PNG generation via `scripts/generate-icons.mjs`)
+- Configured manifest with app name, colors, icons
+- Added PWA meta tags to index.html (theme-color, apple-touch-icon, etc.)
+
+**Install & Update UX (Vercel/Supabase style)**
+- `usePWAInstall` hook - manages install prompt state
+- `usePWAUpdate` hook - manages update detection state
+- Purple "Install" button in header (only shows when installable)
+- Green "Update" button in header (only shows when update available)
+- Non-intrusive: no popups, just header buttons that appear when relevant
+
+**Technical Details**
+- `registerType: 'prompt'` for user-controlled updates
+- Google Fonts cached via Workbox runtime caching
+- Sample images excluded from precache (too large, not essential offline)
+- Icons auto-generated at build time via `prebuild` npm script
+
+---
+
 ## 2026-01-27
 
 ### Multi-Image Layout Support
