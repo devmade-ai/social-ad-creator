@@ -1,6 +1,8 @@
 import { useRef, useMemo, useState, useEffect, useCallback } from 'react'
 import { useAdState } from './hooks/useAdState'
 import { useDarkMode } from './hooks/useDarkMode'
+import { usePWAInstall } from './hooks/usePWAInstall'
+import { usePWAUpdate } from './hooks/usePWAUpdate'
 import AdCanvas from './components/AdCanvas'
 import TemplatesTab from './components/TemplatesTab'
 import MediaTab from './components/MediaTab'
@@ -21,6 +23,8 @@ function App() {
   const [containerWidth, setContainerWidth] = useState(600)
   const [isExporting, setIsExporting] = useState(false)
   const { isDark, toggle: toggleDarkMode } = useDarkMode()
+  const { canInstall, install } = usePWAInstall()
+  const { hasUpdate, update } = usePWAUpdate()
 
   const {
     state,
@@ -171,6 +175,30 @@ function App() {
           >
             {isDark ? '☀️' : '🌙'}
           </button>
+          {canInstall && (
+            <button
+              onClick={install}
+              title="Install app"
+              className="px-3 py-1.5 text-sm rounded-lg flex items-center gap-1.5 font-medium bg-primary text-white hover:bg-primary-hover active:scale-95 transition-all"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
+              <span className="hidden sm:inline">Install</span>
+            </button>
+          )}
+          {hasUpdate && (
+            <button
+              onClick={update}
+              title="Update available - click to refresh"
+              className="px-3 py-1.5 text-sm rounded-lg flex items-center gap-1.5 font-medium bg-emerald-500 text-white hover:bg-emerald-600 active:scale-95 transition-all"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              <span className="hidden sm:inline">Update</span>
+            </button>
+          )}
         </div>
       </header>
 

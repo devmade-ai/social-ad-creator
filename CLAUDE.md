@@ -207,6 +207,7 @@ Core features working:
   - Other: Email Header, Zoom Background
 - Single download and ZIP batch download
 - Responsive preview that adapts to device width
+- PWA support: Installable app with offline capability and update prompts
 
 ## Current Tab Structure
 
@@ -261,7 +262,9 @@ src/
 ├── hooks/
 │   ├── useAdState.js     # Central state (includes textGroups, layout)
 │   ├── useHistory.js     # Undo/redo history management
-│   └── useDarkMode.js    # Dark mode toggle
+│   ├── useDarkMode.js    # Dark mode toggle
+│   ├── usePWAInstall.js  # PWA install prompt state
+│   └── usePWAUpdate.js   # PWA update detection state
 ├── utils/
 │   └── export.js         # Export utilities
 ├── App.jsx
