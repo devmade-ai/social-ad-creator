@@ -1,6 +1,7 @@
 import { useRef, useMemo, useState, useEffect, useCallback } from 'react'
 import { useAdState } from './hooks/useAdState'
 import { useDarkMode } from './hooks/useDarkMode'
+import { usePWAInstall } from './hooks/usePWAInstall'
 import AdCanvas from './components/AdCanvas'
 import TemplatesTab from './components/TemplatesTab'
 import MediaTab from './components/MediaTab'
@@ -11,7 +12,6 @@ import PlatformPreview from './components/PlatformPreview'
 import ExportButtons from './components/ExportButtons'
 import ErrorBoundary from './components/ErrorBoundary'
 import PWAUpdatePrompt from './components/PWAUpdatePrompt'
-import PWAInstallPrompt from './components/PWAInstallPrompt'
 import { platforms } from './config/platforms'
 import { fonts } from './config/fonts'
 
@@ -23,6 +23,7 @@ function App() {
   const [containerWidth, setContainerWidth] = useState(600)
   const [isExporting, setIsExporting] = useState(false)
   const { isDark, toggle: toggleDarkMode } = useDarkMode()
+  const { canInstall, install } = usePWAInstall()
 
   const {
     state,
@@ -127,7 +128,6 @@ function App() {
   return (
     <div className="min-h-screen">
       <PWAUpdatePrompt />
-      <PWAInstallPrompt />
       {/* Load fonts */}
       {fonts.map((font) => (
         <link key={font.id} rel="stylesheet" href={font.url} />
@@ -175,6 +175,18 @@ function App() {
           >
             {isDark ? '☀️' : '🌙'}
           </button>
+          {canInstall && (
+            <button
+              onClick={install}
+              title="Install app"
+              className="px-3 py-1.5 text-sm rounded-lg flex items-center gap-1.5 font-medium bg-primary text-white hover:bg-primary-hover active:scale-95 transition-all"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
+              <span className="hidden sm:inline">Install</span>
+            </button>
+          )}
         </div>
       </header>
 
