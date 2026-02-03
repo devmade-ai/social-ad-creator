@@ -687,8 +687,31 @@ export default memo(function MediaTab({
                 </span>
               </div>
 
-              {/* Object Fit */}
+              {/* Assign to Cells - primary action after selection */}
               <div className="space-y-2">
+                <label className="block text-xs font-medium text-ui-text-muted">Assign to Cells</label>
+                <div className="flex items-center gap-3">
+                  <CellGrid
+                    layout={layout}
+                    cellImages={cellImages}
+                    selectedCell={null}
+                    onSelectCell={toggleCellAssignment}
+                    platform={platform}
+                    highlightImageId={selectedImageId}
+                  />
+                  <div className="text-xs text-ui-text-subtle">
+                    <div>Click cells to assign/unassign</div>
+                    <div className="text-violet-600 dark:text-violet-400">
+                      {getImageCells(selectedImageId).length > 0
+                        ? `In cells: ${getImageCells(selectedImageId).map(c => c + 1).join(', ')}`
+                        : 'Not assigned'}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Object Fit */}
+              <div className="space-y-2 pt-3 border-t border-ui-border-subtle">
                 <label className="block text-xs font-medium text-ui-text-muted">Fit</label>
                 <div className="flex gap-2">
                   {['cover', 'contain'].map((fit) => (
@@ -754,29 +777,6 @@ export default memo(function MediaTab({
                 >
                   {(selectedImage.filters?.grayscale || 0) > 0 ? 'On' : 'Off'}
                 </button>
-              </div>
-
-              {/* Assign to Cells */}
-              <div className="space-y-2 pt-3 border-t border-ui-border-subtle">
-                <label className="block text-xs font-medium text-ui-text-muted">Assign to Cells</label>
-                <div className="flex items-center gap-3">
-                  <CellGrid
-                    layout={layout}
-                    cellImages={cellImages}
-                    selectedCell={null}
-                    onSelectCell={toggleCellAssignment}
-                    platform={platform}
-                    highlightImageId={selectedImageId}
-                  />
-                  <div className="text-xs text-ui-text-subtle">
-                    <div>Click cells to assign/unassign</div>
-                    <div className="text-violet-600 dark:text-violet-400">
-                      {getImageCells(selectedImageId).length > 0
-                        ? `In cells: ${getImageCells(selectedImageId).map(c => c + 1).join(', ')}`
-                        : 'Not assigned'}
-                    </div>
-                  </div>
-                </div>
               </div>
             </div>
           )}
