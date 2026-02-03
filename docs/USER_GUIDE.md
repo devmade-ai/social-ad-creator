@@ -146,10 +146,10 @@ Upload and manage your image library:
 - **Image Library:** Click any image to select it for editing
 
 **Selected Image Settings:**
+- **Assign to Cells:** Click cells in the mini-grid to assign the selected image to layout cells
 - **Fit:** Choose "Cover" (fills frame, may crop) or "Contain" (shows entire image)
 - **Position:** 9-point grid to adjust where the image sits within the frame
 - **Grayscale:** Quick toggle for black & white effect
-- **Assign to Cells:** Click cells in the mini-grid to assign the selected image to layout cells
 
 **Multi-Image Layouts:** For layouts with multiple image cells, you can assign different images to different cells. The mini-grid shows which cells have images assigned (📷 icon).
 
