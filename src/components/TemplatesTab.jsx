@@ -163,7 +163,7 @@ export default memo(function TemplatesTab({
       <h3 className="text-sm font-semibold text-ui-text">Presets</h3>
 
       {/* Layout Presets - Structure only (shown first) */}
-      <CollapsibleSection title="Layout" defaultExpanded={true}>
+      <CollapsibleSection title="Layout" defaultExpanded={false}>
         <div className="space-y-3">
           {/* Aspect Ratio Filter */}
           <div className="space-y-1.5">

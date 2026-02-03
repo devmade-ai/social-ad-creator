@@ -588,7 +588,7 @@ export default memo(function MediaTab({
       </CollapsibleSection>
 
       {/* Images Section */}
-      <CollapsibleSection title="Images" defaultExpanded={true}>
+      <CollapsibleSection title="Images" defaultExpanded={false}>
         <div className="space-y-3">
           {/* Upload area - first, to build library */}
           <div
