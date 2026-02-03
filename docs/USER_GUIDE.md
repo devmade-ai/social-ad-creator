@@ -30,6 +30,55 @@ The header bar contains useful controls:
 
 ---
 
+## Installing the App (PWA)
+
+Social Ad Creator can be installed as a Progressive Web App (PWA) for offline use and a native app-like experience.
+
+### Benefits of Installing
+- **Works offline** - Create ads without an internet connection
+- **Faster loading** - App resources are cached locally
+- **Full-screen experience** - No browser address bar or tabs
+- **Quick access** - Launch from your dock, taskbar, or home screen
+
+### Browser Support
+
+| Browser | Install Support | How to Install |
+|---------|----------------|----------------|
+| **Chrome** | ✅ Full | Click "Install" button in header, or click install icon in address bar |
+| **Edge** | ✅ Full | Click "Install" button in header, or use menu → "Install Social Ad Creator" |
+| **Brave** | ✅ Full | Click "Install" button in header (ensure Shields isn't blocking) |
+| **Safari (iOS)** | ⚠️ Manual | Tap Share → "Add to Home Screen" |
+| **Safari (macOS)** | ⚠️ Manual | File → "Add to Dock..." |
+| **Firefox (Mobile)** | ⚠️ Manual | Menu → "Add to Home screen" |
+| **Firefox (Desktop)** | ❌ Not supported | Firefox removed PWA support in 2021. Use Chrome, Edge, or Brave for installation. |
+
+### Installation Instructions by Browser
+
+#### Chrome / Edge / Brave (Automatic)
+1. Look for the **Install** button in the header (appears automatically)
+2. Click "Install" and confirm in the popup
+3. The app will be added to your applications
+
+#### Safari (iOS)
+1. Tap the **Share** button (square with arrow) at the bottom
+2. Scroll down and tap **"Add to Home Screen"**
+3. Tap **"Add"** in the top right
+
+#### Safari (macOS)
+1. Click **File** in the menu bar
+2. Select **"Add to Dock..."**
+3. Click **"Add"** to confirm
+
+#### Firefox Mobile
+1. Tap the **menu button** (three dots)
+2. Tap **"Add to Home screen"**
+3. Tap **"Add"** to confirm
+
+### Updates
+When a new version is available, you'll see an **Update** button in the header. Click it to refresh and get the latest features.
+
+---
+
 ## Tab-by-Tab Guide
 
 ### Presets Tab

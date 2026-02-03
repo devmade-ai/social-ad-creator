@@ -12,6 +12,7 @@ import StyleTab from './components/StyleTab'
 import PlatformPreview from './components/PlatformPreview'
 import ExportButtons from './components/ExportButtons'
 import ErrorBoundary from './components/ErrorBoundary'
+import InstallInstructionsModal from './components/InstallInstructionsModal'
 import { platforms } from './config/platforms'
 import { fonts } from './config/fonts'
 
@@ -22,8 +23,9 @@ function App() {
   const [imageAspectRatio] = useState(null) // TODO: Calculate from first image in pool
   const [containerWidth, setContainerWidth] = useState(600)
   const [isExporting, setIsExporting] = useState(false)
+  const [showInstallModal, setShowInstallModal] = useState(false)
   const { isDark, toggle: toggleDarkMode } = useDarkMode()
-  const { canInstall, install } = usePWAInstall()
+  const { canInstall, install, showManualInstructions, getInstallInstructions, isInstalled } = usePWAInstall()
   const { hasUpdate, update } = usePWAUpdate()
 
   const {
@@ -180,6 +182,18 @@ function App() {
               onClick={install}
               title="Install app"
               className="px-3 py-1.5 text-sm rounded-lg flex items-center gap-1.5 font-medium bg-primary text-white hover:bg-primary-hover active:scale-95 transition-all"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
+              <span className="hidden sm:inline">Install</span>
+            </button>
+          )}
+          {!canInstall && showManualInstructions && !isInstalled && (
+            <button
+              onClick={() => setShowInstallModal(true)}
+              title="How to install this app"
+              className="px-3 py-1.5 text-sm rounded-lg flex items-center gap-1.5 font-medium bg-zinc-100 dark:bg-dark-subtle text-ui-text hover:bg-zinc-200 dark:hover:bg-dark-elevated active:scale-95 transition-all"
             >
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
@@ -363,6 +377,13 @@ function App() {
           </div>
         </main>
       </div>
+
+      {/* Install Instructions Modal */}
+      <InstallInstructionsModal
+        isOpen={showInstallModal}
+        onClose={() => setShowInstallModal(false)}
+        instructions={getInstallInstructions()}
+      />
     </div>
   )
 }
