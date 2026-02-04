@@ -1,5 +1,38 @@
 # Changelog
 
+## 2026-02-04
+
+### Save/Load Designs to localStorage
+
+Added ability to save and load designs for persistence across browser sessions:
+
+**useAdState.js**
+- `saveDesign(name)` - Saves current state to localStorage with timestamp
+- `loadDesign(designId)` - Loads a saved design and resets history
+- `getSavedDesigns()` - Returns list of saved designs (id, name, savedAt)
+- `deleteDesign(designId)` - Removes a saved design
+
+**SaveLoadModal.jsx**
+- Tab-based UI: "Save Current" and "Load" tabs
+- Save tab: Name input + save button
+- Load tab: List of saved designs with load/delete actions
+- Shows date/time for each saved design
+
+**App.jsx**
+- Added "Save" button to desktop and mobile headers
+- Opens SaveLoadModal for save/load operations
+
+### Restored Fine-Grained Image Position Sliders
+
+Re-added x/y position sliders for precise image positioning:
+
+**MediaTab.jsx**
+- Added X and Y range sliders (0-100%) below the 3x3 position preset grid
+- Shows current percentage value next to each slider
+- Works alongside preset buttons for quick + fine control
+
+---
+
 ## 2026-02-03
 
 ### Documentation Accuracy Fixes

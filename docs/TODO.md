@@ -6,13 +6,6 @@ Future enhancements and ideas for the Social Ad Creator.
 
 ## Prioritized Improvements
 
-### High Priority
-
-| Item | Effort | Description |
-|------|--------|-------------|
-| **Save/load designs to localStorage** | Low | Serialize full state to JSON, persist across sessions. Users currently lose work on refresh. |
-| **Restore fine-grained image position sliders** | Low | Add x/y sliders below 3x3 grid. Wiring exists, just needs UI. |
-
 ### Medium Priority
 
 | Item | Effort | Description |

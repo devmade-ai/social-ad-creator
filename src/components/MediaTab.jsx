@@ -758,6 +758,33 @@ export default memo(function MediaTab({
                     </button>
                   ))}
                 </div>
+                {/* Fine-grained position sliders */}
+                <div className="space-y-2 pt-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-ui-text-muted w-6">X</span>
+                    <input
+                      type="range"
+                      min="0"
+                      max="100"
+                      value={selectedImage.position?.x ?? 50}
+                      onChange={(e) => onUpdateImagePosition(selectedImageId, { x: parseInt(e.target.value) })}
+                      className="flex-1 accent-primary"
+                    />
+                    <span className="text-xs text-ui-text-muted w-8 text-right">{selectedImage.position?.x ?? 50}%</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-ui-text-muted w-6">Y</span>
+                    <input
+                      type="range"
+                      min="0"
+                      max="100"
+                      value={selectedImage.position?.y ?? 50}
+                      onChange={(e) => onUpdateImagePosition(selectedImageId, { y: parseInt(e.target.value) })}
+                      className="flex-1 accent-primary"
+                    />
+                    <span className="text-xs text-ui-text-muted w-8 text-right">{selectedImage.position?.y ?? 50}%</span>
+                  </div>
+                </div>
               </div>
 
               {/* Grayscale toggle */}

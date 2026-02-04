@@ -473,6 +473,70 @@ export function useAdState() {
     })
   }, [])
 
+  // Save current design to localStorage
+  const saveDesign = useCallback((name = 'My Design') => {
+    const design = {
+      name,
+      savedAt: new Date().toISOString(),
+      state: state,
+    }
+    try {
+      // Get existing designs or initialize empty array
+      const existingDesigns = JSON.parse(localStorage.getItem('social-ad-creator-designs') || '[]')
+      // Add new design with unique ID
+      const newDesign = { id: `design-${Date.now()}`, ...design }
+      existingDesigns.push(newDesign)
+      localStorage.setItem('social-ad-creator-designs', JSON.stringify(existingDesigns))
+      return { success: true, id: newDesign.id }
+    } catch (error) {
+      console.error('Failed to save design:', error)
+      return { success: false, error: error.message }
+    }
+  }, [state])
+
+  // Load a design from localStorage
+  const loadDesign = useCallback((designId) => {
+    try {
+      const designs = JSON.parse(localStorage.getItem('social-ad-creator-designs') || '[]')
+      const design = designs.find(d => d.id === designId)
+      if (design && design.state) {
+        setState(design.state)
+        resetHistory()
+        return { success: true }
+      }
+      return { success: false, error: 'Design not found' }
+    } catch (error) {
+      console.error('Failed to load design:', error)
+      return { success: false, error: error.message }
+    }
+  }, [setState, resetHistory])
+
+  // Get list of saved designs (without full state data for performance)
+  const getSavedDesigns = useCallback(() => {
+    try {
+      const designs = JSON.parse(localStorage.getItem('social-ad-creator-designs') || '[]')
+      return designs.map(d => ({
+        id: d.id,
+        name: d.name,
+        savedAt: d.savedAt,
+      }))
+    } catch {
+      return []
+    }
+  }, [])
+
+  // Delete a saved design
+  const deleteDesign = useCallback((designId) => {
+    try {
+      const designs = JSON.parse(localStorage.getItem('social-ad-creator-designs') || '[]')
+      const filtered = designs.filter(d => d.id !== designId)
+      localStorage.setItem('social-ad-creator-designs', JSON.stringify(filtered))
+      return { success: true }
+    } catch (error) {
+      return { success: false, error: error.message }
+    }
+  }, [])
+
   return {
     state,
     // Image pool management
@@ -507,5 +571,10 @@ export function useAdState() {
     canUndo,
     canRedo,
     resetHistory,
+    // Save/load
+    saveDesign,
+    loadDesign,
+    getSavedDesigns,
+    deleteDesign,
   }
 }

@@ -14,6 +14,7 @@ import ExportButtons from './components/ExportButtons'
 import ErrorBoundary from './components/ErrorBoundary'
 import InstallInstructionsModal from './components/InstallInstructionsModal'
 import TutorialModal from './components/TutorialModal'
+import SaveLoadModal from './components/SaveLoadModal'
 import { platforms } from './config/platforms'
 import { fonts } from './config/fonts'
 
@@ -26,6 +27,7 @@ function App() {
   const [isExporting, setIsExporting] = useState(false)
   const [showInstallModal, setShowInstallModal] = useState(false)
   const [showTutorial, setShowTutorial] = useState(false)
+  const [showSaveLoadModal, setShowSaveLoadModal] = useState(false)
   const { isDark, toggle: toggleDarkMode } = useDarkMode()
   const { canInstall, install, showManualInstructions, getInstallInstructions, isInstalled } = usePWAInstall()
   const { hasUpdate, update } = usePWAUpdate()
@@ -61,6 +63,11 @@ function App() {
     redo,
     canUndo,
     canRedo,
+    // Save/load
+    saveDesign,
+    loadDesign,
+    getSavedDesigns,
+    deleteDesign,
   } = useAdState()
 
   const platform = platforms.find((p) => p.id === state.platform) || platforms[0]
@@ -175,6 +182,16 @@ function App() {
               <span>Redo</span>
             </button>
             <button
+              onClick={() => setShowSaveLoadModal(true)}
+              title="Save or load designs"
+              className="px-3 py-1.5 text-sm rounded-lg flex items-center gap-1.5 font-medium bg-zinc-100 dark:bg-dark-subtle text-ui-text hover:bg-zinc-200 dark:hover:bg-dark-elevated active:scale-95 transition-all"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+              </svg>
+              <span>Save</span>
+            </button>
+            <button
               onClick={() => setShowTutorial(true)}
               title="Help & Tutorial"
               className="px-3 py-1.5 text-sm rounded-lg flex items-center gap-1.5 font-medium bg-zinc-100 dark:bg-dark-subtle text-ui-text hover:bg-zinc-200 dark:hover:bg-dark-elevated active:scale-95 transition-all"
@@ -252,6 +269,15 @@ function App() {
 
           {/* Row 2: Utility buttons (centered) */}
           <div className="flex justify-center gap-1.5">
+            <button
+              onClick={() => setShowSaveLoadModal(true)}
+              title="Save or load designs"
+              className="px-3 py-1.5 text-sm rounded-lg flex items-center gap-1.5 font-medium bg-zinc-100 dark:bg-dark-subtle text-ui-text hover:bg-zinc-200 dark:hover:bg-dark-elevated active:scale-95 transition-all"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+              </svg>
+            </button>
             <button
               onClick={() => setShowTutorial(true)}
               title="Help & Tutorial"
@@ -526,6 +552,16 @@ function App() {
       <TutorialModal
         isOpen={showTutorial}
         onClose={() => setShowTutorial(false)}
+      />
+
+      {/* Save/Load Modal */}
+      <SaveLoadModal
+        isOpen={showSaveLoadModal}
+        onClose={() => setShowSaveLoadModal(false)}
+        onSave={saveDesign}
+        onLoad={loadDesign}
+        onDelete={deleteDesign}
+        getSavedDesigns={getSavedDesigns}
       />
     </div>
   )
