@@ -4,25 +4,28 @@ Future enhancements and ideas for the Social Ad Creator.
 
 ---
 
-## Potential Improvements
+## Prioritized Improvements
 
-### Content & Presets
+### High Priority
 
-- [ ] **Save/load designs to localStorage** - Serialize full state to JSON, persist across sessions. High value, low effort.
-- [ ] **Looks define per-element text styling** - Extend `stylePresets.js` to include text colors and bold/italic per element (title, tagline, CTA, etc.). Creates more cohesive preset looks.
+| Item | Effort | Description |
+|------|--------|-------------|
+| **Save/load designs to localStorage** | Low | Serialize full state to JSON, persist across sessions. Users currently lose work on refresh. |
+| **Restore fine-grained image position sliders** | Low | Add x/y sliders below 3x3 grid. Wiring exists, just needs UI. |
 
-### Visual Effects
+### Medium Priority
 
-- [ ] **More overlay types** - Add diagonal gradients and radial-from-corner options. Update `layouts.js` and `AdCanvas.jsx`.
+| Item | Effort | Description |
+|------|--------|-------------|
+| **Looks define per-element text styling** | Medium | Extend `stylePresets.js` to include text colors and bold/italic per element. Makes presets feel more polished. |
+| **More overlay types** | Low-Medium | Add diagonal gradients and radial-from-corner options. Update `layouts.js` and `AdCanvas.jsx`. |
 
-### Usability
+### Low Priority (Long-term)
 
-- [ ] **Restore fine-grained image position sliders** - Currently only 9 preset positions (3x3 grid). Add x/y sliders for precise control.
-
-### Technical
-
-- [ ] **TypeScript migration** - Incremental migration recommended. Start with config files and hooks.
-- [ ] **Unit tests for config utilities** - Test helpers in `stylePresets.js`, `layoutPresets.js`, etc.
+| Item | Effort | Description |
+|------|--------|-------------|
+| **TypeScript migration** | High | Incremental approach: start with config files and hooks, then components. Do when there's dedicated time. |
+| **Unit tests for config utilities** | Low-Medium | Test helpers in `stylePresets.js`, `layoutPresets.js`. Do alongside TS migration or when configs change. |
 
 ---
 
