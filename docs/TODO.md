@@ -15,6 +15,10 @@ Future enhancements and ideas for the Social Ad Creator.
 
 - [ ] **More overlay types** - Add diagonal gradients and radial-from-corner options. Update `layouts.js` and `AdCanvas.jsx`.
 
+### Usability
+
+- [ ] **Restore fine-grained image position sliders** - Currently only 9 preset positions (3x3 grid). Add x/y sliders for precise control.
+
 ### Technical
 
 - [ ] **TypeScript migration** - Incremental migration recommended. Start with config files and hooks.
@@ -30,4 +34,4 @@ Future enhancements and ideas for the Social Ad Creator.
 | Looks define text visibility per layout | Visibility feels like layout's job, not a "look". Could confuse users. |
 | Animation preview for story formats | High complexity, low ROI for a static ad creator. Out of scope. |
 | Aspect ratio lock for custom sizes | 20 platform presets already cover most use cases. Niche need. |
-| Image cropping within frame | Position (x, y) sliders already exist for repositioning. True cropping would need a crop UI - revisit if users request it. |
+| Image cropping within frame | Repositioning exists (preset grid + sliders planned). True cropping would need a crop UI - revisit if users request it. |
