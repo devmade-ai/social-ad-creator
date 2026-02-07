@@ -151,7 +151,7 @@ function App() {
           <div className="flex items-center gap-2">
             <h1 className="text-lg font-display font-bold text-ui-text tracking-tight">Social Ad Creator</h1>
             <span className="px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300 rounded">
-              Alpha
+              Research Preview
             </span>
           </div>
           <div className="flex gap-1.5">
@@ -263,7 +263,7 @@ function App() {
           <div className="flex items-center justify-center gap-2">
             <h1 className="text-lg font-display font-bold text-ui-text tracking-tight">Social Ad Creator</h1>
             <span className="px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300 rounded">
-              Alpha
+              Research Preview
             </span>
           </div>
 
