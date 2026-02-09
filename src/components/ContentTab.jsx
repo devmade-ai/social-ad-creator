@@ -3,7 +3,6 @@ import CollapsibleSection from './CollapsibleSection'
 import { neutralColors } from '../config/themes'
 import { platforms } from '../config/platforms'
 
-// Theme color options
 const themeColorOptions = [
   { id: 'primary', name: 'Primary' },
   { id: 'secondary', name: 'Secondary' },
@@ -25,7 +24,6 @@ const letterSpacingOptions = [
   { id: 2, name: 'Wider', label: 'W+' },
 ]
 
-// Alignment icons
 const AlignAutoIcon = () => (
   <svg width="14" height="10" viewBox="0 0 14 10" fill="currentColor">
     <rect x="2" y="0" width="10" height="2" opacity="0.4" />
@@ -62,7 +60,6 @@ const textAlignOptions = [
   { id: 'right', name: 'Right', Icon: AlignRightIcon },
 ]
 
-// Text element definitions organized by group
 const textGroups = [
   {
     id: 'titleTagline',
@@ -92,7 +89,6 @@ const textGroups = [
   },
 ]
 
-// Helper to get cell info
 function getCellInfo(layout) {
   const { structure } = layout
   if (!structure || structure.length === 0) {
@@ -113,12 +109,10 @@ function getCellInfo(layout) {
   return cells
 }
 
-// Mini cell grid for text element cell assignment
 function MiniCellGrid({ layout, imageCells = [], highlightCell, onSelectCell, platform }) {
   const { type, structure } = layout
   const isFullbleed = type === 'fullbleed'
   const isRows = type === 'rows'
-  // Normalize imageCells to always be an array
   const normalizedImageCells = Array.isArray(imageCells) ? imageCells : [imageCells]
 
   const normalizedStructure =
@@ -190,7 +184,6 @@ function MiniCellGrid({ layout, imageCells = [], highlightCell, onSelectCell, pl
   )
 }
 
-// Single text element editor (for structured mode)
 function TextElementEditor({
   element,
   text,
@@ -394,7 +387,6 @@ function TextElementEditor({
   )
 }
 
-// Freeform text editor for a single cell
 function FreeformCellEditor({
   cellIndex,
   cellData,
@@ -568,7 +560,6 @@ export default memo(function ContentTab({
       </div>
 
       {textMode === 'structured' ? (
-        // Structured mode - existing text groups
         <>
           {textGroups.map((group) => (
             <CollapsibleSection key={group.id} title={group.name} defaultExpanded={false}>
@@ -591,7 +582,6 @@ export default memo(function ContentTab({
           ))}
         </>
       ) : (
-        // Freeform mode - per-cell text editors
         <>
           <p className="text-[11px] text-ui-text-subtle">
             Write text for each cell. Toggle MD for markdown formatting.

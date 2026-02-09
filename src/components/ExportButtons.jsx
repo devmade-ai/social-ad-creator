@@ -4,7 +4,6 @@ import JSZip from 'jszip'
 import { saveAs } from 'file-saver'
 import { platforms } from '../config/platforms'
 
-// Category labels for display
 const categoryLabels = {
   social: 'Social Media',
   web: 'Website',
@@ -20,7 +19,6 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
   const [showMultiSelect, setShowMultiSelect] = useState(false)
   const [selectedPlatforms, setSelectedPlatforms] = useState(() => new Set())
 
-  // Group platforms by category
   const groupedPlatforms = useMemo(() => {
     const groups = {}
     platforms.forEach((p) => {
@@ -62,7 +60,6 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
     })
   }, [])
 
-  // Update both local state and notify parent
   const updateExporting = useCallback((value) => {
     setIsExporting(value)
     onExportingChange?.(value)
@@ -76,14 +73,12 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
 
     updateExporting(true)
 
-    // Store original styles and hide canvas during capture to prevent visible flash
     const originalTransform = canvasRef.current.style.transform
     const originalOpacity = canvasRef.current.style.opacity
     canvasRef.current.style.opacity = '0'
     canvasRef.current.style.transform = 'scale(1)'
 
     try {
-      // Wait for reflow
       await new Promise((resolve) => setTimeout(resolve, 50))
 
       const dataUrl = await toPng(canvasRef.current, {
@@ -104,14 +99,12 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
       console.error('Export failed:', error)
       alert('Export failed. Please try again.')
     } finally {
-      // Restore original styles
       canvasRef.current.style.transform = originalTransform
       canvasRef.current.style.opacity = originalOpacity
       updateExporting(false)
     }
   }, [canvasRef, state.platform, updateExporting])
 
-  // Export all pages as a ZIP of PNGs
   const handleExportAllPages = useCallback(async () => {
     if (!canvasRef.current || pageCount <= 1) return
 
@@ -122,7 +115,6 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
 
     const originalActivePage = state.activePage
 
-    // Hide canvas during export
     const originalOpacity = canvasRef.current.style.opacity
     canvasRef.current.style.opacity = '0'
 
@@ -130,13 +122,11 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
       for (let i = 0; i < pageCount; i++) {
         setExportProgress({ current: i + 1, total: pageCount, name: `Page ${i + 1}` })
 
-        // Switch to page
         if (i !== originalActivePage) {
           onSetActivePage(i)
           await new Promise((resolve) => setTimeout(resolve, 150))
         }
 
-        // Remove scale for capture
         const originalTransform = canvasRef.current.style.transform
         canvasRef.current.style.transform = 'scale(1)'
         await new Promise((resolve) => setTimeout(resolve, 50))
@@ -159,7 +149,6 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
       const content = await zip.generateAsync({ type: 'blob' })
       saveAs(content, 'pages.zip')
 
-      // Restore original page
       if (state.activePage !== originalActivePage) {
         onSetActivePage(originalActivePage)
       }
@@ -185,10 +174,8 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
     const zip = new JSZip()
     const originalPlatform = state.platform
 
-    // Get the platforms to export
     const platformsToExport = platforms.filter((p) => selectedPlatforms.has(p.id))
 
-    // Hide canvas during batch export to prevent visible flashing
     const originalOpacity = canvasRef.current.style.opacity
     canvasRef.current.style.opacity = '0'
 
@@ -197,17 +184,12 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
         const platform = platformsToExport[i]
         setExportProgress({ current: i + 1, total: platformsToExport.length, name: platform.name })
 
-        // Switch to this platform temporarily
         onPlatformChange(platform.id)
-
-        // Wait for render
         await new Promise((resolve) => setTimeout(resolve, 100))
 
-        // Store original transform and temporarily remove scale for capture
         const originalTransform = canvasRef.current.style.transform
         canvasRef.current.style.transform = 'scale(1)'
 
-        // Wait for reflow
         await new Promise((resolve) => setTimeout(resolve, 50))
 
         const dataUrl = await toPng(canvasRef.current, {
@@ -220,7 +202,6 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
           },
         })
 
-        // Restore transform immediately after capture
         canvasRef.current.style.transform = originalTransform
 
         const response = await fetch(dataUrl)
@@ -231,7 +212,6 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
       const content = await zip.generateAsync({ type: 'blob' })
       saveAs(content, 'social-ads.zip')
 
-      // Restore original platform
       onPlatformChange(originalPlatform)
       setShowMultiSelect(false)
     } catch (error) {
@@ -239,7 +219,6 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
       alert('Export failed. Please try again.')
       onPlatformChange(originalPlatform)
     } finally {
-      // Restore canvas visibility
       canvasRef.current.style.opacity = originalOpacity
       updateExporting(false)
       setExportProgress(null)

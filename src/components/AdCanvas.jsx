@@ -5,13 +5,11 @@ import { platforms } from '../config/platforms'
 import { fonts } from '../config/fonts'
 import { getNeutralColor } from '../config/themes'
 
-// Configure marked for safe inline rendering
 marked.setOptions({
   breaks: true,
   gfm: true,
 })
 
-// SVG filter definitions for texture effects
 const SvgFilters = () => (
   <svg style={{ position: 'absolute', width: 0, height: 0 }}>
     <defs>
@@ -52,23 +50,19 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
   const images = state.images || []
   const cellImages = state.cellImages || {}
 
-  // Get padding for a specific cell (returns number in px)
   const getCellPaddingValue = (cellIndex) => {
     const override = paddingConfig.cellOverrides?.[cellIndex]
     return override !== undefined ? override : paddingConfig.global
   }
 
-  // Get padding for a specific cell (returns px string like "20px")
   const getCellPadding = (cellIndex) => {
     return `${getCellPaddingValue(cellIndex)}px`
   }
 
-  // Get cell frame config
   const getCellFrame = (cellIndex) => {
     return frameConfig.cellFrames?.[cellIndex] || null
   }
 
-  // Calculate frame and inner padding from total padding and frame percentage
   const getFrameDimensions = (totalPadding, framePercent) => {
     const frameWidth = Math.round(totalPadding * (framePercent / 100))
     const innerPadding = totalPadding - frameWidth
@@ -81,18 +75,13 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
     accent: state.theme.accent,
   }), [state.theme])
 
-  // Resolve a color key to hex (supports theme colors and neutral colors)
   const resolveColor = (colorKey, fallback) => {
-    // Check theme colors first
     if (themeColors[colorKey]) return themeColors[colorKey]
-    // Check neutral colors
     const neutralHex = getNeutralColor(colorKey)
     if (neutralHex) return neutralHex
-    // Fallback
     return fallback
   }
 
-  // Get overlay style for a given config (returns object with background, blendMode, special)
   const getOverlayStyle = (overlayConfig) => {
     const color = resolveColor(overlayConfig.color, themeColors.primary)
     const type = getOverlayType(overlayConfig.type)
@@ -106,7 +95,6 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
     }
   }
 
-  // Render special overlay effects (noise, grain, duotone, blur-edges)
   const renderSpecialOverlay = (special, overlayStyle, opacity) => {
     if (special === 'noise') {
       return (
@@ -167,7 +155,6 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
   const getTextColor = (colorKey) => resolveColor(colorKey, themeColors.secondary)
   const getTextLayer = (layerId) => state.text?.[layerId] || defaultTextLayer
 
-  // Get outer frame dimensions
   const outerFrame = frameConfig.outer || { percent: 0, color: 'primary' }
   const outerFrameColor = resolveColor(outerFrame.color, themeColors.primary)
   const outerFrameWidth = Math.round(paddingConfig.global * (outerFrame.percent / 100))
@@ -182,7 +169,6 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
     backgroundColor: themeColors.primary,
   }
 
-  // Calculate total cell count and build cell map from structure
   const cellInfo = useMemo(() => {
     const structure = layout.structure || [{ size: 100, subdivisions: 1, subSizes: [100] }]
     const cells = []
@@ -205,8 +191,6 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
     return { cells, totalCells: cellIndex }
   }, [layout.structure])
 
-  // Helper to get image data for a cell
-  // cellImages now stores just imageId per cell, settings are on the image itself
   const getCellImageData = (cellIndex) => {
     const imageId = cellImages[cellIndex]
     if (!imageId) return null
@@ -221,12 +205,10 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
     }
   }
 
-  // Check if a cell has an image
   const cellHasImage = (cellIndex) => {
     return getCellImageData(cellIndex) !== null
   }
 
-  // Logo position styles
   const getLogoPositionStyle = () => {
     const logoWidth = platform.width * (state.logoSize || 0.15)
     const margin = platform.width * 0.03
@@ -256,7 +238,6 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
     }
   }
 
-  // Render logo
   const renderLogo = () => {
     if (!state.logo) return null
     return (
@@ -268,7 +249,6 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
     )
   }
 
-  // Build image filter string from cell-specific filters
   const buildFilterStyle = (filters) => {
     if (!filters) return 'none'
     const parts = []
@@ -280,18 +260,15 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
     return parts.length > 0 ? parts.join(' ') : 'none'
   }
 
-  // Render a single overlay layer with support for blend modes and special effects
   const renderOverlayLayer = (overlayConfig, key = 'overlay') => {
     if (!overlayConfig || overlayConfig.opacity <= 0) return null
 
     const overlayStyle = getOverlayStyle(overlayConfig)
 
-    // Handle special effects (noise, grain, blur-edges)
     if (overlayStyle.special && overlayStyle.special !== 'duotone') {
       return renderSpecialOverlay(overlayStyle.special, overlayStyle, overlayConfig.opacity)
     }
 
-    // Standard overlay with optional blend mode
     return (
       <div
         key={key}
@@ -306,33 +283,27 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
     )
   }
 
-  // Check if overlay is a duotone effect
   const isDuotoneOverlay = (overlayConfig) => {
     if (!overlayConfig) return false
     const type = getOverlayType(overlayConfig.type)
     return type.special === 'duotone'
   }
 
-  // Render image with overlay for a specific cell
   // Supports stacking: per-image overlay (Media tab) + cell overlay (Style > Overlay)
   const renderCellImage = (cellIndex, style = {}) => {
     const imageData = getCellImageData(cellIndex)
     if (!imageData) return null
 
-    // Get cell-specific overlay config
     const cellOverlays = layout.cellOverlays || {}
     const cellOverlayConfig = cellOverlays[cellIndex]
 
-    // Per-image overlay from Media tab (stored on the image itself)
     const imageOverlay = imageData.overlay
     const hasImageOverlay = imageOverlay && imageOverlay.opacity > 0
 
-    // Cell-specific overlay (stacks on top if different from image overlay)
     const hasCellOverlay = cellOverlayConfig &&
       cellOverlayConfig !== imageOverlay &&
       cellOverlayConfig.enabled !== false
 
-    // Check for duotone effect (applies grayscale to image)
     const hasDuotone = isDuotoneOverlay(imageOverlay) || isDuotoneOverlay(cellOverlayConfig)
     const duotoneFilter = hasDuotone ? 'grayscale(100%)' : ''
     const imageFilterStyle = buildFilterStyle(imageData.filters)
@@ -359,7 +330,6 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
     )
   }
 
-  // Get alignment CSS values
   const getAlignItems = (align) => {
     switch (align) {
       case 'left': return 'flex-start'
@@ -376,7 +346,6 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
     }
   }
 
-  // Get cell-specific alignment with fallback to global
   const getCellTextAlign = (cellIndex) => {
     const cellAlign = layout.cellAlignments?.[cellIndex]?.textAlign
     return cellAlign !== null && cellAlign !== undefined ? cellAlign : layout.textAlign
@@ -387,7 +356,7 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
     return cellAlign !== null && cellAlign !== undefined ? cellAlign : layout.textVerticalAlign
   }
 
-  // Get element-specific horizontal alignment with fallback chain: element → cell → global
+  // Alignment fallback chain: element → cell → global
   const getElementTextAlign = (elementId, cellIndex) => {
     const layer = getTextLayer(elementId)
     if (layer.textAlign !== null && layer.textAlign !== undefined) {
@@ -396,7 +365,6 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
     return getCellTextAlign(cellIndex)
   }
 
-  // Find the first non-image cell for auto text placement
   const getFirstNonImageCellIndex = () => {
     for (let i = 0; i < cellInfo.totalCells; i++) {
       if (!cellHasImage(i)) return i
@@ -404,7 +372,6 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
     return -1 // All cells have images
   }
 
-  // Find the first image cell for fullbleed default behavior
   const getFirstImageCellIndex = () => {
     for (let i = 0; i < cellInfo.totalCells; i++) {
       if (cellHasImage(i)) return i
@@ -412,7 +379,6 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
     return -1 // No cells have images
   }
 
-  // Get text elements for a specific cell
   const getElementsForCell = (cellIndex, onImageLayer) => {
     const elements = []
     const elementIds = ['title', 'tagline', 'bodyHeading', 'bodyText', 'cta', 'footnote']
@@ -422,31 +388,24 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
       const assignedCell = textCells[elementId]
 
       if (assignedCell !== null && assignedCell !== undefined) {
-        // Explicitly assigned to a cell
         if (assignedCell === cellIndex) {
           elements.push(elementId)
         }
       } else {
-        // Auto assignment based on layout
         if (layout.type === 'fullbleed') {
-          // Fullbleed: all elements on the single layer
           elements.push(elementId)
         } else {
-          // Grid layout: distribute based on image placement
           const firstNonImageCell = getFirstNonImageCellIndex()
           const firstImageCell = getFirstImageCellIndex()
           const onlyOneCell = cellInfo.totalCells === 1
 
           if (onlyOneCell) {
-            // Single cell: all text goes here
             if (onImageLayer) elements.push(elementId)
           } else if (hasImage && onImageLayer && cellIndex === firstImageCell) {
-            // First image cell gets: title, tagline, cta
             if (['title', 'tagline', 'cta'].includes(elementId)) {
               elements.push(elementId)
             }
           } else if (!hasImage && !onImageLayer && cellIndex === firstNonImageCell) {
-            // First non-image cell gets: bodyHeading, bodyText, footnote
             if (['bodyHeading', 'bodyText', 'footnote'].includes(elementId)) {
               elements.push(elementId)
             }
@@ -457,7 +416,6 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
     return elements
   }
 
-  // Render a single text element with per-element alignment support
   const renderTextElement = (elementId, withShadow = false, cellIndex = 0) => {
     const layer = getTextLayer(elementId)
     if (!layer.visible || !layer.content) return null
@@ -465,10 +423,8 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
     const shadowStyle = withShadow ? { textShadow: '0 1px 2px rgba(0,0,0,0.3)' } : {}
     const titleShadow = withShadow ? { textShadow: '0 2px 4px rgba(0,0,0,0.3)' } : {}
 
-    // Get per-element horizontal alignment (with cell/global fallback)
     const elementAlign = getElementTextAlign(elementId, cellIndex)
 
-    // Element-specific styling
     const elementStyles = {
       title: {
         tag: 'h1',
@@ -552,7 +508,6 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
           whiteSpace: style.whiteSpace,
           wordWrap: 'break-word',
           overflowWrap: 'break-word',
-          // Per-element horizontal alignment
           textAlign: elementAlign,
           alignSelf: getAlignItems(elementAlign),
           ...style.shadow,
@@ -563,7 +518,6 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
     )
   }
 
-  // Render freeform text for a specific cell (when textMode === 'freeform')
   const renderFreeformTextForCell = (cellIndex, isOnImage) => {
     const freeformText = state.freeformText || {}
     const cellData = freeformText[cellIndex]
@@ -592,7 +546,6 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
       ...(withShadow ? { textShadow: '0 1px 2px rgba(0,0,0,0.3)' } : {}),
     }
 
-    // Markdown rendering
     if (cellData.markdown) {
       const html = marked.parse(cellData.content)
       return (
@@ -618,7 +571,6 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
       )
     }
 
-    // Plain text rendering
     return (
       <div
         style={{
@@ -638,7 +590,6 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
     )
   }
 
-  // Render text elements for a specific cell - supports per-element horizontal alignment
   const renderTextElementsForCell = (cellIndex, isOnImage) => {
     const elements = getElementsForCell(cellIndex, isOnImage)
     const withShadow = isOnImage
@@ -665,17 +616,14 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
     )
   }
 
-  // Check if we're in freeform text mode
   const isFreeformMode = state.textMode === 'freeform'
 
-  // Render fullbleed layout (no split) - supports per-element horizontal alignment
   const renderFullbleed = () => {
     const padding = getCellPadding(0)
     const verticalAlign = getCellVerticalAlign(0)
     const hasImage = cellHasImage(0)
     const allElements = ['title', 'tagline', 'bodyHeading', 'bodyText', 'cta', 'footnote']
 
-    // Cell frame for fullbleed (cell 0)
     const cellFrame = getCellFrame(0)
     const cellPadding = getCellPaddingValue(0)
     const frameWidth = cellFrame ? Math.round(cellPadding * (cellFrame.percent / 100)) : 0
@@ -724,22 +672,18 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
     )
   }
 
-  // Render a single cell content
   const renderCellContent = (cellIndex) => {
     const hasImage = cellHasImage(cellIndex)
     const cellOverlays = layout.cellOverlays || {}
     const cellOverlay = cellOverlays[cellIndex]
 
-    // Cell frame
     const cellFrame = getCellFrame(cellIndex)
     const cellPadding = getCellPaddingValue(cellIndex)
     const frameWidth = cellFrame ? Math.round(cellPadding * (cellFrame.percent / 100)) : 0
     const frameColor = cellFrame ? resolveColor(cellFrame.color, themeColors.primary) : null
 
-    // Determine text content based on mode
     const renderTextContent = () => {
       if (isFreeformMode) {
-        // Freeform mode - render per-cell text
         const freeformData = (state.freeformText || {})[cellIndex]
         if (freeformData && freeformData.content) {
           return (
@@ -751,7 +695,6 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
         return null
       }
 
-      // Structured mode - existing text group logic
       const textElementsOnImage = hasImage ? getElementsForCell(cellIndex, true) : []
       const textElementsOnBackground = getElementsForCell(cellIndex, false)
 
@@ -801,7 +744,6 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
     )
   }
 
-  // Render nested grid layout (rows or columns with optional subdivisions)
   const renderGridLayout = () => {
     const { type, structure } = layout
     const isRows = type === 'rows'
@@ -824,7 +766,6 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
           const subdivisions = section.subdivisions || 1
           const subSizes = section.subSizes || [100]
 
-          // Build cells for this section
           const sectionCells = []
           for (let subIndex = 0; subIndex < subdivisions; subIndex++) {
             const currentCellIndex = cellIndex
@@ -863,7 +804,6 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
     )
   }
 
-  // Main render logic
   const renderLayout = () => {
     if (layout.type === 'fullbleed' || !layout.type) {
       return renderFullbleed()

@@ -15,7 +15,6 @@ const PAGE_FIELDS = [
   'textMode', 'freeformText',
 ]
 
-// Extract per-page data from top-level state
 function extractPageData(state) {
   const data = {}
   PAGE_FIELDS.forEach(field => {
@@ -24,7 +23,6 @@ function extractPageData(state) {
   return data
 }
 
-// Default per-page data for a new blank page
 const defaultPageData = {
   activeStylePreset: null,
   activeLayoutPreset: 'hero',
@@ -61,20 +59,13 @@ const defaultPageData = {
 }
 
 export const defaultState = {
-  // Track active style preset (null = custom/no preset)
   activeStylePreset: null,
-  // Track active layout preset ID (null = custom/no preset)
   activeLayoutPreset: 'hero',
 
-  // Media pool - all uploaded images with their settings
-  // Each image: { id, src, name, fit, position, filters }
   images: [],
 
-  // Per-cell image assignments (just the image ID)
-  // { cellIndex: imageId }
   cellImages: {},
 
-  // Default settings for new images
   defaultImageSettings: {
     fit: 'cover',
     position: { x: 50, y: 50 },
@@ -101,8 +92,7 @@ export const defaultState = {
     footnote: { content: '*Terms and conditions apply', visible: true, color: 'secondary', size: 1, bold: false, italic: false, letterSpacing: 0, textAlign: null, textVerticalAlign: null },
   },
 
-  // Per-element cell placement (which cell each text element appears in)
-  // null = auto (follows default behavior), number = specific cell index
+  // null = auto placement, number = specific cell index
   textCells: {
     title: null,
     tagline: null,
@@ -114,9 +104,8 @@ export const defaultState = {
 
   logo: null,
   logoPosition: 'bottom-right',
-  logoSize: 0.15, // 15% of canvas width
+  logoSize: 0.15,
 
-  // Nested grid layout system
   layout: {
     type: 'fullbleed',
     structure: [
@@ -170,7 +159,6 @@ export const defaultState = {
 export function useAdState() {
   const { state, setState, undo, redo, canUndo, canRedo, resetHistory } = useHistory(defaultState)
 
-  // Add an image to the media pool with default settings
   const addImage = useCallback((src, name = 'Image') => {
     const id = `img-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
     setState((prev) => ({
@@ -188,7 +176,6 @@ export function useAdState() {
     return id
   }, [setState])
 
-  // Remove an image from the media pool (and any cell assignments)
   const removeImage = useCallback((imageId) => {
     setState((prev) => {
       // Remove from pool
@@ -204,7 +191,6 @@ export function useAdState() {
     })
   }, [setState])
 
-  // Assign an image to a cell (or remove assignment if imageId is null)
   const setCellImage = useCallback((cellIndex, imageId) => {
     setState((prev) => {
       const newCellImages = { ...prev.cellImages }
@@ -217,7 +203,6 @@ export function useAdState() {
     })
   }, [setState])
 
-  // Update settings for an image in the library
   const updateImage = useCallback((imageId, updates) => {
     setState((prev) => ({
       ...prev,
@@ -227,7 +212,6 @@ export function useAdState() {
     }))
   }, [setState])
 
-  // Update filters for an image
   const updateImageFilters = useCallback((imageId, filters) => {
     setState((prev) => ({
       ...prev,
@@ -239,7 +223,6 @@ export function useAdState() {
     }))
   }, [setState])
 
-  // Update position for an image
   const updateImagePosition = useCallback((imageId, position) => {
     setState((prev) => ({
       ...prev,
@@ -251,7 +234,6 @@ export function useAdState() {
     }))
   }, [setState])
 
-  // Update overlay for an image
   const updateImageOverlay = useCallback((imageId, overlay) => {
     setState((prev) => ({
       ...prev,
@@ -292,7 +274,6 @@ export function useAdState() {
     }))
   }, [])
 
-  // Helper to count cells in a layout structure
   const countCells = (structure) => {
     if (!structure || structure.length === 0) return 1
     return structure.reduce((total, section) => total + (section.subdivisions || 1), 0)
@@ -423,7 +404,6 @@ export function useAdState() {
     setState(defaultState)
   }, [])
 
-  // Apply a look preset (fonts, overlay, alignment, filters)
   const applyStylePreset = useCallback((preset) => {
     if (!preset) return
 
@@ -465,7 +445,6 @@ export function useAdState() {
     setState((prev) => ({ ...prev, activeStylePreset: null }))
   }, [])
 
-  // Apply a layout preset (layout structure + text cell placements)
   const applyLayoutPreset = useCallback((preset) => {
     if (!preset) return
 
@@ -514,22 +493,17 @@ export function useAdState() {
     })
   }, [])
 
-  // --- Multi-page management ---
-
-  // Switch to a different page
   const setActivePage = useCallback((newIndex) => {
     setState((prev) => {
       const pages = prev.pages || [null]
       if (newIndex < 0 || newIndex >= pages.length || newIndex === prev.activePage) return prev
 
-      // Save current page data to pages array
       const currentPageData = extractPageData(prev)
       const newPages = [...pages]
       newPages[prev.activePage] = currentPageData
 
-      // Load target page data to top-level
       const targetPageData = newPages[newIndex]
-      newPages[newIndex] = null // Mark as active (lives at top-level)
+      newPages[newIndex] = null
 
       return {
         ...prev,
@@ -540,17 +514,15 @@ export function useAdState() {
     })
   }, [setState])
 
-  // Add a new blank page after current page and switch to it
   const addPage = useCallback(() => {
     setState((prev) => {
       const pages = prev.pages || [null]
       const currentPageData = extractPageData(prev)
 
-      // Save current page, insert new blank page after it
       const newPages = [...pages]
       newPages[prev.activePage] = currentPageData
       const insertIndex = prev.activePage + 1
-      newPages.splice(insertIndex, 0, null) // null = active page at top-level
+      newPages.splice(insertIndex, 0, null)
 
       return {
         ...prev,
@@ -561,20 +533,16 @@ export function useAdState() {
     })
   }, [setState])
 
-  // Duplicate current page and switch to the copy
   const duplicatePage = useCallback(() => {
     setState((prev) => {
       const pages = prev.pages || [null]
       const currentPageData = extractPageData(prev)
 
-      // Save current page, insert duplicate after it
       const newPages = [...pages]
       newPages[prev.activePage] = currentPageData
       const insertIndex = prev.activePage + 1
-      newPages.splice(insertIndex, 0, null) // null = active at top-level
+      newPages.splice(insertIndex, 0, null)
 
-      // The duplicate gets the same data as current (already at top-level)
-      // But we need deep copies of the page data
       const duplicateData = JSON.parse(JSON.stringify(currentPageData))
 
       return {
@@ -586,7 +554,6 @@ export function useAdState() {
     })
   }, [setState])
 
-  // Remove a page
   const removePage = useCallback((index) => {
     setState((prev) => {
       const pages = prev.pages || [null]
@@ -629,7 +596,6 @@ export function useAdState() {
     })
   }, [setState])
 
-  // Move a page from one index to another
   const movePage = useCallback((fromIndex, toIndex) => {
     setState((prev) => {
       const pages = prev.pages || [null]
@@ -658,19 +624,15 @@ export function useAdState() {
     })
   }, [setState])
 
-  // Get the total page count
   const getPageCount = useCallback(() => {
     return (state.pages || [null]).length
   }, [state.pages])
 
-  // Get page data for rendering (e.g. thumbnails) - returns active page from top-level
   const getPageState = useCallback((index) => {
     const pages = state.pages || [null]
     if (index === state.activePage) {
-      // Active page data is at top-level
       return state
     }
-    // Inactive page - merge with shared fields
     const pageData = pages[index]
     if (!pageData) return null
     return {
@@ -684,13 +646,10 @@ export function useAdState() {
     }
   }, [state])
 
-  // --- Text mode management ---
-
   const setTextMode = useCallback((mode) => {
     setState((prev) => ({ ...prev, textMode: mode }))
   }, [setState])
 
-  // Update freeform text for a specific cell
   const setFreeformText = useCallback((cellIndex, updates) => {
     setState((prev) => ({
       ...prev,
@@ -713,9 +672,7 @@ export function useAdState() {
     }))
   }, [setState])
 
-  // Save current design to localStorage
   const saveDesign = useCallback((name = 'My Design') => {
-    // Before saving, ensure active page data is synced into pages array
     const pages = state.pages || [null]
     const syncedPages = [...pages]
     syncedPages[state.activePage] = extractPageData(state)
@@ -737,7 +694,6 @@ export function useAdState() {
     }
   }, [state])
 
-  // Load a design from localStorage
   const loadDesign = useCallback((designId) => {
     try {
       const designs = JSON.parse(localStorage.getItem('social-ad-creator-designs') || '[]')
@@ -799,7 +755,6 @@ export function useAdState() {
 
   return {
     state,
-    // Image pool management
     addImage,
     removeImage,
     updateImage,
@@ -807,7 +762,6 @@ export function useAdState() {
     updateImagePosition,
     updateImageOverlay,
     setCellImage,
-    // Other media
     setLogo,
     setLogoPosition,
     setLogoSize,
@@ -831,12 +785,10 @@ export function useAdState() {
     canUndo,
     canRedo,
     resetHistory,
-    // Save/load
     saveDesign,
     loadDesign,
     getSavedDesigns,
     deleteDesign,
-    // Multi-page
     setActivePage,
     addPage,
     duplicatePage,
@@ -844,7 +796,6 @@ export function useAdState() {
     movePage,
     getPageCount,
     getPageState,
-    // Text mode
     setTextMode,
     setFreeformText,
   }
