@@ -71,6 +71,25 @@ export function usePWAInstall() {
     const installedHandler = () => {
       setCanInstall(false)
       deferredPrompt = null
+      // Track install in Google Analytics
+      if (typeof gtag === 'function') {
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
+        const ua = navigator.userAgent
+        let os = 'unknown'
+        if (/Windows/i.test(ua)) os = 'windows'
+        else if (/iPhone|iPad|iPod/i.test(ua)) os = 'ios'
+        else if (/Android/i.test(ua)) os = 'android'
+        else if (/Mac OS/i.test(ua)) os = 'macos'
+        else if (/Linux/i.test(ua)) os = 'linux'
+
+        gtag('event', 'app_install', {
+          method: browser,
+          platform: isMobile ? 'mobile' : 'desktop',
+          os,
+          referrer: document.referrer || 'direct',
+          session_duration: Math.round((Date.now() - window._pageLoadTime) / 1000),
+        })
+      }
     }
 
     window.addEventListener('beforeinstallprompt', handler)
