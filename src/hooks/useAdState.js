@@ -5,7 +5,6 @@ import { useHistory } from './useHistory'
 
 const defaultTheme = presetThemes[0] // Dark theme
 
-// Fields that live per-page (everything except shared fields)
 const PAGE_FIELDS = [
   'activeStylePreset', 'activeLayoutPreset',
   'images', 'cellImages', 'defaultImageSettings',
@@ -92,7 +91,6 @@ export const defaultState = {
     footnote: { content: '*Terms and conditions apply', visible: true, color: 'secondary', size: 1, bold: false, italic: false, letterSpacing: 0, textAlign: null, textVerticalAlign: null },
   },
 
-  // null = auto placement, number = specific cell index
   textCells: {
     title: null,
     tagline: null,
@@ -142,17 +140,13 @@ export const defaultState = {
 
   platform: 'instagram-square',
 
-  // Multi-page support
-  // pages[activePage] = null means active page data is at top-level
-  // pages[otherIndex] = { ...perPageFields } for inactive pages
+  // pages[activePage] = null because active page data lives at top-level state
+  // (so existing components read state.layout, state.text etc. without knowing about pages)
+  // pages[otherIndex] = { layout, text, images, ... } for inactive pages
   pages: [null],
   activePage: 0,
 
-  // Text mode: 'structured' (text groups) or 'freeform' (per-cell text)
   textMode: 'structured',
-
-  // Freeform text: per-cell text content for freeform mode
-  // { cellIndex: { content, markdown, color, size, bold, italic, letterSpacing, textAlign } }
   freeformText: {},
 }
 
@@ -178,9 +172,7 @@ export function useAdState() {
 
   const removeImage = useCallback((imageId) => {
     setState((prev) => {
-      // Remove from pool
       const newImages = prev.images.filter((img) => img.id !== imageId)
-      // Remove from cell assignments
       const newCellImages = { ...prev.cellImages }
       Object.keys(newCellImages).forEach((cellIndex) => {
         if (newCellImages[cellIndex] === imageId) {
@@ -284,7 +276,7 @@ export function useAdState() {
       const newLayout = { ...prev.layout, ...updates }
       const newCellCount = countCells(newLayout.structure)
 
-      // Clean up stale cell assignments when cell count decreases
+      // Reset assignments pointing to cells that no longer exist (e.g. cell 3 after switching from 4 cells to 2)
       const cleanTextCells = { ...prev.textCells }
       Object.keys(cleanTextCells).forEach((key) => {
         if (cleanTextCells[key] !== null && cleanTextCells[key] >= newCellCount) {
@@ -322,7 +314,7 @@ export function useAdState() {
         }
       })
 
-      // Clean up freeform text for cells that no longer exist
+      // Same cleanup for freeform text (e.g. cell 2 text after switching from 3 cells to 1)
       const cleanFreeformText = { ...(prev.freeformText || {}) }
       Object.keys(cleanFreeformText).forEach((cellIndex) => {
         if (parseInt(cellIndex) >= newCellCount) {
@@ -562,15 +554,12 @@ export function useAdState() {
       const newPages = [...pages]
 
       if (index === prev.activePage) {
-        // Removing active page - switch to adjacent page first
         const newActiveIndex = index > 0 ? index - 1 : 0
         const currentPageData = extractPageData(prev)
         newPages[prev.activePage] = currentPageData
 
-        // Remove the target page
         newPages.splice(index, 1)
 
-        // Adjust active index
         const adjustedIndex = index > 0 ? index - 1 : 0
         const targetData = newPages[adjustedIndex]
         newPages[adjustedIndex] = null
@@ -582,9 +571,7 @@ export function useAdState() {
           activePage: adjustedIndex,
         }
       } else {
-        // Removing inactive page
         newPages.splice(index, 1)
-        // Adjust activePage if needed
         const newActivePage = index < prev.activePage ? prev.activePage - 1 : prev.activePage
 
         return {
@@ -606,7 +593,6 @@ export function useAdState() {
       const [moved] = newPages.splice(fromIndex, 1)
       newPages.splice(toIndex, 0, moved)
 
-      // Recalculate activePage
       let newActivePage = prev.activePage
       if (prev.activePage === fromIndex) {
         newActivePage = toIndex
@@ -699,7 +685,7 @@ export function useAdState() {
       const designs = JSON.parse(localStorage.getItem('social-ad-creator-designs') || '[]')
       const design = designs.find(d => d.id === designId)
       if (design && design.state) {
-        // Handle legacy designs without pages
+        // Legacy designs (pre-multi-page) don't have these fields
         const loadedState = { ...design.state }
         if (!loadedState.pages) {
           loadedState.pages = [null]
@@ -711,7 +697,7 @@ export function useAdState() {
         if (!loadedState.freeformText) {
           loadedState.freeformText = {}
         }
-        // If pages are synced (all non-null), load the active page to top-level
+        // saveDesign syncs all pages to non-null, so restore the active one to top-level
         const activePage = loadedState.activePage || 0
         if (loadedState.pages[activePage] !== null) {
           const pageData = loadedState.pages[activePage]
