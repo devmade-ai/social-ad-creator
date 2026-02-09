@@ -179,6 +179,14 @@ Social Ad Creator - A browser-based tool for creating social media advertisement
 
 Core features working:
 
+- **Multi-page support**: Create multi-page documents (books, stories, presentations)
+  - Pages array with add/duplicate/delete/reorder via PageStrip
+  - Per-page: images, layout, text, overlays, padding, frames
+  - Shared across pages: theme, fonts, platform, logo
+- **Reader mode**: Clean full-screen view with page navigation (arrow keys, buttons, dots)
+- **Freeform text mode**: Toggle on Content tab between Structured and Freeform
+  - Per-cell text editors with independent content, color, size, alignment
+  - Optional markdown per cell (uses `marked` library)
 - Multi-image system: Image library with per-cell assignment
   - Upload multiple images to a shared library
   - Assign different images to different cells (1 per cell)
@@ -186,7 +194,7 @@ Core features working:
 - Logo upload with position (corners, center) and size options
 - Frame system: Colored borders using percentage of padding
 - Flexible layout system with sub-tab organization (see Layout Tab Sub-tabs below)
-- Text groups with cell assignment:
+- Text groups with cell assignment (structured mode):
   - Title + Tagline (paired)
   - Body Heading + Body Text (paired)
   - CTA (independent)
@@ -206,7 +214,7 @@ Core features working:
   - Banners: LinkedIn Banner, YouTube Banner
   - Print: A3, A4, A5 (Portrait & Landscape at 150 DPI)
   - Other: Email Header, Zoom Background
-- Single download and ZIP batch download
+- Single download, ZIP batch download, and multi-page ZIP export
 - Responsive preview that adapts to device width
 - PWA support: Installable app with offline capability and update prompts
 
@@ -227,6 +235,7 @@ This is a workflow-based organization (as of January 2026 refactor):
 - Tailwind CSS
 - html-to-image for rendering
 - JSZip + file-saver for batch export
+- marked for markdown parsing (freeform text mode)
 - GitHub Pages deployment
 
 ## Common Commands
@@ -250,8 +259,9 @@ src/
 │   ├── ContentTab.jsx         # Text editing with cell assignment
 │   ├── LayoutTab.jsx          # Grid structure + cell alignment
 │   ├── StyleTab.jsx           # Typography, overlay, spacing (themes in Presets tab)
+│   ├── PageStrip.jsx          # Multi-page strip (thumbnails, add/delete/reorder)
 │   ├── PlatformPreview.jsx    # Platform selector
-│   ├── ExportButtons.jsx      # Export controls
+│   ├── ExportButtons.jsx      # Export controls (single, multi-platform, multi-page)
 │   └── ErrorBoundary.jsx      # Error handling wrapper
 ├── config/         # Configuration
 │   ├── layouts.js        # 20+ overlay types (solid, gradients, radial, effects, blends, textures)
@@ -261,7 +271,7 @@ src/
 │   ├── themes.js         # 12 color themes
 │   └── fonts.js          # 15 Google Fonts
 ├── hooks/
-│   ├── useAdState.js     # Central state (includes textGroups, layout)
+│   ├── useAdState.js     # Central state (multi-page, textGroups, freeformText, layout)
 │   ├── useHistory.js     # Undo/redo history management
 │   ├── useDarkMode.js    # Dark mode toggle
 │   ├── usePWAInstall.js  # PWA install prompt state
@@ -275,6 +285,25 @@ src/
 ## Key State Structure
 
 ```js
+// Multi-page support
+// pages[activePage] = null means active page data is at top-level
+// pages[otherIndex] = { ...perPageFields } for inactive pages
+pages: [null, { images: [...], layout: {...}, text: {...}, ... }]
+activePage: 0  // Index of active page
+
+// Per-page fields: activeStylePreset, activeLayoutPreset, images, cellImages,
+//   defaultImageSettings, text, textCells, layout, padding, frame, textMode, freeformText
+// Shared fields: theme, fonts, platform, logo, logoPosition, logoSize
+
+// Text mode: 'structured' (text groups) or 'freeform' (per-cell text)
+textMode: 'structured'
+
+// Freeform text (per-cell content, active when textMode='freeform')
+freeformText: {
+  0: { content: 'Hello **world**', markdown: true, color: 'secondary', size: 1, bold: false, italic: false, letterSpacing: 0, textAlign: null },
+  1: { content: 'Plain text here', markdown: false, color: 'primary', size: 0.8, bold: false, italic: false, letterSpacing: 0, textAlign: null },
+}
+
 // Image library - all uploaded images with individual settings including overlay
 images: [
   {
@@ -349,13 +378,19 @@ Collapsible sections:
 - **Logo** - Upload, position (corners/center), size
 
 ### Content Tab
-Text editing organized by groups, each in a collapsible section:
+Top-level toggle: **Structured** / **Freeform**
+
+**Structured mode** - Text groups organized by purpose, each in a collapsible section:
 - **Title & Tagline** - Paired text elements
 - **Body** - Heading + body text
 - **Call to Action** - CTA button text
 - **Footnote** - Fine print
+- Each text element has: visibility toggle, text input, cell assignment, alignment, color, size, bold/italic, letter spacing
 
-Each text element has: visibility toggle, text input, cell assignment, alignment, color, size, bold/italic, letter spacing
+**Freeform mode** - Per-cell text editors:
+- One text block per cell with independent content
+- Per-cell controls: alignment, color, size
+- MD toggle per cell for markdown formatting (renders via `marked`)
 
 ### Structure Tab (formerly Layout)
 Collapsible sections:

@@ -1,8 +1,15 @@
 import { forwardRef, useMemo } from 'react'
+import { marked } from 'marked'
 import { overlayTypes, hexToRgb, getOverlayType } from '../config/layouts'
 import { platforms } from '../config/platforms'
 import { fonts } from '../config/fonts'
 import { getNeutralColor } from '../config/themes'
+
+// Configure marked for safe inline rendering
+marked.setOptions({
+  breaks: true,
+  gfm: true,
+})
 
 // SVG filter definitions for texture effects
 const SvgFilters = () => (
@@ -556,6 +563,81 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
     )
   }
 
+  // Render freeform text for a specific cell (when textMode === 'freeform')
+  const renderFreeformTextForCell = (cellIndex, isOnImage) => {
+    const freeformText = state.freeformText || {}
+    const cellData = freeformText[cellIndex]
+    if (!cellData || !cellData.content) return null
+
+    const padding = getCellPadding(cellIndex)
+    const verticalAlign = getCellVerticalAlign(cellIndex)
+    const withShadow = isOnImage
+
+    const textColor = getTextColor(cellData.color || 'secondary')
+    const fontSize = Math.round(platform.width * 0.022 * (cellData.size || 1))
+    const textAlign = cellData.textAlign || getCellTextAlign(cellIndex)
+
+    const textStyle = {
+      fontSize,
+      fontWeight: cellData.bold ? 700 : 400,
+      fontStyle: cellData.italic ? 'italic' : 'normal',
+      fontFamily: bodyFont.family,
+      color: textColor,
+      lineHeight: 1.6,
+      letterSpacing: `${cellData.letterSpacing || 0}px`,
+      textAlign,
+      whiteSpace: 'pre-wrap',
+      wordWrap: 'break-word',
+      overflowWrap: 'break-word',
+      ...(withShadow ? { textShadow: '0 1px 2px rgba(0,0,0,0.3)' } : {}),
+    }
+
+    // Markdown rendering
+    if (cellData.markdown) {
+      const html = marked.parse(cellData.content)
+      return (
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: getJustifyContent(verticalAlign),
+            padding,
+            width: '100%',
+            height: '100%',
+            position: 'absolute',
+            inset: 0,
+            overflow: 'hidden',
+          }}
+        >
+          <div
+            className="freeform-markdown"
+            style={textStyle}
+            dangerouslySetInnerHTML={{ __html: html }}
+          />
+        </div>
+      )
+    }
+
+    // Plain text rendering
+    return (
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: getJustifyContent(verticalAlign),
+          padding,
+          width: '100%',
+          height: '100%',
+          position: 'absolute',
+          inset: 0,
+          overflow: 'hidden',
+        }}
+      >
+        <p style={textStyle}>{cellData.content}</p>
+      </div>
+    )
+  }
+
   // Render text elements for a specific cell - supports per-element horizontal alignment
   const renderTextElementsForCell = (cellIndex, isOnImage) => {
     const elements = getElementsForCell(cellIndex, isOnImage)
@@ -582,6 +664,9 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
       </div>
     )
   }
+
+  // Check if we're in freeform text mode
+  const isFreeformMode = state.textMode === 'freeform'
 
   // Render fullbleed layout (no split) - supports per-element horizontal alignment
   const renderFullbleed = () => {
@@ -614,23 +699,27 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
             }}
           />
         )}
-        {/* Elements can have individual horizontal alignment via alignSelf */}
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: getJustifyContent(verticalAlign),
-            alignItems: 'stretch', // Allow elements to control their own horizontal alignment
-            padding,
-            width: '100%',
-            height: '100%',
-            position: 'absolute',
-            inset: 0,
-            overflow: 'hidden',
-          }}
-        >
-          {allElements.map(elementId => renderTextElement(elementId, hasImage, 0))}
-        </div>
+        {/* Text layer - freeform or structured */}
+        {isFreeformMode ? (
+          renderFreeformTextForCell(0, hasImage)
+        ) : (
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: getJustifyContent(verticalAlign),
+              alignItems: 'stretch',
+              padding,
+              width: '100%',
+              height: '100%',
+              position: 'absolute',
+              inset: 0,
+              overflow: 'hidden',
+            }}
+          >
+            {allElements.map(elementId => renderTextElement(elementId, hasImage, 0))}
+          </div>
+        )}
       </>
     )
   }
@@ -638,8 +727,6 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
   // Render a single cell content
   const renderCellContent = (cellIndex) => {
     const hasImage = cellHasImage(cellIndex)
-    const textElementsOnImage = hasImage ? getElementsForCell(cellIndex, true) : []
-    const textElementsOnBackground = getElementsForCell(cellIndex, false)
     const cellOverlays = layout.cellOverlays || {}
     const cellOverlay = cellOverlays[cellIndex]
 
@@ -648,6 +735,41 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
     const cellPadding = getCellPaddingValue(cellIndex)
     const frameWidth = cellFrame ? Math.round(cellPadding * (cellFrame.percent / 100)) : 0
     const frameColor = cellFrame ? resolveColor(cellFrame.color, themeColors.primary) : null
+
+    // Determine text content based on mode
+    const renderTextContent = () => {
+      if (isFreeformMode) {
+        // Freeform mode - render per-cell text
+        const freeformData = (state.freeformText || {})[cellIndex]
+        if (freeformData && freeformData.content) {
+          return (
+            <div style={{ position: 'absolute', inset: 0, zIndex: 2 }}>
+              {renderFreeformTextForCell(cellIndex, hasImage)}
+            </div>
+          )
+        }
+        return null
+      }
+
+      // Structured mode - existing text group logic
+      const textElementsOnImage = hasImage ? getElementsForCell(cellIndex, true) : []
+      const textElementsOnBackground = getElementsForCell(cellIndex, false)
+
+      return (
+        <>
+          {hasImage && textElementsOnImage.length > 0 && (
+            <div style={{ position: 'absolute', inset: 0, zIndex: 2 }}>
+              {renderTextElementsForCell(cellIndex, true)}
+            </div>
+          )}
+          {!hasImage && textElementsOnBackground.length > 0 && (
+            <div style={{ position: 'absolute', inset: 0, zIndex: 1 }}>
+              {renderTextElementsForCell(cellIndex, false)}
+            </div>
+          )}
+        </>
+      )
+    }
 
     return (
       <>
@@ -673,19 +795,8 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
           />
         )}
 
-        {/* Text on image layer */}
-        {hasImage && textElementsOnImage.length > 0 && (
-          <div style={{ position: 'absolute', inset: 0, zIndex: 2 }}>
-            {renderTextElementsForCell(cellIndex, true)}
-          </div>
-        )}
-
-        {/* Text on background (non-image cells) */}
-        {!hasImage && textElementsOnBackground.length > 0 && (
-          <div style={{ position: 'absolute', inset: 0, zIndex: 1 }}>
-            {renderTextElementsForCell(cellIndex, false)}
-          </div>
-        )}
+        {/* Text content (freeform or structured) */}
+        {renderTextContent()}
       </>
     )
   }

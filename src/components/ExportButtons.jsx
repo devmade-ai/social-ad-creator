@@ -14,7 +14,7 @@ const categoryLabels = {
   other: 'Other',
 }
 
-export default memo(function ExportButtons({ canvasRef, state, onPlatformChange, onExportingChange }) {
+export default memo(function ExportButtons({ canvasRef, state, onPlatformChange, onExportingChange, pageCount = 1, getPageState, onSetActivePage }) {
   const [isExporting, setIsExporting] = useState(false)
   const [exportProgress, setExportProgress] = useState(null)
   const [showMultiSelect, setShowMultiSelect] = useState(false)
@@ -111,6 +111,69 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
     }
   }, [canvasRef, state.platform, updateExporting])
 
+  // Export all pages as a ZIP of PNGs
+  const handleExportAllPages = useCallback(async () => {
+    if (!canvasRef.current || pageCount <= 1) return
+
+    updateExporting(true)
+    const zip = new JSZip()
+    const platform = platforms.find((p) => p.id === state.platform)
+    if (!platform) { updateExporting(false); return }
+
+    const originalActivePage = state.activePage
+
+    // Hide canvas during export
+    const originalOpacity = canvasRef.current.style.opacity
+    canvasRef.current.style.opacity = '0'
+
+    try {
+      for (let i = 0; i < pageCount; i++) {
+        setExportProgress({ current: i + 1, total: pageCount, name: `Page ${i + 1}` })
+
+        // Switch to page
+        if (i !== originalActivePage) {
+          onSetActivePage(i)
+          await new Promise((resolve) => setTimeout(resolve, 150))
+        }
+
+        // Remove scale for capture
+        const originalTransform = canvasRef.current.style.transform
+        canvasRef.current.style.transform = 'scale(1)'
+        await new Promise((resolve) => setTimeout(resolve, 50))
+
+        const dataUrl = await toPng(canvasRef.current, {
+          width: platform.width,
+          height: platform.height,
+          pixelRatio: 1,
+          style: { opacity: '1', transform: 'scale(1)' },
+        })
+
+        canvasRef.current.style.transform = originalTransform
+
+        const response = await fetch(dataUrl)
+        const blob = await response.blob()
+        const pageNum = String(i + 1).padStart(3, '0')
+        zip.file(`page-${pageNum}-${platform.width}x${platform.height}.png`, blob)
+      }
+
+      const content = await zip.generateAsync({ type: 'blob' })
+      saveAs(content, 'pages.zip')
+
+      // Restore original page
+      if (state.activePage !== originalActivePage) {
+        onSetActivePage(originalActivePage)
+      }
+    } catch (error) {
+      console.error('Page export failed:', error)
+      alert('Export failed. Please try again.')
+      onSetActivePage(originalActivePage)
+    } finally {
+      canvasRef.current.style.opacity = originalOpacity
+      updateExporting(false)
+      setExportProgress(null)
+    }
+  }, [canvasRef, state.platform, state.activePage, pageCount, onSetActivePage, updateExporting])
+
   const handleExportMultiple = useCallback(async () => {
     if (!canvasRef.current) return
     if (selectedPlatforms.size === 0) {
@@ -193,12 +256,25 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
         {isExporting && !exportProgress ? 'Exporting...' : 'Download Current'}
       </button>
 
+      {/* Download all pages as ZIP */}
+      {pageCount > 1 && (
+        <button
+          onClick={handleExportAllPages}
+          disabled={isExporting}
+          className="w-full px-4 py-3 text-sm font-semibold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl hover:bg-emerald-100 dark:hover:bg-emerald-900/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-[0.98]"
+        >
+          {exportProgress && !showMultiSelect
+            ? `Exporting Page ${exportProgress.current}/${exportProgress.total}...`
+            : `Download All ${pageCount} Pages (ZIP)`}
+        </button>
+      )}
+
       <button
         onClick={() => setShowMultiSelect(!showMultiSelect)}
         disabled={isExporting}
         className="w-full px-4 py-3 text-sm font-semibold text-primary dark:text-violet-400 bg-violet-50 dark:bg-violet-900/20 rounded-xl hover:bg-violet-100 dark:hover:bg-violet-900/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-[0.98]"
       >
-        {showMultiSelect ? 'Hide Selection' : 'Download Multiple (ZIP)'}
+        {showMultiSelect ? 'Hide Selection' : 'Download Multiple Platforms (ZIP)'}
       </button>
 
       {/* Multi-select platform UI */}

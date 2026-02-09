@@ -15,6 +15,7 @@ import ErrorBoundary from './components/ErrorBoundary'
 import InstallInstructionsModal from './components/InstallInstructionsModal'
 import TutorialModal from './components/TutorialModal'
 import SaveLoadModal from './components/SaveLoadModal'
+import PageStrip from './components/PageStrip'
 import { platforms } from './config/platforms'
 import { fonts } from './config/fonts'
 
@@ -28,6 +29,7 @@ function App() {
   const [showInstallModal, setShowInstallModal] = useState(false)
   const [showTutorial, setShowTutorial] = useState(false)
   const [showSaveLoadModal, setShowSaveLoadModal] = useState(false)
+  const [isReaderMode, setIsReaderMode] = useState(false)
   const { isDark, toggle: toggleDarkMode } = useDarkMode()
   const { canInstall, install, showManualInstructions, getInstallInstructions, isInstalled } = usePWAInstall()
   const { hasUpdate, update } = usePWAUpdate()
@@ -68,13 +70,25 @@ function App() {
     loadDesign,
     getSavedDesigns,
     deleteDesign,
+    // Multi-page
+    setActivePage,
+    addPage,
+    duplicatePage,
+    removePage,
+    movePage,
+    getPageCount,
+    getPageState,
+    // Text mode
+    setTextMode,
+    setFreeformText,
   } = useAdState()
 
   const platform = platforms.find((p) => p.id === state.platform) || platforms[0]
+  const pages = state.pages || [null]
+  const pageCount = pages.length
+  const hasMultiplePages = pageCount > 1
 
-  // TODO: Calculate image aspect ratio from first image in pool for layout suggestions
-
-  // Keyboard shortcuts for undo/redo
+  // Keyboard shortcuts for undo/redo and reader mode navigation
   useEffect(() => {
     const handleKeyDown = (e) => {
       // Skip if user is typing in an input
@@ -95,11 +109,27 @@ function App() {
         e.preventDefault()
         redo()
       }
+
+      // Reader mode navigation with arrow keys
+      if (isReaderMode) {
+        if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+          e.preventDefault()
+          if (state.activePage > 0) setActivePage(state.activePage - 1)
+        }
+        if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+          e.preventDefault()
+          if (state.activePage < pageCount - 1) setActivePage(state.activePage + 1)
+        }
+        if (e.key === 'Escape') {
+          e.preventDefault()
+          setIsReaderMode(false)
+        }
+      }
     }
 
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [undo, redo])
+  }, [undo, redo, isReaderMode, state.activePage, pageCount, setActivePage])
 
   // Track container width for responsive preview
   useEffect(() => {
@@ -108,7 +138,6 @@ function App() {
 
     const resizeObserver = new ResizeObserver((entries) => {
       for (const entry of entries) {
-        // Use contentBoxSize if available, otherwise fallback to contentRect
         const width = entry.contentBoxSize?.[0]?.inlineSize ?? entry.contentRect.width
         setContainerWidth(width)
       }
@@ -118,15 +147,16 @@ function App() {
     return () => resizeObserver.disconnect()
   }, [])
 
-  // Calculate scale to fit preview in container (responsive to container width)
+  // Calculate scale to fit preview in container
   const previewScale = useMemo(() => {
-    // Use container width with some padding, and a reasonable max height
-    const maxWidth = Math.max(containerWidth - 32, 200) // 32px padding, min 200px
-    const maxHeight = Math.min(window.innerHeight * 0.6, 600) // 60% viewport or 600px max
+    const maxWidth = Math.max(containerWidth - 32, 200)
+    const maxHeight = isReaderMode
+      ? Math.min(window.innerHeight * 0.8, 800)
+      : Math.min(window.innerHeight * 0.6, 600)
     const scaleX = maxWidth / platform.width
     const scaleY = maxHeight / platform.height
     return Math.min(scaleX, scaleY, 1)
-  }, [platform, containerWidth])
+  }, [platform, containerWidth, isReaderMode])
 
   // New workflow-based tabs
   const sections = [
@@ -137,6 +167,105 @@ function App() {
     { id: 'style', label: 'Style' },
   ]
 
+  // Reader mode - minimal UI with page navigation
+  if (isReaderMode) {
+    return (
+      <div className="min-h-screen bg-zinc-100 dark:bg-dark-page">
+        {/* Load fonts */}
+        {fonts.map((font) => (
+          <link key={font.id} rel="stylesheet" href={font.url} />
+        ))}
+
+        {/* Reader header */}
+        <header className="bg-white/80 dark:bg-dark-card/80 backdrop-blur-sm border-b border-zinc-200/60 dark:border-zinc-700/60 px-4 py-3 sticky top-0 z-10">
+          <div className="flex items-center justify-between max-w-4xl mx-auto">
+            <button
+              onClick={() => setIsReaderMode(false)}
+              className="px-3 py-1.5 text-sm rounded-lg flex items-center gap-1.5 font-medium bg-zinc-100 dark:bg-dark-subtle text-ui-text hover:bg-zinc-200 dark:hover:bg-dark-elevated active:scale-95 transition-all"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+              </svg>
+              <span>Back to Editor</span>
+            </button>
+
+            <span className="text-sm font-medium text-ui-text-muted">
+              Page {state.activePage + 1} of {pageCount}
+            </span>
+
+            <button
+              onClick={toggleDarkMode}
+              title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+              className="px-3 py-1.5 text-sm rounded-lg font-medium bg-zinc-100 dark:bg-dark-subtle text-ui-text hover:bg-zinc-200 dark:hover:bg-dark-elevated active:scale-95 transition-all"
+            >
+              {isDark ? '☀️' : '🌙'}
+            </button>
+          </div>
+        </header>
+
+        {/* Reader canvas */}
+        <main className="flex flex-col items-center py-8 px-4">
+          <div
+            ref={previewContainerRef}
+            className="w-full max-w-4xl flex justify-center"
+          >
+            <div
+              style={{
+                width: platform.width * previewScale,
+                height: platform.height * previewScale,
+              }}
+            >
+              <ErrorBoundary title="Preview error" message="Failed to render page.">
+                <AdCanvas ref={canvasRef} state={state} scale={previewScale} />
+              </ErrorBoundary>
+            </div>
+          </div>
+
+          {/* Reader page navigation */}
+          {hasMultiplePages && (
+            <div className="flex items-center gap-4 mt-6">
+              <button
+                onClick={() => setActivePage(state.activePage - 1)}
+                disabled={state.activePage === 0}
+                className="px-4 py-2 text-sm font-medium rounded-lg bg-white dark:bg-dark-card border border-ui-border text-ui-text hover:bg-zinc-50 dark:hover:bg-dark-elevated disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+              >
+                Previous
+              </button>
+
+              <div className="flex gap-1.5">
+                {pages.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setActivePage(index)}
+                    className={`w-2.5 h-2.5 rounded-full transition-all ${
+                      index === state.activePage
+                        ? 'bg-primary scale-125'
+                        : 'bg-zinc-300 dark:bg-zinc-600 hover:bg-zinc-400'
+                    }`}
+                    title={`Page ${index + 1}`}
+                  />
+                ))}
+              </div>
+
+              <button
+                onClick={() => setActivePage(state.activePage + 1)}
+                disabled={state.activePage === pageCount - 1}
+                className="px-4 py-2 text-sm font-medium rounded-lg bg-white dark:bg-dark-card border border-ui-border text-ui-text hover:bg-zinc-50 dark:hover:bg-dark-elevated disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+              >
+                Next
+              </button>
+            </div>
+          )}
+
+          <p className="text-xs text-ui-text-faint mt-4">
+            {hasMultiplePages ? 'Use arrow keys to navigate pages. Press Esc to exit.' : 'Press Esc to exit reader mode.'}
+          </p>
+        </main>
+      </div>
+    )
+  }
+
+  // Normal editor mode
   return (
     <div className="min-h-screen">
       {/* Load fonts */}
@@ -180,6 +309,18 @@ function App() {
             >
               <span>↷</span>
               <span>Redo</span>
+            </button>
+            {/* View / Reader mode toggle */}
+            <button
+              onClick={() => setIsReaderMode(true)}
+              title="Reader mode - view pages without editing UI"
+              className="px-3 py-1.5 text-sm rounded-lg flex items-center gap-1.5 font-medium bg-zinc-100 dark:bg-dark-subtle text-ui-text hover:bg-zinc-200 dark:hover:bg-dark-elevated active:scale-95 transition-all"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              </svg>
+              <span>View</span>
             </button>
             <button
               onClick={() => setShowSaveLoadModal(true)}
@@ -269,6 +410,16 @@ function App() {
 
           {/* Row 2: Utility buttons (centered) */}
           <div className="flex justify-center gap-1.5">
+            <button
+              onClick={() => setIsReaderMode(true)}
+              title="Reader mode"
+              className="px-3 py-1.5 text-sm rounded-lg flex items-center gap-1.5 font-medium bg-zinc-100 dark:bg-dark-subtle text-ui-text hover:bg-zinc-200 dark:hover:bg-dark-elevated active:scale-95 transition-all"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              </svg>
+            </button>
             <button
               onClick={() => setShowSaveLoadModal(true)}
               title="Save or load designs"
@@ -457,6 +608,10 @@ function App() {
                     layout={state.layout}
                     theme={state.theme}
                     platform={state.platform}
+                    textMode={state.textMode || 'structured'}
+                    onTextModeChange={setTextMode}
+                    freeformText={state.freeformText || {}}
+                    onFreeformTextChange={setFreeformText}
                   />
                 )}
               </ErrorBoundary>
@@ -496,12 +651,25 @@ function App() {
 
         {/* Preview Area */}
         <main className="flex-1 p-4 lg:p-5 space-y-4">
-          {/* Platform Selector - Separate section */}
+          {/* Platform Selector */}
           <div className="bg-white dark:bg-dark-card rounded-xl border border-zinc-200/80 dark:border-zinc-700/50 shadow-card p-4 lg:p-5">
             <PlatformPreview selectedPlatform={state.platform} onPlatformChange={setPlatform} />
           </div>
 
-          {/* Canvas Preview - Separate section */}
+          {/* Page Strip - always visible */}
+          <PageStrip
+            pages={pages}
+            activePage={state.activePage}
+            onSetActivePage={setActivePage}
+            onAddPage={addPage}
+            onDuplicatePage={duplicatePage}
+            onRemovePage={removePage}
+            onMovePage={movePage}
+            getPageState={getPageState}
+            platform={state.platform}
+          />
+
+          {/* Canvas Preview */}
           <div className="bg-white dark:bg-dark-card rounded-xl border border-zinc-200/80 dark:border-zinc-700/50 shadow-card p-4 lg:p-6">
             <div
               ref={previewContainerRef}
@@ -534,7 +702,15 @@ function App() {
             {/* Export Buttons */}
             <div className="mt-5">
               <ErrorBoundary title="Export error" message="Failed to load export options.">
-                <ExportButtons canvasRef={canvasRef} state={state} onPlatformChange={setPlatform} onExportingChange={setIsExporting} />
+                <ExportButtons
+                  canvasRef={canvasRef}
+                  state={state}
+                  onPlatformChange={setPlatform}
+                  onExportingChange={setIsExporting}
+                  pageCount={pageCount}
+                  getPageState={getPageState}
+                  onSetActivePage={setActivePage}
+                />
               </ErrorBoundary>
             </div>
           </div>

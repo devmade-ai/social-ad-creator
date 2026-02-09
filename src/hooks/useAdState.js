@@ -5,6 +5,61 @@ import { useHistory } from './useHistory'
 
 const defaultTheme = presetThemes[0] // Dark theme
 
+// Fields that live per-page (everything except shared fields)
+const PAGE_FIELDS = [
+  'activeStylePreset', 'activeLayoutPreset',
+  'images', 'cellImages', 'defaultImageSettings',
+  'text', 'textCells',
+  'layout',
+  'padding', 'frame',
+  'textMode', 'freeformText',
+]
+
+// Extract per-page data from top-level state
+function extractPageData(state) {
+  const data = {}
+  PAGE_FIELDS.forEach(field => {
+    if (state[field] !== undefined) data[field] = JSON.parse(JSON.stringify(state[field]))
+  })
+  return data
+}
+
+// Default per-page data for a new blank page
+const defaultPageData = {
+  activeStylePreset: null,
+  activeLayoutPreset: 'hero',
+  images: [],
+  cellImages: {},
+  defaultImageSettings: {
+    fit: 'cover',
+    position: { x: 50, y: 50 },
+    filters: { grayscale: 0, sepia: 0, blur: 0, contrast: 100, brightness: 100 },
+    overlay: { type: 'solid', color: 'primary', opacity: 0 },
+  },
+  text: {
+    title: { content: '', visible: true, color: 'secondary', size: 1, bold: true, italic: false, letterSpacing: 0, textAlign: null, textVerticalAlign: null },
+    tagline: { content: '', visible: false, color: 'secondary', size: 1, bold: false, italic: false, letterSpacing: 0, textAlign: null, textVerticalAlign: null },
+    bodyHeading: { content: '', visible: false, color: 'secondary', size: 1, bold: true, italic: false, letterSpacing: 0, textAlign: null, textVerticalAlign: null },
+    bodyText: { content: '', visible: false, color: 'secondary', size: 1, bold: false, italic: false, letterSpacing: 0, textAlign: null, textVerticalAlign: null },
+    cta: { content: '', visible: false, color: 'accent', size: 1, bold: true, italic: false, letterSpacing: 0, textAlign: null, textVerticalAlign: null },
+    footnote: { content: '', visible: false, color: 'secondary', size: 1, bold: false, italic: false, letterSpacing: 0, textAlign: null, textVerticalAlign: null },
+  },
+  textCells: { title: null, tagline: null, bodyHeading: null, bodyText: null, cta: null, footnote: null },
+  layout: {
+    type: 'fullbleed',
+    structure: [{ size: 100, subdivisions: 1, subSizes: [100] }],
+    imageCells: [0],
+    textAlign: 'center',
+    textVerticalAlign: 'center',
+    cellAlignments: [],
+    cellOverlays: {},
+  },
+  padding: { global: 20, cellOverrides: {} },
+  frame: { outer: { percent: 0, color: 'primary' }, cellFrames: {} },
+  textMode: 'structured',
+  freeformText: {},
+}
+
 export const defaultState = {
   // Track active style preset (null = custom/no preset)
   activeStylePreset: null,
@@ -62,24 +117,15 @@ export const defaultState = {
   logoSize: 0.15, // 15% of canvas width
 
   // Nested grid layout system
-  // type: 'fullbleed' = single layer, 'rows' = horizontal sections, 'columns' = vertical sections
-  // Each section can optionally be subdivided in the perpendicular direction
   layout: {
-    type: 'fullbleed', // 'fullbleed' | 'rows' | 'columns'
-    // Structure defines each primary section (row or column depending on type)
-    // size = percentage of total height (rows) or width (columns)
-    // subdivisions = how many cells in this section (1 = no split)
-    // subSizes = percentage widths (rows) or heights (columns) for each subdivision
+    type: 'fullbleed',
     structure: [
       { size: 100, subdivisions: 1, subSizes: [100] },
     ],
-    imageCells: [0], // Array of cell indices that contain images
-    textAlign: 'center', // 'left' | 'center' | 'right' - global fallback
-    textVerticalAlign: 'center', // 'start' | 'center' | 'end' - global fallback
-    // Per-cell alignment overrides (flat cell index)
+    imageCells: [0],
+    textAlign: 'center',
+    textVerticalAlign: 'center',
     cellAlignments: [],
-    // Per-cell overlay overrides (flat cell index -> { enabled, type, color, opacity })
-    // If not set for a cell, uses global overlay settings for image cell, none for others
     cellOverlays: {},
   },
 
@@ -95,21 +141,30 @@ export const defaultState = {
     body: 'inter',
   },
 
-  // Padding settings (in pixels)
   padding: {
-    global: 20, // 20px padding for all cells
-    cellOverrides: {}, // { cellIndex: paddingValue } for per-cell overrides
+    global: 20,
+    cellOverrides: {},
   },
 
-  // Frame settings (colored border that uses percentage of padding)
   frame: {
-    // Outer frame around entire canvas
     outer: { percent: 0, color: 'primary' },
-    // Per-cell frames { cellIndex: { percent, color } }
     cellFrames: {},
   },
 
   platform: 'instagram-square',
+
+  // Multi-page support
+  // pages[activePage] = null means active page data is at top-level
+  // pages[otherIndex] = { ...perPageFields } for inactive pages
+  pages: [null],
+  activePage: 0,
+
+  // Text mode: 'structured' (text groups) or 'freeform' (per-cell text)
+  textMode: 'structured',
+
+  // Freeform text: per-cell text content for freeform mode
+  // { cellIndex: { content, markdown, color, size, bold, italic, letterSpacing, textAlign } }
+  freeformText: {},
 }
 
 export function useAdState() {
@@ -249,11 +304,10 @@ export function useAdState() {
       const newCellCount = countCells(newLayout.structure)
 
       // Clean up stale cell assignments when cell count decreases
-      // Filter out textCells, cellImages, cellAlignments, cellOverrides, cellFrames that reference non-existent cells
       const cleanTextCells = { ...prev.textCells }
       Object.keys(cleanTextCells).forEach((key) => {
         if (cleanTextCells[key] !== null && cleanTextCells[key] >= newCellCount) {
-          cleanTextCells[key] = null // Reset to auto
+          cleanTextCells[key] = null
         }
       })
 
@@ -287,6 +341,14 @@ export function useAdState() {
         }
       })
 
+      // Clean up freeform text for cells that no longer exist
+      const cleanFreeformText = { ...(prev.freeformText || {}) }
+      Object.keys(cleanFreeformText).forEach((cellIndex) => {
+        if (parseInt(cellIndex) >= newCellCount) {
+          delete cleanFreeformText[cellIndex]
+        }
+      })
+
       return {
         ...prev,
         layout: { ...newLayout, cellAlignments: cleanCellAlignments, cellOverlays: cleanCellOverlays },
@@ -294,7 +356,7 @@ export function useAdState() {
         cellImages: cleanCellImages,
         padding: { ...prev.padding, cellOverrides: cleanPaddingOverrides },
         frame: { ...prev.frame, cellFrames: cleanCellFrames },
-        // Clear active layout preset since user is customizing
+        freeformText: cleanFreeformText,
         activeLayoutPreset: null,
       }
     })
@@ -327,12 +389,10 @@ export function useAdState() {
     setState((prev) => ({ ...prev, padding: { ...prev.padding, ...padding } }))
   }, [setState])
 
-  // Update frame settings
   const setFrame = useCallback((frame) => {
     setState((prev) => ({ ...prev, frame: { ...prev.frame, ...frame } }))
   }, [setState])
 
-  // Update outer frame
   const setOuterFrame = useCallback((outerFrame) => {
     setState((prev) => ({
       ...prev,
@@ -340,7 +400,6 @@ export function useAdState() {
     }))
   }, [setState])
 
-  // Update cell frame
   const setCellFrame = useCallback((cellIndex, frameConfig) => {
     setState((prev) => {
       const newCellFrames = { ...prev.frame.cellFrames }
@@ -365,25 +424,17 @@ export function useAdState() {
   }, [])
 
   // Apply a look preset (fonts, overlay, alignment, filters)
-  // Uses layout-aware settings based on the active layout preset
-  // Preserves: theme, layout structure, image, logo, text content, platform
   const applyStylePreset = useCallback((preset) => {
     if (!preset) return
 
     setState((prev) => {
-      // Get layout-specific settings for this look
-      // Use active layout preset ID, or default to 'hero' if none
       const layoutId = prev.activeLayoutPreset || 'hero'
       const settings = getLookSettingsForLayout(preset.id, layoutId)
 
       if (!settings) return prev
 
-      // Apply overlay and filters to all images
-      // Looks only affect visual styling (fonts, filters, overlay)
-      // Text alignment is controlled entirely by the layout preset
       const updatedImages = prev.images.map(img => ({
         ...img,
-        // Apply image filters from preset
         filters: settings.imageFilters ? {
           grayscale: settings.imageFilters.grayscale ?? img.filters?.grayscale ?? 0,
           sepia: settings.imageFilters.sepia ?? img.filters?.sepia ?? 0,
@@ -391,7 +442,6 @@ export function useAdState() {
           contrast: settings.imageFilters.contrast ?? img.filters?.contrast ?? 100,
           brightness: settings.imageFilters.brightness ?? img.filters?.brightness ?? 100,
         } : img.filters,
-        // Apply overlay from preset (layout-aware)
         overlay: settings.imageOverlay ? {
           type: settings.imageOverlay.type,
           color: settings.imageOverlay.color,
@@ -402,18 +452,15 @@ export function useAdState() {
       return {
         ...prev,
         activeStylePreset: preset.id,
-        // Apply fonts only - alignment is controlled by layout preset
         fonts: settings.fonts ? {
           title: settings.fonts.title,
           body: settings.fonts.body,
         } : prev.fonts,
-        // Apply filters and overlay to images
         images: updatedImages,
       }
     })
   }, [])
 
-  // Clear style preset tracking (called when user customizes something)
   const clearStylePreset = useCallback(() => {
     setState((prev) => ({ ...prev, activeStylePreset: null }))
   }, [])
@@ -425,7 +472,6 @@ export function useAdState() {
     setState((prev) => {
       const newCellCount = countCells(preset.layout.structure)
 
-      // Clean up cell images for cells that no longer exist
       const cleanCellImages = { ...prev.cellImages }
       Object.keys(cleanCellImages).forEach((cellIndex) => {
         if (parseInt(cellIndex) >= newCellCount) {
@@ -433,7 +479,6 @@ export function useAdState() {
         }
       })
 
-      // Clean up padding overrides
       const cleanPaddingOverrides = { ...prev.padding.cellOverrides }
       Object.keys(cleanPaddingOverrides).forEach((cellIndex) => {
         if (parseInt(cellIndex) >= newCellCount) {
@@ -441,7 +486,6 @@ export function useAdState() {
         }
       })
 
-      // Clean up cell frames
       const cleanCellFrames = { ...prev.frame.cellFrames }
       Object.keys(cleanCellFrames).forEach((cellIndex) => {
         if (parseInt(cellIndex) >= newCellCount) {
@@ -451,13 +495,10 @@ export function useAdState() {
 
       return {
         ...prev,
-        // Track active layout preset ID for look-aware styling
         activeLayoutPreset: preset.id,
-        // Apply layout settings
         layout: {
           ...preset.layout,
         },
-        // Apply text cell placements (preset provides valid placements)
         textCells: preset.textCells ? {
           title: preset.textCells.title ?? null,
           tagline: preset.textCells.tagline ?? null,
@@ -473,17 +514,219 @@ export function useAdState() {
     })
   }, [])
 
+  // --- Multi-page management ---
+
+  // Switch to a different page
+  const setActivePage = useCallback((newIndex) => {
+    setState((prev) => {
+      const pages = prev.pages || [null]
+      if (newIndex < 0 || newIndex >= pages.length || newIndex === prev.activePage) return prev
+
+      // Save current page data to pages array
+      const currentPageData = extractPageData(prev)
+      const newPages = [...pages]
+      newPages[prev.activePage] = currentPageData
+
+      // Load target page data to top-level
+      const targetPageData = newPages[newIndex]
+      newPages[newIndex] = null // Mark as active (lives at top-level)
+
+      return {
+        ...prev,
+        ...targetPageData,
+        pages: newPages,
+        activePage: newIndex,
+      }
+    })
+  }, [setState])
+
+  // Add a new blank page after current page and switch to it
+  const addPage = useCallback(() => {
+    setState((prev) => {
+      const pages = prev.pages || [null]
+      const currentPageData = extractPageData(prev)
+
+      // Save current page, insert new blank page after it
+      const newPages = [...pages]
+      newPages[prev.activePage] = currentPageData
+      const insertIndex = prev.activePage + 1
+      newPages.splice(insertIndex, 0, null) // null = active page at top-level
+
+      return {
+        ...prev,
+        ...JSON.parse(JSON.stringify(defaultPageData)),
+        pages: newPages,
+        activePage: insertIndex,
+      }
+    })
+  }, [setState])
+
+  // Duplicate current page and switch to the copy
+  const duplicatePage = useCallback(() => {
+    setState((prev) => {
+      const pages = prev.pages || [null]
+      const currentPageData = extractPageData(prev)
+
+      // Save current page, insert duplicate after it
+      const newPages = [...pages]
+      newPages[prev.activePage] = currentPageData
+      const insertIndex = prev.activePage + 1
+      newPages.splice(insertIndex, 0, null) // null = active at top-level
+
+      // The duplicate gets the same data as current (already at top-level)
+      // But we need deep copies of the page data
+      const duplicateData = JSON.parse(JSON.stringify(currentPageData))
+
+      return {
+        ...prev,
+        ...duplicateData,
+        pages: newPages,
+        activePage: insertIndex,
+      }
+    })
+  }, [setState])
+
+  // Remove a page
+  const removePage = useCallback((index) => {
+    setState((prev) => {
+      const pages = prev.pages || [null]
+      if (pages.length <= 1) return prev // Can't remove last page
+
+      const newPages = [...pages]
+
+      if (index === prev.activePage) {
+        // Removing active page - switch to adjacent page first
+        const newActiveIndex = index > 0 ? index - 1 : 0
+        const currentPageData = extractPageData(prev)
+        newPages[prev.activePage] = currentPageData
+
+        // Remove the target page
+        newPages.splice(index, 1)
+
+        // Adjust active index
+        const adjustedIndex = index > 0 ? index - 1 : 0
+        const targetData = newPages[adjustedIndex]
+        newPages[adjustedIndex] = null
+
+        return {
+          ...prev,
+          ...(targetData || {}),
+          pages: newPages,
+          activePage: adjustedIndex,
+        }
+      } else {
+        // Removing inactive page
+        newPages.splice(index, 1)
+        // Adjust activePage if needed
+        const newActivePage = index < prev.activePage ? prev.activePage - 1 : prev.activePage
+
+        return {
+          ...prev,
+          pages: newPages,
+          activePage: newActivePage,
+        }
+      }
+    })
+  }, [setState])
+
+  // Move a page from one index to another
+  const movePage = useCallback((fromIndex, toIndex) => {
+    setState((prev) => {
+      const pages = prev.pages || [null]
+      if (fromIndex === toIndex || fromIndex < 0 || toIndex < 0 ||
+          fromIndex >= pages.length || toIndex >= pages.length) return prev
+
+      const newPages = [...pages]
+      const [moved] = newPages.splice(fromIndex, 1)
+      newPages.splice(toIndex, 0, moved)
+
+      // Recalculate activePage
+      let newActivePage = prev.activePage
+      if (prev.activePage === fromIndex) {
+        newActivePage = toIndex
+      } else if (fromIndex < prev.activePage && toIndex >= prev.activePage) {
+        newActivePage = prev.activePage - 1
+      } else if (fromIndex > prev.activePage && toIndex <= prev.activePage) {
+        newActivePage = prev.activePage + 1
+      }
+
+      return {
+        ...prev,
+        pages: newPages,
+        activePage: newActivePage,
+      }
+    })
+  }, [setState])
+
+  // Get the total page count
+  const getPageCount = useCallback(() => {
+    return (state.pages || [null]).length
+  }, [state.pages])
+
+  // Get page data for rendering (e.g. thumbnails) - returns active page from top-level
+  const getPageState = useCallback((index) => {
+    const pages = state.pages || [null]
+    if (index === state.activePage) {
+      // Active page data is at top-level
+      return state
+    }
+    // Inactive page - merge with shared fields
+    const pageData = pages[index]
+    if (!pageData) return null
+    return {
+      ...pageData,
+      theme: state.theme,
+      fonts: state.fonts,
+      platform: state.platform,
+      logo: state.logo,
+      logoPosition: state.logoPosition,
+      logoSize: state.logoSize,
+    }
+  }, [state])
+
+  // --- Text mode management ---
+
+  const setTextMode = useCallback((mode) => {
+    setState((prev) => ({ ...prev, textMode: mode }))
+  }, [setState])
+
+  // Update freeform text for a specific cell
+  const setFreeformText = useCallback((cellIndex, updates) => {
+    setState((prev) => ({
+      ...prev,
+      freeformText: {
+        ...(prev.freeformText || {}),
+        [cellIndex]: {
+          ...(prev.freeformText?.[cellIndex] || {
+            content: '',
+            markdown: false,
+            color: 'secondary',
+            size: 1,
+            bold: false,
+            italic: false,
+            letterSpacing: 0,
+            textAlign: null,
+          }),
+          ...updates,
+        },
+      },
+    }))
+  }, [setState])
+
   // Save current design to localStorage
   const saveDesign = useCallback((name = 'My Design') => {
+    // Before saving, ensure active page data is synced into pages array
+    const pages = state.pages || [null]
+    const syncedPages = [...pages]
+    syncedPages[state.activePage] = extractPageData(state)
+
     const design = {
       name,
       savedAt: new Date().toISOString(),
-      state: state,
+      state: { ...state, pages: syncedPages },
     }
     try {
-      // Get existing designs or initialize empty array
       const existingDesigns = JSON.parse(localStorage.getItem('social-ad-creator-designs') || '[]')
-      // Add new design with unique ID
       const newDesign = { id: `design-${Date.now()}`, ...design }
       existingDesigns.push(newDesign)
       localStorage.setItem('social-ad-creator-designs', JSON.stringify(existingDesigns))
@@ -500,7 +743,26 @@ export function useAdState() {
       const designs = JSON.parse(localStorage.getItem('social-ad-creator-designs') || '[]')
       const design = designs.find(d => d.id === designId)
       if (design && design.state) {
-        setState(design.state)
+        // Handle legacy designs without pages
+        const loadedState = { ...design.state }
+        if (!loadedState.pages) {
+          loadedState.pages = [null]
+          loadedState.activePage = 0
+        }
+        if (!loadedState.textMode) {
+          loadedState.textMode = 'structured'
+        }
+        if (!loadedState.freeformText) {
+          loadedState.freeformText = {}
+        }
+        // If pages are synced (all non-null), load the active page to top-level
+        const activePage = loadedState.activePage || 0
+        if (loadedState.pages[activePage] !== null) {
+          const pageData = loadedState.pages[activePage]
+          Object.assign(loadedState, pageData)
+          loadedState.pages[activePage] = null
+        }
+        setState(loadedState)
         resetHistory()
         return { success: true }
       }
@@ -511,7 +773,6 @@ export function useAdState() {
     }
   }, [setState, resetHistory])
 
-  // Get list of saved designs (without full state data for performance)
   const getSavedDesigns = useCallback(() => {
     try {
       const designs = JSON.parse(localStorage.getItem('social-ad-creator-designs') || '[]')
@@ -525,7 +786,6 @@ export function useAdState() {
     }
   }, [])
 
-  // Delete a saved design
   const deleteDesign = useCallback((designId) => {
     try {
       const designs = JSON.parse(localStorage.getItem('social-ad-creator-designs') || '[]')
@@ -576,5 +836,16 @@ export function useAdState() {
     loadDesign,
     getSavedDesigns,
     deleteDesign,
+    // Multi-page
+    setActivePage,
+    addPage,
+    duplicatePage,
+    removePage,
+    movePage,
+    getPageCount,
+    getPageState,
+    // Text mode
+    setTextMode,
+    setFreeformText,
   }
 }
