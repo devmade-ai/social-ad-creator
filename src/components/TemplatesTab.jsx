@@ -114,7 +114,7 @@ function LayoutPresetIcon({ presetId, isActive }) {
 }
 
 // Sample Images Section
-function SampleImagesSection({ images, onAddImage }) {
+function SampleImagesSection({ images, onAddImage, selectedCell }) {
   const [loadingSample, setLoadingSample] = useState(null)
   const [sampleError, setSampleError] = useState(null)
 
@@ -128,7 +128,7 @@ function SampleImagesSection({ images, onAddImage }) {
         const blob = await response.blob()
         const reader = new FileReader()
         reader.onload = (event) => {
-          onAddImage(event.target.result, sample.name)
+          onAddImage(event.target.result, sample.name, selectedCell)
           setLoadingSample(null)
         }
         reader.onerror = () => {
@@ -197,6 +197,7 @@ export default memo(function TemplatesTab({
   onThemePresetChange,
   images = [],
   onAddImage,
+  selectedCell = 0,
 }) {
   const isCustomTheme = theme?.preset === 'custom'
   const [layoutCategory, setLayoutCategory] = useState('all')
@@ -335,7 +336,7 @@ export default memo(function TemplatesTab({
       {/* Sample Images */}
       {onAddImage && (
         <CollapsibleSection title="Sample Images" defaultExpanded={false}>
-          <SampleImagesSection images={images} onAddImage={onAddImage} />
+          <SampleImagesSection images={images} onAddImage={onAddImage} selectedCell={selectedCell} />
         </CollapsibleSection>
       )}
 

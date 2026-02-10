@@ -233,7 +233,7 @@ function App() {
   const previewScale = useMemo(() => {
     const maxWidth = Math.max(containerWidth - 32, 200)
     const maxHeight = isReaderMode
-      ? Math.min(window.innerHeight * 0.8, 800)
+      ? window.innerHeight - 120 // Full viewport minus header and nav
       : Math.min(window.innerHeight * 0.6, 600)
     const scaleX = maxWidth / platform.width
     const scaleY = maxHeight / platform.height
@@ -260,7 +260,7 @@ function App() {
 
         {/* Reader header */}
         <header className="bg-white/80 dark:bg-dark-card/80 backdrop-blur-sm border-b border-zinc-200/60 dark:border-zinc-700/60 px-4 py-3 sticky top-0 z-10">
-          <div className="flex items-center justify-between max-w-4xl mx-auto">
+          <div className="flex items-center justify-between">
             <button
               onClick={() => setIsReaderMode(false)}
               className="px-3 py-1.5 text-sm rounded-lg flex items-center gap-1.5 font-medium bg-zinc-100 dark:bg-dark-subtle text-ui-text hover:bg-zinc-200 dark:hover:bg-dark-elevated active:scale-95 transition-all"
@@ -286,10 +286,10 @@ function App() {
         </header>
 
         {/* Reader canvas */}
-        <main className="flex flex-col items-center py-8 px-4">
+        <main className="flex flex-col items-center py-4 px-4">
           <div
             ref={previewContainerRef}
-            className="w-full max-w-4xl flex justify-center"
+            className="w-full flex justify-center"
           >
             <div
               style={{
@@ -558,9 +558,6 @@ function App() {
 
       {/* Sticky context bar: page nav, cell selector, undo/redo */}
       <ContextBar
-        activePage={state.activePage}
-        pageCount={pageCount}
-        onSetActivePage={setActivePage}
         layout={state.layout}
         cellImages={state.cellImages}
         selectedCell={selectedCell}
@@ -609,6 +606,7 @@ function App() {
                     onThemePresetChange={setThemePreset}
                     images={state.images}
                     onAddImage={addImage}
+                    selectedCell={selectedCell}
                   />
                 )}
               </ErrorBoundary>
