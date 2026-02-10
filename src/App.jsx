@@ -565,6 +565,8 @@ function App() {
                     theme={state.theme}
                     onThemeChange={setTheme}
                     onThemePresetChange={setThemePreset}
+                    images={state.images}
+                    onAddImage={addImage}
                   />
                 )}
               </ErrorBoundary>

@@ -1,6 +1,5 @@
 import { useCallback, useRef, useState, memo, useMemo, useEffect } from 'react'
 import CollapsibleSection from './CollapsibleSection'
-import { sampleImages } from '../config/sampleImages'
 import { platforms } from '../config/platforms'
 import { overlayTypes } from '../config/layouts'
 import { neutralColors } from '../config/themes'
@@ -366,67 +365,6 @@ function AIPromptHelper({ theme }) {
   )
 }
 
-// Sample Images Section - inline collapsible within Images section
-function SampleImagesSection({ images, sampleImages, loadingSample, sampleError, onLoadSample }) {
-  const [isExpanded, setIsExpanded] = useState(images.length === 0)
-
-  return (
-    <div className="border-t border-ui-border-subtle pt-3">
-      <button
-        onClick={() => setIsExpanded(!isExpanded)}
-        className="flex items-center justify-between w-full text-left"
-      >
-        <span className="text-xs font-medium text-ui-text-muted">
-          {images.length === 0 ? 'Try a sample image' : 'Sample Images'}
-        </span>
-        <svg
-          className={`w-3.5 h-3.5 text-ui-text-faint transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-        </svg>
-      </button>
-      {isExpanded && (
-        <div className="mt-2 space-y-2">
-          <div className="grid grid-cols-5 gap-1.5">
-            {sampleImages.map((sample) => (
-              <button
-                key={sample.id}
-                onClick={() => onLoadSample(sample)}
-                disabled={loadingSample === sample.id}
-                title={`Add ${sample.name} to library`}
-                className={`aspect-square rounded-lg overflow-hidden border-2 transition-all ${
-                  loadingSample === sample.id
-                    ? 'border-violet-400 opacity-50 scale-95'
-                    : 'border-ui-border hover:border-violet-400 hover:shadow-sm active:scale-95'
-                }`}
-              >
-                <img
-                  src={import.meta.env.BASE_URL + sample.file}
-                  alt={sample.name}
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    e.target.style.display = 'none'
-                    e.target.nextSibling.style.display = 'flex'
-                  }}
-                />
-                <div
-                  className="w-full h-full bg-ui-surface-inset items-center justify-center text-ui-text-faint text-[9px] text-center p-0.5"
-                  style={{ display: 'none' }}
-                >
-                  {sample.name}
-                </div>
-              </button>
-            ))}
-          </div>
-          {sampleError && <p className="text-xs text-red-600 dark:text-red-400">{sampleError}</p>}
-        </div>
-      )}
-    </div>
-  )
-}
 
 export default memo(function MediaTab({
   // Image pool
@@ -454,8 +392,6 @@ export default memo(function MediaTab({
 }) {
   const fileInputRef = useRef(null)
   const logoInputRef = useRef(null)
-  const [loadingSample, setLoadingSample] = useState(null)
-  const [sampleError, setSampleError] = useState(null)
   const [selectedImageId, setSelectedImageId] = useState(null) // Currently selected image for editing
 
   // Get selected image data
@@ -486,34 +422,6 @@ export default memo(function MediaTab({
       .filter(([, id]) => id === imageId)
       .map(([cellIdx]) => parseInt(cellIdx))
   }, [cellImages])
-
-  // Load a sample image
-  const loadSampleImage = useCallback(
-    async (sample) => {
-      setLoadingSample(sample.id)
-      setSampleError(null)
-      try {
-        const response = await fetch(import.meta.env.BASE_URL + sample.file)
-        if (!response.ok) throw new Error('Image not found')
-        const blob = await response.blob()
-        const reader = new FileReader()
-        reader.onload = (event) => {
-          const imageId = onAddImage(event.target.result, sample.name)
-          setSelectedImageId(imageId)
-          setLoadingSample(null)
-        }
-        reader.onerror = () => {
-          setSampleError('Failed to load image')
-          setLoadingSample(null)
-        }
-        reader.readAsDataURL(blob)
-      } catch {
-        setSampleError(`Add ${sample.name} to public/samples/`)
-        setLoadingSample(null)
-      }
-    },
-    [onAddImage]
-  )
 
   const handleDrop = useCallback(
     (e) => {
@@ -618,15 +526,6 @@ export default memo(function MediaTab({
             </div>
             <input ref={fileInputRef} type="file" accept="image/*" multiple className="hidden" onChange={handleFileSelect} />
           </div>
-
-          {/* Sample Images - always available as collapsible section */}
-          <SampleImagesSection
-            images={images}
-            sampleImages={sampleImages}
-            loadingSample={loadingSample}
-            sampleError={sampleError}
-            onLoadSample={loadSampleImage}
-          />
 
           {/* Image Library - click to select an image */}
           {images.length > 0 && (

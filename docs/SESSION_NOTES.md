@@ -5,46 +5,38 @@ Compact context summary for session continuity. Rewrite at session end.
 ---
 
 ## Worked on
-Multi-page support, reader mode, and freeform text mode with markdown
+UI fixes for Presets/Pages/Content tabs based on user feedback
 
 ## Accomplished
 
-1. **Multi-page state management** in `useAdState.js`
-   - Pages array where active page data lives at top-level (zero refactoring of existing components)
-   - Page management: add, duplicate, remove, move, switch
-   - Shared fields (theme, fonts, platform, logo) vs per-page fields (images, layout, text, etc.)
-   - Save/load handles multi-page with legacy backward compatibility
+1. **Removed confusing page indicator dots** from PageStrip thumbnails
+   - Blue/green dots were 1x1 pixels with no legend - users couldn't understand them
+   - Removed entirely for cleaner page thumbnails
 
-2. **PageStrip component** - page thumbnails with add/delete/duplicate/reorder
+2. **Fixed PageStrip mobile wrapping**
+   - Thumbnails now wrap on mobile instead of being squeezed into a tiny scroll area
+   - Action buttons align right with `ml-auto` on mobile
+   - Thumbnails get full width on mobile via `order-last` and `w-full`
 
-3. **Reader mode** in `App.jsx`
-   - Clean view with no editing UI
-   - Arrow key and button page navigation
-   - Escape to exit
+3. **Fixed markdown rendering in canvas**
+   - `whiteSpace: 'pre-wrap'` was applied to markdown HTML container
+   - This caused raw newlines from source text to appear as visible line breaks in addition to HTML structure from `marked`
+   - Fixed by using `whiteSpace: 'normal'` for markdown mode
 
-4. **Freeform text mode** in `ContentTab.jsx`
-   - Structured/Freeform toggle at top of Content tab
-   - Per-cell text editors with alignment, color, size controls
-   - Markdown toggle per cell
+4. **Made Auto alignment icon distinct from Center**
+   - AlignAutoIcon and AlignCenterIcon had identical SVG geometry (Auto just had lower opacity)
+   - Redesigned Auto icon to show mixed alignment (left-shifted, center-shifted, right-shifted lines)
 
-5. **Markdown rendering** in `AdCanvas.jsx`
-   - Uses `marked` library
-   - Renders formatted HTML in freeform cells with markdown enabled
-   - CSS styles for markdown elements in `index.css`
-
-6. **Multi-page export** in `ExportButtons.jsx`
-   - "Download All Pages (ZIP)" button
-   - Exports numbered PNGs per page
+5. **Moved Sample Images to Presets tab**
+   - Sample images are now in Presets tab as "Sample Images" section (auto-expanded when no images)
+   - Removed from Media tab
+   - Better fits the "start here" workflow of the Presets tab
 
 ## Current state
 - **Build**: Passes successfully
-- All features implemented and building
-- Ready for user testing
+- All changes are UI/UX improvements, no state structure changes
 
 ## Key context
-- `pages` array: `pages[activePage] = null` means active page data is at top-level
-- Inactive pages stored as full per-page data objects in the array
-- `textMode: 'structured' | 'freeform'` is per-page
-- `freeformText: { cellIndex: { content, markdown, color, size, ... } }` is per-page
-- New dependency: `marked` (markdown parser)
-- Existing text group system fully preserved in structured mode
+- Presets tab now accepts `images` and `onAddImage` props for sample images
+- MediaTab no longer imports `sampleImages` config
+- PageStrip uses `flex-wrap` for mobile responsiveness

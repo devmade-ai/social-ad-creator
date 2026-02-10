@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026-02-10
+
+### UI Fixes: Presets, Pages, Content
+
+- Removed confusing blue/green indicator dots from page thumbnails (too small, no legend)
+- Fixed PageStrip mobile responsiveness: thumbnails wrap instead of being squeezed
+- Fixed markdown rendering: `whiteSpace: pre-wrap` was conflicting with HTML from `marked`
+- Made Auto alignment icon visually distinct from Center (was identical geometry, only opacity differed)
+- Moved Sample Images from Media tab to Presets tab (better fits "start here" workflow)
+
 ## 2026-02-09
 
 ### Multi-Page Support, Reader Mode, and Freeform Text
@@ -16,7 +26,6 @@ Added multi-page document creation, a reader view for viewing pages, and a freef
 
 **PageStrip Component (PageStrip.jsx)**
 - Horizontal strip showing page thumbnails with page numbers
-- Content indicator dots (blue = images, green = text)
 - Add, duplicate, delete, move left/right controls
 - Scrollable for many pages
 - Always visible in editor

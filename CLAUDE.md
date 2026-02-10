@@ -254,7 +254,7 @@ src/
 ├── components/     # React components
 │   ├── AdCanvas.jsx           # Core rendering (cell-based layout)
 │   ├── CollapsibleSection.jsx # Reusable collapsible section for tab content
-│   ├── TemplatesTab.jsx       # Layout presets, themes, and looks
+│   ├── TemplatesTab.jsx       # Sample images, layout presets, themes, and looks
 │   ├── MediaTab.jsx           # Image + logo upload, fit, position, filters
 │   ├── ContentTab.jsx         # Text editing with cell assignment
 │   ├── LayoutTab.jsx          # Grid structure + cell alignment
@@ -364,7 +364,8 @@ textCells: {
 ## Tab Details (New Workflow-Based UI)
 
 ### Presets Tab (formerly Templates)
-Entry point for users. Three sections:
+Entry point for users. Four sections:
+- **Sample Images** - Quick-start sample images to add to library (auto-expanded when no images)
 - **Layout** - Grid structure presets with aspect ratio filtering (All, Square, Portrait, Landscape) and category filtering
 - **Themes** - 12 preset color themes + custom color inputs
 - **Looks** - Visual effect presets that apply overlay, fonts, and filters without changing layout or colors

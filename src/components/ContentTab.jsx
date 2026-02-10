@@ -26,9 +26,9 @@ const letterSpacingOptions = [
 
 const AlignAutoIcon = () => (
   <svg width="14" height="10" viewBox="0 0 14 10" fill="currentColor">
-    <rect x="2" y="0" width="10" height="2" opacity="0.4" />
-    <rect x="0" y="4" width="14" height="2" opacity="0.4" />
-    <rect x="3" y="8" width="8" height="2" opacity="0.4" />
+    <rect x="0" y="0" width="8" height="2" opacity="0.4" />
+    <rect x="2" y="4" width="10" height="2" opacity="0.4" />
+    <rect x="4" y="8" width="10" height="2" opacity="0.4" />
   </svg>
 )
 const AlignLeftIcon = () => (

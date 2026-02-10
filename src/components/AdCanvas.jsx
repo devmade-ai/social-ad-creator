@@ -548,6 +548,9 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
 
     if (cellData.markdown) {
       const html = marked.parse(cellData.content)
+      // Markdown HTML handles its own line breaks via <p>/<br> tags,
+      // so we must NOT use whiteSpace: pre-wrap which would double-break lines
+      const markdownStyle = { ...textStyle, whiteSpace: 'normal' }
       return (
         <div
           style={{
@@ -564,7 +567,7 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
         >
           <div
             className="freeform-markdown"
-            style={textStyle}
+            style={markdownStyle}
             dangerouslySetInnerHTML={{ __html: html }}
           />
         </div>

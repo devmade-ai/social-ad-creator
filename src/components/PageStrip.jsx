@@ -8,9 +8,6 @@ function PageThumbnail({ pageState, isActive, onClick, index, platform }) {
   const thumbHeight = 48
   const thumbWidth = thumbHeight * aspectRatio
 
-  // Simple color-based thumbnail showing the page's primary color and whether it has content
-  const hasImages = pageState?.images?.length > 0
-  const hasText = pageState?.text?.title?.content || pageState?.freeformText && Object.keys(pageState.freeformText).length > 0
   const bgColor = pageState?.theme?.primary || '#1a1a2e'
 
   return (
@@ -31,15 +28,6 @@ function PageThumbnail({ pageState, isActive, onClick, index, platform }) {
         <span className={`text-[9px] font-bold ${isActive ? 'text-white' : 'text-white/70'}`}>
           {index + 1}
         </span>
-      </div>
-      {/* Content indicator dots */}
-      <div className="absolute bottom-0.5 left-0 right-0 flex justify-center gap-0.5">
-        {hasImages && (
-          <div className="w-1 h-1 rounded-full bg-blue-400" title="Has images" />
-        )}
-        {hasText && (
-          <div className="w-1 h-1 rounded-full bg-green-400" title="Has text" />
-        )}
       </div>
     </button>
   )
@@ -71,7 +59,7 @@ export default memo(function PageStrip({
 
   return (
     <div className="bg-white dark:bg-dark-card rounded-xl border border-zinc-200/80 dark:border-zinc-700/50 shadow-card p-3">
-      <div className="flex items-center gap-3">
+      <div className="flex flex-wrap items-center gap-2 sm:gap-3">
         {/* Page label */}
         <div className="flex items-center gap-1.5 shrink-0">
           <span className="text-xs font-medium text-ui-text-muted">Pages</span>
@@ -81,8 +69,8 @@ export default memo(function PageStrip({
         </div>
 
         {/* Page thumbnails - scrollable */}
-        <div className="flex-1 min-w-0 overflow-x-auto scrollbar-thin" ref={scrollRef}>
-          <div className="flex gap-1.5 py-0.5">
+        <div className="flex-1 min-w-0 overflow-x-auto scrollbar-thin order-last sm:order-none w-full sm:w-auto" ref={scrollRef}>
+          <div className="flex flex-wrap sm:flex-nowrap gap-1.5 py-0.5">
             {pages.map((_, index) => {
               const pageState = getPageState(index)
               return (
@@ -100,7 +88,7 @@ export default memo(function PageStrip({
         </div>
 
         {/* Page actions */}
-        <div className="flex items-center gap-1 shrink-0">
+        <div className="flex items-center gap-1 shrink-0 ml-auto sm:ml-0">
           {/* Move left */}
           <button
             onClick={() => onMovePage(activePage, activePage - 1)}
