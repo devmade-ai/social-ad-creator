@@ -15,7 +15,6 @@ import ErrorBoundary from './components/ErrorBoundary'
 import InstallInstructionsModal from './components/InstallInstructionsModal'
 import TutorialModal from './components/TutorialModal'
 import SaveLoadModal from './components/SaveLoadModal'
-import PageStrip from './components/PageStrip'
 import ContextBar from './components/ContextBar'
 import { platforms } from './config/platforms'
 import { fonts } from './config/fonts'
@@ -572,7 +571,28 @@ function App() {
         </div>
       </header>
 
-      {/* Sticky context bar: page nav, cell selector, undo/redo */}
+      {/* Tab Navigation Bar - full width, website header style */}
+      <nav className="bg-white/90 dark:bg-dark-card/90 backdrop-blur-sm border-b border-zinc-200/60 dark:border-zinc-700/60 sticky top-0 z-10">
+        <div className="flex items-center">
+          <div className="flex overflow-x-auto scrollbar-thin">
+            {sections.map((section) => (
+              <button
+                key={section.id}
+                onClick={() => setActiveSection(section.id)}
+                className={`px-4 py-2.5 text-sm font-medium whitespace-nowrap transition-all border-b-2 ${
+                  activeSection === section.id
+                    ? 'border-primary text-primary bg-primary/5 dark:bg-primary/10'
+                    : 'border-transparent text-ui-text-muted hover:text-ui-text hover:border-zinc-300 dark:hover:border-zinc-600 hover:bg-zinc-50 dark:hover:bg-dark-subtle'
+                }`}
+              >
+                {section.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      </nav>
+
+      {/* Context bar: cell selector, pages, undo/redo */}
       <ContextBar
         layout={state.layout}
         cellImages={state.cellImages}
@@ -583,29 +603,20 @@ function App() {
         redo={redo}
         canUndo={canUndo}
         canRedo={canRedo}
+        pages={pages}
+        activePage={state.activePage}
+        onSetActivePage={setActivePage}
+        onAddPage={addPage}
+        onDuplicatePage={duplicatePage}
+        onRemovePage={removePage}
+        onMovePage={movePage}
+        getPageState={getPageState}
       />
 
       <div className="flex flex-col lg:flex-row lg:items-stretch">
         {/* Sidebar Controls */}
         <aside className="w-full lg:w-96 p-4 lg:p-5 lg:pr-0">
           <div className="bg-white dark:bg-dark-card rounded-xl border border-zinc-200/80 dark:border-zinc-700/50 shadow-card p-4 lg:p-5">
-            {/* Section Tabs */}
-            <div className="flex flex-wrap gap-1.5 mb-5 pb-4 border-b border-zinc-100 dark:border-zinc-800">
-              {sections.map((section) => (
-                <button
-                  key={section.id}
-                  onClick={() => setActiveSection(section.id)}
-                  className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-all ${
-                    activeSection === section.id
-                      ? 'bg-primary text-white shadow-sm hover:bg-primary-hover'
-                      : 'bg-zinc-100 dark:bg-dark-subtle text-ui-text-muted hover:bg-zinc-200 dark:hover:bg-dark-elevated hover:text-zinc-800 dark:hover:text-zinc-100'
-                  }`}
-                >
-                  {section.label}
-                </button>
-              ))}
-            </div>
-
             {/* Section Content */}
             <div className="space-y-5">
               <ErrorBoundary title="Templates error" message="Failed to load templates.">
@@ -717,19 +728,6 @@ function App() {
           <div className="bg-white dark:bg-dark-card rounded-xl border border-zinc-200/80 dark:border-zinc-700/50 shadow-card p-4 lg:p-5">
             <PlatformPreview selectedPlatform={state.platform} onPlatformChange={setPlatform} />
           </div>
-
-          {/* Page Strip - always visible */}
-          <PageStrip
-            pages={pages}
-            activePage={state.activePage}
-            onSetActivePage={setActivePage}
-            onAddPage={addPage}
-            onDuplicatePage={duplicatePage}
-            onRemovePage={removePage}
-            onMovePage={movePage}
-            getPageState={getPageState}
-            platform={state.platform}
-          />
 
           {/* Canvas Preview */}
           <div className="bg-white dark:bg-dark-card rounded-xl border border-zinc-200/80 dark:border-zinc-700/50 shadow-card p-4 lg:p-6">

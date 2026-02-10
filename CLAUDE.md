@@ -183,7 +183,7 @@ Social Ad Creator - A browser-based tool for creating social media advertisement
 Core features working:
 
 - **Multi-page support**: Create multi-page documents (books, stories, presentations)
-  - Pages array with add/duplicate/delete/reorder via PageStrip
+  - Pages array with add/duplicate/delete/reorder via ContextBar
   - Per-page: images, layout, text, overlays, padding, frames
   - Shared across pages: theme, fonts, platform, logo
 - **Reader mode**: Clean full-screen view with page navigation (arrow keys, buttons, dots)
@@ -223,9 +223,19 @@ Core features working:
 
 ## Current Tab Structure
 
-**Top-level tabs:** Presets, Media, Content, Structure, Style
+**Top-level tabs (horizontal nav bar):** Presets, Media, Content, Structure, Style
 
-This is a workflow-based organization (as of January 2026 refactor):
+Tabs render as a full-width horizontal nav bar below the header (website header pattern), with underline-style active indicator. Below the tabs is a unified ContextBar containing: cell selector | page management | undo/redo.
+
+Layout:
+```
+Header (scrolls away)
+Tab Nav Bar (sticky, full-width, underline active indicator)
+Context Bar: [Cell grid] | [Page thumbnails + actions] | [Undo/Redo]
+Sidebar (tab content) | Main (platform selector + canvas + export)
+```
+
+Tab descriptions (workflow-based organization):
 - **Presets** - Start here: Layout presets (with aspect ratio filtering), color themes, and visual looks
 - **Media** - Sample images, upload images to library, assign to cells, per-image overlay & filters, logo
 - **Content** - Write text, set visibility, cell assignment, alignment, color, size
@@ -262,7 +272,8 @@ src/
 │   ├── ContentTab.jsx         # Text editing with cell assignment
 │   ├── LayoutTab.jsx          # Grid structure + cell alignment
 │   ├── StyleTab.jsx           # Typography, overlay, spacing (themes in Presets tab)
-│   ├── PageStrip.jsx          # Multi-page strip (thumbnails, add/delete/reorder)
+│   ├── PageStrip.jsx          # (unused) Standalone page strip - functionality moved to ContextBar
+│   ├── ContextBar.jsx         # Sticky bar: cell selector + page management + undo/redo
 │   ├── PlatformPreview.jsx    # Platform selector
 │   ├── ExportButtons.jsx      # Export controls (single, multi-platform, multi-page)
 │   └── ErrorBoundary.jsx      # Error handling wrapper
