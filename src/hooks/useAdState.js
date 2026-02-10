@@ -156,14 +156,35 @@ export function useAdState() {
   const addImage = useCallback((src, name = 'Image', targetCell = null) => {
     const id = `img-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
     setState((prev) => {
+      // If there's an active look, apply its filters/overlay to the new image
+      let filters = { ...prev.defaultImageSettings.filters }
+      let overlay = { ...prev.defaultImageSettings.overlay }
+
+      if (prev.activeStylePreset) {
+        const layoutId = prev.activeLayoutPreset || 'hero'
+        const lookSettings = getLookSettingsForLayout(prev.activeStylePreset, layoutId)
+        if (lookSettings) {
+          if (lookSettings.imageFilters) {
+            filters = { ...filters, ...lookSettings.imageFilters }
+          }
+          if (lookSettings.imageOverlay) {
+            overlay = {
+              type: lookSettings.imageOverlay.type,
+              color: lookSettings.imageOverlay.color,
+              opacity: lookSettings.imageOverlay.opacity,
+            }
+          }
+        }
+      }
+
       const newImages = [...prev.images, {
         id,
         src,
         name,
         fit: prev.defaultImageSettings.fit,
         position: { ...prev.defaultImageSettings.position },
-        filters: { ...prev.defaultImageSettings.filters },
-        overlay: { ...prev.defaultImageSettings.overlay },
+        filters,
+        overlay,
       }]
 
       const newCellImages = { ...prev.cellImages }
