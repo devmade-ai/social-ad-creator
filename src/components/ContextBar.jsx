@@ -78,10 +78,6 @@ function CellGrid({ layout, cellImages = {}, selectedCell, onSelectCell, platfor
 }
 
 export default memo(function ContextBar({
-  // Page
-  activePage,
-  pageCount,
-  onSetActivePage,
   // Cell
   layout,
   cellImages,
@@ -102,33 +98,6 @@ export default memo(function ContextBar({
   return (
     <div className="bg-white/90 dark:bg-dark-card/90 backdrop-blur-sm border-b border-zinc-200/60 dark:border-zinc-700/60 px-4 py-1.5 sticky top-0 z-10">
       <div className="flex items-center justify-between gap-3">
-        {/* Page selector */}
-        <div className="flex items-center gap-1">
-          <button
-            onClick={() => activePage > 0 && onSetActivePage(activePage - 1)}
-            disabled={activePage === 0}
-            title="Previous page"
-            className="p-0.5 rounded text-ui-text-muted hover:text-ui-text hover:bg-zinc-100 dark:hover:bg-dark-subtle disabled:opacity-30 disabled:cursor-not-allowed transition-all"
-          >
-            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-          </button>
-          <span className="text-xs font-medium text-ui-text min-w-[36px] text-center">
-            {activePage + 1}/{pageCount}
-          </span>
-          <button
-            onClick={() => activePage < pageCount - 1 && onSetActivePage(activePage + 1)}
-            disabled={activePage >= pageCount - 1}
-            title="Next page"
-            className="p-0.5 rounded text-ui-text-muted hover:text-ui-text hover:bg-zinc-100 dark:hover:bg-dark-subtle disabled:opacity-30 disabled:cursor-not-allowed transition-all"
-          >
-            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
-        </div>
-
         {/* Cell selector - miniature layout grid */}
         <div className="flex items-center gap-2">
           <span className="text-[10px] text-ui-text-faint uppercase tracking-wide hidden sm:inline">Cell</span>

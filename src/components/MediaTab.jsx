@@ -446,7 +446,7 @@ export default memo(function MediaTab({
         if (file && file.type.startsWith('image/')) {
           const reader = new FileReader()
           reader.onload = (event) => {
-            const imageId = onAddImage(event.target.result, file.name)
+            const imageId = onAddImage(event.target.result, file.name, selectedCell)
             if (!firstImageId) {
               firstImageId = imageId
               setSelectedImageId(imageId)
@@ -456,7 +456,7 @@ export default memo(function MediaTab({
         }
       })
     },
-    [onAddImage]
+    [onAddImage, selectedCell]
   )
 
   const handleDragOver = useCallback((e) => {
@@ -471,7 +471,7 @@ export default memo(function MediaTab({
         if (file && file.type.startsWith('image/')) {
           const reader = new FileReader()
           reader.onload = (event) => {
-            const imageId = onAddImage(event.target.result, file.name)
+            const imageId = onAddImage(event.target.result, file.name, selectedCell)
             if (!firstImageId) {
               firstImageId = imageId
               setSelectedImageId(imageId)
@@ -481,7 +481,7 @@ export default memo(function MediaTab({
         }
       })
     },
-    [onAddImage]
+    [onAddImage, selectedCell]
   )
 
   // Toggle assignment of selected image to a cell
