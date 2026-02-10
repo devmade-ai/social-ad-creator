@@ -396,7 +396,6 @@ function FreeformCellEditor({
 }) {
   const data = cellData || {
     content: '',
-    markdown: false,
     color: 'secondary',
     size: 1,
     bold: false,
@@ -415,28 +414,15 @@ function FreeformCellEditor({
           Cell {cellIndex + 1}
           {isImageCell && <span className="ml-1 text-[10px] text-ui-text-subtle">(image)</span>}
         </span>
-        {/* Markdown toggle */}
-        <button
-          onClick={() => onFreeformTextChange(cellIndex, { markdown: !data.markdown })}
-          title={data.markdown ? 'Markdown enabled - click to disable' : 'Enable markdown'}
-          className={`ml-auto px-2 py-0.5 text-[10px] font-medium rounded transition-colors ${
-            data.markdown
-              ? 'bg-violet-100 dark:bg-violet-900/40 text-violet-600 dark:text-violet-400'
-              : 'bg-ui-surface-inset text-ui-text-faint hover:bg-ui-surface-hover'
-          }`}
-        >
-          MD
-        </button>
       </div>
 
-      {/* Text input */}
+      {/* Text input - always supports markdown */}
       <textarea
         value={data.content}
         onChange={(e) => onFreeformTextChange(cellIndex, { content: e.target.value })}
-        placeholder={data.markdown ? 'Write in **markdown**...' : 'Enter text...'}
+        placeholder="Write text or **markdown**..."
         rows={3}
         className="w-full px-3 py-2 text-sm text-ui-text border border-ui-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary resize-none bg-white dark:bg-dark-subtle placeholder-zinc-400 dark:placeholder-zinc-500 font-mono"
-        style={{ fontFamily: data.markdown ? 'monospace' : 'inherit' }}
       />
 
       {/* Controls row */}
@@ -584,7 +570,7 @@ export default memo(function ContentTab({
       ) : (
         <>
           <p className="text-[11px] text-ui-text-subtle">
-            Write text for each cell. Toggle MD for markdown formatting.
+            Write text for each cell. Supports **markdown** formatting.
           </p>
           {cellInfoList.map((cell) => (
             <CollapsibleSection

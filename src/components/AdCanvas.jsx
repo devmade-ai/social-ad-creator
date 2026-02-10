@@ -530,6 +530,8 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
     const fontSize = Math.round(platform.width * 0.022 * (cellData.size || 1))
     const textAlign = cellData.textAlign || getCellTextAlign(cellIndex)
 
+    // Always parse markdown in freeform mode - no toggle needed
+    const html = marked.parse(cellData.content)
     const textStyle = {
       fontSize,
       fontWeight: cellData.bold ? 700 : 400,
@@ -539,38 +541,10 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
       lineHeight: 1.6,
       letterSpacing: `${cellData.letterSpacing || 0}px`,
       textAlign,
-      whiteSpace: 'pre-wrap',
+      whiteSpace: 'normal',
       wordWrap: 'break-word',
       overflowWrap: 'break-word',
       ...(withShadow ? { textShadow: '0 1px 2px rgba(0,0,0,0.3)' } : {}),
-    }
-
-    if (cellData.markdown) {
-      const html = marked.parse(cellData.content)
-      // Markdown HTML handles its own line breaks via <p>/<br> tags,
-      // so we must NOT use whiteSpace: pre-wrap which would double-break lines
-      const markdownStyle = { ...textStyle, whiteSpace: 'normal' }
-      return (
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: getJustifyContent(verticalAlign),
-            padding,
-            width: '100%',
-            height: '100%',
-            position: 'absolute',
-            inset: 0,
-            overflow: 'hidden',
-          }}
-        >
-          <div
-            className="freeform-markdown"
-            style={markdownStyle}
-            dangerouslySetInnerHTML={{ __html: html }}
-          />
-        </div>
-      )
     }
 
     return (
@@ -587,7 +561,11 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
           overflow: 'hidden',
         }}
       >
-        <p style={textStyle}>{cellData.content}</p>
+        <div
+          className="freeform-markdown"
+          style={textStyle}
+          dangerouslySetInnerHTML={{ __html: html }}
+        />
       </div>
     )
   }

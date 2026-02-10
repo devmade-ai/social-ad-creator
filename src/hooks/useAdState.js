@@ -644,7 +644,6 @@ export function useAdState() {
         [cellIndex]: {
           ...(prev.freeformText?.[cellIndex] || {
             content: '',
-            markdown: false,
             color: 'secondary',
             size: 1,
             bold: false,
