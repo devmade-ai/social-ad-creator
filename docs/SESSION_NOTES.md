@@ -5,7 +5,7 @@ Compact context summary for session continuity. Rewrite at session end.
 ---
 
 ## Worked on
-Global cell selection, sticky context bar, canvas click-to-select, export fix, auto-assign images
+Global cell selection, sticky context bar, canvas click-to-select, export fix, auto-assign images, tab wiring audit
 
 ## Accomplished
 
@@ -25,10 +25,10 @@ Global cell selection, sticky context bar, canvas click-to-select, export fix, a
    - Clicking a cell in the preview sets the global `selectedCell`
    - Shows a subtle border on the selected cell
 
-4. **StyleTab + ContentTab use global selectedCell**
-   - StyleTab: overlay and spacing sections now use global `selectedCell` instead of local state
-   - ContentTab: freeform mode uses global `selectedCell` instead of local state
-   - Both removed their `useState` for cell selection
+4. **StyleTab + ContentTab + MediaTab use global selectedCell**
+   - StyleTab: overlay and spacing sections use global `selectedCell`, removed toggle-to-null, null guards, deselect buttons, overview sections
+   - ContentTab: freeform mode uses global `selectedCell`, added lower bound check
+   - MediaTab: auto-selects image assigned to the globally selected cell when cell changes
 
 5. **Fixed multi-page export**
    - Added `waitForPaint()` helper with double rAF
@@ -36,11 +36,12 @@ Global cell selection, sticky context bar, canvas click-to-select, export fix, a
 
 ## Current state
 - **Build**: Passes successfully
-- Global cell selection wired to StyleTab (overlay + spacing) and ContentTab (freeform)
-- MediaTab receives selectedCell prop but doesn't use it yet (image assignment is different from cell editing)
+- All tabs wired to global cell selection
+- MediaTab auto-selects image based on global cell
+- Structured mode text assignment (MiniCellGrid) remains separate and correct — it assigns text to cells, not "edit cell"
 
 ## Key context
 - `selectedCell` is UI state in App.jsx, NOT design state (not saved/loaded)
 - `selectedCell` auto-clamps to valid range when layout changes (useEffect in App.jsx)
 - ContextBar is the ONLY sticky element now (header scrolls away)
-- MediaTab still has its own CellGrid for image assignment (toggle assign/unassign) - this is a different concept from "which cell am I editing"
+- MediaTab's CellGrid for image assignment (toggle assign/unassign) is a different concept from global cell selection

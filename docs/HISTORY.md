@@ -8,8 +8,9 @@
 - **Global selectedCell state**: Single source of truth for which cell is being edited, passed to StyleTab, ContentTab, MediaTab
 - **Canvas click-to-select**: Clicking a cell in the preview sets the global selected cell (with highlight border)
 - **Header simplified**: No longer sticky (ContextBar is), undo/redo and page nav moved to ContextBar
-- **StyleTab**: Overlay and spacing sections now use global selectedCell (removed local state)
-- **ContentTab**: Freeform mode uses global selectedCell (removed local state)
+- **StyleTab**: Overlay and spacing sections now use global selectedCell — removed toggle-to-null handlers, null guards, deselect buttons, and overview sections (always-selected model)
+- **ContentTab**: Freeform mode uses global selectedCell — added lower bound check for cell index clamping
+- **MediaTab**: Auto-selects image assigned to global selectedCell when cell changes
 
 ### Auto-assign images, export fix
 
