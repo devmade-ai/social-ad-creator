@@ -135,7 +135,7 @@ export default memo(function ContextBar({
   }, [layout.structure])
 
   return (
-    <div className="bg-white/90 dark:bg-dark-card/90 backdrop-blur-sm border-b border-zinc-200/60 dark:border-zinc-700/60 px-3 sm:px-4 py-1.5">
+    <div className="bg-white/90 dark:bg-dark-card/90 backdrop-blur-sm border-b border-zinc-200/60 dark:border-zinc-700/60 px-3 sm:px-4 py-1.5 sticky top-[41px] z-[9]">
       <div className="flex items-center gap-2 sm:gap-3">
         {/* Cell selector - miniature layout grid */}
         <div className="flex items-center gap-1.5 shrink-0">
