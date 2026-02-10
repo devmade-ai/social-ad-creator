@@ -577,11 +577,6 @@ export default memo(function MediaTab({
     <div className="space-y-3">
       <h3 className="text-sm font-semibold text-ui-text">Media</h3>
 
-      {/* Sample Images */}
-      <CollapsibleSection title="Sample Images" defaultExpanded={images.length === 0}>
-        <SampleImagesSection images={images} onAddImage={onAddImage} selectedCell={selectedCell} />
-      </CollapsibleSection>
-
       {/* AI Image Prompt Helper Section - collapsed by default */}
       <CollapsibleSection title="AI Image Prompt" defaultExpanded={false}>
         <AIPromptHelper theme={theme} />
@@ -618,6 +613,9 @@ export default memo(function MediaTab({
             </div>
             <input ref={fileInputRef} type="file" accept="image/*" multiple className="hidden" onChange={handleFileSelect} />
           </div>
+
+          {/* Sample Images */}
+          <SampleImagesSection images={images} onAddImage={onAddImage} selectedCell={selectedCell} />
 
           {/* Image Library - click to select an image */}
           {images.length > 0 && (
