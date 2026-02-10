@@ -519,7 +519,7 @@ export default memo(function ContentTab({
 
   // Clamp selected cell to valid range when layout changes
   const maxCell = cellInfoList.length - 1
-  const activeCell = selectedFreeformCell > maxCell ? 0 : selectedFreeformCell
+  const activeCell = selectedFreeformCell < 0 || selectedFreeformCell > maxCell ? 0 : selectedFreeformCell
 
   // Track which cells have freeform text content
   const cellsWithContent = useMemo(() => {

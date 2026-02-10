@@ -238,33 +238,16 @@ export default memo(function StyleTab({
       {/* Overlay Section */}
       <CollapsibleSection title="Overlay" defaultExpanded={false}>
         <div className="space-y-3">
-          {/* Cell Selector */}
-          <div className="flex items-center justify-between">
-            <label className="text-xs font-medium text-ui-text-muted">Select Cell</label>
-            <MiniCellGrid
-              layout={layout}
-              cellImages={cellImages}
-              selectedCell={selectedOverlayCell}
-              onSelectCell={(idx) => setSelectedOverlayCell(selectedOverlayCell === idx ? null : idx)}
-              platform={platform}
-            />
-          </div>
-
-          {/* Selection indicator */}
+          {/* Cell indicator */}
           <div className="text-xs text-center py-1.5 bg-ui-surface-elevated rounded">
-            {selectedOverlayCell === null ? (
-              <span className="text-ui-text-subtle">Select a cell to configure overlay</span>
-            ) : (
-              <span className="text-primary dark:text-violet-400">
-                Editing: <strong>Cell {selectedOverlayCell + 1}</strong>
-                {cellHasImage(selectedOverlayCell) && <span className="text-violet-400 ml-1">(image)</span>}
-              </span>
-            )}
+            <span className="text-primary dark:text-violet-400">
+              Cell {selectedOverlayCell + 1}
+              {cellHasImage(selectedOverlayCell) && <span className="text-violet-400 ml-1">(image)</span>}
+            </span>
           </div>
 
           {/* Cell Overlay Controls */}
-          {selectedOverlayCell !== null && (
-            <div className="space-y-3 p-3 bg-ui-surface-elevated rounded-lg">
+          <div className="space-y-3 p-3 bg-ui-surface-elevated rounded-lg">
               {/* Enable/Disable */}
               <div className="flex items-center gap-2">
                 <input
@@ -478,27 +461,6 @@ export default memo(function StyleTab({
                 Reset to Default
               </button>
             </div>
-          )}
-
-          {/* Overview when no cell selected */}
-          {selectedOverlayCell === null && (
-            <div className="space-y-1">
-              {cellInfoList.map((cell) => (
-                <div
-                  key={cell.index}
-                  className="flex items-center justify-between px-2 py-1.5 bg-ui-surface-elevated rounded text-xs"
-                >
-                  <span className="text-ui-text-subtle">
-                    Cell {cell.index + 1}
-                    {cellHasImage(cell.index) && <span className="text-primary ml-1">(img)</span>}
-                  </span>
-                  <span className={isCellOverlayEnabled(cell.index) ? 'text-green-600 dark:text-green-400' : 'text-ui-text-faint'}>
-                    {isCellOverlayEnabled(cell.index) ? 'On' : 'Off'}
-                  </span>
-                </div>
-              ))}
-            </div>
-          )}
         </div>
       </CollapsibleSection>
 
@@ -592,31 +554,13 @@ export default memo(function StyleTab({
 
           {/* Per-cell settings */}
           <div className="pt-3 border-t border-ui-border-subtle space-y-3">
-            <div className="flex items-center justify-between">
-              <label className="text-xs font-medium text-ui-text-muted">Per-Cell Settings</label>
-              <MiniCellGrid
-                layout={layout}
-                cellImages={cellImages}
-                selectedCell={selectedSpacingCell}
-                onSelectCell={(idx) => setSelectedSpacingCell(selectedSpacingCell === idx ? null : idx)}
-                platform={platform}
-              />
+            <div className="text-xs text-center py-1.5 bg-ui-surface-elevated rounded">
+              <span className="text-primary dark:text-violet-400">
+                Cell {selectedSpacingCell + 1}
+              </span>
             </div>
 
-            {/* Selected cell settings */}
-            {selectedSpacingCell !== null && (
-              <div className="space-y-3 p-3 bg-ui-surface-elevated rounded-lg">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-medium text-ui-text-muted">
-                    Cell {selectedSpacingCell + 1}
-                  </span>
-                  <button
-                    onClick={() => setSelectedSpacingCell(null)}
-                    className="text-[10px] text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"
-                  >
-                    ✕ Deselect
-                  </button>
-                </div>
+            <div className="space-y-3 p-3 bg-ui-surface-elevated rounded-lg">
 
                 {/* Custom padding */}
                 <div className="space-y-2">
@@ -753,31 +697,7 @@ export default memo(function StyleTab({
                   )}
                 </div>
               </div>
-            )}
-
-            {/* Overview when no cell selected */}
-            {selectedSpacingCell === null && (
-              <div className="space-y-1">
-                {cellInfoList.map((cell) => (
-                  <div
-                    key={cell.index}
-                    className="flex items-center justify-between px-2 py-1.5 bg-ui-surface-elevated rounded text-xs"
-                  >
-                    <span className="text-ui-text-subtle">Cell {cell.index + 1}</span>
-                    <span className="text-ui-text-faint">
-                      {getCellPaddingValue(cell.index)}px
-                      {padding.cellOverrides?.[cell.index] !== undefined && (
-                        <span className="text-primary dark:text-violet-400"> (custom)</span>
-                      )}
-                      {frame.cellFrames?.[cell.index] !== undefined && (
-                        <span className="text-primary dark:text-violet-400"> +frame</span>
-                      )}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+            </div>
         </div>
       </CollapsibleSection>
     </div>
