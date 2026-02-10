@@ -118,18 +118,24 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
     const originalOpacity = canvasRef.current.style.opacity
     canvasRef.current.style.opacity = '0'
 
+    // Helper: wait for React re-render + browser paint
+    const waitForPaint = () => new Promise((resolve) => {
+      requestAnimationFrame(() => requestAnimationFrame(() => setTimeout(resolve, 100)))
+    })
+
     try {
       for (let i = 0; i < pageCount; i++) {
         setExportProgress({ current: i + 1, total: pageCount, name: `Page ${i + 1}` })
 
-        if (i !== originalActivePage) {
-          onSetActivePage(i)
-          await new Promise((resolve) => setTimeout(resolve, 150))
-        }
+        // Switch to the target page
+        onSetActivePage(i)
+        // Wait for React state update, re-render, and browser paint
+        await new Promise((resolve) => setTimeout(resolve, 300))
+        await waitForPaint()
 
         const originalTransform = canvasRef.current.style.transform
         canvasRef.current.style.transform = 'scale(1)'
-        await new Promise((resolve) => setTimeout(resolve, 50))
+        await waitForPaint()
 
         const dataUrl = await toPng(canvasRef.current, {
           width: platform.width,
@@ -149,9 +155,8 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
       const content = await zip.generateAsync({ type: 'blob' })
       saveAs(content, 'pages.zip')
 
-      if (state.activePage !== originalActivePage) {
-        onSetActivePage(originalActivePage)
-      }
+      // Always restore to original page
+      onSetActivePage(originalActivePage)
     } catch (error) {
       console.error('Page export failed:', error)
       alert('Export failed. Please try again.')

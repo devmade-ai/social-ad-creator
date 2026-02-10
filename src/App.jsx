@@ -16,8 +16,77 @@ import InstallInstructionsModal from './components/InstallInstructionsModal'
 import TutorialModal from './components/TutorialModal'
 import SaveLoadModal from './components/SaveLoadModal'
 import PageStrip from './components/PageStrip'
+import ContextBar from './components/ContextBar'
 import { platforms } from './config/platforms'
 import { fonts } from './config/fonts'
+
+// Transparent overlay on canvas for click-to-select cell
+function CanvasCellOverlay({ layout, selectedCell, onSelectCell }) {
+  const { type, structure } = layout
+  const isFullbleed = type === 'fullbleed'
+  const isRows = type === 'rows'
+
+  const normalizedStructure =
+    isFullbleed || !structure || structure.length === 0
+      ? [{ size: 100, subdivisions: 1, subSizes: [100] }]
+      : structure
+
+  let cellIndex = 0
+
+  return (
+    <div
+      style={{
+        position: 'absolute',
+        inset: 0,
+        display: 'flex',
+        flexDirection: isRows || isFullbleed ? 'column' : 'row',
+        zIndex: 5,
+      }}
+    >
+      {normalizedStructure.map((section, sectionIndex) => {
+        const sectionSize = section.size || 100 / normalizedStructure.length
+        const subdivisions = section.subdivisions || 1
+        const subSizes = section.subSizes || Array(subdivisions).fill(100 / subdivisions)
+
+        const sectionCells = []
+        for (let subIndex = 0; subIndex < subdivisions; subIndex++) {
+          const currentCellIndex = cellIndex
+          const isSelected = selectedCell === currentCellIndex
+          cellIndex++
+
+          sectionCells.push(
+            <div
+              key={`overlay-cell-${currentCellIndex}`}
+              onClick={() => onSelectCell(currentCellIndex)}
+              style={{
+                flex: `1 1 ${subSizes[subIndex]}%`,
+                cursor: 'pointer',
+                boxSizing: 'border-box',
+                border: isSelected ? '2px solid rgba(99, 102, 241, 0.7)' : '1px solid transparent',
+                transition: 'border-color 0.15s',
+              }}
+              className="hover:border-primary/40"
+              title={`Cell ${currentCellIndex + 1}`}
+            />
+          )
+        }
+
+        return (
+          <div
+            key={`overlay-section-${sectionIndex}`}
+            style={{
+              flex: `1 1 ${sectionSize}%`,
+              display: 'flex',
+              flexDirection: isRows || isFullbleed ? 'row' : 'column',
+            }}
+          >
+            {sectionCells}
+          </div>
+        )
+      })}
+    </div>
+  )
+}
 
 function App() {
   const canvasRef = useRef(null)
@@ -30,6 +99,7 @@ function App() {
   const [showTutorial, setShowTutorial] = useState(false)
   const [showSaveLoadModal, setShowSaveLoadModal] = useState(false)
   const [isReaderMode, setIsReaderMode] = useState(false)
+  const [selectedCell, setSelectedCell] = useState(0)
   const { isDark, toggle: toggleDarkMode } = useDarkMode()
   const { canInstall, install, showManualInstructions, getInstallInstructions, isInstalled } = usePWAInstall()
   const { hasUpdate, update } = usePWAUpdate()
@@ -82,6 +152,18 @@ function App() {
     setTextMode,
     setFreeformText,
   } = useAdState()
+
+  // Clamp selectedCell when layout structure changes
+  const totalCells = useMemo(() => {
+    const structure = state.layout.structure || [{ size: 100, subdivisions: 1, subSizes: [100] }]
+    return structure.reduce((total, section) => total + (section.subdivisions || 1), 0)
+  }, [state.layout.structure])
+
+  useEffect(() => {
+    if (selectedCell >= totalCells) {
+      setSelectedCell(0)
+    }
+  }, [totalCells, selectedCell])
 
   const platform = platforms.find((p) => p.id === state.platform) || platforms[0]
   const pages = state.pages || [null]
@@ -273,8 +355,8 @@ function App() {
         <link key={font.id} rel="stylesheet" href={font.url} />
       ))}
 
-      {/* Header */}
-      <header className="bg-white/80 dark:bg-dark-card/80 backdrop-blur-sm border-b border-zinc-200/60 dark:border-zinc-700/60 px-4 py-3 sticky top-0 z-10">
+      {/* Header - scrolls away, ContextBar below is sticky */}
+      <header className="bg-white/80 dark:bg-dark-card/80 backdrop-blur-sm border-b border-zinc-200/60 dark:border-zinc-700/60 px-4 py-3">
         {/* Desktop: single row */}
         <div className="hidden sm:flex sm:items-center sm:justify-between">
           <div className="flex items-center gap-2">
@@ -284,33 +366,6 @@ function App() {
             </span>
           </div>
           <div className="flex gap-1.5">
-            <button
-              onClick={undo}
-              disabled={!canUndo}
-              title="Undo (Ctrl+Z)"
-              className={`px-3 py-1.5 text-sm rounded-lg flex items-center gap-1.5 font-medium transition-all ${
-                canUndo
-                  ? 'bg-zinc-100 dark:bg-dark-subtle text-ui-text hover:bg-zinc-200 dark:hover:bg-dark-elevated active:scale-95'
-                  : 'bg-zinc-50 dark:bg-dark-subtle/50 text-zinc-300 dark:text-zinc-600 cursor-not-allowed'
-              }`}
-            >
-              <span>↶</span>
-              <span>Undo</span>
-            </button>
-            <button
-              onClick={redo}
-              disabled={!canRedo}
-              title="Redo (Ctrl+Y)"
-              className={`px-3 py-1.5 text-sm rounded-lg flex items-center gap-1.5 font-medium transition-all ${
-                canRedo
-                  ? 'bg-zinc-100 dark:bg-dark-subtle text-ui-text hover:bg-zinc-200 dark:hover:bg-dark-elevated active:scale-95'
-                  : 'bg-zinc-50 dark:bg-dark-subtle/50 text-zinc-300 dark:text-zinc-600 cursor-not-allowed'
-              }`}
-            >
-              <span>↷</span>
-              <span>Redo</span>
-            </button>
-            {/* View / Reader mode toggle */}
             <button
               onClick={() => setIsReaderMode(true)}
               title="Reader mode - view pages without editing UI"
@@ -498,37 +553,24 @@ function App() {
             </div>
           )}
 
-          {/* Row 4: Undo/Redo (centered) */}
-          <div className="flex justify-center gap-1.5">
-            <button
-              onClick={undo}
-              disabled={!canUndo}
-              title="Undo (Ctrl+Z)"
-              className={`px-3 py-1.5 text-sm rounded-lg flex items-center gap-1.5 font-medium transition-all ${
-                canUndo
-                  ? 'bg-zinc-100 dark:bg-dark-subtle text-ui-text hover:bg-zinc-200 dark:hover:bg-dark-elevated active:scale-95'
-                  : 'bg-zinc-50 dark:bg-dark-subtle/50 text-zinc-300 dark:text-zinc-600 cursor-not-allowed'
-              }`}
-            >
-              <span>↶</span>
-              <span>Undo</span>
-            </button>
-            <button
-              onClick={redo}
-              disabled={!canRedo}
-              title="Redo (Ctrl+Y)"
-              className={`px-3 py-1.5 text-sm rounded-lg flex items-center gap-1.5 font-medium transition-all ${
-                canRedo
-                  ? 'bg-zinc-100 dark:bg-dark-subtle text-ui-text hover:bg-zinc-200 dark:hover:bg-dark-elevated active:scale-95'
-                  : 'bg-zinc-50 dark:bg-dark-subtle/50 text-zinc-300 dark:text-zinc-600 cursor-not-allowed'
-              }`}
-            >
-              <span>↷</span>
-              <span>Redo</span>
-            </button>
-          </div>
         </div>
       </header>
+
+      {/* Sticky context bar: page nav, cell selector, undo/redo */}
+      <ContextBar
+        activePage={state.activePage}
+        pageCount={pageCount}
+        onSetActivePage={setActivePage}
+        layout={state.layout}
+        cellImages={state.cellImages}
+        selectedCell={selectedCell}
+        onSelectCell={setSelectedCell}
+        platform={state.platform}
+        undo={undo}
+        redo={redo}
+        canUndo={canUndo}
+        canRedo={canRedo}
+      />
 
       <div className="flex flex-col lg:flex-row lg:items-stretch">
         {/* Sidebar Controls */}
@@ -596,6 +638,9 @@ function App() {
                     layout={state.layout}
                     platform={state.platform}
                     theme={state.theme}
+                    // Global cell selection
+                    selectedCell={selectedCell}
+                    onSelectCell={setSelectedCell}
                   />
                 )}
               </ErrorBoundary>
@@ -614,6 +659,8 @@ function App() {
                     onTextModeChange={setTextMode}
                     freeformText={state.freeformText || {}}
                     onFreeformTextChange={setFreeformText}
+                    selectedCell={selectedCell}
+                    onSelectCell={setSelectedCell}
                   />
                 )}
               </ErrorBoundary>
@@ -644,6 +691,8 @@ function App() {
                     frame={state.frame}
                     onFrameChange={setFrame}
                     cellImages={state.cellImages}
+                    selectedCell={selectedCell}
+                    onSelectCell={setSelectedCell}
                   />
                 )}
               </ErrorBoundary>
@@ -682,12 +731,21 @@ function App() {
             >
               <ErrorBoundary title="Preview error" message="Failed to render the ad preview." className="w-full h-full min-h-[200px]">
                 <div
+                  className="relative"
                   style={{
                     width: platform.width * previewScale,
                     height: platform.height * previewScale,
                   }}
                 >
                   <AdCanvas ref={canvasRef} state={state} scale={previewScale} />
+                  {/* Click-to-select cell overlay */}
+                  {totalCells > 1 && (
+                    <CanvasCellOverlay
+                      layout={state.layout}
+                      selectedCell={selectedCell}
+                      onSelectCell={setSelectedCell}
+                    />
+                  )}
                 </div>
               </ErrorBoundary>
               {/* Export overlay */}

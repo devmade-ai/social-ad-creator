@@ -155,9 +155,8 @@ export function useAdState() {
 
   const addImage = useCallback((src, name = 'Image') => {
     const id = `img-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
-    setState((prev) => ({
-      ...prev,
-      images: [...prev.images, {
+    setState((prev) => {
+      const newImages = [...prev.images, {
         id,
         src,
         name,
@@ -165,8 +164,20 @@ export function useAdState() {
         position: { ...prev.defaultImageSettings.position },
         filters: { ...prev.defaultImageSettings.filters },
         overlay: { ...prev.defaultImageSettings.overlay },
-      }],
-    }))
+      }]
+
+      // Auto-assign to first unoccupied image cell
+      const imageCells = prev.layout.imageCells || [0]
+      const newCellImages = { ...prev.cellImages }
+      for (const cellIndex of imageCells) {
+        if (!newCellImages[cellIndex]) {
+          newCellImages[cellIndex] = id
+          break
+        }
+      }
+
+      return { ...prev, images: newImages, cellImages: newCellImages }
+    })
     return id
   }, [setState])
 

@@ -1,4 +1,4 @@
-import { memo, useMemo, useState } from 'react'
+import { memo, useMemo } from 'react'
 import CollapsibleSection from './CollapsibleSection'
 import { neutralColors } from '../config/themes'
 import { platforms } from '../config/platforms'
@@ -509,13 +509,17 @@ export default memo(function ContentTab({
   onTextModeChange,
   freeformText = {},
   onFreeformTextChange,
+  selectedCell: selectedCellProp = 0,
+  onSelectCell,
 }) {
   const cellInfoList = useMemo(() => getCellInfo(layout), [layout])
-  const [selectedFreeformCell, setSelectedFreeformCell] = useState(0)
+  // Use global selectedCell for freeform mode
+  const selectedFreeformCell = selectedCellProp
+  const setSelectedFreeformCell = onSelectCell || (() => {})
 
   // Clamp selected cell to valid range when layout changes
   const maxCell = cellInfoList.length - 1
-  const activeCell = selectedFreeformCell > maxCell ? 0 : selectedFreeformCell
+  const activeCell = selectedFreeformCell < 0 || selectedFreeformCell > maxCell ? 0 : selectedFreeformCell
 
   // Track which cells have freeform text content
   const cellsWithContent = useMemo(() => {

@@ -5,38 +5,43 @@ Compact context summary for session continuity. Rewrite at session end.
 ---
 
 ## Worked on
-UI fixes for Presets/Pages/Content tabs based on user feedback
+Global cell selection, sticky context bar, canvas click-to-select, export fix, auto-assign images, tab wiring audit
 
 ## Accomplished
 
-1. **Removed confusing page indicator dots** from PageStrip thumbnails
-   - Blue/green dots were 1x1 pixels with no legend - users couldn't understand them
-   - Removed entirely for cleaner page thumbnails
+1. **Auto-assign images to cells on add**
+   - `addImage` in `useAdState.js` now auto-assigns new images to the first unoccupied image cell
+   - Based on `layout.imageCells` array
 
-2. **Fixed PageStrip mobile wrapping**
-   - Thumbnails now wrap on mobile instead of being squeezed into a tiny scroll area
-   - Action buttons align right with `ml-auto` on mobile
-   - Thumbnails get full width on mobile via `order-last` and `w-full`
+2. **Global selectedCell state + ContextBar**
+   - New `selectedCell` state in App.jsx (UI state, not design state)
+   - New `ContextBar.jsx` component: compact sticky bar with page nav + miniature cell grid + undo/redo
+   - Header is now non-sticky (scrolls away), ContextBar is sticky (always visible)
+   - Undo/redo and page nav moved from header to ContextBar
+   - `selectedCell` passed to StyleTab, ContentTab, MediaTab
 
-3. **Fixed markdown rendering in canvas**
-   - `whiteSpace: 'pre-wrap'` was applied to markdown HTML container
-   - This caused raw newlines from source text to appear as visible line breaks in addition to HTML structure from `marked`
-   - Fixed by using `whiteSpace: 'normal'` for markdown mode
+3. **Canvas click-to-select cell**
+   - `CanvasCellOverlay` component renders invisible clickable cells over the canvas preview
+   - Clicking a cell in the preview sets the global `selectedCell`
+   - Shows a subtle border on the selected cell
 
-4. **Made Auto alignment icon distinct from Center**
-   - AlignAutoIcon and AlignCenterIcon had identical SVG geometry (Auto just had lower opacity)
-   - Redesigned Auto icon to show mixed alignment (left-shifted, center-shifted, right-shifted lines)
+4. **StyleTab + ContentTab + MediaTab use global selectedCell**
+   - StyleTab: overlay and spacing sections use global `selectedCell`, removed toggle-to-null, null guards, deselect buttons, overview sections
+   - ContentTab: freeform mode uses global `selectedCell`, added lower bound check
+   - MediaTab: auto-selects image assigned to the globally selected cell when cell changes
 
-5. **Moved Sample Images to Presets tab**
-   - Sample images are now in Presets tab as "Sample Images" section (auto-expanded when no images)
-   - Removed from Media tab
-   - Better fits the "start here" workflow of the Presets tab
+5. **Fixed multi-page export**
+   - Added `waitForPaint()` helper with double rAF
+   - Always restore to original page (was stale closure)
 
 ## Current state
 - **Build**: Passes successfully
-- All changes are UI/UX improvements, no state structure changes
+- All tabs wired to global cell selection
+- MediaTab auto-selects image based on global cell
+- Structured mode text assignment (MiniCellGrid) remains separate and correct — it assigns text to cells, not "edit cell"
 
 ## Key context
-- Presets tab now accepts `images` and `onAddImage` props for sample images
-- MediaTab no longer imports `sampleImages` config
-- PageStrip uses `flex-wrap` for mobile responsiveness
+- `selectedCell` is UI state in App.jsx, NOT design state (not saved/loaded)
+- `selectedCell` auto-clamps to valid range when layout changes (useEffect in App.jsx)
+- ContextBar is the ONLY sticky element now (header scrolls away)
+- MediaTab's CellGrid for image assignment (toggle assign/unassign) is a different concept from global cell selection

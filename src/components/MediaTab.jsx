@@ -389,6 +389,9 @@ export default memo(function MediaTab({
   layout,
   platform,
   theme,
+  // Global cell selection
+  selectedCell,
+  onSelectCell,
 }) {
   const fileInputRef = useRef(null)
   const logoInputRef = useRef(null)
@@ -405,6 +408,17 @@ export default memo(function MediaTab({
       setSelectedImageId(null)
     }
   }, [images, selectedImage])
+
+  // Auto-select image based on global selectedCell
+  useEffect(() => {
+    if (selectedCell != null && cellImages[selectedCell]) {
+      const imageId = cellImages[selectedCell]
+      // Only switch if the image exists in the library
+      if (images.some((img) => img.id === imageId)) {
+        setSelectedImageId(imageId)
+      }
+    }
+  }, [selectedCell, cellImages, images])
 
   // Get total cell count
   const totalCells = useMemo(() => {

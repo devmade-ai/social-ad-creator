@@ -2,6 +2,21 @@
 
 ## 2026-02-10
 
+### Global cell selection + sticky ContextBar
+
+- **ContextBar component**: New sticky bar below header with page nav, miniature cell grid selector, and undo/redo
+- **Global selectedCell state**: Single source of truth for which cell is being edited, passed to StyleTab, ContentTab, MediaTab
+- **Canvas click-to-select**: Clicking a cell in the preview sets the global selected cell (with highlight border)
+- **Header simplified**: No longer sticky (ContextBar is), undo/redo and page nav moved to ContextBar
+- **StyleTab**: Overlay and spacing sections now use global selectedCell — removed toggle-to-null handlers, null guards, deselect buttons, and overview sections (always-selected model)
+- **ContentTab**: Freeform mode uses global selectedCell — added lower bound check for cell index clamping
+- **MediaTab**: Auto-selects image assigned to global selectedCell when cell changes
+
+### Auto-assign images, export fix
+
+- **Auto-assign images to cells**: `addImage` now assigns new images to the first unoccupied image cell based on `layout.imageCells`
+- **Fixed multi-page export**: Was exporting first page twice with overlaid text. Fixed by adding double `requestAnimationFrame` wait for browser paint between page switches, and always restoring to original page after export
+
 ### UI Fixes: Presets, Pages, Content
 
 - Removed confusing blue/green indicator dots from page thumbnails (too small, no legend)
