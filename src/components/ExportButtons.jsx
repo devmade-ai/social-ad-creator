@@ -4,7 +4,6 @@ import JSZip from 'jszip'
 import { saveAs } from 'file-saver'
 import { platforms } from '../config/platforms'
 
-// Category labels for display
 const categoryLabels = {
   social: 'Social Media',
   web: 'Website',
@@ -14,13 +13,12 @@ const categoryLabels = {
   other: 'Other',
 }
 
-export default memo(function ExportButtons({ canvasRef, state, onPlatformChange, onExportingChange }) {
+export default memo(function ExportButtons({ canvasRef, state, onPlatformChange, onExportingChange, pageCount = 1, getPageState, onSetActivePage }) {
   const [isExporting, setIsExporting] = useState(false)
   const [exportProgress, setExportProgress] = useState(null)
   const [showMultiSelect, setShowMultiSelect] = useState(false)
   const [selectedPlatforms, setSelectedPlatforms] = useState(() => new Set())
 
-  // Group platforms by category
   const groupedPlatforms = useMemo(() => {
     const groups = {}
     platforms.forEach((p) => {
@@ -62,7 +60,6 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
     })
   }, [])
 
-  // Update both local state and notify parent
   const updateExporting = useCallback((value) => {
     setIsExporting(value)
     onExportingChange?.(value)
@@ -76,14 +73,12 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
 
     updateExporting(true)
 
-    // Store original styles and hide canvas during capture to prevent visible flash
     const originalTransform = canvasRef.current.style.transform
     const originalOpacity = canvasRef.current.style.opacity
     canvasRef.current.style.opacity = '0'
     canvasRef.current.style.transform = 'scale(1)'
 
     try {
-      // Wait for reflow
       await new Promise((resolve) => setTimeout(resolve, 50))
 
       const dataUrl = await toPng(canvasRef.current, {
@@ -104,12 +99,69 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
       console.error('Export failed:', error)
       alert('Export failed. Please try again.')
     } finally {
-      // Restore original styles
       canvasRef.current.style.transform = originalTransform
       canvasRef.current.style.opacity = originalOpacity
       updateExporting(false)
     }
   }, [canvasRef, state.platform, updateExporting])
+
+  const handleExportAllPages = useCallback(async () => {
+    if (!canvasRef.current || pageCount <= 1) return
+
+    updateExporting(true)
+    const zip = new JSZip()
+    const platform = platforms.find((p) => p.id === state.platform)
+    if (!platform) { updateExporting(false); return }
+
+    const originalActivePage = state.activePage
+
+    const originalOpacity = canvasRef.current.style.opacity
+    canvasRef.current.style.opacity = '0'
+
+    try {
+      for (let i = 0; i < pageCount; i++) {
+        setExportProgress({ current: i + 1, total: pageCount, name: `Page ${i + 1}` })
+
+        if (i !== originalActivePage) {
+          onSetActivePage(i)
+          await new Promise((resolve) => setTimeout(resolve, 150))
+        }
+
+        const originalTransform = canvasRef.current.style.transform
+        canvasRef.current.style.transform = 'scale(1)'
+        await new Promise((resolve) => setTimeout(resolve, 50))
+
+        const dataUrl = await toPng(canvasRef.current, {
+          width: platform.width,
+          height: platform.height,
+          pixelRatio: 1,
+          style: { opacity: '1', transform: 'scale(1)' },
+        })
+
+        canvasRef.current.style.transform = originalTransform
+
+        const response = await fetch(dataUrl)
+        const blob = await response.blob()
+        const pageNum = String(i + 1).padStart(3, '0')
+        zip.file(`page-${pageNum}-${platform.width}x${platform.height}.png`, blob)
+      }
+
+      const content = await zip.generateAsync({ type: 'blob' })
+      saveAs(content, 'pages.zip')
+
+      if (state.activePage !== originalActivePage) {
+        onSetActivePage(originalActivePage)
+      }
+    } catch (error) {
+      console.error('Page export failed:', error)
+      alert('Export failed. Please try again.')
+      onSetActivePage(originalActivePage)
+    } finally {
+      canvasRef.current.style.opacity = originalOpacity
+      updateExporting(false)
+      setExportProgress(null)
+    }
+  }, [canvasRef, state.platform, state.activePage, pageCount, onSetActivePage, updateExporting])
 
   const handleExportMultiple = useCallback(async () => {
     if (!canvasRef.current) return
@@ -122,10 +174,8 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
     const zip = new JSZip()
     const originalPlatform = state.platform
 
-    // Get the platforms to export
     const platformsToExport = platforms.filter((p) => selectedPlatforms.has(p.id))
 
-    // Hide canvas during batch export to prevent visible flashing
     const originalOpacity = canvasRef.current.style.opacity
     canvasRef.current.style.opacity = '0'
 
@@ -134,17 +184,12 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
         const platform = platformsToExport[i]
         setExportProgress({ current: i + 1, total: platformsToExport.length, name: platform.name })
 
-        // Switch to this platform temporarily
         onPlatformChange(platform.id)
-
-        // Wait for render
         await new Promise((resolve) => setTimeout(resolve, 100))
 
-        // Store original transform and temporarily remove scale for capture
         const originalTransform = canvasRef.current.style.transform
         canvasRef.current.style.transform = 'scale(1)'
 
-        // Wait for reflow
         await new Promise((resolve) => setTimeout(resolve, 50))
 
         const dataUrl = await toPng(canvasRef.current, {
@@ -157,7 +202,6 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
           },
         })
 
-        // Restore transform immediately after capture
         canvasRef.current.style.transform = originalTransform
 
         const response = await fetch(dataUrl)
@@ -168,7 +212,6 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
       const content = await zip.generateAsync({ type: 'blob' })
       saveAs(content, 'social-ads.zip')
 
-      // Restore original platform
       onPlatformChange(originalPlatform)
       setShowMultiSelect(false)
     } catch (error) {
@@ -176,7 +219,6 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
       alert('Export failed. Please try again.')
       onPlatformChange(originalPlatform)
     } finally {
-      // Restore canvas visibility
       canvasRef.current.style.opacity = originalOpacity
       updateExporting(false)
       setExportProgress(null)
@@ -193,12 +235,25 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
         {isExporting && !exportProgress ? 'Exporting...' : 'Download Current'}
       </button>
 
+      {/* Download all pages as ZIP */}
+      {pageCount > 1 && (
+        <button
+          onClick={handleExportAllPages}
+          disabled={isExporting}
+          className="w-full px-4 py-3 text-sm font-semibold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl hover:bg-emerald-100 dark:hover:bg-emerald-900/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-[0.98]"
+        >
+          {exportProgress && !showMultiSelect
+            ? `Exporting Page ${exportProgress.current}/${exportProgress.total}...`
+            : `Download All ${pageCount} Pages (ZIP)`}
+        </button>
+      )}
+
       <button
         onClick={() => setShowMultiSelect(!showMultiSelect)}
         disabled={isExporting}
         className="w-full px-4 py-3 text-sm font-semibold text-primary dark:text-violet-400 bg-violet-50 dark:bg-violet-900/20 rounded-xl hover:bg-violet-100 dark:hover:bg-violet-900/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-[0.98]"
       >
-        {showMultiSelect ? 'Hide Selection' : 'Download Multiple (ZIP)'}
+        {showMultiSelect ? 'Hide Selection' : 'Download Multiple Platforms (ZIP)'}
       </button>
 
       {/* Multi-select platform UI */}

@@ -205,6 +205,21 @@ input[type="checkbox"] {
   box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
 }
 
+/* Freeform markdown text rendering within AdCanvas */
+.freeform-markdown h1 { font-size: 2em; font-weight: 700; margin: 0 0 0.3em; line-height: 1.2; }
+.freeform-markdown h2 { font-size: 1.5em; font-weight: 600; margin: 0 0 0.3em; line-height: 1.3; }
+.freeform-markdown h3 { font-size: 1.2em; font-weight: 600; margin: 0 0 0.2em; line-height: 1.3; }
+.freeform-markdown p { margin: 0 0 0.5em; }
+.freeform-markdown p:last-child { margin-bottom: 0; }
+.freeform-markdown strong { font-weight: 700; }
+.freeform-markdown em { font-style: italic; }
+.freeform-markdown ul, .freeform-markdown ol { margin: 0.3em 0; padding-left: 1.5em; }
+.freeform-markdown li { margin-bottom: 0.2em; }
+.freeform-markdown blockquote { border-left: 3px solid currentColor; padding-left: 0.8em; margin: 0.5em 0; opacity: 0.85; }
+.freeform-markdown hr { border: none; border-top: 1px solid currentColor; opacity: 0.3; margin: 0.5em 0; }
+.freeform-markdown code { font-family: monospace; background: rgba(0,0,0,0.1); padding: 0.1em 0.3em; border-radius: 3px; font-size: 0.9em; }
+.freeform-markdown a { text-decoration: underline; }
+
 /* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

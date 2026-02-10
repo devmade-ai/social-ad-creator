@@ -3,7 +3,6 @@ import CollapsibleSection from './CollapsibleSection'
 import { neutralColors } from '../config/themes'
 import { platforms } from '../config/platforms'
 
-// Theme color options
 const themeColorOptions = [
   { id: 'primary', name: 'Primary' },
   { id: 'secondary', name: 'Secondary' },
@@ -25,7 +24,6 @@ const letterSpacingOptions = [
   { id: 2, name: 'Wider', label: 'W+' },
 ]
 
-// Alignment icons
 const AlignAutoIcon = () => (
   <svg width="14" height="10" viewBox="0 0 14 10" fill="currentColor">
     <rect x="2" y="0" width="10" height="2" opacity="0.4" />
@@ -62,7 +60,6 @@ const textAlignOptions = [
   { id: 'right', name: 'Right', Icon: AlignRightIcon },
 ]
 
-// Text element definitions organized by group
 const textGroups = [
   {
     id: 'titleTagline',
@@ -92,7 +89,6 @@ const textGroups = [
   },
 ]
 
-// Helper to get cell info
 function getCellInfo(layout) {
   const { structure } = layout
   if (!structure || structure.length === 0) {
@@ -113,12 +109,10 @@ function getCellInfo(layout) {
   return cells
 }
 
-// Mini cell grid for text element cell assignment
 function MiniCellGrid({ layout, imageCells = [], highlightCell, onSelectCell, platform }) {
   const { type, structure } = layout
   const isFullbleed = type === 'fullbleed'
   const isRows = type === 'rows'
-  // Normalize imageCells to always be an array
   const normalizedImageCells = Array.isArray(imageCells) ? imageCells : [imageCells]
 
   const normalizedStructure =
@@ -190,7 +184,6 @@ function MiniCellGrid({ layout, imageCells = [], highlightCell, onSelectCell, pl
   )
 }
 
-// Single text element editor
 function TextElementEditor({
   element,
   text,
@@ -201,7 +194,6 @@ function TextElementEditor({
   theme,
   platform,
 }) {
-  // Support both old imageCell (single) and new imageCells (array) format
   const imageCells = layout.imageCells ?? (layout.imageCell !== undefined ? [layout.imageCell] : [0])
   const layerState = text?.[element.id] || {
     content: '',
@@ -395,6 +387,133 @@ function TextElementEditor({
   )
 }
 
+function FreeformCellEditor({
+  cellIndex,
+  cellData,
+  onFreeformTextChange,
+  theme,
+  layout,
+}) {
+  const data = cellData || {
+    content: '',
+    markdown: false,
+    color: 'secondary',
+    size: 1,
+    bold: false,
+    italic: false,
+    letterSpacing: 0,
+    textAlign: null,
+  }
+
+  const isImageCell = (layout.imageCells || []).includes(cellIndex)
+
+  return (
+    <div className="space-y-2">
+      {/* Cell header */}
+      <div className="flex items-center gap-2">
+        <span className="text-sm font-medium text-ui-text">
+          Cell {cellIndex + 1}
+          {isImageCell && <span className="ml-1 text-[10px] text-ui-text-subtle">(image)</span>}
+        </span>
+        {/* Markdown toggle */}
+        <button
+          onClick={() => onFreeformTextChange(cellIndex, { markdown: !data.markdown })}
+          title={data.markdown ? 'Markdown enabled - click to disable' : 'Enable markdown'}
+          className={`ml-auto px-2 py-0.5 text-[10px] font-medium rounded transition-colors ${
+            data.markdown
+              ? 'bg-violet-100 dark:bg-violet-900/40 text-violet-600 dark:text-violet-400'
+              : 'bg-ui-surface-inset text-ui-text-faint hover:bg-ui-surface-hover'
+          }`}
+        >
+          MD
+        </button>
+      </div>
+
+      {/* Text input */}
+      <textarea
+        value={data.content}
+        onChange={(e) => onFreeformTextChange(cellIndex, { content: e.target.value })}
+        placeholder={data.markdown ? 'Write in **markdown**...' : 'Enter text...'}
+        rows={3}
+        className="w-full px-3 py-2 text-sm text-ui-text border border-ui-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary resize-none bg-white dark:bg-dark-subtle placeholder-zinc-400 dark:placeholder-zinc-500 font-mono"
+        style={{ fontFamily: data.markdown ? 'monospace' : 'inherit' }}
+      />
+
+      {/* Controls row */}
+      <div className="flex items-center gap-2 flex-wrap">
+        {/* Alignment */}
+        <div className="flex items-center gap-1">
+          {textAlignOptions.map((align) => {
+            const isActive = data.textAlign === align.id
+            return (
+              <button
+                key={align.id ?? 'auto'}
+                onClick={() => onFreeformTextChange(cellIndex, { textAlign: align.id })}
+                title={align.name}
+                className={`w-6 h-5 rounded flex items-center justify-center transition-colors ${
+                  isActive
+                    ? 'bg-primary text-white'
+                    : 'bg-ui-surface-inset text-ui-text-subtle hover:bg-ui-surface-hover'
+                }`}
+              >
+                <align.Icon />
+              </button>
+            )
+          })}
+        </div>
+
+        {/* Color */}
+        <div className="flex items-center gap-1">
+          {themeColorOptions.map((color) => (
+            <button
+              key={color.id}
+              onClick={() => onFreeformTextChange(cellIndex, { color: color.id })}
+              title={color.name}
+              className={`w-4 h-4 rounded-full border-2 transition-transform hover:scale-110 ${
+                data.color === color.id
+                  ? 'border-primary ring-2 ring-primary/20'
+                  : 'border-ui-border'
+              }`}
+              style={{ backgroundColor: theme[color.id] }}
+            />
+          ))}
+          {neutralColors.map((color) => (
+            <button
+              key={color.id}
+              onClick={() => onFreeformTextChange(cellIndex, { color: color.id })}
+              title={color.name}
+              className={`w-3.5 h-3.5 rounded-full border transition-transform hover:scale-110 ${
+                data.color === color.id
+                  ? 'border-primary ring-2 ring-primary/20'
+                  : 'border-ui-border-strong'
+              }`}
+              style={{ backgroundColor: color.hex }}
+            />
+          ))}
+        </div>
+
+        {/* Size */}
+        <div className="flex items-center gap-1 ml-auto">
+          {sizeOptions.map((size) => (
+            <button
+              key={size.id}
+              onClick={() => onFreeformTextChange(cellIndex, { size: size.id })}
+              title={`Size ${size.name}`}
+              className={`w-5 h-5 text-[10px] font-medium rounded ${
+                data.size === size.id
+                  ? 'bg-primary text-white'
+                  : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
+              }`}
+            >
+              {size.name}
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default memo(function ContentTab({
   text,
   onTextChange,
@@ -403,32 +522,87 @@ export default memo(function ContentTab({
   layout,
   theme,
   platform,
+  textMode = 'structured',
+  onTextModeChange,
+  freeformText = {},
+  onFreeformTextChange,
 }) {
   const cellInfoList = useMemo(() => getCellInfo(layout), [layout])
 
   return (
     <div className="space-y-3">
-      <h3 className="text-sm font-semibold text-ui-text">Content</h3>
+      <div className="flex items-center justify-between">
+        <h3 className="text-sm font-semibold text-ui-text">Content</h3>
 
-      {textGroups.map((group) => (
-        <CollapsibleSection key={group.id} title={group.name} defaultExpanded={false}>
-          <div className="space-y-3">
-            {group.elements.map((element) => (
-              <TextElementEditor
-                key={element.id}
-                element={element}
-                text={text}
-                onTextChange={onTextChange}
-                textCells={textCells}
-                onTextCellsChange={onTextCellsChange}
-                layout={layout}
+        {/* Text mode toggle */}
+        <div className="flex bg-ui-surface-inset rounded-lg p-0.5">
+          <button
+            onClick={() => onTextModeChange?.('structured')}
+            className={`px-2.5 py-1 text-[11px] font-medium rounded-md transition-all ${
+              textMode === 'structured'
+                ? 'bg-white dark:bg-dark-card text-ui-text shadow-sm'
+                : 'text-ui-text-muted hover:text-ui-text'
+            }`}
+          >
+            Structured
+          </button>
+          <button
+            onClick={() => onTextModeChange?.('freeform')}
+            className={`px-2.5 py-1 text-[11px] font-medium rounded-md transition-all ${
+              textMode === 'freeform'
+                ? 'bg-white dark:bg-dark-card text-ui-text shadow-sm'
+                : 'text-ui-text-muted hover:text-ui-text'
+            }`}
+          >
+            Freeform
+          </button>
+        </div>
+      </div>
+
+      {textMode === 'structured' ? (
+        <>
+          {textGroups.map((group) => (
+            <CollapsibleSection key={group.id} title={group.name} defaultExpanded={false}>
+              <div className="space-y-3">
+                {group.elements.map((element) => (
+                  <TextElementEditor
+                    key={element.id}
+                    element={element}
+                    text={text}
+                    onTextChange={onTextChange}
+                    textCells={textCells}
+                    onTextCellsChange={onTextCellsChange}
+                    layout={layout}
+                    theme={theme}
+                    platform={platform}
+                  />
+                ))}
+              </div>
+            </CollapsibleSection>
+          ))}
+        </>
+      ) : (
+        <>
+          <p className="text-[11px] text-ui-text-subtle">
+            Write text for each cell. Toggle MD for markdown formatting.
+          </p>
+          {cellInfoList.map((cell) => (
+            <CollapsibleSection
+              key={cell.index}
+              title={`Cell ${cell.label}`}
+              defaultExpanded={cell.index === 0}
+            >
+              <FreeformCellEditor
+                cellIndex={cell.index}
+                cellData={freeformText[cell.index]}
+                onFreeformTextChange={onFreeformTextChange}
                 theme={theme}
-                platform={platform}
+                layout={layout}
               />
-            ))}
-          </div>
-        </CollapsibleSection>
-      ))}
+            </CollapsibleSection>
+          ))}
+        </>
+      )}
     </div>
   )
 })

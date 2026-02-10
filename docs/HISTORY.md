@@ -1,5 +1,59 @@
 # Changelog
 
+## 2026-02-09
+
+### Multi-Page Support, Reader Mode, and Freeform Text
+
+Added multi-page document creation, a reader view for viewing pages, and a freeform per-cell text mode with optional markdown support.
+
+**Multi-Page System (useAdState.js)**
+- Pages array in state: each page stores its own images, layout, text, overlays, etc.
+- Shared across pages: theme, fonts, platform, logo
+- Active page data lives at top-level (zero changes needed to existing components)
+- Page management: `addPage`, `duplicatePage`, `removePage`, `movePage`, `setActivePage`
+- `getPageState(index)` for rendering page thumbnails/previews
+- Save/load handles multi-page state (with legacy single-page backward compatibility)
+
+**PageStrip Component (PageStrip.jsx)**
+- Horizontal strip showing page thumbnails with page numbers
+- Content indicator dots (blue = images, green = text)
+- Add, duplicate, delete, move left/right controls
+- Scrollable for many pages
+- Always visible in editor
+
+**Reader Mode (App.jsx)**
+- "View" button in header toggles reader mode
+- Clean full-screen view with no editing controls
+- Page navigation: Previous/Next buttons + dot indicators
+- Arrow key navigation (left/right/up/down)
+- Escape key exits reader mode
+- Dark mode toggle available in reader
+
+**Freeform Text Mode (ContentTab.jsx)**
+- Structured/Freeform toggle at top of Content tab
+- Structured: existing text groups (Title, Tagline, Body, CTA, Footnote)
+- Freeform: per-cell text editors with independent content per cell
+- Per-cell controls: alignment, color, size
+- Markdown toggle per cell (MD button)
+
+**Markdown Rendering (AdCanvas.jsx)**
+- Added `marked` library for markdown parsing
+- Freeform cells with markdown enabled render formatted HTML
+- Supports: headings, bold, italic, lists, blockquotes, code, links, horizontal rules
+- CSS styles for markdown content in `index.css` (`.freeform-markdown` class)
+- Falls back to plain text rendering when markdown is off
+
+**Multi-Page Export (ExportButtons.jsx)**
+- "Download All Pages (ZIP)" button appears when multiple pages exist
+- Exports each page as a numbered PNG (page-001, page-002, etc.)
+- Progress indicator during export
+- Existing single-page and multi-platform export unchanged
+
+**New Dependencies**
+- `marked` - Markdown parser for freeform text cells
+
+---
+
 ## 2026-02-04
 
 ### Save/Load Designs to localStorage
