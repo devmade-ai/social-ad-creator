@@ -272,7 +272,6 @@ src/
 │   ├── ContentTab.jsx         # Text editing with cell assignment
 │   ├── LayoutTab.jsx          # Grid structure + cell alignment
 │   ├── StyleTab.jsx           # Typography, overlay, spacing (themes in Presets tab)
-│   ├── PageStrip.jsx          # (unused) Standalone page strip - functionality moved to ContextBar
 │   ├── ContextBar.jsx         # Sticky bar: cell selector + page management + undo/redo
 │   ├── PlatformPreview.jsx    # Platform selector
 │   ├── ExportButtons.jsx      # Export controls (single, multi-platform, multi-page)

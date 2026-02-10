@@ -33,10 +33,10 @@ Run these tests after making changes to ensure nothing is broken.
 | Step | Action | Where | Expected |
 |------|--------|-------|----------|
 | 1 | Click "Presets" tab | Top tab bar | Presets tab opens with sections |
-| 2 | Find "Complete Designs" section | Templates tab | Section visible with design thumbnails |
-| 3 | Click any design thumbnail | Complete Designs grid | Preview updates immediately |
+| 2 | Find "Looks" section | Presets tab | Section visible with design thumbnails |
+| 3 | Click any design thumbnail | Looks grid | Preview updates immediately |
 | 4 | Check Style tab | Click Style tab | Theme, fonts match the preset |
-| 5 | Check Layout tab | Click Layout tab | Grid structure matches preset |
+| 5 | Check Structure tab | Click Structure tab | Grid structure matches preset |
 
 ### T2: Apply Layout Only
 
@@ -44,9 +44,9 @@ Run these tests after making changes to ensure nothing is broken.
 
 | Step | Action | Where | Expected |
 |------|--------|-------|----------|
-| 1 | Apply a Complete Design first | Templates → Complete Designs | Note the current theme colors |
-| 2 | Click "Layout Only" section | Templates tab | Layout thumbnails visible |
-| 3 | Click a different layout | Layout Only grid | Grid structure changes |
+| 1 | Apply a Look first | Presets → Looks | Note the current theme colors |
+| 2 | Click "Layout" section | Presets tab | Layout thumbnails visible |
+| 3 | Click a different layout | Layout grid | Grid structure changes |
 | 4 | Check Style tab | Click Style tab | Theme colors unchanged |
 
 ---
@@ -117,7 +117,7 @@ Run these tests after making changes to ensure nothing is broken.
 | Step | Action | Where | Expected |
 |------|--------|-------|----------|
 | 1 | Upload an image | Media → Background Image | Image visible in preview |
-| 2 | Apply a 2-cell layout | Layout → Structure | 2 cells visible |
+| 2 | Apply a 2-cell layout | Structure → Structure | 2 cells visible |
 | 3 | Return to Media tab | Top tab bar | Media tab opens |
 | 4 | Find "Image Cell" selector | Background Image section | Small grid showing cells |
 | 5 | Click cell 2 | Image Cell grid | Background image moves to cell 2 |
@@ -166,7 +166,7 @@ Run these tests after making changes to ensure nothing is broken.
 
 | Step | Action | Where | Expected |
 |------|--------|-------|----------|
-| 1 | Apply a 2-row layout | Templates → Layout Only | Preview shows 2 cells |
+| 1 | Apply a 2-row layout | Presets → Layout | Preview shows 2 cells |
 | 2 | Go to Content tab | Top tab bar | Content tab opens |
 | 3 | Find Cell dropdown for Title | Title controls | Dropdown shows "Auto" and cell numbers |
 | 4 | Select "Cell 2" | Cell dropdown | Title moves to second cell in preview |
@@ -197,7 +197,7 @@ Run these tests after making changes to ensure nothing is broken.
 
 ---
 
-## Layout Tab Tests
+## Structure Tab Tests
 
 ### L1: Layout Type Selection
 
@@ -205,8 +205,8 @@ Run these tests after making changes to ensure nothing is broken.
 
 | Step | Action | Where | Expected |
 |------|--------|-------|----------|
-| 1 | Click "Layout" tab | Top tab bar | Layout tab opens |
-| 2 | Expand "Structure" section | Layout tab | Layout type options visible |
+| 1 | Click "Structure" tab | Top tab bar | Structure tab opens |
+| 2 | Expand "Structure" section | Structure tab | Layout type options visible |
 | 3 | Click "Full Bleed" | Layout type buttons | Preview shows single cell |
 | 4 | Click "Rows" | Layout type buttons | Preview shows horizontal divisions |
 | 5 | Click "Columns" | Layout type buttons | Preview shows vertical divisions |
@@ -217,7 +217,7 @@ Run these tests after making changes to ensure nothing is broken.
 
 | Step | Action | Where | Expected |
 |------|--------|-------|----------|
-| 1 | Select "Rows" layout type | Layout → Structure | 2+ rows visible in grid editor |
+| 1 | Select "Rows" layout type | Structure → Structure | 2+ rows visible in grid editor |
 | 2 | Find the divider line between rows | Interactive grid | Cursor changes on hover |
 | 3 | Drag the divider up or down | Grid divider | Cell sizes change proportionally |
 | 4 | Check preview | Ad preview | Preview reflects new proportions |
@@ -228,9 +228,9 @@ Run these tests after making changes to ensure nothing is broken.
 
 | Step | Action | Where | Expected |
 |------|--------|-------|----------|
-| 1 | Apply a 2-row layout | Layout → Structure | 2 rows visible in grid editor |
+| 1 | Apply a 2-row layout | Structure → Structure | 2 rows visible in grid editor |
 | 2 | Click on Row 1 in the grid | Structure grid | Row 1 highlights as selected |
-| 3 | Check Text Alignment section | Layout tab | Shows "Row 1" or section indicator |
+| 3 | Check Text Alignment section | Structure tab | Shows "Row 1" or section indicator |
 | 4 | Set horizontal to "Left" | Alignment buttons | All cells in Row 1 align left |
 | 5 | Add text to both cells in Row 1 | Content tab | Both show left alignment |
 
@@ -240,9 +240,9 @@ Run these tests after making changes to ensure nothing is broken.
 
 | Step | Action | Where | Expected |
 |------|--------|-------|----------|
-| 1 | Apply a layout with subdivisions | Layout → Structure | Multiple cells visible |
+| 1 | Apply a layout with subdivisions | Structure → Structure | Multiple cells visible |
 | 2 | Click on a specific cell | Structure grid | Single cell highlights |
-| 3 | Check Text Alignment section | Layout tab | Shows "Cell X" indicator |
+| 3 | Check Text Alignment section | Structure tab | Shows "Cell X" indicator |
 | 4 | Set vertical to "Top" | Alignment buttons | Only that cell aligns to top |
 | 5 | Check adjacent cells | Preview | Other cells unaffected |
 
@@ -253,7 +253,7 @@ Run these tests after making changes to ensure nothing is broken.
 | Step | Action | Where | Expected |
 |------|--------|-------|----------|
 | 1 | Click empty area in Structure grid | Structure grid | No selection highlighted |
-| 2 | Check Text Alignment section | Layout tab | Shows "Global" or default indicator |
+| 2 | Check Text Alignment section | Structure tab | Shows "Global" or default indicator |
 | 3 | Set alignment to "Center" + "Middle" | Alignment buttons | All cells without overrides use this |
 | 4 | Add text to any cell | Content tab | Text centers (unless cell has override) |
 
@@ -298,7 +298,7 @@ Run these tests after making changes to ensure nothing is broken.
 
 | Step | Action | Where | Expected |
 |------|--------|-------|----------|
-| 1 | Apply a 2-cell layout | Layout tab | 2 cells visible |
+| 1 | Apply a 2-cell layout | Structure tab | 2 cells visible |
 | 2 | Go to Style → Overlay | Style tab | Per-cell overlay controls visible |
 | 3 | Enable overlay for Cell 1 | Cell 1 toggle | Overlay appears on cell 1 only |
 | 4 | Change overlay type to "Gradient Bottom" | Cell 1 type dropdown | Gradient appears from bottom |
@@ -404,6 +404,6 @@ Quick checks to run after any code change:
 - [ ] Layout change affects preview structure
 - [ ] Image Cell selector works in Media tab (multi-cell layouts)
 - [ ] Image Overlay controls work in Media tab
-- [ ] Text Alignment responds to grid selection in Layout tab
+- [ ] Text Alignment responds to grid selection in Structure tab
 - [ ] Export produces a valid PNG matching preview
 - [ ] No React warnings in console

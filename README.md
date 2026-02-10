@@ -6,9 +6,10 @@ A browser-based tool for creating social media advertisements. Upload images, ad
 
 ## Features
 
-### Templates
-- **Complete Designs** - One-click style presets that apply theme, fonts, layout, overlay, and filters all at once
-- **Layout Only** - Apply just the grid structure without changing colors or fonts
+### Presets
+- **Layout** - Grid structure presets with aspect ratio filtering
+- **Themes** - 12 color schemes plus custom color inputs
+- **Looks** - One-click visual presets that apply fonts, filters, and overlay without changing layout or colors
 
 ### Media
 - **Image upload** - Drag-drop or click to upload background images
@@ -33,12 +34,11 @@ Each text element supports:
 - Bold/italic styling
 - Letter spacing (tight, normal, wide, wider)
 
-### Layout
-- **Structure** - Choose Full Bleed, Rows, or Columns with adjustable sizes
-- **Cell Assignment** - Select which cell displays the image, set per-cell text alignment
+### Structure
+- **Layout Type** - Choose Full Bleed, Rows, or Columns with adjustable sizes
+- **Text Alignment** - Per-cell or global horizontal and vertical alignment
 
 ### Style
-- **12 color themes** - Quick color schemes plus custom color inputs
 - **Typography** - 15 Google Fonts (sans-serif, serif, display categories) with separate title and body font selection
 - **Overlay** - Per-cell overlay controls (solid, 8 gradient directions, vignette, spotlight) with adjustable opacity
 - **Spacing** - Global padding plus per-cell custom padding
@@ -57,16 +57,16 @@ Each text element supports:
 
 ## Quick Start
 
-1. **Pick a template** - Start with a Complete Design from the Templates tab
+1. **Pick a preset** - Start with a Layout and Theme from the Presets tab
 2. **Upload your image** - Go to Media tab, drag-drop or click to upload
 3. **Add your text** - Fill in the Content tab with your headline, body, CTA
-4. **Adjust layout** - Fine-tune grid structure in the Layout tab if needed
-5. **Customize style** - Change theme, fonts, or overlay in the Style tab
+4. **Adjust structure** - Fine-tune grid structure in the Structure tab if needed
+5. **Customize style** - Change fonts or overlay in the Style tab
 6. **Export** - Select your platform and download
 
 ### Tips
-- Start with **Complete Designs** for the fastest workflow
-- Use **Layout Only** presets to change structure without losing your color choices
+- Start with **Looks** presets for the fastest workflow (applies fonts, filters, and overlay at once)
+- Use **Layout** presets to change structure without losing your color choices
 - **Per-cell overlay** helps text stand out over busy images
 - Preview different platforms before exporting to ensure your design works everywhere
 
