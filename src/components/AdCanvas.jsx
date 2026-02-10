@@ -512,9 +512,8 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
           alignSelf: getAlignItems(elementAlign),
           ...style.shadow,
         }}
-      >
-        {layer.content}
-      </Tag>
+        dangerouslySetInnerHTML={{ __html: marked.parseInline(layer.content) }}
+      />
     )
   }
 
