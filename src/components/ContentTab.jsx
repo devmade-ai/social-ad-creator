@@ -1,4 +1,4 @@
-import { memo, useMemo } from 'react'
+import { memo, useMemo, useState } from 'react'
 import CollapsibleSection from './CollapsibleSection'
 import { neutralColors } from '../config/themes'
 import { platforms } from '../config/platforms'
@@ -109,7 +109,7 @@ function getCellInfo(layout) {
   return cells
 }
 
-function MiniCellGrid({ layout, imageCells = [], highlightCell, onSelectCell, platform }) {
+function MiniCellGrid({ layout, imageCells = [], highlightCell, onSelectCell, platform, cellsWithContent, size = 'small' }) {
   const { type, structure } = layout
   const isFullbleed = type === 'fullbleed'
   const isRows = type === 'rows'
@@ -122,6 +122,9 @@ function MiniCellGrid({ layout, imageCells = [], highlightCell, onSelectCell, pl
 
   const platformData = platforms.find((p) => p.id === platform) || platforms[0]
   const aspectRatio = platformData.width / platformData.height
+  const gridWidth = size === 'large' ? 120 : 64
+  const fontSize = size === 'large' ? 'text-[10px]' : 'text-[8px]'
+  const minCellH = size === 'large' ? 'min-h-[20px]' : 'min-h-[12px]'
 
   let cellIndex = 0
 
@@ -129,8 +132,8 @@ function MiniCellGrid({ layout, imageCells = [], highlightCell, onSelectCell, pl
     <div
       className="flex overflow-hidden border border-ui-border-strong rounded"
       style={{
-        width: '64px',
-        height: `${64 / aspectRatio}px`,
+        width: `${gridWidth}px`,
+        height: `${gridWidth / aspectRatio}px`,
         flexDirection: isRows || isFullbleed ? 'column' : 'row',
       }}
     >
@@ -143,25 +146,29 @@ function MiniCellGrid({ layout, imageCells = [], highlightCell, onSelectCell, pl
         for (let subIndex = 0; subIndex < subdivisions; subIndex++) {
           const currentCellIndex = cellIndex
           const isImage = normalizedImageCells.includes(currentCellIndex)
-          const isHighlighted = highlightCell === currentCellIndex
+          const isSelected = highlightCell === currentCellIndex
+          const hasContent = cellsWithContent?.has(currentCellIndex)
           cellIndex++
 
           let bgClass, content
-          if (isHighlighted) {
+          if (isSelected) {
             bgClass = 'bg-primary hover:bg-primary-hover'
-            content = <span className="text-white text-[8px]">✓</span>
+            content = <span className={`text-white ${fontSize}`}>{currentCellIndex + 1}</span>
+          } else if (hasContent) {
+            bgClass = 'bg-violet-200 dark:bg-violet-800 hover:bg-violet-300 dark:hover:bg-violet-700'
+            content = <span className={`text-violet-700 dark:text-violet-200 ${fontSize}`}>{currentCellIndex + 1}</span>
           } else if (isImage) {
-            bgClass = 'bg-primary hover:bg-primary-hover'
-            content = <span className="text-white text-[8px]">📷</span>
+            bgClass = 'bg-primary/20 hover:bg-primary/30'
+            content = <span className={`text-primary ${fontSize}`}>📷</span>
           } else {
             bgClass = 'bg-ui-surface-inset hover:bg-ui-surface-hover'
-            content = <span className="text-ui-text-subtle text-[8px]">{currentCellIndex + 1}</span>
+            content = <span className={`text-ui-text-subtle ${fontSize}`}>{currentCellIndex + 1}</span>
           }
 
           sectionCells.push(
             <div
               key={`cell-${currentCellIndex}`}
-              className={`relative cursor-pointer transition-colors min-h-[12px] ${bgClass} flex items-center justify-center`}
+              className={`relative cursor-pointer transition-colors ${minCellH} ${bgClass} flex items-center justify-center`}
               style={{ flex: `1 1 ${subSizes[subIndex]}%` }}
               onClick={() => onSelectCell(currentCellIndex)}
             >
@@ -404,18 +411,8 @@ function FreeformCellEditor({
     textAlign: null,
   }
 
-  const isImageCell = (layout.imageCells || []).includes(cellIndex)
-
   return (
     <div className="space-y-2">
-      {/* Cell header */}
-      <div className="flex items-center gap-2">
-        <span className="text-sm font-medium text-ui-text">
-          Cell {cellIndex + 1}
-          {isImageCell && <span className="ml-1 text-[10px] text-ui-text-subtle">(image)</span>}
-        </span>
-      </div>
-
       {/* Text input - always supports markdown */}
       <textarea
         value={data.content}
@@ -514,6 +511,22 @@ export default memo(function ContentTab({
   onFreeformTextChange,
 }) {
   const cellInfoList = useMemo(() => getCellInfo(layout), [layout])
+  const [selectedFreeformCell, setSelectedFreeformCell] = useState(0)
+
+  // Clamp selected cell to valid range when layout changes
+  const maxCell = cellInfoList.length - 1
+  const activeCell = selectedFreeformCell > maxCell ? 0 : selectedFreeformCell
+
+  // Track which cells have freeform text content
+  const cellsWithContent = useMemo(() => {
+    const set = new Set()
+    for (const [idx, data] of Object.entries(freeformText)) {
+      if (data?.content) set.add(Number(idx))
+    }
+    return set
+  }, [freeformText])
+
+  const imageCells = layout.imageCells ?? (layout.imageCell !== undefined ? [layout.imageCell] : [0])
 
   return (
     <div className="space-y-3">
@@ -568,26 +581,36 @@ export default memo(function ContentTab({
           ))}
         </>
       ) : (
-        <>
-          <p className="text-[11px] text-ui-text-subtle">
-            Write text for each cell. Supports **markdown** formatting.
-          </p>
-          {cellInfoList.map((cell) => (
-            <CollapsibleSection
-              key={cell.index}
-              title={`Cell ${cell.label}`}
-              defaultExpanded={cell.index === 0}
-            >
-              <FreeformCellEditor
-                cellIndex={cell.index}
-                cellData={freeformText[cell.index]}
-                onFreeformTextChange={onFreeformTextChange}
-                theme={theme}
-                layout={layout}
-              />
-            </CollapsibleSection>
-          ))}
-        </>
+        <div className="space-y-3">
+          {/* Cell selector + label */}
+          <div className="flex items-center gap-3">
+            <MiniCellGrid
+              layout={layout}
+              imageCells={imageCells}
+              highlightCell={activeCell}
+              onSelectCell={setSelectedFreeformCell}
+              platform={platform}
+              cellsWithContent={cellsWithContent}
+              size="large"
+            />
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-ui-text">Cell {activeCell + 1}</p>
+              <p className="text-[10px] text-ui-text-subtle mt-0.5">
+                Supports **markdown** formatting
+              </p>
+            </div>
+          </div>
+
+          {/* Editor for selected cell */}
+          <FreeformCellEditor
+            key={activeCell}
+            cellIndex={activeCell}
+            cellData={freeformText[activeCell]}
+            onFreeformTextChange={onFreeformTextChange}
+            theme={theme}
+            layout={layout}
+          />
+        </div>
       )}
     </div>
   )
