@@ -37,7 +37,7 @@ function extractPageData(state) {
 
 const defaultPageData = {
   activeStylePreset: null,
-  activeLayoutPreset: 'hero',
+  activeLayoutPreset: 'quad-grid',
   images: [],
   cellImages: {},
   defaultImageSettings: {
@@ -54,14 +54,22 @@ const defaultPageData = {
     cta: { content: '', visible: false, color: 'accent', size: 1, bold: true, italic: false, letterSpacing: 0, textAlign: null, textVerticalAlign: null },
     footnote: { content: '', visible: false, color: 'secondary', size: 1, bold: false, italic: false, letterSpacing: 0, textAlign: null, textVerticalAlign: null },
   },
-  textCells: { title: null, tagline: null, bodyHeading: null, bodyText: null, cta: null, footnote: null },
+  textCells: { title: 1, tagline: 1, bodyHeading: 2, bodyText: 2, cta: 2, footnote: 2 },
   layout: {
-    type: 'fullbleed',
-    structure: [{ size: 100, subdivisions: 1, subSizes: [100] }],
-    imageCells: [0],
+    type: 'rows',
+    structure: [
+      { size: 50, subdivisions: 2, subSizes: [50, 50] },
+      { size: 50, subdivisions: 2, subSizes: [50, 50] },
+    ],
+    imageCells: [0, 3],
     textAlign: 'center',
     textVerticalAlign: 'center',
-    cellAlignments: [],
+    cellAlignments: [
+      { textAlign: 'center', textVerticalAlign: 'center' },
+      { textAlign: 'center', textVerticalAlign: 'center' },
+      { textAlign: 'center', textVerticalAlign: 'center' },
+      { textAlign: 'center', textVerticalAlign: 'center' },
+    ],
     cellOverlays: {},
   },
   padding: { global: 20, cellOverrides: {} },
@@ -72,7 +80,7 @@ const defaultPageData = {
 
 export const defaultState = {
   activeStylePreset: null,
-  activeLayoutPreset: 'hero',
+  activeLayoutPreset: 'quad-grid',
 
   images: [],
 
@@ -105,12 +113,12 @@ export const defaultState = {
   },
 
   textCells: {
-    title: null,
-    tagline: null,
-    bodyHeading: null,
-    bodyText: null,
-    cta: null,
-    footnote: null,
+    title: 1,
+    tagline: 1,
+    bodyHeading: 2,
+    bodyText: 2,
+    cta: 2,
+    footnote: 2,
   },
 
   logo: null,
@@ -118,14 +126,20 @@ export const defaultState = {
   logoSize: 0.15,
 
   layout: {
-    type: 'fullbleed',
+    type: 'rows',
     structure: [
-      { size: 100, subdivisions: 1, subSizes: [100] },
+      { size: 50, subdivisions: 2, subSizes: [50, 50] },
+      { size: 50, subdivisions: 2, subSizes: [50, 50] },
     ],
-    imageCells: [0],
+    imageCells: [0, 3],
     textAlign: 'center',
     textVerticalAlign: 'center',
-    cellAlignments: [],
+    cellAlignments: [
+      { textAlign: 'center', textVerticalAlign: 'center' },
+      { textAlign: 'center', textVerticalAlign: 'center' },
+      { textAlign: 'center', textVerticalAlign: 'center' },
+      { textAlign: 'center', textVerticalAlign: 'center' },
+    ],
     cellOverlays: {},
   },
 
