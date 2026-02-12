@@ -1,4 +1,4 @@
-# Grumpy Cam Canvas 🫩
+# CanvaGrid
 
 A browser-based tool for creating social media advertisements. Upload images, add text overlays, choose layouts, and export ads optimized for multiple platforms.
 

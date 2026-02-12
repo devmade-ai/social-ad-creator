@@ -10,9 +10,9 @@ export default defineConfig({
       registerType: 'prompt',
       includeAssets: ['icon.svg', 'samples/*.jpg', 'samples/*.png'],
       manifest: {
-        name: 'Grumpy Cam Canvas',
-        short_name: 'Cam Canvas',
-        description: 'Grumpy Cam Canvas - Create social media ads for LinkedIn, Facebook, Instagram, Twitter/X, and TikTok',
+        name: 'CanvaGrid',
+        short_name: 'CanvaGrid',
+        description: 'CanvaGrid - Create social media ads for LinkedIn, Facebook, Instagram, Twitter/X, and TikTok',
         theme_color: '#7c3aed',
         background_color: '#18181b',
         display: 'standalone',
