@@ -2,7 +2,7 @@
 
 A browser-based tool for creating social media advertisements. Upload images, add text overlays, choose layouts, and export ads optimized for multiple platforms.
 
-**Live Demo:** [https://devmade-ai.github.io/social-ad-creator/](https://devmade-ai.github.io/social-ad-creator/)
+**Live Demo:** [https://devmade-ai.github.io/canva-grid/](https://devmade-ai.github.io/canva-grid/)
 
 ## Features
 

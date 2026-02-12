@@ -5,33 +5,25 @@ Compact context summary for session continuity. Rewrite at session end.
 ---
 
 ## Worked on
-Rename app from "Grumpy Cam Canvas" to "CanvaGrid"
+Updated all URLs and base paths to new repository location: `https://devmade-ai.github.io/canva-grid/`
 
 ## Accomplished
 
-1. **Renamed app across all source code files**
-   - App.jsx: Header title (desktop + mobile)
-   - TutorialModal.jsx: Welcome text
-   - InstallInstructionsModal.jsx: Install instructions
-   - usePWAInstall.js: Browser-specific install prompts
-
-2. **Updated config files**
-   - vite.config.js: PWA manifest (name, short_name, description)
-   - index.html: Title, meta description, apple-mobile-web-app-title
-
-3. **Migrated localStorage key**
-   - Changed from `grumpy-cam-canvas-designs` to `canvagrid-designs`
-   - Added `grumpy-cam-canvas-designs` to OLD_KEYS migration list
-
-4. **Updated all documentation**
-   - CLAUDE.md, README.md, docs/TODO.md, docs/USER_GUIDE.md
-   - docs/TESTING_GUIDE.md, docs/STYLE_GUIDE.md, docs/HISTORY.md
+1. **Updated base paths and URLs**
+   - vite.config.js: `base`, PWA `scope`, and `start_url` → `/canva-grid/`
+   - index.html: Icon and asset paths → `/canva-grid/`
+   - README.md: Live demo URL → `https://devmade-ai.github.io/canva-grid/`
+   - package.json: Package name → `canva-grid`
+   - package-lock.json: Regenerated
 
 ## Current state
+
 - **Build**: Not verified yet
-- All references to "Grumpy Cam Canvas" replaced with "CanvaGrid"
-- localStorage migration preserves existing user data
+- All URLs and paths updated to new `canva-grid` repository
+- localStorage migration chain preserved in useAdState.js for backward compatibility
 
 ## Key context
-- The app was previously named "Grumpy Cam Canvas 🫩" (before that "Grumpy Campaign Kit")
+
+- App is named "CanvaGrid" (renamed from older names in previous sessions)
 - localStorage migration chain: social-ad-creator → grumpy-campaign-kit → grumpy-cam-canvas → canvagrid
+- Old key names in useAdState.js OLD_KEYS are intentional for data migration

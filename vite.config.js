@@ -16,8 +16,8 @@ export default defineConfig({
         theme_color: '#7c3aed',
         background_color: '#18181b',
         display: 'standalone',
-        scope: '/social-ad-creator/',
-        start_url: '/social-ad-creator/',
+        scope: '/canva-grid/',
+        start_url: '/canva-grid/',
         icons: [
           {
             src: 'icon.svg',
@@ -78,5 +78,5 @@ export default defineConfig({
       }
     })
   ],
-  base: '/social-ad-creator/',
+  base: '/canva-grid/',
 })
