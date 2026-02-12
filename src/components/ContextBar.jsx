@@ -137,27 +137,7 @@ export default memo(function ContextBar({
   return (
     <div className="bg-white/90 dark:bg-dark-card/90 backdrop-blur-sm border-b border-zinc-200/60 dark:border-zinc-700/60 px-3 sm:px-4 py-1.5 sticky top-[41px] z-[9]">
       <div className="flex items-center gap-2 sm:gap-3">
-        {/* Cell selector - miniature layout grid */}
-        <div className="flex items-center gap-1.5 shrink-0">
-          <span className="text-[10px] text-ui-text-faint uppercase tracking-wide hidden sm:inline">Cell</span>
-          <CellGrid
-            layout={layout}
-            cellImages={cellImages}
-            selectedCell={selectedCell}
-            onSelectCell={onSelectCell}
-            platform={platform}
-          />
-          {totalCells > 1 && (
-            <span className="text-xs font-medium text-ui-text-muted">
-              {selectedCell + 1}
-            </span>
-          )}
-        </div>
-
-        {/* Divider */}
-        <div className="w-px h-6 bg-ui-border shrink-0" />
-
-        {/* Pages section - center */}
+        {/* Pages section */}
         <div className="flex items-center gap-1.5 flex-1 min-w-0">
           <span className="text-[10px] text-ui-text-faint uppercase tracking-wide hidden sm:inline shrink-0">Pages</span>
 
@@ -227,7 +207,11 @@ export default memo(function ContextBar({
             </button>
             {hasMultiplePages && (
               <button
-                onClick={() => onRemovePage(activePage)}
+                onClick={() => {
+                  if (window.confirm(`Delete page ${activePage + 1}?`)) {
+                    onRemovePage(activePage)
+                  }
+                }}
                 disabled={pageCount <= 1}
                 title="Remove current page"
                 className="w-5 h-5 rounded flex items-center justify-center text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
@@ -243,8 +227,28 @@ export default memo(function ContextBar({
         {/* Divider */}
         <div className="w-px h-6 bg-ui-border shrink-0" />
 
+        {/* Cell selector - miniature layout grid */}
+        <div className="flex items-center gap-1.5 flex-1 min-w-0 justify-center">
+          <span className="text-[10px] text-ui-text-faint uppercase tracking-wide hidden sm:inline">Cell</span>
+          <CellGrid
+            layout={layout}
+            cellImages={cellImages}
+            selectedCell={selectedCell}
+            onSelectCell={onSelectCell}
+            platform={platform}
+          />
+          {totalCells > 1 && (
+            <span className="text-xs font-medium text-ui-text-muted">
+              {selectedCell + 1}
+            </span>
+          )}
+        </div>
+
+        {/* Divider */}
+        <div className="w-px h-6 bg-ui-border shrink-0" />
+
         {/* Undo/Redo */}
-        <div className="flex items-center gap-0.5 shrink-0">
+        <div className="flex items-center gap-0.5 flex-1 min-w-0 justify-end">
           <button
             onClick={undo}
             disabled={!canUndo}
