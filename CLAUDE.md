@@ -254,10 +254,10 @@ Tab descriptions (workflow-based organization):
 ## Common Commands
 
 ```bash
-npm run dev      # Start dev server
-npm run build    # Production build
-npm run preview  # Preview production build
-npm run deploy   # Deploy to GitHub Pages
+npm run dev              # Start dev server
+npm run build            # Production build
+npm run preview          # Preview production build
+npm run deploy           # Deploy to GitHub Pages
 ```
 
 ## Architecture
@@ -281,6 +281,7 @@ src/
 │   ├── layoutPresets.js  # 20 layouts with SVG icons and categories
 │   ├── stylePresets.js   # Look presets (fonts + filters + overlay effects per layout)
 │   ├── platforms.js      # 14 platform sizes (social, web, banners, other)
+│   ├── sampleImages.js   # CDN manifest URL for sample images (fetched at runtime)
 │   ├── themes.js         # 12 color themes
 │   └── fonts.js          # 15 Google Fonts
 ├── hooks/
@@ -384,7 +385,7 @@ Entry point for users. Three sections:
 
 ### Media Tab
 Collapsible sections:
-- **Sample Images** - Quick-start sample images to add to library (auto-expanded when no images)
+- **Sample Images** - CDN-hosted sample images with category filtering (manifest fetched at runtime from jsDelivr)
 - **AI Image Prompt** - Helper for generating AI image prompts
 - **Images** - Upload to library, cell selector, assign images to cells, per-image settings (fit, position)
 - **Image Overlay** - Per-image overlay controls (type, color, opacity) for selected image

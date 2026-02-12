@@ -53,6 +53,24 @@ Run these tests after making changes to ensure nothing is broken.
 
 ## Media Tab Tests
 
+### M0: Sample Images with Categories
+
+**Scenario:** Sample images load from CDN manifest with category filtering.
+
+| Step | Action | Where | Expected |
+|------|--------|-------|----------|
+| 1 | Click "Media" tab | Top tab bar | Media tab opens |
+| 2 | Expand "Sample Images" section | Media tab | Loading spinner appears briefly, then category chips and thumbnail grid |
+| 3 | Click a category chip (e.g., "Nature") | Category filter row | Grid filters to show only that category |
+| 4 | Click "All" chip | Category filter row | All sample images shown again |
+| 5 | Click any sample thumbnail | Sample grid | Loading spinner appears on thumbnail |
+| 6 | Wait for load | Sample grid | Image added to library, spinner disappears |
+| 7 | Check preview | Ad preview | Image appears in the canvas |
+| 8 | Disconnect internet, reload page | Browser | Manifest loads from cache, thumbnails still visible |
+| 9 | With internet off, click a non-cached thumbnail | Sample grid | Error: "Failed to load image. Check your connection." |
+| 10 | Set invalid manifest URL (dev only), reload | sampleImages.js | Error: "Could not load sample images..." with "Try again" button |
+| 11 | Click "Try again" | Error state | Retries manifest fetch |
+
 ### M1: Image Upload
 
 **Scenario:** Users can upload a background image via drag-drop or click.
@@ -402,6 +420,9 @@ Quick checks to run after any code change:
 - [ ] Text appears in preview when typed
 - [ ] Theme change affects preview colors
 - [ ] Layout change affects preview structure
+- [ ] Sample images: manifest loads, category chips and thumbnails appear
+- [ ] Sample images: clicking a thumbnail loads full image and adds to library
+- [ ] Sample images: error state shows retry button if manifest fails
 - [ ] Image Cell selector works in Media tab (multi-cell layouts)
 - [ ] Image Overlay controls work in Media tab
 - [ ] Text Alignment responds to grid selection in Structure tab

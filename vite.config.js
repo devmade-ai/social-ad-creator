@@ -8,7 +8,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'prompt',
-      includeAssets: ['icon.svg', 'samples/*.jpg', 'samples/*.png'],
+      includeAssets: ['icon.svg'],
       manifest: {
         name: 'CanvaGrid',
         short_name: 'CanvaGrid',
@@ -68,6 +68,34 @@ export default defineConfig({
               expiration: {
                 maxEntries: 10,
                 maxAgeSeconds: 60 * 60 * 24 * 365 // 1 year
+              },
+              cacheableResponse: {
+                statuses: [0, 200]
+              }
+            }
+          },
+          {
+            urlPattern: /^https:\/\/cdn\.jsdelivr\.net\/gh\/devmade-ai\/canva-grid-assets\/.*manifest\.json$/i,
+            handler: 'StaleWhileRevalidate',
+            options: {
+              cacheName: 'sample-manifest-cache',
+              expiration: {
+                maxEntries: 1,
+                maxAgeSeconds: 60 * 60 * 24 * 7 // 7 days
+              },
+              cacheableResponse: {
+                statuses: [0, 200]
+              }
+            }
+          },
+          {
+            urlPattern: /^https:\/\/cdn\.jsdelivr\.net\/gh\/devmade-ai\/canva-grid-assets\/.*/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'sample-images-cache',
+              expiration: {
+                maxEntries: 200,
+                maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days
               },
               cacheableResponse: {
                 statuses: [0, 200]

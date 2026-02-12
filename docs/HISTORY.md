@@ -1,5 +1,44 @@
 # Changelog
 
+## 2026-02-12
+
+### Decoupled sample images — runtime manifest fetch
+
+Moved all sample image generation concerns out of this repo. The assets repo (`devmade-ai/canva-grid-assets`) is now the single source of truth. This app fetches a `manifest.json` from CDN at runtime instead of bundling a static config.
+
+**Config Changes (`src/config/sampleImages.js`)**
+- Replaced auto-generated 26-line config with a single `SAMPLE_MANIFEST_URL` constant
+- App no longer needs to know about categories or images at build time
+
+**UI Changes (`MediaTab.jsx` SampleImagesSection)**
+- Fetches manifest.json on mount with loading/error/empty states
+- Loading: spinner with "Loading sample images..." text
+- Error: message with "Try again" button
+- Empty: "No sample images available" message
+- Category chips only render when categories exist in manifest
+- CDN base URL comes from manifest's `cdnBase` field (not a hardcoded constant)
+
+**PWA Changes (`vite.config.js`)**
+- Added `StaleWhileRevalidate` rule for manifest.json (7-day cache, before CacheFirst image rule)
+- Ensures new images appear on next online visit while serving cached manifest offline
+
+**Removed from this repo**
+- `scripts/generate-samples.mjs` — belongs in the assets repo
+- `generate-samples` npm script from package.json
+- `sample-sources` and `sample-output` from .gitignore (no longer relevant)
+
+### Earlier: Migrated sample images to CDN with categories
+
+Replaced 10 bundled sample images (13MB in `public/samples/`) with a CDN-hosted system supporting categorized images.
+
+- Added category filter chips (All + per-category) matching TemplatesTab style
+- Thumbnails loaded from CDN with `loading="lazy"` for performance
+- Full images fetched on click with loading spinner overlay and 30-second timeout
+- Added jsDelivr CDN runtime caching (CacheFirst, 200 max entries, 30-day expiry)
+- Deleted `public/samples/` directory (13MB removed from repo)
+
+---
+
 ## 2026-02-10
 
 ### Global cell selection + sticky ContextBar

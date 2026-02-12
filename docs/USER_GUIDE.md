@@ -86,7 +86,9 @@ When a new version is available, you'll see an **Update** button in the header. 
 The starting point for most designs. Contains four sections:
 
 #### Sample Images
-Quick-start sample images to add to your library. Auto-expands when your library is empty. Click any sample to add it.
+Browse sample images organized by category. Use the category filter chips (All, Nature, People, Abstract, etc.) to narrow your selection. Click any thumbnail to load the full image and add it to your library.
+
+Sample images are loaded from a CDN. Thumbnails load quickly for browsing; the full image is fetched when you click. Previously loaded images are cached for offline use.
 
 #### Layout
 Grid templates that change your structure without affecting colors or fonts:

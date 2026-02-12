@@ -4,4 +4,4 @@ This document tracks manual actions that require user intervention (external das
 
 ---
 
-*No pending user actions at this time.*
+No pending actions.

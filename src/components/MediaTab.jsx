@@ -3,7 +3,7 @@ import CollapsibleSection from './CollapsibleSection'
 import { platforms } from '../config/platforms'
 import { overlayTypes } from '../config/layouts'
 import { neutralColors } from '../config/themes'
-import { sampleImages } from '../config/sampleImages'
+import { SAMPLE_MANIFEST_URL } from '../config/sampleImages'
 
 // Theme color options for overlay
 const themeColorOptions = [
@@ -369,16 +369,53 @@ function AIPromptHelper({ theme }) {
 
 // Sample Images Section
 function SampleImagesSection({ images, onAddImage, selectedCell }) {
+  const [manifest, setManifest] = useState(null)
+  const [manifestLoading, setManifestLoading] = useState(true)
+  const [manifestError, setManifestError] = useState(null)
   const [loadingSample, setLoadingSample] = useState(null)
   const [sampleError, setSampleError] = useState(null)
+  const [activeCategory, setActiveCategory] = useState('all')
+
+  const loadManifest = useCallback(async () => {
+    setManifestLoading(true)
+    setManifestError(null)
+    try {
+      const response = await fetch(SAMPLE_MANIFEST_URL)
+      if (!response.ok) throw new Error(`HTTP ${response.status}`)
+      const data = await response.json()
+      setManifest(data)
+    } catch {
+      setManifestError('Could not load sample images. Check your connection.')
+    } finally {
+      setManifestLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    loadManifest()
+  }, [loadManifest])
+
+  const sampleCategories = manifest?.categories || []
+  const sampleImages = manifest?.images || []
+  const cdnBase = manifest?.cdnBase || ''
+
+  const filteredImages = useMemo(() => {
+    if (activeCategory === 'all') return sampleImages
+    return sampleImages.filter((s) => s.categories.includes(activeCategory))
+  }, [activeCategory, sampleImages])
 
   const loadSampleImage = useCallback(
     async (sample) => {
       setLoadingSample(sample.id)
       setSampleError(null)
+      const controller = new AbortController()
+      const timeout = setTimeout(() => controller.abort(), 30000)
       try {
-        const response = await fetch(import.meta.env.BASE_URL + sample.file)
-        if (!response.ok) throw new Error('Image not found')
+        const response = await fetch(`${cdnBase}/${sample.full}`, {
+          signal: controller.signal,
+        })
+        clearTimeout(timeout)
+        if (!response.ok) throw new Error(`HTTP ${response.status}`)
         const blob = await response.blob()
         const reader = new FileReader()
         reader.onload = (event) => {
@@ -390,36 +427,102 @@ function SampleImagesSection({ images, onAddImage, selectedCell }) {
           setLoadingSample(null)
         }
         reader.readAsDataURL(blob)
-      } catch {
-        setSampleError(`Add ${sample.name} to public/samples/`)
+      } catch (err) {
+        clearTimeout(timeout)
+        setSampleError(
+          err.name === 'AbortError'
+            ? 'Image loading timed out. Try again.'
+            : 'Failed to load image. Check your connection.'
+        )
         setLoadingSample(null)
       }
     },
-    [onAddImage, selectedCell]
+    [onAddImage, selectedCell, cdnBase]
   )
+
+  if (manifestLoading) {
+    return (
+      <div className="flex items-center justify-center py-6 gap-2">
+        <div className="w-4 h-4 border-2 border-violet-400 border-t-transparent rounded-full animate-spin" />
+        <p className="text-xs text-ui-text-subtle">Loading sample images...</p>
+      </div>
+    )
+  }
+
+  if (manifestError) {
+    return (
+      <div className="text-center py-4 space-y-2">
+        <p className="text-xs text-red-600 dark:text-red-400">{manifestError}</p>
+        <button
+          onClick={loadManifest}
+          className="px-3 py-1 text-xs rounded-lg bg-ui-surface-inset hover:bg-ui-surface-hover text-ui-text-muted"
+        >
+          Try again
+        </button>
+      </div>
+    )
+  }
+
+  if (sampleImages.length === 0) {
+    return (
+      <p className="text-xs text-ui-text-subtle text-center py-3">No sample images available</p>
+    )
+  }
 
   return (
     <div className="space-y-2">
       <p className="text-xs text-ui-text-subtle">
         {images.length === 0 ? 'Add a sample image to get started' : 'Add sample images to your library'}
       </p>
+
+      {/* Category filter chips */}
+      {sampleCategories.length > 0 && (
+        <div className="flex flex-wrap gap-1">
+          <button
+            onClick={() => setActiveCategory('all')}
+            className={`px-2.5 py-1 text-xs rounded-lg font-medium ${
+              activeCategory === 'all'
+                ? 'bg-primary text-white shadow-sm'
+                : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
+            }`}
+          >
+            All
+          </button>
+          {sampleCategories.map((cat) => (
+            <button
+              key={cat.id}
+              onClick={() => setActiveCategory(cat.id)}
+              className={`px-2.5 py-1 text-xs rounded-lg font-medium ${
+                activeCategory === cat.id
+                  ? 'bg-primary text-white shadow-sm'
+                  : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
+              }`}
+            >
+              {cat.name}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Image grid with CDN thumbnails */}
       <div className="grid grid-cols-5 gap-1.5">
-        {sampleImages.map((sample) => (
+        {filteredImages.map((sample) => (
           <button
             key={sample.id}
             onClick={() => loadSampleImage(sample)}
             disabled={loadingSample === sample.id}
             title={`Add ${sample.name} to library`}
-            className={`aspect-square rounded-lg overflow-hidden border-2 transition-all ${
+            className={`aspect-square rounded-lg overflow-hidden border-2 transition-all relative ${
               loadingSample === sample.id
                 ? 'border-violet-400 opacity-50 scale-95'
                 : 'border-ui-border hover:border-violet-400 hover:shadow-sm active:scale-95'
             }`}
           >
             <img
-              src={import.meta.env.BASE_URL + sample.file}
+              src={`${cdnBase}/${sample.thumb}`}
               alt={sample.name}
               className="w-full h-full object-cover"
+              loading="lazy"
               onError={(e) => {
                 e.target.style.display = 'none'
                 e.target.nextSibling.style.display = 'flex'
@@ -431,9 +534,19 @@ function SampleImagesSection({ images, onAddImage, selectedCell }) {
             >
               {sample.name}
             </div>
+            {loadingSample === sample.id && (
+              <div className="absolute inset-0 flex items-center justify-center bg-black/30 rounded-lg">
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              </div>
+            )}
           </button>
         ))}
       </div>
+
+      {filteredImages.length === 0 && (
+        <p className="text-xs text-ui-text-subtle text-center py-3">No images in this category</p>
+      )}
+
       {sampleError && <p className="text-xs text-red-600 dark:text-red-400">{sampleError}</p>}
     </div>
   )
