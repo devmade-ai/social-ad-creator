@@ -1,6 +1,6 @@
 # TODO
 
-Future enhancements and ideas for 🫩 Grumpy Campaign Kit.
+Future enhancements and ideas for Grumpy Cam Canvas 🫩.
 
 ---
 

@@ -571,7 +571,7 @@ New components created:
 - Extended overlay system to apply to images in all layouts (not just background layouts)
 - Expanded text layers to 6: title, tagline, body heading, body text, call to action, footnote
 
-### eb92465 - Add Grumpy Campaign Kit implementation
+### eb92465 - Add Grumpy Cam Canvas implementation
 
 - Initial feature-complete implementation
 - Image upload with drag-drop

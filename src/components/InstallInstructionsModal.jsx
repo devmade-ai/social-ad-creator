@@ -39,7 +39,7 @@ export default memo(function InstallInstructionsModal({ isOpen, onClose, instruc
         {/* Instructions */}
         <div className="space-y-3 mb-4">
           <p className="text-sm text-ui-text-muted">
-            Follow these steps to install 🫩 Grumpy Campaign Kit:
+            Follow these steps to install Grumpy Cam Canvas 🫩:
           </p>
           <ol className="space-y-2">
             {instructions.steps.map((step, index) => (

@@ -375,7 +375,7 @@ function App() {
         {/* Desktop: single row */}
         <div className="hidden sm:flex sm:items-center sm:justify-between">
           <div className="flex items-center gap-2">
-            <h1 className="text-lg font-display font-bold text-ui-text tracking-tight">🫩 Grumpy Campaign Kit</h1>
+            <h1 className="text-lg font-display font-bold text-ui-text tracking-tight">Grumpy Cam Canvas 🫩</h1>
             <span className="px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300 rounded">
               Research Preview
             </span>
@@ -472,7 +472,7 @@ function App() {
         <div className="flex flex-col gap-2 sm:hidden">
           {/* Row 1: Title */}
           <div className="flex items-center justify-center gap-2">
-            <h1 className="text-lg font-display font-bold text-ui-text tracking-tight">🫩 Grumpy Campaign Kit</h1>
+            <h1 className="text-lg font-display font-bold text-ui-text tracking-tight">Grumpy Cam Canvas 🫩</h1>
             <span className="px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300 rounded">
               Research Preview
             </span>

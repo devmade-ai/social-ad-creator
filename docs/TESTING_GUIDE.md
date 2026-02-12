@@ -1,6 +1,6 @@
 # Manual Testing Guide
 
-Step-by-step test scenarios for verifying 🫩 Grumpy Campaign Kit works correctly.
+Step-by-step test scenarios for verifying Grumpy Cam Canvas 🫩 works correctly.
 
 ---
 
