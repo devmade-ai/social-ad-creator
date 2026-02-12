@@ -53,23 +53,27 @@ Run these tests after making changes to ensure nothing is broken.
 
 ## Media Tab Tests
 
-### M0: Sample Images with Categories
+### M0: Sample Images with Categories and Pagination
 
-**Scenario:** Sample images load from CDN manifest with category filtering.
+**Scenario:** Sample images load from CDN manifest with category filtering and pagination.
 
 | Step | Action | Where | Expected |
 |------|--------|-------|----------|
 | 1 | Click "Media" tab | Top tab bar | Media tab opens |
 | 2 | Expand "Sample Images" section | Media tab | Loading spinner appears briefly, then category chips and thumbnail grid |
-| 3 | Click a category chip (e.g., "Nature") | Category filter row | Grid filters to show only that category |
-| 4 | Click "All" chip | Category filter row | All sample images shown again |
-| 5 | Click any sample thumbnail | Sample grid | Loading spinner appears on thumbnail |
-| 6 | Wait for load | Sample grid | Image added to library, spinner disappears |
-| 7 | Check preview | Ad preview | Image appears in the canvas |
-| 8 | Disconnect internet, reload page | Browser | Manifest loads from cache, thumbnails still visible |
-| 9 | With internet off, click a non-cached thumbnail | Sample grid | Error: "Failed to load image. Check your connection." |
-| 10 | Set invalid manifest URL (dev only), reload | sampleImages.js | Error: "Could not load sample images..." with "Try again" button |
-| 11 | Click "Try again" | Error state | Retries manifest fetch |
+| 3 | Verify category chips scroll horizontally | Category filter row | Chips in a single row, scrollable if many categories |
+| 4 | Click a category chip (e.g., "Nature") | Category filter row | Grid filters to show only that category, page resets to 1 |
+| 5 | Click "All" chip | Category filter row | All sample images shown again, page resets to 1 |
+| 6 | If more than 15 images, check pagination | Below image grid | "Prev / 1 / N / Next" controls visible |
+| 7 | Click "Next" | Pagination controls | Next page of images shown, page counter updates |
+| 8 | Click "Prev" | Pagination controls | Previous page shown |
+| 9 | Click any sample thumbnail | Sample grid | Loading spinner appears on thumbnail |
+| 10 | Wait for load | Sample grid | Image added to library, spinner disappears |
+| 11 | Check preview | Ad preview | Image appears in the canvas |
+| 12 | Disconnect internet, reload page | Browser | Manifest loads from cache, thumbnails still visible |
+| 13 | With internet off, click a non-cached thumbnail | Sample grid | Error: "Failed to load image. Check your connection." |
+| 14 | Set invalid manifest URL (dev only), reload | sampleImages.js | Error: "Could not load sample images..." with "Try again" button |
+| 15 | Click "Try again" | Error state | Retries manifest fetch |
 
 ### M1: Image Upload
 
@@ -420,7 +424,8 @@ Quick checks to run after any code change:
 - [ ] Text appears in preview when typed
 - [ ] Theme change affects preview colors
 - [ ] Layout change affects preview structure
-- [ ] Sample images: manifest loads, category chips and thumbnails appear
+- [ ] Sample images: manifest loads, category chips (horizontal scroll) and thumbnails appear
+- [ ] Sample images: pagination controls show when more than 15 images, Prev/Next work
 - [ ] Sample images: clicking a thumbnail loads full image and adds to library
 - [ ] Sample images: error state shows retry button if manifest fails
 - [ ] Image Cell selector works in Media tab (multi-cell layouts)

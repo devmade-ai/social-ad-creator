@@ -5,28 +5,21 @@ Compact context summary for session continuity. Rewrite at session end.
 ---
 
 ## Worked on
-Decoupled sample images from the app repo — moved all generation concerns to the assets repo, app now fetches manifest from CDN at runtime.
+Frame rendering fix and sample images UX improvements.
 
 ## Accomplished
 
-1. **Rewrote sampleImages.js** - Replaced auto-generated 26-line config with a single `SAMPLE_MANIFEST_URL` constant
-2. **Updated MediaTab SampleImagesSection** - Fetches manifest.json at runtime with loading spinner, error state + retry button, and empty state handling
-3. **Added PWA manifest caching** - `StaleWhileRevalidate` rule for manifest.json (7 days), placed before existing `CacheFirst` image rule
-4. **Deleted generate-samples.mjs** - Script belongs in the assets repo, not here
-5. **Cleaned up package.json** - Removed `generate-samples` npm script
-6. **Cleaned up .gitignore** - Removed `sample-sources` and `sample-output` entries
-7. **Updated all documentation** - CLAUDE.md, USER_ACTIONS.md, SESSION_NOTES.md, HISTORY.md, TESTING_GUIDE.md
+1. **Fixed cell/outer frame thin line artifact** - Replaced `box-shadow: inset` with `border` + `box-sizing: border-box` for all three frame renderings (fullbleed cell frame, grid cell frame, outer canvas frame) in AdCanvas.jsx
+2. **Added sample image pagination** - Shows 15 images per page (3 rows of 5) with Prev/Next controls and page counter. Page resets when switching categories.
+3. **Added horizontal scroll for category chips** - Category filter chips now sit in a single scrollable row with a right-edge fade indicator on hover, instead of wrapping to multiple lines.
 
 ## Current state
 
-- **Code changes complete** - All files updated
-- **User action needed** - Set up the assets repo with the generate script, source images, and push manifest.json + thumbs/ + full/ (see docs/USER_ACTIONS.md)
-- **Build verification needed** - Should run `npm run dev` or build to confirm no issues
+- **All changes working** - Frame fix committed and pushed. Pagination and category scroll implemented.
+- **Uncommitted** - Sample image pagination and category scroll changes in MediaTab.jsx
 
 ## Key context
 
-- App fetches `manifest.json` from `https://cdn.jsdelivr.net/gh/devmade-ai/canva-grid-assets@main/manifest.json`
-- Manifest contains `cdnBase`, `categories`, and `images` — app derives everything from this
-- If CDN is down: graceful error with retry button, rest of app works fine
-- PWA caches manifest with StaleWhileRevalidate (new images appear on next online visit)
-- `sharp` stays in devDependencies (still used by `generate-icons.mjs` for PWA icons)
+- Frame rendering changed from `box-shadow: inset 0 0 0 Xpx color` to `border: Xpx solid color` with `box-sizing: border-box` — functionally identical but eliminates sub-pixel anti-aliasing artifacts
+- `SAMPLES_PER_PAGE = 15` constant controls pagination size
+- Category chips use `overflow-x-auto` with hidden scrollbar and gradient fade hint

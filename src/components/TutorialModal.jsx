@@ -47,15 +47,15 @@ const tutorialSteps = [
         <ul className="space-y-2 text-sm">
           <li className="flex gap-2">
             <span className="text-violet-500">•</span>
+            <span><strong>Sample Images:</strong> Browse categorized samples from CDN - click to add to your library</span>
+          </li>
+          <li className="flex gap-2">
+            <span className="text-violet-500">•</span>
             <span><strong>Images:</strong> Upload to library, then assign to cells in your layout</span>
           </li>
           <li className="flex gap-2">
             <span className="text-violet-500">•</span>
-            <span><strong>Per-image settings:</strong> Fit, position, grayscale for each image</span>
-          </li>
-          <li className="flex gap-2">
-            <span className="text-violet-500">•</span>
-            <span><strong>Image Overlay:</strong> Add gradients, vignettes, or effects directly to images</span>
+            <span><strong>Per-image settings:</strong> Fit, position, overlay, and advanced filters (grayscale, sepia, blur, contrast, brightness)</span>
           </li>
           <li className="flex gap-2">
             <span className="text-violet-500">•</span>
@@ -71,26 +71,18 @@ const tutorialSteps = [
     icon: '✏️',
     content: (
       <div className="space-y-3">
-        <p>Write your ad copy.</p>
+        <p>Write your ad copy. Toggle between two modes:</p>
         <ul className="space-y-2 text-sm">
           <li className="flex gap-2">
             <span className="text-violet-500">•</span>
-            <span><strong>Title & Tagline:</strong> Main headline and supporting text</span>
+            <span><strong>Structured:</strong> Text groups (Title & Tagline, Body, CTA, Footnote) with cell assignment and per-element styling</span>
           </li>
           <li className="flex gap-2">
             <span className="text-violet-500">•</span>
-            <span><strong>Body:</strong> Heading + body text for longer content</span>
-          </li>
-          <li className="flex gap-2">
-            <span className="text-violet-500">•</span>
-            <span><strong>CTA:</strong> Call-to-action button text</span>
-          </li>
-          <li className="flex gap-2">
-            <span className="text-violet-500">•</span>
-            <span><strong>Footnote:</strong> Fine print or disclaimers</span>
+            <span><strong>Freeform:</strong> Per-cell text editors with independent content and markdown support</span>
           </li>
         </ul>
-        <p className="text-ui-text-muted text-sm">Each text element can be assigned to different cells and styled individually.</p>
+        <p className="text-ui-text-muted text-sm">Both modes support alignment, color, size, bold/italic, and letter spacing per element.</p>
       </div>
     ),
   },
@@ -163,7 +155,11 @@ const tutorialSteps = [
           </li>
           <li className="flex gap-2">
             <span className="text-violet-500">•</span>
-            <span><strong>Batch Export:</strong> Download all selected platforms as a ZIP</span>
+            <span><strong>Batch Export:</strong> Download selected platforms as a ZIP</span>
+          </li>
+          <li className="flex gap-2">
+            <span className="text-violet-500">•</span>
+            <span><strong>All Pages:</strong> Export every page as a numbered PNG in a ZIP</span>
           </li>
         </ul>
         <p className="text-ui-text-muted text-sm">The preview updates in real-time as you make changes!</p>
@@ -191,6 +187,14 @@ const tutorialSteps = [
           <li className="flex gap-2">
             <span className="text-violet-500">•</span>
             <span><strong>Install App:</strong> Use the Install button to add to your device</span>
+          </li>
+          <li className="flex gap-2">
+            <span className="text-violet-500">•</span>
+            <span><strong>Multi-page:</strong> Add pages in the context bar for books, stories, or presentations</span>
+          </li>
+          <li className="flex gap-2">
+            <span className="text-violet-500">•</span>
+            <span><strong>Reader Mode:</strong> Click View to preview pages full-screen with arrow key navigation</span>
           </li>
           <li className="flex gap-2">
             <span className="text-violet-500">•</span>

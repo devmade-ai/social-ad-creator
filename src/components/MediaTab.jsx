@@ -368,6 +368,8 @@ function AIPromptHelper({ theme }) {
 
 
 // Sample Images Section
+const SAMPLES_PER_PAGE = 15
+
 function SampleImagesSection({ images, onAddImage, selectedCell }) {
   const [manifest, setManifest] = useState(null)
   const [manifestLoading, setManifestLoading] = useState(true)
@@ -375,6 +377,7 @@ function SampleImagesSection({ images, onAddImage, selectedCell }) {
   const [loadingSample, setLoadingSample] = useState(null)
   const [sampleError, setSampleError] = useState(null)
   const [activeCategory, setActiveCategory] = useState('all')
+  const [page, setPage] = useState(0)
 
   const loadManifest = useCallback(async () => {
     setManifestLoading(true)
@@ -403,6 +406,15 @@ function SampleImagesSection({ images, onAddImage, selectedCell }) {
     if (activeCategory === 'all') return sampleImages
     return sampleImages.filter((s) => s.categories.includes(activeCategory))
   }, [activeCategory, sampleImages])
+
+  const totalPages = Math.ceil(filteredImages.length / SAMPLES_PER_PAGE)
+  const pagedImages = filteredImages.slice(page * SAMPLES_PER_PAGE, (page + 1) * SAMPLES_PER_PAGE)
+
+  // Reset page when category changes
+  const handleCategoryChange = useCallback((cat) => {
+    setActiveCategory(cat)
+    setPage(0)
+  }, [])
 
   const loadSampleImage = useCallback(
     async (sample) => {
@@ -475,38 +487,45 @@ function SampleImagesSection({ images, onAddImage, selectedCell }) {
         {images.length === 0 ? 'Add a sample image to get started' : 'Add sample images to your library'}
       </p>
 
-      {/* Category filter chips */}
+      {/* Category filter chips with horizontal scroll */}
       {sampleCategories.length > 0 && (
-        <div className="flex flex-wrap gap-1">
-          <button
-            onClick={() => setActiveCategory('all')}
-            className={`px-2.5 py-1 text-xs rounded-lg font-medium ${
-              activeCategory === 'all'
-                ? 'bg-primary text-white shadow-sm'
-                : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
-            }`}
+        <div className="relative group/cats">
+          <div
+            className="flex gap-1 overflow-x-auto scrollbar-hide"
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
-            All
-          </button>
-          {sampleCategories.map((cat) => (
             <button
-              key={cat.id}
-              onClick={() => setActiveCategory(cat.id)}
-              className={`px-2.5 py-1 text-xs rounded-lg font-medium ${
-                activeCategory === cat.id
+              onClick={() => handleCategoryChange('all')}
+              className={`px-2.5 py-1 text-xs rounded-lg font-medium whitespace-nowrap flex-shrink-0 ${
+                activeCategory === 'all'
                   ? 'bg-primary text-white shadow-sm'
                   : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
               }`}
             >
-              {cat.name}
+              All
             </button>
-          ))}
+            {sampleCategories.map((cat) => (
+              <button
+                key={cat.id}
+                onClick={() => handleCategoryChange(cat.id)}
+                className={`px-2.5 py-1 text-xs rounded-lg font-medium whitespace-nowrap flex-shrink-0 ${
+                  activeCategory === cat.id
+                    ? 'bg-primary text-white shadow-sm'
+                    : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
+                }`}
+              >
+                {cat.name}
+              </button>
+            ))}
+          </div>
+          {/* Fade indicator on right edge when scrollable */}
+          <div className="absolute right-0 top-0 bottom-0 w-6 bg-gradient-to-l from-white dark:from-zinc-900 pointer-events-none opacity-0 group-hover/cats:opacity-100 transition-opacity" />
         </div>
       )}
 
       {/* Image grid with CDN thumbnails */}
       <div className="grid grid-cols-5 gap-1.5">
-        {filteredImages.map((sample) => (
+        {pagedImages.map((sample) => (
           <button
             key={sample.id}
             onClick={() => loadSampleImage(sample)}
@@ -545,6 +564,29 @@ function SampleImagesSection({ images, onAddImage, selectedCell }) {
 
       {filteredImages.length === 0 && (
         <p className="text-xs text-ui-text-subtle text-center py-3">No images in this category</p>
+      )}
+
+      {/* Pagination controls */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between pt-1">
+          <button
+            onClick={() => setPage((p) => Math.max(0, p - 1))}
+            disabled={page === 0}
+            className="px-2 py-1 text-xs rounded-lg font-medium bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover disabled:opacity-30 disabled:pointer-events-none"
+          >
+            Prev
+          </button>
+          <span className="text-xs text-ui-text-subtle">
+            {page + 1} / {totalPages}
+          </span>
+          <button
+            onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
+            disabled={page >= totalPages - 1}
+            className="px-2 py-1 text-xs rounded-lg font-medium bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover disabled:opacity-30 disabled:pointer-events-none"
+          >
+            Next
+          </button>
+        </div>
       )}
 
       {sampleError && <p className="text-xs text-red-600 dark:text-red-400">{sampleError}</p>}

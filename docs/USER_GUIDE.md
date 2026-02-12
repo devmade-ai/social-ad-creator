@@ -18,15 +18,31 @@ CanvaGrid helps you build professional social media advertisements in minutes. T
 
 ## Header Controls
 
-The header bar contains useful controls:
+The header bar contains:
 
 | Control | Description |
 |---------|-------------|
-| **Undo** (↶) | Undo your last change. Keyboard: `Ctrl+Z` (Windows) or `Cmd+Z` (Mac) |
-| **Redo** (↷) | Redo an undone change. Keyboard: `Ctrl+Y` or `Ctrl+Shift+Z` |
+| **View** | Enter reader mode for a clean full-screen view |
+| **Save** | Open the save/load modal to save or restore designs |
+| **Help** (?) | Open the in-app tutorial |
 | **Dark/Light Mode** | Toggle between dark and light interface themes |
+| **Refresh** | Reload the app |
 | **Install** | (When available) Install the app for offline use |
 | **Update** | (When available) Apply the latest version of the app |
+
+---
+
+## Context Bar
+
+A sticky bar below the tab navigation with three sections:
+
+| Section | Description |
+|---------|-------------|
+| **Pages** | Page thumbnails with add, duplicate, move, and delete controls |
+| **Cell Selector** | Miniature layout grid showing cells — click to select a cell for editing |
+| **Undo/Redo** | Undo (`Ctrl+Z` / `Cmd+Z`) and Redo (`Ctrl+Y` / `Ctrl+Shift+Z`) buttons |
+
+The selected cell in the Context Bar affects controls in Media, Content, and Style tabs.
 
 ---
 
@@ -83,12 +99,7 @@ When a new version is available, you'll see an **Update** button in the header. 
 
 ### Presets Tab
 
-The starting point for most designs. Contains four sections:
-
-#### Sample Images
-Browse sample images organized by category. Use the category filter chips (All, Nature, People, Abstract, etc.) to narrow your selection. Click any thumbnail to load the full image and add it to your library.
-
-Sample images are loaded from a CDN. Thumbnails load quickly for browsing; the full image is fetched when you click. Previously loaded images are cached for offline use.
+The starting point for most designs. Contains three sections:
 
 #### Layout
 Grid templates that change your structure without affecting colors or fonts:
@@ -145,9 +156,14 @@ A helper tool for generating prompts to use with AI image generation tools (like
 Click **Copy** to copy the prompt to your clipboard for use in any AI image generator.
 
 #### Images
-Upload and manage your image library:
-- **Upload:** Drag-drop images or click to browse (supports multiple images)
-- **Image Library:** Click any image to select it for editing
+Includes a collapsible **Sample Images** sub-section and your own uploads.
+
+**Sample Images (collapsed by default):**
+Browse sample images organized by category. Use the horizontally scrollable category chips (All, Nature, People, Abstract, etc.) to filter. Images are shown 15 at a time with Prev/Next pagination. Click any thumbnail to load the full image and add it to your library. Thumbnails load from a CDN; full images are fetched on click and cached for offline use.
+
+**Upload:** Drag-drop images or click to browse (supports multiple images).
+
+**Image Library:** Click any image to select it for editing.
 
 **Selected Image Settings:**
 - **Assign to Cells:** Click cells in the mini-grid to assign the selected image to layout cells
@@ -189,26 +205,21 @@ Fine-tune the selected image:
 
 ### Content Tab
 
-Write and configure your text elements. Organized into collapsible groups:
+Write and configure your text. A top-level toggle switches between two modes:
 
-#### Title & Tagline
-- **Title:** Your main headline (largest text)
-- **Tagline:** Supporting text that appears with the title
+#### Structured Mode (default)
 
-#### Body
-- **Body Heading:** Section header for body content
-- **Body Text:** Detailed information or description
+Text elements organized into collapsible groups:
 
-#### Call to Action
-- **CTA:** Action prompt like "Learn More" or "Shop Now"
+- **Title & Tagline** - Main headline and supporting text (paired)
+- **Body** - Body heading and body text (paired)
+- **Call to Action** - Action prompt like "Learn More" or "Shop Now"
+- **Footnote** - Fine print, disclaimers, or legal text
 
-#### Footnote
-- **Footnote:** Fine print, disclaimers, or legal text
-
-#### Text Controls (for each element)
+**Text Controls (for each element):**
 
 | Control | What it does |
-|---------|--------------|
+| ------- | ------------ |
 | Eye icon | Toggle visibility on/off |
 | Text input | Enter your content |
 | Cell dropdown | Choose which layout cell this text appears in |
@@ -217,6 +228,14 @@ Write and configure your text elements. Organized into collapsible groups:
 | Size slider | Adjust relative size |
 | B / I buttons | Bold and italic styling |
 | Letter spacing | Tight, Normal, Wide, Wider |
+
+#### Freeform Mode
+
+Per-cell text editors with independent content per cell. Each cell gets its own text block with:
+
+- Text content area
+- Alignment, color, and size controls
+- Markdown rendering (content is always parsed as markdown)
 
 ---
 
@@ -275,6 +294,37 @@ Controls per-cell overlays that help text stand out. Select a cell to configure:
 
 ---
 
+## Multi-Page Documents
+
+Create multi-page documents like books, stories, or presentations.
+
+### Managing Pages
+
+All page controls are in the **Context Bar** (Pages section on the left):
+
+| Action | How |
+| ------ | --- |
+| **Add page** | Click the + button |
+| **Duplicate page** | Click the copy icon (visible when 2+ pages) |
+| **Reorder** | Use the left/right arrow buttons |
+| **Delete page** | Click the trash icon and confirm |
+| **Switch page** | Click a page thumbnail |
+
+Each page has its own images, layout, text, overlays, padding, and frames. Theme, fonts, platform, and logo are shared across all pages.
+
+### Reader Mode
+
+Click **View** in the header to enter a clean full-screen view of your pages.
+
+**Navigation:**
+
+- **Arrow keys:** Left/Up = previous page, Right/Down = next page
+- **Buttons:** Prev / Next buttons below the canvas
+- **Dots:** Click a dot to jump to a specific page
+- **Escape:** Exit reader mode (or click "Back to Editor")
+
+---
+
 ## Export
 
 Located below the preview area.
@@ -313,8 +363,10 @@ Click any platform button to see how your ad looks at that size. Platforms are o
 - Zoom Background (1920×1080) - Virtual meeting background
 
 ### Download Options
+
 - **Download:** Export the current platform as a PNG file
-- **Download All:** Get a ZIP file containing all platform sizes
+- **Download Multiple (ZIP):** Select platforms and export as a ZIP
+- **Download All Pages (ZIP):** Export every page as a numbered PNG in a ZIP (appears when multiple pages exist)
 
 ---
 

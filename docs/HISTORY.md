@@ -1,5 +1,19 @@
 # Changelog
 
+## 2026-02-13
+
+### Fixed frame rendering artifact
+
+Replaced `box-shadow: inset` with `border` + `box-sizing: border-box` for all frame overlays in AdCanvas.jsx (fullbleed cell frame, grid cell frame, outer canvas frame). The inset box-shadow caused a thin visible line at the outer edge due to sub-pixel anti-aliasing. CSS `border` renders with crisp, pixel-aligned edges.
+
+### Sample images pagination and category scroll
+
+- Added pagination to sample images grid (15 per page, Prev/Next controls, page counter)
+- Page resets to 1 when switching categories
+- Category filter chips changed from flex-wrap to horizontal scroll with right-edge fade indicator
+
+---
+
 ## 2026-02-12
 
 ### Decoupled sample images — runtime manifest fetch
