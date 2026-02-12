@@ -5,21 +5,22 @@ Compact context summary for session continuity. Rewrite at session end.
 ---
 
 ## Worked on
-Frame rendering fix and sample images UX improvements.
+ContextBar mobile layout reorganization.
 
 ## Accomplished
 
-1. **Fixed cell/outer frame thin line artifact** - Replaced `box-shadow: inset` with `border` + `box-sizing: border-box` for all three frame renderings (fullbleed cell frame, grid cell frame, outer canvas frame) in AdCanvas.jsx
-2. **Added sample image pagination** - Shows 15 images per page (3 rows of 5) with Prev/Next controls and page counter. Page resets when switching categories.
-3. **Added horizontal scroll for category chips** - Category filter chips now sit in a single scrollable row with a right-edge fade indicator on hover, instead of wrapping to multiple lines.
+1. **Reorganized ContextBar for mobile** - Pages row now sits above the cell selector + undo/redo row on mobile. On desktop (`sm:` and up), everything stays in a single row as before.
+2. **Bigger undo/redo on mobile** - Increased padding (`p-2`) and icon size (`text-base`) on mobile, keeping the compact size on desktop.
+3. **Bigger page action buttons on mobile** - Page move/duplicate/add/delete buttons are `w-6 h-6` on mobile (were `w-5 h-5`), with slightly larger icons.
 
 ## Current state
 
-- **All changes working** - Frame fix committed and pushed. Pagination and category scroll implemented.
-- **Uncommitted** - Sample image pagination and category scroll changes in MediaTab.jsx
+- **Working** - Two-row mobile layout with pages on top, cell selector + undo/redo below. Single-row on desktop unchanged.
+- Uses `flex-col sm:flex-row` on the outer container and `sm:contents` on the bottom row wrapper so desktop layout flattens back to single row.
 
 ## Key context
 
-- Frame rendering changed from `box-shadow: inset 0 0 0 Xpx color` to `border: Xpx solid color` with `box-sizing: border-box` — functionally identical but eliminates sub-pixel anti-aliasing artifacts
-- `SAMPLES_PER_PAGE = 15` constant controls pagination size
-- Category chips use `overflow-x-auto` with hidden scrollbar and gradient fade hint
+- Mobile breakpoint: default (below `sm:` / 640px) gets two-row layout
+- Desktop breakpoint: `sm:` and above stays single-row
+- The desktop divider between pages and cells is `hidden sm:block`
+- Undo/redo: `p-2 text-base` on mobile, `p-1.5 text-sm` on desktop
