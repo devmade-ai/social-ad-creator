@@ -1,6 +1,6 @@
 # TODO
 
-Future enhancements and ideas for the Social Ad Creator.
+Future enhancements and ideas for 🫩 Grumpy Campaign Kit.
 
 ---
 

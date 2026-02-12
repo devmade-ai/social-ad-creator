@@ -176,7 +176,7 @@ export function usePWAInstall() {
           browser: 'Brave',
           steps: [
             'Click the install icon in the address bar (computer with down arrow)',
-            'Or click the menu (≡) → "Install Social Ad Creator..."',
+            'Or click the menu (≡) → "Install Grumpy Campaign Kit..."',
             'Click "Install" to confirm',
           ],
           note: 'If the install option doesn\'t appear, check that Brave Shields isn\'t blocking it.',
@@ -188,7 +188,7 @@ export function usePWAInstall() {
           browser: browser === 'edge' ? 'Microsoft Edge' : 'Google Chrome',
           steps: [
             'Click the install icon in the address bar (computer with down arrow)',
-            `Or click the menu (⋮) → "Install Social Ad Creator..."`,
+            `Or click the menu (⋮) → "Install Grumpy Campaign Kit..."`,
             'Click "Install" to confirm',
           ],
         }

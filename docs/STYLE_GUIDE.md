@@ -1,4 +1,4 @@
-# Social Ad Creator Style Guide 🎨
+# 🫩 Grumpy Campaign Kit Style Guide 🎨
 
 A vibrant, creative design system for makers who want their ads to *pop*.
 
@@ -489,7 +489,7 @@ All interactive elements must have visible focus states.
              text-violet-700 dark:text-violet-300 rounded-full">
 ```
 
-### The Social Ad Creator Palette at a Glance
+### The 🫩 Grumpy Campaign Kit Palette at a Glance
 
 ```
 Primary Actions:    #8B5CF6 (Electric Violet)

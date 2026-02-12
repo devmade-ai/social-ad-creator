@@ -1,12 +1,12 @@
 # User Guide
 
-A complete guide to creating social media ads with the Social Ad Creator.
+A complete guide to creating social media ads with 🫩 Grumpy Campaign Kit.
 
 ---
 
 ## Overview
 
-The Social Ad Creator helps you build professional social media advertisements in minutes. The interface is organized into 5 tabs that follow a natural workflow:
+🫩 Grumpy Campaign Kit helps you build professional social media advertisements in minutes. The interface is organized into 5 tabs that follow a natural workflow:
 
 1. **Presets** - Start here with layouts, themes, and looks
 2. **Media** - Upload your images and logo
@@ -32,7 +32,7 @@ The header bar contains useful controls:
 
 ## Installing the App (PWA)
 
-Social Ad Creator can be installed as a Progressive Web App (PWA) for offline use and a native app-like experience.
+🫩 Grumpy Campaign Kit can be installed as a Progressive Web App (PWA) for offline use and a native app-like experience.
 
 ### Benefits of Installing
 - **Works offline** - Create ads without an internet connection
@@ -45,7 +45,7 @@ Social Ad Creator can be installed as a Progressive Web App (PWA) for offline us
 | Browser | Install Support | How to Install |
 |---------|----------------|----------------|
 | **Chrome** | ✅ Full | Click "Install" button in header, or click install icon in address bar |
-| **Edge** | ✅ Full | Click "Install" button in header, or use menu → "Install Social Ad Creator" |
+| **Edge** | ✅ Full | Click "Install" button in header, or use menu → "Install Grumpy Campaign Kit" |
 | **Brave** | ✅ Full | Click "Install" button in header (ensure Shields isn't blocking) |
 | **Safari (iOS)** | ⚠️ Manual | Tap Share → "Add to Home Screen" |
 | **Safari (macOS)** | ⚠️ Manual | File → "Add to Dock..." |

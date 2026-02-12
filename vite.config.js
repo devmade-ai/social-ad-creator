@@ -10,9 +10,9 @@ export default defineConfig({
       registerType: 'prompt',
       includeAssets: ['icon.svg', 'samples/*.jpg', 'samples/*.png'],
       manifest: {
-        name: 'Social Ad Creator',
-        short_name: 'Ad Creator',
-        description: 'Create social media ads for LinkedIn, Facebook, Instagram, Twitter/X, and TikTok',
+        name: 'Grumpy Campaign Kit',
+        short_name: 'Grumpy Kit',
+        description: 'Grumpy Campaign Kit - Create social media ads for LinkedIn, Facebook, Instagram, Twitter/X, and TikTok',
         theme_color: '#7c3aed',
         background_color: '#18181b',
         display: 'standalone',

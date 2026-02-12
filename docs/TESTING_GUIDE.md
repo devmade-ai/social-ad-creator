@@ -1,6 +1,6 @@
 # Manual Testing Guide
 
-Step-by-step test scenarios for verifying the Social Ad Creator works correctly.
+Step-by-step test scenarios for verifying 🫩 Grumpy Campaign Kit works correctly.
 
 ---
 

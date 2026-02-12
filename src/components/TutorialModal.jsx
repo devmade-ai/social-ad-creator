@@ -6,7 +6,7 @@ const tutorialSteps = [
     icon: '👋',
     content: (
       <div className="space-y-3">
-        <p>Social Ad Creator helps you design professional social media ads in minutes.</p>
+        <p>🫩 Grumpy Campaign Kit helps you design professional social media ads in minutes.</p>
         <p className="text-ui-text-muted">Follow this quick guide to learn the basics, or explore on your own!</p>
         <div className="bg-ui-surface-inset rounded-lg p-3 text-sm">
           <strong>Workflow:</strong> Presets → Media → Content → Structure → Style → Export

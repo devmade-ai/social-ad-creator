@@ -4,6 +4,17 @@ import { getLookSettingsForLayout } from '../config/stylePresets'
 import { useHistory } from './useHistory'
 
 const defaultTheme = presetThemes[0] // Dark theme
+const STORAGE_KEY = 'grumpy-campaign-kit-designs'
+
+// Migrate from old localStorage key
+if (typeof window !== 'undefined') {
+  const OLD_KEY = 'social-ad-creator-designs'
+  const old = localStorage.getItem(OLD_KEY)
+  if (old && !localStorage.getItem(STORAGE_KEY)) {
+    localStorage.setItem(STORAGE_KEY, old)
+    localStorage.removeItem(OLD_KEY)
+  }
+}
 
 const PAGE_FIELDS = [
   'activeStylePreset', 'activeLayoutPreset',
@@ -706,10 +717,10 @@ export function useAdState() {
       state: { ...state, pages: syncedPages },
     }
     try {
-      const existingDesigns = JSON.parse(localStorage.getItem('social-ad-creator-designs') || '[]')
+      const existingDesigns = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]')
       const newDesign = { id: `design-${Date.now()}`, ...design }
       existingDesigns.push(newDesign)
-      localStorage.setItem('social-ad-creator-designs', JSON.stringify(existingDesigns))
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(existingDesigns))
       return { success: true, id: newDesign.id }
     } catch (error) {
       console.error('Failed to save design:', error)
@@ -719,7 +730,7 @@ export function useAdState() {
 
   const loadDesign = useCallback((designId) => {
     try {
-      const designs = JSON.parse(localStorage.getItem('social-ad-creator-designs') || '[]')
+      const designs = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]')
       const design = designs.find(d => d.id === designId)
       if (design && design.state) {
         // Legacy designs (pre-multi-page) don't have these fields
@@ -754,7 +765,7 @@ export function useAdState() {
 
   const getSavedDesigns = useCallback(() => {
     try {
-      const designs = JSON.parse(localStorage.getItem('social-ad-creator-designs') || '[]')
+      const designs = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]')
       return designs.map(d => ({
         id: d.id,
         name: d.name,
@@ -767,9 +778,9 @@ export function useAdState() {
 
   const deleteDesign = useCallback((designId) => {
     try {
-      const designs = JSON.parse(localStorage.getItem('social-ad-creator-designs') || '[]')
+      const designs = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]')
       const filtered = designs.filter(d => d.id !== designId)
-      localStorage.setItem('social-ad-creator-designs', JSON.stringify(filtered))
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered))
       return { success: true }
     } catch (error) {
       return { success: false, error: error.message }
