@@ -18,7 +18,7 @@ export const platforms = [
   // Other Formats
   { id: 'email-header', name: 'Email Header', width: 800, height: 400, category: 'email' },
   { id: 'zoom-background', name: 'Zoom Background', width: 1920, height: 1080, category: 'other' },
-  { id: 'og-image', name: 'OG Image', width: 1200, height: 630, category: 'web' },
+  { id: 'og-image', name: 'Social Preview', width: 1200, height: 630, category: 'web' },
   // Print Sizes (150 DPI)
   { id: 'a3-portrait', name: 'A3 Portrait', width: 1754, height: 2480, category: 'print' },
   { id: 'a3-landscape', name: 'A3 Landscape', width: 2480, height: 1754, category: 'print' },

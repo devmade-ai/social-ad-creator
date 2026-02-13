@@ -6,10 +6,10 @@ const tutorialSteps = [
     icon: '👋',
     content: (
       <div className="space-y-3">
-        <p>CanvaGrid helps you design professional social media ads in minutes.</p>
-        <p className="text-ui-text-muted">Follow this quick guide to learn the basics, or explore on your own!</p>
+        <p>CanvaGrid helps you create visual designs — social posts, ads, presentations, stories, and more.</p>
+        <p className="text-ui-text-muted">Your design is made up of <strong>cells</strong> — the boxes in your grid. Each cell can hold an image, text, or both.</p>
         <div className="bg-ui-surface-inset rounded-lg p-3 text-sm">
-          <strong>Workflow:</strong> Presets → Media → Content → Structure → Style → Export
+          <strong>Suggested workflow:</strong> Pick a preset → Add images → Write text → Tweak the layout → Style it → Download
         </div>
       </div>
     ),
@@ -23,18 +23,18 @@ const tutorialSteps = [
         <ul className="space-y-2 text-sm">
           <li className="flex gap-2">
             <span className="text-violet-500">•</span>
-            <span><strong>Layout:</strong> Grid structure presets with aspect ratio filtering</span>
+            <span><strong>Layout:</strong> Choose how to arrange your cells — single image, side-by-side, stacked, and more. Filter by shape (square, tall, wide).</span>
           </li>
           <li className="flex gap-2">
             <span className="text-violet-500">•</span>
-            <span><strong>Themes:</strong> Color schemes - 12 presets or custom colors</span>
+            <span><strong>Themes:</strong> Pick a color scheme from 12 presets, or set your own custom colors.</span>
           </li>
           <li className="flex gap-2">
             <span className="text-violet-500">•</span>
-            <span><strong>Looks:</strong> Visual effects (fonts, filters, overlay) without changing layout or colors</span>
+            <span><strong>Looks:</strong> Apply a visual style — changes fonts and image effects without touching your layout or colors.</span>
           </li>
         </ul>
-        <p className="text-ui-text-muted text-sm">Tip: Presets are a great starting point - customize everything after!</p>
+        <p className="text-ui-text-muted text-sm">Tip: Presets are just a starting point — you can customize everything after.</p>
       </div>
     ),
   },
@@ -43,26 +43,26 @@ const tutorialSteps = [
     icon: '🖼️',
     content: (
       <div className="space-y-3">
-        <p>Upload and manage your images.</p>
+        <p>Add images to your design.</p>
         <ul className="space-y-2 text-sm">
           <li className="flex gap-2">
             <span className="text-violet-500">•</span>
-            <span><strong>Sample Images:</strong> Browse categorized samples from CDN - click to add to your library</span>
+            <span><strong>Sample Images:</strong> Browse free sample images by category — click one to add it.</span>
           </li>
           <li className="flex gap-2">
             <span className="text-violet-500">•</span>
-            <span><strong>Images:</strong> Upload to library, then assign to cells in your layout</span>
+            <span><strong>Upload:</strong> Add your own images, then drag them into the cell you want.</span>
           </li>
           <li className="flex gap-2">
             <span className="text-violet-500">•</span>
-            <span><strong>Per-image settings:</strong> Fit, position, overlay, and advanced filters (grayscale, sepia, blur, contrast, brightness)</span>
+            <span><strong>Adjust:</strong> For each image, you can change the zoom, position, color tint, and filters like black & white or blur.</span>
           </li>
           <li className="flex gap-2">
             <span className="text-violet-500">•</span>
-            <span><strong>Logo:</strong> Optional logo with position and size controls</span>
+            <span><strong>Logo:</strong> Optionally add a logo and choose its position and size.</span>
           </li>
         </ul>
-        <p className="text-ui-text-muted text-sm">Tip: Use the AI Prompt Helper to generate prompts for AI image tools!</p>
+        <p className="text-ui-text-muted text-sm">Tip: Check out the AI Prompt Helper for ideas to use with AI image generators!</p>
       </div>
     ),
   },
@@ -71,18 +71,18 @@ const tutorialSteps = [
     icon: '✏️',
     content: (
       <div className="space-y-3">
-        <p>Write your ad copy. Toggle between two modes:</p>
+        <p>Add text to your design. There are two modes:</p>
         <ul className="space-y-2 text-sm">
           <li className="flex gap-2">
             <span className="text-violet-500">•</span>
-            <span><strong>Structured:</strong> Text groups (Title & Tagline, Body, CTA, Footnote) with cell assignment and per-element styling</span>
+            <span><strong>Structured:</strong> Ready-made text slots — Title, Tagline, Body, Call to Action, and Footnote. Pick which cell each one appears in.</span>
           </li>
           <li className="flex gap-2">
             <span className="text-violet-500">•</span>
-            <span><strong>Freeform:</strong> Per-cell text editors with independent content and markdown support</span>
+            <span><strong>Freeform:</strong> Write anything you want in each cell. Supports rich text formatting.</span>
           </li>
         </ul>
-        <p className="text-ui-text-muted text-sm">Both modes support alignment, color, size, bold/italic, and letter spacing per element.</p>
+        <p className="text-ui-text-muted text-sm">Both modes let you change alignment, color, size, bold/italic, and letter spacing.</p>
       </div>
     ),
   },
@@ -91,22 +91,22 @@ const tutorialSteps = [
     icon: '📐',
     content: (
       <div className="space-y-3">
-        <p>Fine-tune your layout grid.</p>
+        <p>Adjust how your grid is arranged.</p>
         <ul className="space-y-2 text-sm">
           <li className="flex gap-2">
             <span className="text-violet-500">•</span>
-            <span><strong>Layout Type:</strong> Full bleed, rows, or columns</span>
+            <span><strong>Layout type:</strong> Switch between a single full image, rows, or columns.</span>
           </li>
           <li className="flex gap-2">
             <span className="text-violet-500">•</span>
-            <span><strong>Interactive Grid:</strong> Drag dividers to resize sections, click to select</span>
+            <span><strong>Resize:</strong> Drag the dividers between cells to make them bigger or smaller.</span>
           </li>
           <li className="flex gap-2">
             <span className="text-violet-500">•</span>
-            <span><strong>Text Alignment:</strong> Set alignment per-cell or globally</span>
+            <span><strong>Text position:</strong> Control where text sits inside a cell — top, center, bottom, left, right.</span>
           </li>
         </ul>
-        <p className="text-ui-text-muted text-sm">Tip: Select a cell first, then adjust its alignment in the Text Alignment section.</p>
+        <p className="text-ui-text-muted text-sm">Tip: Click a cell first, then change its text position.</p>
       </div>
     ),
   },
@@ -115,26 +115,26 @@ const tutorialSteps = [
     icon: '🎭',
     content: (
       <div className="space-y-3">
-        <p>Polish the visual look.</p>
+        <p>Fine-tune the visual details.</p>
         <ul className="space-y-2 text-sm">
           <li className="flex gap-2">
             <span className="text-violet-500">•</span>
-            <span><strong>Typography:</strong> Choose title and body fonts from 15 Google Fonts</span>
+            <span><strong>Fonts:</strong> Pick different fonts for your title and body text.</span>
           </li>
           <li className="flex gap-2">
             <span className="text-violet-500">•</span>
-            <span><strong>Overlay:</strong> Per-cell overlays (stacks on top of image overlays)</span>
+            <span><strong>Color tints:</strong> Add a color layer over individual cells — great for making text more readable over images.</span>
           </li>
           <li className="flex gap-2">
             <span className="text-violet-500">•</span>
-            <span><strong>Spacing:</strong> Global padding and per-cell custom padding</span>
+            <span><strong>Spacing:</strong> Add breathing room around the edges or between cells.</span>
           </li>
           <li className="flex gap-2">
             <span className="text-violet-500">•</span>
-            <span><strong>Frames:</strong> Add colored borders around the canvas or individual cells</span>
+            <span><strong>Borders:</strong> Add colored borders around the whole design or individual cells.</span>
           </li>
         </ul>
-        <p className="text-ui-text-muted text-sm">Note: Color themes are in the Presets tab.</p>
+        <p className="text-ui-text-muted text-sm">Looking for color themes? Those are in the Presets tab.</p>
       </div>
     ),
   },
@@ -143,71 +143,64 @@ const tutorialSteps = [
     icon: '📤',
     content: (
       <div className="space-y-3">
-        <p>Download your finished ad.</p>
+        <p>Download your finished design as an image.</p>
         <ul className="space-y-2 text-sm">
           <li className="flex gap-2">
             <span className="text-violet-500">•</span>
-            <span><strong>Platform:</strong> Choose from 20+ sizes (Instagram, TikTok, LinkedIn, etc.)</span>
+            <span><strong>Pick a size:</strong> Choose from 20+ sizes for Instagram, TikTok, LinkedIn, print, and more.</span>
           </li>
           <li className="flex gap-2">
             <span className="text-violet-500">•</span>
-            <span><strong>Single Download:</strong> Export the current platform size</span>
+            <span><strong>Download:</strong> Save the current size as a single image.</span>
           </li>
           <li className="flex gap-2">
             <span className="text-violet-500">•</span>
-            <span><strong>Batch Export:</strong> Download selected platforms as a ZIP</span>
+            <span><strong>Batch download:</strong> Export multiple sizes at once in a ZIP file.</span>
           </li>
           <li className="flex gap-2">
             <span className="text-violet-500">•</span>
-            <span><strong>All Pages:</strong> Export every page as a numbered PNG in a ZIP</span>
+            <span><strong>All pages:</strong> If you have multiple pages, download them all as numbered images in a ZIP.</span>
           </li>
         </ul>
-        <p className="text-ui-text-muted text-sm">The preview updates in real-time as you make changes!</p>
+        <p className="text-ui-text-muted text-sm">The preview on the right updates live as you make changes.</p>
       </div>
     ),
   },
   {
-    title: 'Tips & Shortcuts',
+    title: 'Tips',
     icon: '⚡',
     content: (
       <div className="space-y-3">
         <ul className="space-y-2 text-sm">
           <li className="flex gap-2">
             <span className="text-violet-500">•</span>
-            <span><strong>Undo/Redo:</strong> Use the context bar buttons or Ctrl+Z / Ctrl+Y</span>
+            <span><strong>Undo/Redo:</strong> Press Ctrl+Z to undo, Ctrl+Y to redo (or use the buttons below the tabs).</span>
           </li>
           <li className="flex gap-2">
             <span className="text-violet-500">•</span>
-            <span><strong>Dark Mode:</strong> Toggle with the sun/moon button</span>
+            <span><strong>Dark mode:</strong> Click the sun/moon button to switch.</span>
           </li>
           <li className="flex gap-2">
             <span className="text-violet-500">•</span>
-            <span><strong>Refresh:</strong> Use the refresh button to reload the app (useful for PWA)</span>
+            <span><strong>Multiple pages:</strong> Use the page controls below the tabs to add pages — great for stories, books, or slide decks.</span>
           </li>
           <li className="flex gap-2">
             <span className="text-violet-500">•</span>
-            <span><strong>Install App:</strong> Use the Install button to add to your device</span>
+            <span><strong>Reader mode:</strong> Click "View" to see your pages full-screen. Use arrow keys to flip through them.</span>
           </li>
           <li className="flex gap-2">
             <span className="text-violet-500">•</span>
-            <span><strong>Multi-page:</strong> Add pages in the context bar for books, stories, or presentations</span>
+            <span><strong>Different images per cell:</strong> Each cell can have its own image — assign them in the Media tab.</span>
           </li>
           <li className="flex gap-2">
             <span className="text-violet-500">•</span>
-            <span><strong>Reader Mode:</strong> Click View to preview pages full-screen with arrow key navigation</span>
+            <span><strong>Stacking color tints:</strong> You can add a tint on an image <em>and</em> on its cell for layered effects.</span>
           </li>
           <li className="flex gap-2">
             <span className="text-violet-500">•</span>
-            <span><strong>Multi-image layouts:</strong> Assign different images to different cells</span>
-          </li>
-          <li className="flex gap-2">
-            <span className="text-violet-500">•</span>
-            <span><strong>Layer overlays:</strong> Image overlay + cell overlay = more control</span>
+            <span><strong>Install as app:</strong> Click "Install" to add CanvaGrid to your device for quick access.</span>
           </li>
         </ul>
-        <div className="bg-ui-surface-inset rounded-lg p-3 text-sm mt-4">
-          <strong>Need more help?</strong> Check the project README on GitHub for detailed documentation.
-        </div>
       </div>
     ),
   },

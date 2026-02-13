@@ -27,6 +27,6 @@ Future enhancements and ideas for CanvaGrid.
 |------|--------|
 | Template gallery with complete designs | Overlaps with save/load. Base64 images make templates heavy. Revisit after save/load is implemented. |
 | Looks define text visibility per layout | Visibility feels like layout's job, not a "look". Could confuse users. |
-| Animation preview for story formats | High complexity, low ROI for a static ad creator. Out of scope. |
+| Animation preview for story formats | High complexity, low ROI for a static design tool. Out of scope. |
 | Aspect ratio lock for custom sizes | 20 platform presets already cover most use cases. Niche need. |
 | Image cropping within frame | Repositioning exists (preset grid + sliders planned). True cropping would need a crop UI - revisit if users request it. |

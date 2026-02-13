@@ -167,7 +167,7 @@ export default memo(function TemplatesTab({
         <div className="space-y-3">
           {/* Aspect Ratio Filter */}
           <div className="space-y-1.5">
-            <label className="block text-[10px] text-ui-text-subtle uppercase tracking-wide">Aspect Ratio</label>
+            <label className="block text-[10px] text-ui-text-subtle uppercase tracking-wide">Shape</label>
             <div className="flex gap-1">
               {aspectRatioCategories.map((ar) => (
                 <button
@@ -352,7 +352,7 @@ export default memo(function TemplatesTab({
           </div>
 
           <p className="text-[10px] text-ui-text-subtle text-center">
-            Looks apply overlay, fonts &amp; filters without changing layout or colors
+            Looks apply color tints, fonts &amp; filters without changing layout or colors
           </p>
         </div>
       </CollapsibleSection>

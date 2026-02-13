@@ -5,22 +5,24 @@ Compact context summary for session continuity. Rewrite at session end.
 ---
 
 ## Worked on
-ContextBar mobile layout reorganization.
+Plain language pass across tutorial and all UI tabs — replacing technical jargon with user-friendly labels.
 
 ## Accomplished
 
-1. **Reorganized ContextBar for mobile** - Pages row now sits above the cell selector + undo/redo row on mobile. On desktop (`sm:` and up), everything stays in a single row as before.
-2. **Bigger undo/redo on mobile** - Increased padding (`p-2`) and icon size (`text-base`) on mobile, keeping the compact size on desktop.
-3. **Bigger page action buttons on mobile** - Page move/duplicate/add/delete buttons are `w-6 h-6` on mobile (were `w-5 h-5`), with slightly larger icons.
+1. **Updated TutorialModal.jsx** - Rewrote all 8 steps in plain language. Introduced "cells" concept upfront. Replaced jargon (CDN, overlay, full bleed, markdown, PWA, aspect ratio, typography, padding, context bar).
+2. **Updated docs** - CLAUDE.md, README.md, USER_GUIDE.md, TODO.md all updated from "social media ads" framing to broader "visual design tool" scope.
+3. **Updated StyleTab.jsx** - Typography → Fonts, Overlay → Color Tint, Opacity → Transparency, Global Padding → Overall Spacing, Frame % → Border %
+4. **Updated MediaTab.jsx** - Image Overlay → Image Color Tint, Opacity → Transparency
+5. **Updated TemplatesTab.jsx** - Aspect Ratio → Shape, "overlay" → "color tints" in description
+6. **Updated ContentTab.jsx** - "markdown" → "**bold** and *italic* formatting", updated freeform placeholder
 
 ## Current state
 
-- **Working** - Two-row mobile layout with pages on top, cell selector + undo/redo below. Single-row on desktop unchanged.
-- Uses `flex-col sm:flex-row` on the outer container and `sm:contents` on the bottom row wrapper so desktop layout flattens back to single row.
+- **Working** - All user-facing labels now use plain language consistently across tutorial and UI tabs
+- Variable names and internal state keys unchanged (still `overlay`, `opacity`, `padding`, etc.)
 
 ## Key context
 
-- Mobile breakpoint: default (below `sm:` / 640px) gets two-row layout
-- Desktop breakpoint: `sm:` and above stays single-row
-- The desktop divider between pages and cells is `hidden sm:block`
-- Undo/redo: `p-2 text-base` on mobile, `p-1.5 text-sm` on desktop
+- Only user-facing labels were changed, not code internals — state keys, prop names, and variable names remain the same
+- "Text overlay" in AI Prompt Helper was left as-is — it means "text on top of image", not the color tint feature
+- Blend Modes subcategory label left as-is since it's an advanced feature within Color Tint

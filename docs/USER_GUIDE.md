@@ -1,12 +1,12 @@
 # User Guide
 
-A complete guide to creating social media ads with CanvaGrid.
+A complete guide to creating designs with CanvaGrid.
 
 ---
 
 ## Overview
 
-CanvaGrid helps you build professional social media advertisements in minutes. The interface is organized into 5 tabs that follow a natural workflow:
+CanvaGrid helps you create visual designs — social posts, ads, presentations, stories, and more. The interface is organized into 5 tabs that follow a natural workflow:
 
 1. **Presets** - Start here with layouts, themes, and looks
 2. **Media** - Upload your images and logo
