@@ -18,6 +18,9 @@ Future enhancements and ideas for CanvaGrid.
 |------|--------|-------------|
 | **TypeScript migration** | High | Incremental approach: start with config files and hooks, then components. Do when there's dedicated time. |
 | **Unit tests for config utilities** | Low-Medium | Test helpers in `stylePresets.js`, `layoutPresets.js`. Do alongside TS migration or when configs change. |
+| **Calculate imageAspectRatio from first image** | Low | `App.jsx:94` has `useState(null)` with TODO. Wire up calculation from first image in pool so `getSuggestedLayouts` returns filtered results. |
+| **Sanitize markdown HTML output** | Low | `AdCanvas.jsx` uses `dangerouslySetInnerHTML` with `marked` output (lines 515, 567). Safe for single-user local tool, but add DOMPurify if app ever accepts shared/imported content. |
+| **Extract large components** | Medium | `MediaTab.jsx` (1328 lines), `LayoutTab.jsx` (911 lines), `useAdState.js` (852 lines), `AdCanvas.jsx` (818 lines), `App.jsx` (815 lines) all exceed the 800-line threshold. Extract sub-components when modifying these files. |
 
 ---
 

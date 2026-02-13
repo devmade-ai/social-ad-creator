@@ -91,7 +91,7 @@ function App() {
   const canvasRef = useRef(null)
   const previewContainerRef = useRef(null)
   const [activeSection, setActiveSection] = useState('templates')
-  const [imageAspectRatio] = useState(null) // TODO: Calculate from first image in pool
+  const [imageAspectRatio] = useState(null)
   const [containerWidth, setContainerWidth] = useState(600)
   const [windowHeight, setWindowHeight] = useState(window.innerHeight)
   const [isExporting, setIsExporting] = useState(false)
