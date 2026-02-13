@@ -328,7 +328,7 @@ export default memo(function StyleTab({
                         </div>
                         {/* Radial */}
                         <div className="space-y-1">
-                          <span className="text-[9px] text-ui-text-faint uppercase tracking-wide">Radial</span>
+                          <span className="text-[9px] text-ui-text-faint uppercase tracking-wide">Circular</span>
                           <div className="grid grid-cols-3 gap-1">
                             {overlayTypes.filter(t => t.category === 'radial').map((t) => (
                               <button
@@ -368,7 +368,7 @@ export default memo(function StyleTab({
                         </div>
                         {/* Blend Modes */}
                         <div className="space-y-1">
-                          <span className="text-[9px] text-ui-text-faint uppercase tracking-wide">Blend Modes</span>
+                          <span className="text-[9px] text-ui-text-faint uppercase tracking-wide">Blending</span>
                           <div className="grid grid-cols-3 gap-1">
                             {overlayTypes.filter(t => t.category === 'blend').map((t) => (
                               <button

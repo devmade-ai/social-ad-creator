@@ -860,17 +860,17 @@ export default memo(function MediaTab({
               <div className="space-y-2 pt-3 border-t border-ui-border-subtle">
                 <label className="block text-xs font-medium text-ui-text-muted">Fit</label>
                 <div className="flex gap-2">
-                  {['cover', 'contain'].map((fit) => (
+                  {[{ value: 'cover', label: 'Fill' }, { value: 'contain', label: 'Fit' }].map(({ value, label }) => (
                     <button
-                      key={fit}
-                      onClick={() => onUpdateImage(selectedImageId, { fit })}
-                      className={`flex-1 px-3 py-2 text-sm rounded-lg capitalize font-medium ${
-                        selectedImage.fit === fit
+                      key={value}
+                      onClick={() => onUpdateImage(selectedImageId, { fit: value })}
+                      className={`flex-1 px-3 py-2 text-sm rounded-lg font-medium ${
+                        selectedImage.fit === value
                           ? 'bg-primary text-white shadow-sm'
                           : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
                       }`}
                     >
-                      {fit}
+                      {label}
                     </button>
                   ))}
                 </div>
@@ -1008,7 +1008,7 @@ export default memo(function MediaTab({
                   </div>
                   {/* Radial */}
                   <div className="space-y-1.5">
-                    <span className="text-[10px] text-ui-text-faint uppercase tracking-wide">Radial</span>
+                    <span className="text-[10px] text-ui-text-faint uppercase tracking-wide">Circular</span>
                     <div className="grid grid-cols-4 gap-1">
                       {overlayTypes.filter(t => t.category === 'radial').map((t) => (
                         <button
@@ -1048,7 +1048,7 @@ export default memo(function MediaTab({
                   </div>
                   {/* Blend Modes */}
                   <div className="space-y-1.5">
-                    <span className="text-[10px] text-ui-text-faint uppercase tracking-wide">Blend Modes</span>
+                    <span className="text-[10px] text-ui-text-faint uppercase tracking-wide">Blending</span>
                     <div className="grid grid-cols-4 gap-1">
                       {overlayTypes.filter(t => t.category === 'blend').map((t) => (
                         <button
