@@ -1,4 +1,4 @@
-# READ AND FOLLOW THE FUCKING PROCESS, PRINCIPLES, DOCUMENTATION, DOCUMENTATION GUIDELINES, AND AI NOTES EVERY TIME
+# READ AND FOLLOW THE FUCKING PROCESS, PRINCIPLES, CODE STANDARDS, DOCUMENTATION, AI NOTES, AND PROHIBITIONS EVERY TIME
 
 ## Process
 
@@ -19,6 +19,63 @@
 7. **Repeatable process** - Follow consistent steps to ensure all the above
 
 ### REMINDER: READ AND FOLLOW THE FUCKING PRINCIPLES EVERY TIME
+
+## Code Standards
+
+### Code Organization
+
+- Prefer smaller, focused files and functions
+- **Pause and consider extraction at:** 500 lines (file), 100 lines (function), 400 lines (component)
+- **Strongly refactor at:** 800+ lines (file), 150+ lines (function), 600+ lines (component)
+- Extract reusable logic into separate modules/files immediately
+- Group related functionality into logical directories
+
+### Decision Documentation in Code
+
+Non-trivial code changes must include comments explaining:
+- **What** was the requirement or instruction
+- **Why** this approach was chosen
+- **What alternatives** were considered and why they were rejected
+
+```jsx
+// Requirement: Per-cell overlay that stacks on top of image overlay
+// Approach: cellOverlays in layout state, rendered as separate div layer
+// Alternatives:
+//   - Merge with image overlay: Rejected - user needs independent control
+//   - CSS filter approach: Rejected - can't do gradient overlays
+```
+
+### Cleanup
+
+- Remove `console.log`/`console.debug` statements before marking work complete
+- Delete unused imports, variables, and dead code immediately
+- Remove commented-out code unless explicitly marked `// KEEP:` with reason
+- Remove temporary/scratch files after implementation is complete
+
+### Quality Checks
+
+During every change, actively scan for:
+- Error handling gaps
+- Edge cases not covered
+- Inconsistent naming
+- Code duplication that should be extracted
+- Missing input validation at boundaries
+- Security concerns (XSS via dangerouslySetInnerHTML, unsanitized user input)
+- Performance issues (unnecessary re-renders, missing keys, large re-computations)
+
+Report findings even if not directly related to current task.
+
+### User Experience (Non-Negotiable)
+
+All end users are non-technical. This overrides cleverness.
+
+- UI must be intuitive without instructions
+- Use plain language - no jargon or developer-speak in user-facing text
+- Error messages must say what went wrong AND what to do next, in simple terms
+- Confirm destructive actions with clear consequences explained
+- Provide feedback for all user actions (loading states, success confirmations)
+
+### REMINDER: READ AND FOLLOW THE FUCKING CODE STANDARDS EVERY TIME
 
 ## Documentation
 
@@ -165,8 +222,42 @@
 - **ASK before assuming.** When a user reports a bug, ask clarifying questions (which mode? what did you type? what do you see?) BEFORE writing code. Don't guess the cause and build a fix on an assumption - you'll waste time fixing the wrong thing. One clarifying question saves multiple wrong commits.
 - **Always read files before editing.** Use the Read tool on every file before attempting to Edit it. Editing without reading first will fail.
 - **Check build tools before building.** Run `npm install` or verify `node_modules/.bin/vite` exists before attempting `npm run build`. The `sharp` package may not be installed (used by prebuild icon generation), so use `./node_modules/.bin/vite build` directly to skip the prebuild step.
+- **Communication style:** Direct, concise responses. No filler phrases or conversational padding. State facts and actions. Ask specific questions with concrete options when clarification is needed.
 
 ### REMINDER: READ AND FOLLOW THE FUCKING AI NOTES EVERY TIME
+
+## Prohibitions
+
+Never:
+- Start implementation without understanding full scope
+- Create files outside established project structure
+- Leave TODO comments in code without tracking them in `docs/TODO.md`
+- Ignore errors or warnings in build/console output
+- Make "while I'm here" changes without asking first
+- Use placeholder data that looks like real data
+- Skip error handling "for now"
+- Remove features during "cleanup" without checking if they're documented as intentional (see AI_MISTAKES.md)
+- Proceed with assumptions when a single clarifying question would prevent a wrong commit
+
+### REMINDER: READ AND FOLLOW THE FUCKING PROHIBITIONS EVERY TIME
+
+---
+
+## Quick Reference
+
+```
+LANGUAGE=JavaScript (ES2020+)
+FRAMEWORK=React 18
+BUNDLER=Vite
+STYLING=Tailwind CSS (utility classes in JSX - no separate stylesheets)
+TEST_RUNNER=Manual (see docs/TESTING_GUIDE.md)
+PACKAGE_MANAGER=npm
+DEPLOY=GitHub Pages (npm run deploy)
+NAMING=camelCase (variables/functions), PascalCase (components)
+FILE_NAMING=PascalCase.jsx (components), camelCase.js (hooks/utils/config)
+COMPONENT_STRUCTURE=flat (src/components/)
+DOCS_PATH=/docs
+```
 
 ---
 
