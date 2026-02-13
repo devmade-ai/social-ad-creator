@@ -184,7 +184,7 @@ export default memo(function StyleTab({
       <h3 className="text-sm font-semibold text-ui-text">Style</h3>
 
       {/* Typography Section */}
-      <CollapsibleSection title="Typography" defaultExpanded={false}>
+      <CollapsibleSection title="Fonts" defaultExpanded={false}>
         <div className="space-y-3">
           <div className="space-y-2">
             <label className="block text-xs font-medium text-ui-text-muted">Title Font</label>
@@ -236,7 +236,7 @@ export default memo(function StyleTab({
       </CollapsibleSection>
 
       {/* Overlay Section */}
-      <CollapsibleSection title="Overlay" defaultExpanded={false}>
+      <CollapsibleSection title="Color Tint" defaultExpanded={false}>
         <div className="space-y-3">
           {/* Cell indicator */}
           <div className="text-xs text-center py-1.5 bg-ui-surface-elevated rounded">
@@ -261,7 +261,7 @@ export default memo(function StyleTab({
                   htmlFor={`overlay-enabled-${selectedOverlayCell}`}
                   className="text-xs font-medium text-ui-text-muted"
                 >
-                  Enable Overlay
+                  Enable Color Tint
                 </label>
               </div>
 
@@ -431,7 +431,7 @@ export default memo(function StyleTab({
                       {/* Opacity */}
                       <div className="space-y-1">
                         <div className="flex justify-between">
-                          <label className="text-xs font-medium text-ui-text-muted">Opacity</label>
+                          <label className="text-xs font-medium text-ui-text-muted">Transparency</label>
                           <span className="text-xs text-ui-text-subtle">
                             {getCellOverlayConfig(selectedOverlayCell)?.opacity ?? 50}%
                           </span>
@@ -470,7 +470,7 @@ export default memo(function StyleTab({
           {/* Global Padding */}
           <div className="space-y-2">
             <div className="flex justify-between">
-              <label className="text-xs font-medium text-ui-text-muted">Global Padding</label>
+              <label className="text-xs font-medium text-ui-text-muted">Overall Spacing</label>
               <span className="text-xs text-ui-text-subtle">{padding.global}px</span>
             </div>
             <input
@@ -489,13 +489,13 @@ export default memo(function StyleTab({
             <div className="flex items-center justify-between">
               <span className="text-xs font-medium text-ui-text-muted">Outer Frame</span>
               <span className="text-[10px] text-ui-text-faint">
-                % of padding as border
+                % of spacing used as border
               </span>
             </div>
 
             <div className="space-y-1">
               <div className="flex justify-between">
-                <label className="text-xs text-ui-text-subtle">Frame %</label>
+                <label className="text-xs text-ui-text-subtle">Border %</label>
                 <span className="text-xs text-ui-text-subtle">
                   {frame.outer?.percent || 0}%
                 </span>
@@ -582,14 +582,14 @@ export default memo(function StyleTab({
                       htmlFor={`padding-custom-${selectedSpacingCell}`}
                       className="text-xs text-ui-text-subtle"
                     >
-                      Custom padding
+                      Custom spacing
                     </label>
                   </div>
 
                   {padding.cellOverrides?.[selectedSpacingCell] !== undefined && (
                     <div className="space-y-1 pl-6">
                       <div className="flex justify-between">
-                        <label className="text-xs text-ui-text-subtle">Padding</label>
+                        <label className="text-xs text-ui-text-subtle">Spacing</label>
                         <span className="text-xs text-ui-text-subtle">
                           {getCellPaddingValue(selectedSpacingCell)}px
                         </span>
@@ -638,7 +638,7 @@ export default memo(function StyleTab({
                     <div className="space-y-2 pl-6">
                       <div className="space-y-1">
                         <div className="flex justify-between">
-                          <label className="text-xs text-ui-text-subtle">Frame %</label>
+                          <label className="text-xs text-ui-text-subtle">Border %</label>
                           <span className="text-xs text-ui-text-subtle">
                             {frame.cellFrames[selectedSpacingCell]?.percent || 0}%
                           </span>

@@ -417,7 +417,7 @@ function FreeformCellEditor({
       <textarea
         value={data.content}
         onChange={(e) => onFreeformTextChange(cellIndex, { content: e.target.value })}
-        placeholder="Write text or **markdown**..."
+        placeholder="Write text here... use **bold** or *italic*"
         rows={3}
         className="w-full px-3 py-2 text-sm text-ui-text border border-ui-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary resize-none bg-white dark:bg-dark-subtle placeholder-zinc-400 dark:placeholder-zinc-500 font-mono"
       />
@@ -600,7 +600,7 @@ export default memo(function ContentTab({
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-ui-text">Cell {activeCell + 1}</p>
               <p className="text-[10px] text-ui-text-subtle mt-0.5">
-                Supports **markdown** formatting
+                Supports **bold** and *italic* formatting
               </p>
             </div>
           </div>
