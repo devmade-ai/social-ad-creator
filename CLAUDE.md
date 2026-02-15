@@ -75,6 +75,36 @@ All end users are non-technical. This overrides cleverness.
 - Confirm destructive actions with clear consequences explained
 - Provide feedback for all user actions (loading states, success confirmations)
 
+### Commit Message Format
+
+All commits must include metadata footers:
+
+```
+type(scope): subject
+
+Body explaining why.
+
+Tags: tag1, tag2, tag3
+Complexity: 1-5
+Urgency: 1-5
+Impact: internal|user-facing|infrastructure|api
+Risk: low|medium|high
+Debt: added|paid|neutral
+Epic: feature-name
+Semver: patch|minor|major
+```
+
+**Tags:** Use from the project's tag list (see docs/EXTRACTION_PLAYBOOK.md)
+**Complexity:** 1=trivial, 2=small, 3=medium, 4=large, 5=major rewrite
+**Urgency:** 1=planned, 2=normal, 3=elevated, 4=urgent, 5=critical
+**Impact:** internal, user-facing, infrastructure, or api
+**Risk:** low=safe change, medium=could break things, high=touches critical paths
+**Debt:** added=introduced shortcuts, paid=cleaned up debt, neutral=neither
+**Epic:** groups related commits under one feature/initiative name
+**Semver:** patch=bugfix, minor=new feature, major=breaking change
+
+These footers are required on every commit. No exceptions.
+
 ### REMINDER: READ AND FOLLOW THE FUCKING CODE STANDARDS EVERY TIME
 
 ## Documentation
