@@ -16,8 +16,13 @@ export default defineConfig({
         theme_color: '#7c3aed',
         background_color: '#18181b',
         display: 'standalone',
-        scope: '/canva-grid/',
-        start_url: '/canva-grid/',
+        // Requirement: Explicit id prevents Chrome from deriving identity from start_url.
+        // Without this, changing start_url would break install identity for existing users.
+        id: '/',
+        scope: '/',
+        start_url: '/',
+        // Requirement: Separate icon entries per purpose — never combine "any maskable".
+        // Dedicated 1024px maskable icon ensures proper safe-zone rendering on all platforms.
         icons: [
           {
             src: 'icon.svg',
@@ -28,23 +33,25 @@ export default defineConfig({
           {
             src: 'pwa-192x192.png',
             sizes: '192x192',
-            type: 'image/png'
+            type: 'image/png',
+            purpose: 'any'
           },
           {
             src: 'pwa-512x512.png',
             sizes: '512x512',
-            type: 'image/png'
+            type: 'image/png',
+            purpose: 'any'
           },
           {
-            src: 'pwa-512x512.png',
-            sizes: '512x512',
+            src: 'pwa-maskable-1024.png',
+            sizes: '1024x1024',
             type: 'image/png',
             purpose: 'maskable'
           }
         ]
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,svg,woff2}', 'pwa-*.png', 'apple-touch-icon.png', 'icon.svg'],
+        globPatterns: ['**/*.{js,css,html,svg,woff2}', 'pwa-*.png', 'apple-touch-icon.png', 'favicon.png', 'icon.svg'],
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
@@ -106,5 +113,4 @@ export default defineConfig({
       }
     })
   ],
-  base: '/canva-grid/',
 })

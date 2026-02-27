@@ -5,24 +5,28 @@ Compact context summary for session continuity. Rewrite at session end.
 ---
 
 ## Worked on
-Plain language pass across tutorial and all UI tabs — replacing technical jargon with user-friendly labels.
+1. Cross-pollination from `devmade-ai/glow-props` CLAUDE.md — PWA hardening + debug system
+2. Migration from GitHub Pages to Vercel
 
 ## Accomplished
 
-1. **Updated TutorialModal.jsx** - Rewrote all 8 steps in plain language. Introduced "cells" concept upfront. Replaced jargon (CDN, overlay, full bleed, markdown, PWA, aspect ratio, typography, padding, context bar).
-2. **Updated docs** - CLAUDE.md, README.md, USER_GUIDE.md, TODO.md all updated from "social media ads" framing to broader "visual design tool" scope.
-3. **Updated StyleTab.jsx** - Typography → Fonts, Overlay → Color Tint, Opacity → Transparency, Global Padding → Overall Spacing, Frame % → Border %
-4. **Updated MediaTab.jsx** - Image Overlay → Image Color Tint, Opacity → Transparency
-5. **Updated TemplatesTab.jsx** - Aspect Ratio → Shape, "overlay" → "color tints" in description
-6. **Updated ContentTab.jsx** - "markdown" → "**bold** and *italic* formatting", updated freeform placeholder
+1. **PWA install prompt race condition fix** - Inline `beforeinstallprompt` capture in `index.html` before React mounts.
+2. **Explicit manifest id** - Added `id: '/'` to vite PWA config for stable install identity.
+3. **Dedicated maskable icon** - 1024px `pwa-maskable-1024.png` + 48px `favicon.png`. Extended icon gen to 5 sizes.
+4. **Debug system (dev only)** - `debugLog.js` circular buffer + `DebugPill.jsx` in separate React root.
+5. **Vercel migration** - Deleted `.github/workflows/deploy.yml`, removed `gh-pages` dep, removed all `/canva-grid/` base-path prefixes, added `vercel.json` with SPA rewrite rule.
 
 ## Current state
 
-- **Working** - All user-facing labels now use plain language consistently across tutorial and UI tabs
-- Variable names and internal state keys unchanged (still `overlay`, `opacity`, `padding`, etc.)
+- **Working** - All changes verified with successful `vite build`
+- Deployment is now Vercel (auto-deploy on push to main) instead of GitHub Pages
+- No more `base: '/canva-grid/'` — app serves from root `/`
+- Debug pill only appears in dev mode
+- PWA manifest has explicit `id` and properly separated icon purposes
 
 ## Key context
 
-- Only user-facing labels were changed, not code internals — state keys, prop names, and variable names remain the same
-- "Text overlay" in AI Prompt Helper was left as-is — it means "text on top of image", not the color tint feature
-- Blend Modes subcategory label left as-is since it's an advanced feature within Color Tint
+- The 60-minute SW update check interval was already implemented — no change needed
+- `canva-grid-assets` CDN URLs in vite.config.js and sampleImages.js are external URLs (not base-path) — left unchanged
+- User needs to connect the repo in Vercel dashboard and add any env vars there
+- AI_MISTAKES.md has historical GitHub Pages references — kept as-is (historical context)

@@ -1,5 +1,60 @@
 # Changelog
 
+## 2026-02-27
+
+### Migrated from GitHub Pages to Vercel
+
+Replaced GitHub Pages deployment with Vercel for simpler SPA routing, no base-path hacks, and auto-deploy on push.
+
+**Removed**
+- `.github/workflows/deploy.yml` — GitHub Actions workflow
+- `gh-pages` npm dependency
+- `predeploy` and `deploy` npm scripts
+- `base: '/canva-grid/'` from vite.config.js
+
+**Changed**
+- All `/canva-grid/` base-path prefixes removed from index.html, vite.config.js (PWA manifest id/scope/start_url)
+- PWA manifest id changed from `/canva-grid/` to `/`
+- README.md, CLAUDE.md deployment references updated
+
+**Added**
+- `vercel.json` with SPA rewrite rule for client-side routing
+
+### PWA hardening (from glow-props cross-pollination)
+
+Adopted patterns from sister project `devmade-ai/glow-props` CLAUDE.md:
+
+**Inline beforeinstallprompt capture (index.html)**
+- Added inline non-module script before React mounts to capture `beforeinstallprompt` event
+- Prevents event loss on cached SW repeat visits where event fires before React hydrates
+- `usePWAInstall.js` now checks `window.__pwaInstallPrompt` on mount as fallback
+
+**Explicit manifest id (vite.config.js)**
+- Added explicit `id` to PWA manifest (now `/` after Vercel migration)
+- Prevents Chrome from deriving install identity from `start_url`, which would break if URL changes
+
+**Dedicated maskable icon (vite.config.js, generate-icons.mjs)**
+- Added 1024px dedicated maskable icon (`pwa-maskable-1024.png`)
+- Separated icon entries by purpose — never combine `"any maskable"` in single entry
+- Extended icon generation from 3 to 5 sizes (added 48px favicon + 1024px maskable)
+- Added 48px `favicon.png` link in index.html
+
+### Debug system (dev only)
+
+**debugLog.js** - In-memory event store
+- 200-entry circular buffer with pub/sub pattern
+- Entries: id, timestamp, source, severity, event, details
+- Global `error` and `unhandledrejection` listeners at load time
+
+**DebugPill.jsx** - Floating debug panel
+- Separate React root (survives App crashes)
+- Collapsed: "dbg" pill with error/warning badge counts
+- Expanded: Log tab (color-coded, auto-scroll, timestamps) + Env tab (URL, UA, screen, SW status, etc.)
+- Copy button generates full debug report to clipboard (with textarea fallback)
+- Only mounted when `import.meta.env.DEV` is true
+
+---
+
 ## 2026-02-13
 
 ### Fixed frame rendering artifact
