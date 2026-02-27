@@ -2,7 +2,7 @@
 
 A browser-based visual design tool. Upload images, add text overlays, choose layouts, and export designs for social media, web, print, and presentations. Supports multi-page documents for books, stories, and slide decks.
 
-**Live Demo:** [https://devmade-ai.github.io/canva-grid/](https://devmade-ai.github.io/canva-grid/)
+**Live Demo:** [https://canva-grid.vercel.app](https://canva-grid.vercel.app)
 
 ## Features
 
