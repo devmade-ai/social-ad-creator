@@ -18,9 +18,9 @@ export default defineConfig({
         display: 'standalone',
         // Requirement: Explicit id prevents Chrome from deriving identity from start_url.
         // Without this, changing start_url would break install identity for existing users.
-        id: '/canva-grid/',
-        scope: '/canva-grid/',
-        start_url: '/canva-grid/',
+        id: '/',
+        scope: '/',
+        start_url: '/',
         // Requirement: Separate icon entries per purpose — never combine "any maskable".
         // Dedicated 1024px maskable icon ensures proper safe-zone rendering on all platforms.
         icons: [
@@ -113,5 +113,4 @@ export default defineConfig({
       }
     })
   ],
-  base: '/canva-grid/',
 })

@@ -83,7 +83,6 @@ npm run dev
 npm run dev      # Start dev server
 npm run build    # Production build
 npm run preview  # Preview production build
-npm run deploy   # Deploy to GitHub Pages
 ```
 
 ## Tech Stack
@@ -92,30 +91,8 @@ npm run deploy   # Deploy to GitHub Pages
 - Tailwind CSS
 - html-to-image for rendering
 - JSZip + file-saver for batch export
-- GitHub Pages deployment
+- Vercel deployment
 
 ## Deployment
 
-### Deploy to GitHub Pages
-
-```bash
-npm run deploy
-```
-
-This builds the app and pushes to the `gh-pages` branch automatically.
-
-### Initial Setup (if not already configured)
-
-1. In `vite.config.js`, set the base path to your repository name:
-
-   ```js
-   export default defineConfig({
-     base: '/your-repo-name/',
-   })
-   ```
-
-2. In GitHub repository settings → Pages:
-   - Set Source to "Deploy from a branch"
-   - Set Branch to `gh-pages` and folder to `/ (root)`
-
-Your app will be available at `https://[username].github.io/[repo-name]/`
+Deployed via **Vercel**. Pushes to `main` trigger automatic deployments. Configuration is in `vercel.json`.

@@ -286,7 +286,7 @@ BUNDLER=Vite
 STYLING=Tailwind CSS (utility classes in JSX - no separate stylesheets)
 TEST_RUNNER=Manual (see docs/TESTING_GUIDE.md)
 PACKAGE_MANAGER=npm
-DEPLOY=GitHub Pages (npm run deploy)
+DEPLOY=Vercel (auto-deploy on push to main)
 NAMING=camelCase (variables/functions), PascalCase (components)
 FILE_NAMING=PascalCase.jsx (components), camelCase.js (hooks/utils/config)
 COMPONENT_STRUCTURE=flat (src/components/)
@@ -378,7 +378,7 @@ Tab descriptions (workflow-based organization):
 - html-to-image for rendering
 - JSZip + file-saver for batch export
 - marked for markdown parsing (freeform text mode)
-- GitHub Pages deployment
+- Vercel deployment
 
 ## Common Commands
 
@@ -386,7 +386,6 @@ Tab descriptions (workflow-based organization):
 npm run dev              # Start dev server
 npm run build            # Production build
 npm run preview          # Preview production build
-npm run deploy           # Deploy to GitHub Pages
 ```
 
 ## Architecture

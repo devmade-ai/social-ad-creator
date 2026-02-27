@@ -2,6 +2,24 @@
 
 ## 2026-02-27
 
+### Migrated from GitHub Pages to Vercel
+
+Replaced GitHub Pages deployment with Vercel for simpler SPA routing, no base-path hacks, and auto-deploy on push.
+
+**Removed**
+- `.github/workflows/deploy.yml` — GitHub Actions workflow
+- `gh-pages` npm dependency
+- `predeploy` and `deploy` npm scripts
+- `base: '/canva-grid/'` from vite.config.js
+
+**Changed**
+- All `/canva-grid/` base-path prefixes removed from index.html, vite.config.js (PWA manifest id/scope/start_url)
+- PWA manifest id changed from `/canva-grid/` to `/`
+- README.md, CLAUDE.md deployment references updated
+
+**Added**
+- `vercel.json` with SPA rewrite rule for client-side routing
+
 ### PWA hardening (from glow-props cross-pollination)
 
 Adopted patterns from sister project `devmade-ai/glow-props` CLAUDE.md:
@@ -12,7 +30,7 @@ Adopted patterns from sister project `devmade-ai/glow-props` CLAUDE.md:
 - `usePWAInstall.js` now checks `window.__pwaInstallPrompt` on mount as fallback
 
 **Explicit manifest id (vite.config.js)**
-- Added `id: '/canva-grid/'` to PWA manifest
+- Added explicit `id` to PWA manifest (now `/` after Vercel migration)
 - Prevents Chrome from deriving install identity from `start_url`, which would break if URL changes
 
 **Dedicated maskable icon (vite.config.js, generate-icons.mjs)**
