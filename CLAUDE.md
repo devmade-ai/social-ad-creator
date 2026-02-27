@@ -253,6 +253,10 @@ These footers are required on every commit. No exceptions.
 - **Always read files before editing.** Use the Read tool on every file before attempting to Edit it. Editing without reading first will fail.
 - **Check build tools before building.** Run `npm install` or verify `node_modules/.bin/vite` exists before attempting `npm run build`. The `sharp` package may not be installed (used by prebuild icon generation), so use `./node_modules/.bin/vite build` directly to skip the prebuild step.
 - **Communication style:** Direct, concise responses. No filler phrases or conversational padding. State facts and actions. Ask specific questions with concrete options when clarification is needed.
+- **PWA install prompt race condition:** `beforeinstallprompt` is captured by an inline script in `index.html` before React mounts. The `usePWAInstall` hook checks `window.__pwaInstallPrompt` on mount. Never remove that inline script.
+- **PWA icon purposes:** Never combine `"any maskable"` in a single icon entry. Use separate entries with individual `purpose` values. Dedicated 1024px maskable icon at `pwa-maskable-1024.png`.
+- **Debug system (dev only):** `src/utils/debugLog.js` is an in-memory 200-entry circular buffer with pub/sub. `src/components/DebugPill.jsx` renders in a separate React root (survives App crashes). Only mounted in `import.meta.env.DEV`. Use `debugLog(source, event, details, severity)` to add entries.
+- **Sister project reference:** `devmade-ai/glow-props` shares the same CLAUDE.md scaffolding (process, principles, standards). Its `Suggested Implementations` section documents PWA patterns, debug system, and icon generation that were adopted here. Check it for future cross-pollination: `https://github.com/devmade-ai/glow-props/blob/main/CLAUDE.md`
 
 ### REMINDER: READ AND FOLLOW THE FUCKING AI NOTES EVERY TIME
 
@@ -340,7 +344,11 @@ Core features working:
   - Other: Email Header, Zoom Background
 - Single download, ZIP batch download, and multi-page ZIP export
 - Responsive preview that adapts to device width
-- PWA support: Installable app with offline capability and update prompts
+- **PWA support**: Installable app with offline capability and update prompts
+  - Inline `beforeinstallprompt` capture in index.html (race condition fix)
+  - Explicit manifest `id` for stable install identity
+  - Dedicated 1024px maskable icon with separated icon purposes
+- **Debug system (dev only)**: In-memory event log with floating DebugPill (separate React root)
 
 ## Current Tab Structure
 
@@ -396,7 +404,8 @@ src/
 │   ├── ContextBar.jsx         # Sticky bar: cell selector + page management + undo/redo
 │   ├── PlatformPreview.jsx    # Platform selector
 │   ├── ExportButtons.jsx      # Export controls (single, multi-platform, multi-page)
-│   └── ErrorBoundary.jsx      # Error handling wrapper
+│   ├── ErrorBoundary.jsx      # Error handling wrapper
+│   └── DebugPill.jsx          # Floating debug panel (separate React root, dev only)
 ├── config/         # Configuration
 │   ├── layouts.js        # 20+ overlay types (solid, gradients, radial, effects, blends, textures)
 │   ├── layoutPresets.js  # 20 layouts with SVG icons and categories
@@ -412,7 +421,8 @@ src/
 │   ├── usePWAInstall.js  # PWA install prompt state
 │   └── usePWAUpdate.js   # PWA update detection state
 ├── utils/
-│   └── export.js         # Export utilities
+│   ├── export.js         # Export utilities
+│   └── debugLog.js       # In-memory debug event store (200-entry circular buffer)
 ├── App.jsx
 └── main.jsx
 ```

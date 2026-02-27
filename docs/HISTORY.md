@@ -1,5 +1,42 @@
 # Changelog
 
+## 2026-02-27
+
+### PWA hardening (from glow-props cross-pollination)
+
+Adopted patterns from sister project `devmade-ai/glow-props` CLAUDE.md:
+
+**Inline beforeinstallprompt capture (index.html)**
+- Added inline non-module script before React mounts to capture `beforeinstallprompt` event
+- Prevents event loss on cached SW repeat visits where event fires before React hydrates
+- `usePWAInstall.js` now checks `window.__pwaInstallPrompt` on mount as fallback
+
+**Explicit manifest id (vite.config.js)**
+- Added `id: '/canva-grid/'` to PWA manifest
+- Prevents Chrome from deriving install identity from `start_url`, which would break if URL changes
+
+**Dedicated maskable icon (vite.config.js, generate-icons.mjs)**
+- Added 1024px dedicated maskable icon (`pwa-maskable-1024.png`)
+- Separated icon entries by purpose — never combine `"any maskable"` in single entry
+- Extended icon generation from 3 to 5 sizes (added 48px favicon + 1024px maskable)
+- Added 48px `favicon.png` link in index.html
+
+### Debug system (dev only)
+
+**debugLog.js** - In-memory event store
+- 200-entry circular buffer with pub/sub pattern
+- Entries: id, timestamp, source, severity, event, details
+- Global `error` and `unhandledrejection` listeners at load time
+
+**DebugPill.jsx** - Floating debug panel
+- Separate React root (survives App crashes)
+- Collapsed: "dbg" pill with error/warning badge counts
+- Expanded: Log tab (color-coded, auto-scroll, timestamps) + Env tab (URL, UA, screen, SW status, etc.)
+- Copy button generates full debug report to clipboard (with textarea fallback)
+- Only mounted when `import.meta.env.DEV` is true
+
+---
+
 ## 2026-02-13
 
 ### Fixed frame rendering artifact

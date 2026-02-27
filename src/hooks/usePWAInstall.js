@@ -1,6 +1,9 @@
 import { useState, useEffect, useMemo } from 'react'
 
-let deferredPrompt = null
+// Requirement: Pick up beforeinstallprompt captured by inline script in index.html.
+// The inline script fires before React mounts, so on cached SW repeat visits
+// the event isn't lost. Falls back to null if the inline script hasn't fired yet.
+let deferredPrompt = window.__pwaInstallPrompt || null
 
 // Detect browser type
 function detectBrowser() {
@@ -62,9 +65,19 @@ export function usePWAInstall() {
       return
     }
 
+    // Check if the inline script in index.html already captured the prompt
+    // before React mounted (common on cached SW repeat visits)
+    if (window.__pwaInstallPrompt && !deferredPrompt) {
+      deferredPrompt = window.__pwaInstallPrompt
+    }
+    if (deferredPrompt) {
+      setCanInstall(true)
+    }
+
     const handler = (e) => {
       e.preventDefault()
       deferredPrompt = e
+      window.__pwaInstallPrompt = e
       setCanInstall(true)
     }
 
