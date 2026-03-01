@@ -65,6 +65,11 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
     onExportingChange?.(value)
   }, [onExportingChange])
 
+  // Requirement: Single-image download matching the multi-platform export reliability
+  // Approach: Set transform AFTER React re-render settles (same pattern as handleExportMultiple)
+  // Alternatives:
+  //   - Set transform before waiting: Rejected - React re-render from updateExporting()
+  //     overwrites the manual transform back to scale(previewScale) during the wait
   const handleExportSingle = useCallback(async () => {
     if (!canvasRef.current) return
 
@@ -73,12 +78,17 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
 
     updateExporting(true)
 
-    const originalTransform = canvasRef.current.style.transform
     const originalOpacity = canvasRef.current.style.opacity
     canvasRef.current.style.opacity = '0'
-    canvasRef.current.style.transform = 'scale(1)'
 
     try {
+      // Wait for React re-render from updateExporting() to settle
+      await new Promise((resolve) => setTimeout(resolve, 100))
+
+      // Set transform AFTER re-render so it won't be overwritten
+      const originalTransform = canvasRef.current.style.transform
+      canvasRef.current.style.transform = 'scale(1)'
+
       await new Promise((resolve) => setTimeout(resolve, 50))
 
       const dataUrl = await toPng(canvasRef.current, {
@@ -90,6 +100,8 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
           transform: 'scale(1)',
         },
       })
+
+      canvasRef.current.style.transform = originalTransform
 
       // Requirement: Reliable single-image download across all browsers/contexts
       // Approach: Convert data URL to blob and use file-saver's saveAs
@@ -103,7 +115,6 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
       console.error('Export failed:', error)
       alert('Export failed. Please try again.')
     } finally {
-      canvasRef.current.style.transform = originalTransform
       canvasRef.current.style.opacity = originalOpacity
       updateExporting(false)
     }
