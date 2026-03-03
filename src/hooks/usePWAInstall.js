@@ -1,6 +1,15 @@
+// Requirement: PWA install prompt with browser-specific fallback instructions.
+// Approach: Capture beforeinstallprompt via inline script in index.html (fires before
+//   React mounts), then this hook reads window.__pwaInstallPrompt on mount. For browsers
+//   that don't support beforeinstallprompt (Safari, Firefox), show manual install steps.
+// Alternatives:
+//   - Capture event in React only: Rejected - race condition on cached SW repeat visits
+//     where the event fires before React mounts and is lost.
+//   - Skip non-Chromium browsers: Rejected - Safari/Firefox users can still install PWAs
+//     manually; showing instructions is better than hiding the feature.
 import { useState, useEffect, useMemo } from 'react'
 
-// Requirement: Pick up beforeinstallprompt captured by inline script in index.html.
+// Pick up beforeinstallprompt captured by inline script in index.html.
 // The inline script fires before React mounts, so on cached SW repeat visits
 // the event isn't lost. Falls back to null if the inline script hasn't fired yet.
 let deferredPrompt = window.__pwaInstallPrompt || null

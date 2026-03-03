@@ -1,5 +1,23 @@
 # Changelog
 
+## 2026-03-03
+
+### Documentation audit and code comment compliance
+
+Full codebase audit comparing documentation against actual implementation.
+
+**Fixed in CLAUDE.md**
+- Layout presets count: 20 → 27 (Architecture section)
+- Platform count: 14 → 20 (Architecture section)
+- Overlay count: "20+" → "26" with corner radials listed (Project Status)
+- Added missing fields to Key State Structure (bold, italic, letterSpacing, textVerticalAlign)
+- Added 4 unlisted components to Architecture (TutorialModal, SaveLoadModal, LogoUploader, InstallInstructionsModal)
+- Added STYLE_GUIDE.md entry to Documentation section
+- Removed dead reference to non-existent docs/EXTRACTION_PLAYBOOK.md
+
+**Added decision documentation comments**
+- useAdState.js, App.jsx, MediaTab.jsx, LayoutTab.jsx, ContentTab.jsx, StyleTab.jsx, usePWAInstall.js
+
 ## 2026-02-27
 
 ### Migrated from GitHub Pages to Vercel

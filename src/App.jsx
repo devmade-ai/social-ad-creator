@@ -1,3 +1,10 @@
+// Requirement: Single-page app with workflow-based tab UI (Presets → Media → Content → Structure → Style).
+// Approach: Sticky tab nav bar + sidebar/main split. All state via useAdState hook.
+//   Reader mode is a full-screen overlay with keyboard navigation.
+//   Each tab wrapped in ErrorBoundary so a crash in one tab doesn't break the app.
+// Alternatives:
+//   - React Router per tab: Rejected - tabs are panels, not routes; no URL benefit.
+//   - Floating panel UI: Rejected - sidebar is more intuitive for non-technical users.
 import { useRef, useMemo, useState, useEffect, useCallback } from 'react'
 import { useAdState } from './hooks/useAdState'
 import { useDarkMode } from './hooks/useDarkMode'

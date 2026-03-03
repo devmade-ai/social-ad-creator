@@ -1,3 +1,12 @@
+// Requirement: Two text editing modes — structured (text groups) and freeform (per-cell editors).
+// Approach: Top-level toggle switches between modes. Structured mode has paired collapsible
+//   sections (Title+Tagline, Body+Heading, CTA, Footnote) with cell assignment. Freeform mode
+//   renders one text editor per cell with independent content and optional markdown.
+// Alternatives:
+//   - Single mode only: Rejected - structured is great for standard layouts, but freeform
+//     gives power users full control for custom text-heavy designs (stories, presentations).
+//   - Rich text editor (Quill, TipTap): Rejected - adds large dependency for features most
+//     users don't need; markdown toggle covers formatting needs.
 import { memo, useMemo } from 'react'
 import CollapsibleSection from './CollapsibleSection'
 import { neutralColors } from '../config/themes'

@@ -1,3 +1,10 @@
+// Requirement: Interactive grid structure editor with per-cell alignment controls.
+// Approach: Two collapsible sections — Structure (layout type, section/subdivision sizing)
+//   and Text Alignment (context-aware: global, section, or cell depending on selection).
+//   Size constraints (MIN_SIZE=10, MAX_SIZE=90) prevent cells from becoming unusably small.
+// Alternatives:
+//   - Drag-to-resize on canvas: Rejected - complex to implement and hard to be precise on mobile.
+//   - Numeric input only: Rejected - sliders give visual feedback for proportional sizing.
 import { useState, useMemo, memo } from 'react'
 import CollapsibleSection from './CollapsibleSection'
 import { platforms } from '../config/platforms'

@@ -1,3 +1,11 @@
+// Requirement: Central state management for multi-page design tool.
+// Approach: Single useHistory-backed state object with page swap on active page change.
+//   Active page data lives at top-level (state.layout, state.text, etc.) so components
+//   don't need to know about pages. Inactive pages stored in state.pages[] as snapshots.
+// Alternatives:
+//   - Separate state per page: Rejected - shared fields (theme, fonts, platform) would
+//     need cross-page sync logic, and undo/redo would only cover the active page.
+//   - Redux/Zustand: Rejected - adds dependency for a single-page app with no async state.
 import { useCallback } from 'react'
 import { presetThemes } from '../config/themes'
 import { getLookSettingsForLayout } from '../config/stylePresets'
@@ -18,6 +26,8 @@ if (typeof window !== 'undefined') {
   }
 }
 
+// Fields that are unique per page (swapped in/out when switching pages).
+// Everything NOT listed here is shared across all pages (theme, fonts, platform, logo).
 const PAGE_FIELDS = [
   'activeStylePreset', 'activeLayoutPreset',
   'images', 'cellImages', 'defaultImageSettings',
@@ -336,6 +346,13 @@ export function useAdState() {
     return structure.reduce((total, section) => total + (section.subdivisions || 1), 0)
   }
 
+  // Requirement: Changing layout structure must not leave orphaned cell references.
+  // Approach: On every layout update, clean up textCells, cellImages, cellAlignments,
+  //   cellOverlays, padding overrides, cell frames, and freeformText that reference
+  //   cells beyond the new cell count.
+  // Alternatives:
+  //   - Lazy cleanup on render: Rejected - would cause subtle bugs when rendering stale refs.
+  //   - Separate cleanup action: Rejected - user could forget; automatic is safer.
   const setLayout = useCallback((updates) => {
     setState((prev) => {
       const newLayout = { ...prev.layout, ...updates }
