@@ -94,7 +94,7 @@ Epic: feature-name
 Semver: patch|minor|major
 ```
 
-**Tags:** Use from the project's tag list (see docs/EXTRACTION_PLAYBOOK.md)
+**Tags:** Use descriptive tags relevant to the change (e.g., docs, state, layout, export, pwa, text, media, ui)
 **Complexity:** 1=trivial, 2=small, 3=medium, 4=large, 5=major rewrite
 **Urgency:** 1=planned, 2=normal, 3=elevated, 4=urgent, 5=critical
 **Impact:** internal, user-facing, infrastructure, or api
@@ -238,6 +238,22 @@ These footers are required on every commit. No exceptions.
 
 **Why:** Ensures consistent, thorough testing. Prevents regressions by documenting what to verify after changes.
 
+### `docs/STYLE_GUIDE.md`
+
+**Purpose:** Visual design system documentation (colors, typography, spacing, components).
+**When to read:** When implementing UI changes, adding new components, or adjusting visual design.
+**When to update:** When the design system evolves (new colors, spacing tokens, component patterns).
+**What to include:**
+
+- Color palette with hex values and semantic tokens
+- Typography scale and font choices
+- Spacing system and border radius tokens
+- Component patterns (buttons, inputs, cards, tabs)
+- Dark mode specifications
+- Accessibility requirements
+
+**Why:** Ensures visual consistency across the application. Reference for implementing new UI.
+
 ### REMINDER: READ AND FOLLOW THE FUCKING DOCUMENTATION EVERY TIME
 
 ## AI Notes
@@ -328,10 +344,10 @@ Core features working:
   - CTA (independent)
   - Footnote (independent)
 - Theme system with 12 color themes and custom colors
-- Overlay system with 20+ effects:
+- Overlay system with 26 effects:
   - Basic: Solid color
   - Linear gradients: 8 directions (↑↓←→ and diagonals)
-  - Radial: Vignette, Spotlight, Radial Soft, Radial Ring
+  - Radial: Vignette, Spotlight, Radial Soft, Radial Ring, 4 corner radials (↖↗↙↘)
   - Effects: Blur Edges, Frame, Duotone
   - Blend modes: Multiply, Screen, Overlay, Color Burn
   - Textures: Noise, Film Grain
@@ -403,13 +419,17 @@ src/
 │   ├── ContextBar.jsx         # Sticky bar: cell selector + page management + undo/redo
 │   ├── PlatformPreview.jsx    # Platform selector
 │   ├── ExportButtons.jsx      # Export controls (single, multi-platform, multi-page)
+│   ├── TutorialModal.jsx      # In-app help walkthrough (8 steps covering all tabs)
+│   ├── SaveLoadModal.jsx      # Save/load/delete designs to localStorage
+│   ├── LogoUploader.jsx       # Logo upload, position, and size controls
+│   ├── InstallInstructionsModal.jsx # Manual PWA install instructions
 │   ├── ErrorBoundary.jsx      # Error handling wrapper
 │   └── DebugPill.jsx          # Floating debug panel (separate React root, dev only)
 ├── config/         # Configuration
-│   ├── layouts.js        # 20+ overlay types (solid, gradients, radial, effects, blends, textures)
-│   ├── layoutPresets.js  # 20 layouts with SVG icons and categories
+│   ├── layouts.js        # 26 overlay types (solid, gradients, radial, effects, blends, textures)
+│   ├── layoutPresets.js  # 27 layouts with SVG icons and categories
 │   ├── stylePresets.js   # Look presets (fonts + filters + overlay effects per layout)
-│   ├── platforms.js      # 14 platform sizes (social, web, banners, other)
+│   ├── platforms.js      # 20 platform sizes (social, web, banners, print, other)
 │   ├── sampleImages.js   # CDN manifest URL for sample images (fetched at runtime)
 │   ├── themes.js         # 12 color themes
 │   └── fonts.js          # 15 Google Fonts
@@ -491,7 +511,11 @@ text: {
     visible: true,
     color: 'secondary',
     size: 1,
+    bold: true,
+    italic: false,
+    letterSpacing: 0,
     textAlign: null,         // Per-element horizontal alignment (null = use cell default)
+    textVerticalAlign: null, // Per-element vertical alignment (null = use cell default)
   },
   // ... same structure for tagline, bodyHeading, bodyText, cta, footnote
 }

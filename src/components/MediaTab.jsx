@@ -1,3 +1,10 @@
+// Requirement: Image management hub — sample images, upload, per-cell assignment, overlay, filters, logo.
+// Approach: Collapsible sections for each concern. Images stored in shared library (state.images[])
+//   with per-image settings (fit, position, filters, overlay). Cells reference images by ID.
+// Alternatives:
+//   - Per-cell image upload: Rejected - users need to reuse one image across cells.
+//   - Separate tabs for upload/filters/overlay: Rejected - too many tabs; collapsible sections
+//     keep related controls together without overwhelming the sidebar.
 import { useCallback, useRef, useState, memo, useMemo, useEffect } from 'react'
 import CollapsibleSection from './CollapsibleSection'
 import { platforms } from '../config/platforms'

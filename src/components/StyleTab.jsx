@@ -1,3 +1,11 @@
+// Requirement: Typography, per-cell overlay, and spacing/frame controls.
+// Approach: Three collapsible sections. Overlay stacks on top of per-image overlay (Media tab)
+//   giving users two independent overlay layers. Spacing section combines global padding,
+//   per-cell padding overrides, outer frame, and per-cell frames.
+// Alternatives:
+//   - Merge overlay with Media tab: Rejected - cell overlay is independent of image overlay;
+//     users need both layers for effects like tinted text areas over clear image areas.
+//   - Separate frame tab: Rejected - frames are visual spacing; grouping with padding is intuitive.
 import { useMemo, memo } from 'react'
 import CollapsibleSection from './CollapsibleSection'
 import { neutralColors } from '../config/themes'
