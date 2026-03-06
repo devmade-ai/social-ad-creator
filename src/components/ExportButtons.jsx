@@ -183,6 +183,136 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
     }
   }, [canvasRef, state.platform, state.activePage, pageCount, onSetActivePage, updateExporting])
 
+  // Requirement: PDF export for LinkedIn carousel documents and general print-to-PDF
+  // Approach: Capture pages as PNGs, open a print window with one image per page,
+  //   trigger window.print() for native "Save as PDF" dialog
+  // Alternatives:
+  //   - jsPDF library: Rejected - adds dependency, browser print is cross-platform and free
+  //   - Direct window.print() on app: Rejected - prints entire UI, not just canvas
+  const handleExportPDF = useCallback(async () => {
+    if (!canvasRef.current) return
+
+    const platform = platforms.find((p) => p.id === state.platform)
+    if (!platform) return
+
+    updateExporting(true)
+
+    const originalOpacity = canvasRef.current.style.opacity
+    canvasRef.current.style.opacity = '0'
+
+    const waitForPaint = () => new Promise((resolve) => {
+      requestAnimationFrame(() => requestAnimationFrame(() => setTimeout(resolve, 100)))
+    })
+
+    const pageDataUrls = []
+    const originalActivePage = state.activePage
+    const totalPages = pageCount > 1 ? pageCount : 1
+
+    try {
+      for (let i = 0; i < totalPages; i++) {
+        if (totalPages > 1) {
+          setExportProgress({ current: i + 1, total: totalPages, name: `Page ${i + 1}` })
+          onSetActivePage(i)
+          await new Promise((resolve) => setTimeout(resolve, 300))
+          await waitForPaint()
+        } else {
+          await new Promise((resolve) => setTimeout(resolve, 100))
+        }
+
+        const originalTransform = canvasRef.current.style.transform
+        canvasRef.current.style.transform = 'scale(1)'
+        await waitForPaint()
+
+        const dataUrl = await toPng(canvasRef.current, {
+          width: platform.width,
+          height: platform.height,
+          pixelRatio: 1,
+          style: { opacity: '1', transform: 'scale(1)' },
+        })
+
+        canvasRef.current.style.transform = originalTransform
+        pageDataUrls.push(dataUrl)
+      }
+
+      if (totalPages > 1) {
+        onSetActivePage(originalActivePage)
+      }
+
+      // Build print-optimized HTML with one image per page
+      // Requirement: PDF page size must match platform dimensions exactly to prevent
+      //   letterboxing on LinkedIn carousels (e.g. 1080x1080 for square, 1080x1350 for portrait)
+      // Approach: Use exact pixel dimensions in @page size instead of generic landscape/portrait
+      // Why: Generic "portrait"/"landscape" maps to paper sizes (A4/Letter), causing white bars
+      //   around non-standard aspect ratios like 1:1 or 4:5
+      const printWindow = window.open('', '_blank')
+      if (!printWindow) {
+        alert('Pop-up blocked. Please allow pop-ups for this site to save as PDF.')
+        return
+      }
+
+      const imagesHtml = pageDataUrls.map((url, i) => `
+        <div class="page${i < pageDataUrls.length - 1 ? '' : ' last'}">
+          <img src="${url}" alt="Page ${i + 1}" />
+        </div>
+      `).join('')
+
+      printWindow.document.write(`<!DOCTYPE html>
+<html>
+<head>
+  <title>CanvaGrid Export</title>
+  <style>
+    @page {
+      size: ${platform.width}px ${platform.height}px;
+      margin: 0;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: white; }
+    .page {
+      width: ${platform.width}px;
+      height: ${platform.height}px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      page-break-after: always;
+      break-after: page;
+    }
+    .page.last {
+      page-break-after: auto;
+      break-after: auto;
+    }
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+  </style>
+</head>
+<body>${imagesHtml}</body>
+</html>`)
+
+      printWindow.document.close()
+
+      // Wait for images to load before triggering print
+      const images = printWindow.document.querySelectorAll('img')
+      await Promise.all(Array.from(images).map((img) =>
+        img.complete ? Promise.resolve() : new Promise((resolve) => { img.onload = resolve; img.onerror = resolve })
+      ))
+
+      printWindow.focus()
+      printWindow.print()
+    } catch (error) {
+      console.error('PDF export failed:', error)
+      alert('PDF export failed. Please try again.')
+      if (totalPages > 1) {
+        onSetActivePage(originalActivePage)
+      }
+    } finally {
+      canvasRef.current.style.opacity = originalOpacity
+      updateExporting(false)
+      setExportProgress(null)
+    }
+  }, [canvasRef, state.platform, state.activePage, pageCount, onSetActivePage, updateExporting])
+
   const handleExportMultiple = useCallback(async () => {
     if (!canvasRef.current) return
     if (selectedPlatforms.size === 0) {
@@ -267,6 +397,19 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
             : `Download All ${pageCount} Pages (ZIP)`}
         </button>
       )}
+
+      {/* Save as PDF - for LinkedIn carousels and print */}
+      <button
+        onClick={handleExportPDF}
+        disabled={isExporting}
+        className="w-full px-4 py-3 text-sm font-semibold text-orange-700 dark:text-orange-400 bg-orange-50 dark:bg-orange-900/20 rounded-xl hover:bg-orange-100 dark:hover:bg-orange-900/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-[0.98]"
+      >
+        {exportProgress && !showMultiSelect
+          ? `Preparing Page ${exportProgress.current}/${exportProgress.total}...`
+          : pageCount > 1
+            ? `Save ${pageCount} Pages as PDF`
+            : 'Save as PDF'}
+      </button>
 
       <button
         onClick={() => setShowMultiSelect(!showMultiSelect)}

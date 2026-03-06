@@ -5,37 +5,29 @@ Compact context summary for session continuity. Rewrite at session end.
 ---
 
 ## Worked on
-Full codebase audit: documentation accuracy vs actual code, code comment compliance, suggestions.
+LinkedIn aspect ratio support and PDF export feature.
 
 ## Accomplished
 
-1. **Audited all documentation** against actual code (CLAUDE.md, README, USER_GUIDE, TESTING_GUIDE, TODO, HISTORY, AI_MISTAKES, STYLE_GUIDE, SESSION_NOTES)
-2. **Fixed CLAUDE.md discrepancies:**
-   - Layout presets count: 20 → 27 (Architecture section)
-   - Platform count: 14 → 20 (Architecture section)
-   - Overlay count: "20+" → "26" with corner radials added to listing (Project Status)
-   - Added missing text element fields to Key State Structure (bold, italic, letterSpacing, textVerticalAlign)
-   - Added 4 missing components to Architecture (TutorialModal, SaveLoadModal, LogoUploader, InstallInstructionsModal)
-   - Added STYLE_GUIDE.md to Documentation section (existed but was unlisted)
-   - Removed dead reference to non-existent docs/EXTRACTION_PLAYBOOK.md
-3. **Added decision documentation comments** to 7 major files per Code Standards:
-   - useAdState.js (page architecture, cell cleanup)
-   - App.jsx (tab UI, reader mode)
-   - MediaTab.jsx (image management approach)
-   - LayoutTab.jsx (grid editor approach)
-   - ContentTab.jsx (dual text mode approach)
-   - StyleTab.jsx (overlay stacking, spacing grouping)
-   - usePWAInstall.js (expanded existing partial comment)
+1. **Updated LinkedIn platforms** — Replaced single LinkedIn Post (1200×627) with three LinkedIn-recommended formats:
+   - LinkedIn Square (1080×1080) — most versatile, mobile-optimized
+   - LinkedIn Portrait (1080×1350) — maximizes vertical feed space
+   - LinkedIn Landscape (1920×1080) — desktop/cinematic content
+   - LinkedIn Banner (1584×396) unchanged
+2. **Added PDF export** — "Save as PDF" button in ExportButtons using browser's native print dialog:
+   - Single page: captures current page as PNG, opens in print window
+   - Multi-page: captures all pages, one per PDF page (for LinkedIn carousel documents)
+   - Zero dependencies — uses `window.print()` approach from glow-props sister project
+3. **Updated documentation** — CLAUDE.md, README.md, USER_GUIDE.md, SESSION_NOTES.md updated to reflect 22 platforms (was 20) and PDF export feature
 
 ## Current state
 
-- **Working** — No code logic changes, only docs and comments. Build not affected.
-- All documentation now accurately reflects the codebase
-- Code comments now comply with decision documentation standard for major files
+- **Working** — Build passes, all features functional
+- Platform count: 22 (was 20, net +2 from LinkedIn split)
+- PDF export supports both single and multi-page documents
 
 ## Key context
 
-- 5 files exceed 800-line refactor threshold (MediaTab 1328, LayoutTab 911, useAdState 852, AdCanvas 818, App 816) — tracked in TODO.md
-- console.error calls in ErrorBoundary and ExportButtons are intentional (error handling) — not cleanup targets
-- docs/STYLE_GUIDE.md (519 lines) exists and is comprehensive — now properly listed in CLAUDE.md
-- No console.log/debug, no TODO comments in code, no commented-out code found — codebase is clean
+- Old `linkedin` platform ID removed — no other code referenced it, clean replacement
+- PDF export opens a new browser window; users need pop-ups enabled for this site
+- 5 files still exceed 800-line refactor threshold (unchanged from previous session)

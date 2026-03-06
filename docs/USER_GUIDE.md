@@ -336,7 +336,9 @@ Click any platform button to see how your ad looks at that size. Platforms are o
 - Instagram Square (1080×1080)
 - TikTok (1080×1920)
 - Instagram Story (1080×1920)
-- LinkedIn Post (1200×627)
+- LinkedIn Square (1080×1080) - Most versatile, mobile-optimized
+- LinkedIn Portrait (1080×1350) - Maximizes vertical feed space
+- LinkedIn Landscape (1920×1080) - Desktop/cinematic content
 - Facebook Post (1200×630)
 - Twitter/X (1600×900)
 
@@ -367,6 +369,7 @@ Click any platform button to see how your ad looks at that size. Platforms are o
 - **Download:** Export the current platform as a PNG file
 - **Download Multiple (ZIP):** Select platforms and export as a ZIP
 - **Download All Pages (ZIP):** Export every page as a numbered PNG in a ZIP (appears when multiple pages exist)
+- **Save as PDF:** Opens your browser's print dialog — select "Save as PDF" to create a PDF document. For multi-page designs, each page becomes a separate PDF page (ideal for LinkedIn carousel documents)
 
 ---
 

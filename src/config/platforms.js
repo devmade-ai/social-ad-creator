@@ -5,7 +5,15 @@ export const platforms = [
   { id: 'tiktok', name: 'TikTok', width: 1080, height: 1920, category: 'social' },
   { id: 'instagram-story', name: 'Instagram Story', width: 1080, height: 1920, category: 'social' },
   // Social Media - Horizontal
-  { id: 'linkedin', name: 'LinkedIn Post', width: 1200, height: 627, category: 'social' },
+  // Requirement: LinkedIn recommends specific aspect ratios for optimal display
+  // Approach: Three formats matching LinkedIn's recommended dimensions
+  // Why: 1080px base width stays under 5MB after compression, ensures crisp display
+  // Alternatives:
+  //   - Single 1200x627: Rejected - outdated, doesn't match any LinkedIn-recommended ratio
+  //   - Only square: Rejected - landscape/portrait serve different content needs
+  { id: 'linkedin-square', name: 'LinkedIn Square', width: 1080, height: 1080, category: 'social' },
+  { id: 'linkedin-portrait', name: 'LinkedIn Portrait', width: 1080, height: 1350, category: 'social' },
+  { id: 'linkedin-landscape', name: 'LinkedIn Landscape', width: 1920, height: 1080, category: 'social' },
   { id: 'facebook', name: 'Facebook Post', width: 1200, height: 630, category: 'social' },
   { id: 'twitter', name: 'Twitter/X', width: 1600, height: 900, category: 'social' },
   // Website Hero Banners
