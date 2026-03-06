@@ -235,7 +235,7 @@ Per-cell text editors with independent content per cell. Each cell gets its own 
 
 - Text content area
 - Alignment, color, and size controls
-- Optional markdown toggle per cell (MD button enables rendering via `marked`)
+- Markdown support (content is always parsed as markdown via `marked`)
 
 ---
 

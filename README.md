@@ -31,7 +31,7 @@ Two modes: **Structured** and **Freeform**
 
 Each text element supports: visibility toggle, cell placement, alignment, color, size, bold/italic, letter spacing.
 
-**Freeform mode** - Per-cell text editors with independent content, optional markdown rendering per cell.
+**Freeform mode** - Per-cell text editors with independent content, automatic markdown rendering.
 
 ### Structure
 - **Layout Type** - Choose Full Bleed, Rows, or Columns with adjustable sizes

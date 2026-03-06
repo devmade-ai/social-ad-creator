@@ -330,7 +330,7 @@ Core features working:
 - **Reader mode**: Clean full-screen view with page navigation (arrow keys, buttons, dots)
 - **Freeform text mode**: Toggle on Content tab between Structured and Freeform
   - Per-cell text editors with independent content, color, size, alignment
-  - Optional markdown per cell (uses `marked` library)
+  - Automatic markdown rendering (uses `marked` library)
 - Multi-image system: Image library with per-cell assignment
   - Upload multiple images to a shared library
   - Assign different images to different cells (1 per cell)
@@ -465,9 +465,10 @@ activePage: 0  // Index of active page
 textMode: 'structured'
 
 // Freeform text (per-cell content, active when textMode='freeform')
+// Content is always parsed as markdown via `marked` — no per-cell toggle
 freeformText: {
-  0: { content: 'Hello **world**', markdown: true, color: 'secondary', size: 1, bold: false, italic: false, letterSpacing: 0, textAlign: null },
-  1: { content: 'Plain text here', markdown: false, color: 'primary', size: 0.8, bold: false, italic: false, letterSpacing: 0, textAlign: null },
+  0: { content: 'Hello **world**', color: 'secondary', size: 1, bold: false, italic: false, letterSpacing: 0, textAlign: null },
+  1: { content: 'Plain text here', color: 'primary', size: 0.8, bold: false, italic: false, letterSpacing: 0, textAlign: null },
 }
 
 // Image library - all uploaded images with individual settings including overlay
@@ -561,7 +562,7 @@ Top-level toggle: **Structured** / **Freeform**
 **Freeform mode** - Per-cell text editors:
 - One text block per cell with independent content
 - Per-cell controls: alignment, color, size
-- MD toggle per cell for markdown formatting (renders via `marked`)
+- Automatic markdown rendering (content always parsed via `marked`)
 
 ### Structure Tab (formerly Layout)
 Collapsible sections:
