@@ -981,3 +981,55 @@ South African consumers reward authenticity. The "glossy corporate" era is over 
 - **Celebrate local holidays:** Heritage Day, Youth Day, Freedom Day, and Mandela Day create relatable, shareable content with built-in trending potential
 - **Show real faces and real premises:** Photos of the actual team and workspace outperform stock images by 3–5× in engagement — particularly true on GBP, Facebook, and Instagram
 - **Community impact storytelling:** Businesses that integrate local impact into their digital narrative (sponsoring school events, supporting local suppliers, showcasing behind-the-scenes) see higher loyalty and repeat engagement
+
+---
+
+## Universal Quick-Reference Cheat Sheet
+
+### Social media — primary formats
+
+| Platform | Type | Dimensions | Ratio | Max Size |
+|----------|------|-----------|-------|----------|
+| Instagram feed | Portrait | 1080 × 1350 px | 4:5 | 30 MB |
+| Instagram Reels | Vertical video | 1080 × 1920 px | 9:16 | 4 GB |
+| Facebook feed | Portrait | 1080 × 1350 px | 4:5 | 30 MB |
+| TikTok | Vertical video | 1080 × 1920 px | 9:16 | 500 MB |
+| YouTube standard | Landscape video | 1920 × 1080 px | 16:9 | 128 GB |
+| YouTube Shorts | Vertical video | 1080 × 1920 px | 9:16 | 128 GB |
+| X/Twitter feed | Landscape image | 1200 × 675 px | 16:9 | 5 MB |
+| LinkedIn feed | Square image | 1200 × 1200 px | 1:1 | 8 MB |
+| Pinterest pin | Vertical | 1000 × 1500 px | 2:3 | 20 MB |
+| Threads | Portrait | 1080 × 1350 px | 4:5 | 100 MB |
+| WhatsApp Status | Vertical | 1080 × 1920 px | 9:16 | 16 MB |
+| Snapchat | Vertical | 1080 × 1920 px | 9:16 | 1 GB |
+| Telegram | Portrait | 1080 × 1350 px | 4:5 | 50 MB |
+| Reddit | Square | 1200 × 1200 px | 1:1 | Varies |
+
+### E-commerce — product images
+
+| Platform | Dimensions | Ratio | Max Size |
+|----------|-----------|-------|----------|
+| Takealot | ~2048 × 2048 px | 1:1 | 2 MB |
+| Amazon main | 2000 × 2000 px | 1:1 | 10 MB |
+| Shopify product | 2048 × 2048 px | 1:1 | 20 MB |
+| Etsy listing | 2000 × 2000 px | 1:1 | ~20 MB |
+
+### Ads — primary formats
+
+| Platform | Type | Dimensions | Max Size |
+|----------|------|-----------|----------|
+| Google Display (top) | Rectangle | 300 × 250 px | 150 KB |
+| Meta Ads (universal) | Square or portrait | 1440 × 1440 or 1440 × 1800 px | 30 MB |
+| GBP post | Landscape | 1200 × 900 px (4:3) | 5 MB |
+| Email header | Full-width | 1200 px (retina) (~3:1) | <200 KB |
+
+### Four master sizes for maximum cross-platform efficiency
+
+| Size | Ratio | Covers |
+|------|-------|--------|
+| **1080 × 1920 px** | 9:16 | Stories, Reels, Shorts, TikTok, Snapchat, WhatsApp Status |
+| **1080 × 1350 px** | 4:5 | Feed posts on Instagram, Facebook, Threads, Telegram |
+| **1200 × 1200 px** | 1:1 | Ads, carousels, LinkedIn, Reddit |
+| **2000 × 2000 px** | 1:1 | E-commerce product images across all marketplaces |
+
+Export photos as JPG at 80–90% quality, graphics as PNG, and all video as MP4 with H.264/AAC at 30 fps. When in doubt, upload the highest resolution available — platforms compress on their end regardless.
