@@ -786,7 +786,6 @@ function App() {
                   onExportFormatChange={setExportFormat}
                   onExportingChange={setIsExporting}
                   pageCount={pageCount}
-                  getPageState={getPageState}
                   onSetActivePage={setActivePage}
                 />
               </ErrorBoundary>

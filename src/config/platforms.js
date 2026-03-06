@@ -221,6 +221,23 @@ export const platforms = platformGroups.flatMap((group) =>
   }))
 )
 
+// Pre-computed category groupings to avoid duplicate useMemo in components
+// Groups flat platforms by category for ExportButtons multi-select UI
+export const platformsByCategory = platforms.reduce((groups, p) => {
+  const cat = p.category || 'other'
+  if (!groups[cat]) groups[cat] = []
+  groups[cat].push(p)
+  return groups
+}, {})
+
+// Pre-computed category groupings for PlatformPreview nested UI
+export const platformGroupsByCategory = platformGroups.reduce((groups, pg) => {
+  const cat = pg.category || 'other'
+  if (!groups[cat]) groups[cat] = []
+  groups[cat].push(pg)
+  return groups
+}, {})
+
 // Lookup helpers
 export function findFormat(formatId) {
   return platforms.find((p) => p.id === formatId) || platforms[0]

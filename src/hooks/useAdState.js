@@ -473,11 +473,11 @@ export function useAdState() {
 
   const setPlatform = useCallback((platform) => {
     setState((prev) => ({ ...prev, platform }))
-  }, [])
+  }, [setState])
 
   const setExportFormat = useCallback((exportFormat) => {
     setState((prev) => ({ ...prev, exportFormat }))
-  }, [])
+  }, [setState])
 
   const resetState = useCallback(() => {
     setState(defaultState)

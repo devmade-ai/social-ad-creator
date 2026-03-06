@@ -1,5 +1,5 @@
-import { memo, useMemo, useState } from 'react'
-import { platformGroups, categoryLabels, categoryOrder, findFormat, findPlatformGroup } from '../config/platforms'
+import { memo, useState } from 'react'
+import { categoryLabels, categoryOrder, platformGroupsByCategory, findFormat, findPlatformGroup } from '../config/platforms'
 import CollapsibleSection from './CollapsibleSection'
 
 // Requirement: Two-level platform → format selector with tips and spec info
@@ -10,6 +10,19 @@ import CollapsibleSection from './CollapsibleSection'
 //   - Flat list (previous): Rejected - doesn't scale, no room for tips/metadata
 //   - Modal picker: Rejected - extra interaction, breaks sidebar workflow
 
+function ChevronIcon({ expanded, className = '' }) {
+  return (
+    <svg
+      className={`w-3 h-3 transition-transform duration-200 ${expanded ? 'rotate-90' : ''} ${className}`}
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+    >
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+    </svg>
+  )
+}
+
 export default memo(function PlatformPreview({ selectedPlatform, onPlatformChange }) {
   const format = findFormat(selectedPlatform)
   const parentGroup = findPlatformGroup(selectedPlatform)
@@ -17,17 +30,6 @@ export default memo(function PlatformPreview({ selectedPlatform, onPlatformChang
   const [expandedCategories, setExpandedCategories] = useState({})
   const [expandedPlatforms, setExpandedPlatforms] = useState({})
   const [showTips, setShowTips] = useState(false)
-
-  // Group platforms by category
-  const groupedPlatforms = useMemo(() => {
-    const groups = {}
-    platformGroups.forEach((pg) => {
-      const cat = pg.category || 'other'
-      if (!groups[cat]) groups[cat] = []
-      groups[cat].push(pg)
-    })
-    return groups
-  }, [])
 
   const toggleCategory = (category) => {
     setExpandedCategories((prev) => ({
@@ -41,14 +43,6 @@ export default memo(function PlatformPreview({ selectedPlatform, onPlatformChang
       ...prev,
       [platformId]: !prev[platformId],
     }))
-  }
-
-  const isCategoryExpanded = (category) => {
-    return expandedCategories[category] || false
-  }
-
-  const isPlatformExpanded = (platformId) => {
-    return expandedPlatforms[platformId] || false
   }
 
   // When selecting a format from a platform that only has one format,
@@ -113,10 +107,10 @@ export default memo(function PlatformPreview({ selectedPlatform, onPlatformChang
       <CollapsibleSection title="Select Platform" defaultExpanded={false}>
         <div className="space-y-1">
           {categoryOrder.map((category) => {
-            const categoryPlatformGroups = groupedPlatforms[category]
+            const categoryPlatformGroups = platformGroupsByCategory[category]
             if (!categoryPlatformGroups || categoryPlatformGroups.length === 0) return null
 
-            const isExpanded = isCategoryExpanded(category)
+            const isCatExpanded = expandedCategories[category] || false
             const hasSelectedFormat = categoryPlatformGroups.some((g) =>
               g.formats.some((f) => f.id === selectedPlatform)
             )
@@ -129,17 +123,10 @@ export default memo(function PlatformPreview({ selectedPlatform, onPlatformChang
                   className="w-full flex items-center justify-between py-1 hover:bg-ui-surface-elevated rounded transition-colors"
                 >
                   <span className="text-[10px] text-ui-text-faint uppercase tracking-wide font-medium flex items-center gap-1">
-                    <svg
-                      className={`w-3 h-3 transition-transform duration-200 ${isExpanded ? 'rotate-90' : ''}`}
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
+                    <ChevronIcon expanded={isCatExpanded} />
                     {categoryLabels[category] || category}
                   </span>
-                  {hasSelectedFormat && !isExpanded && (
+                  {hasSelectedFormat && !isCatExpanded && (
                     <span className="text-[10px] text-primary font-medium">
                       {parentGroup.name} — {format.name}
                     </span>
@@ -147,12 +134,12 @@ export default memo(function PlatformPreview({ selectedPlatform, onPlatformChang
                 </button>
 
                 {/* Platform list within category */}
-                {isExpanded && (
+                {isCatExpanded && (
                   <div className="pl-4 space-y-1">
                     {categoryPlatformGroups.map((group) => {
                       const hasOneFormat = group.formats.length === 1
                       const isSelected = group.formats.some((f) => f.id === selectedPlatform)
-                      const isGroupExpanded = isPlatformExpanded(group.id)
+                      const isGroupExpanded = expandedPlatforms[group.id] || false
 
                       return (
                         <div key={group.id}>
@@ -167,14 +154,7 @@ export default memo(function PlatformPreview({ selectedPlatform, onPlatformChang
                           >
                             <span className="flex items-center gap-1.5">
                               {!hasOneFormat && (
-                                <svg
-                                  className={`w-3 h-3 transition-transform duration-200 ${isGroupExpanded ? 'rotate-90' : ''}`}
-                                  fill="none"
-                                  stroke="currentColor"
-                                  viewBox="0 0 24 24"
-                                >
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                                </svg>
+                                <ChevronIcon expanded={isGroupExpanded} />
                               )}
                               {group.name}
                             </span>
