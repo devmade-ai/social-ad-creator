@@ -45,5 +45,3 @@ export default memo(function ColorPicker({ value, onChange, theme }) {
     </div>
   )
 })
-
-export { themeColorOptions }

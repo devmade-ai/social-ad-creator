@@ -82,42 +82,30 @@ function getCellInfo(layout) {
 }
 
 // Requirement: Positional hints for cells (#5) so users know which cell is where
-// Approach: Derive position from layout type and cell index
+// Approach: Derive position from layout type and cell index using axis mapping
 function getCellPositionLabel(layout, cellIndex, totalCells) {
   if (totalCells <= 1) return ''
   const { type, structure } = layout
   if (!structure || structure.length === 0) return ''
 
-  if (type === 'rows') {
-    // For rows: top/middle/bottom for sections, left/right for subdivisions
-    let idx = 0
-    for (let s = 0; s < structure.length; s++) {
-      const subs = structure[s].subdivisions || 1
-      for (let sub = 0; sub < subs; sub++) {
-        if (idx === cellIndex) {
-          const sectionLabel = structure.length <= 1 ? '' :
-            s === 0 ? 'top' : s === structure.length - 1 ? 'bottom' : 'middle'
-          const subLabel = subs <= 1 ? '' :
-            sub === 0 ? 'left' : sub === subs - 1 ? 'right' : 'center'
-          return [sectionLabel, subLabel].filter(Boolean).join(', ')
-        }
-        idx++
+  // Rows: sections stack vertically (top/bottom), subs go horizontally (left/right)
+  // Columns: sections stack horizontally (left/right), subs go vertically (top/bottom)
+  const isRows = type === 'rows'
+  const sectionAxis = isRows ? ['top', 'middle', 'bottom'] : ['left', 'center', 'right']
+  const subAxis = isRows ? ['left', 'center', 'right'] : ['top', 'middle', 'bottom']
+
+  let idx = 0
+  for (let s = 0; s < structure.length; s++) {
+    const subs = structure[s].subdivisions || 1
+    for (let sub = 0; sub < subs; sub++) {
+      if (idx === cellIndex) {
+        const sectionLabel = structure.length <= 1 ? '' :
+          s === 0 ? sectionAxis[0] : s === structure.length - 1 ? sectionAxis[2] : sectionAxis[1]
+        const subLabel = subs <= 1 ? '' :
+          sub === 0 ? subAxis[0] : sub === subs - 1 ? subAxis[2] : subAxis[1]
+        return [sectionLabel, subLabel].filter(Boolean).join(', ')
       }
-    }
-  } else if (type === 'columns') {
-    let idx = 0
-    for (let s = 0; s < structure.length; s++) {
-      const subs = structure[s].subdivisions || 1
-      for (let sub = 0; sub < subs; sub++) {
-        if (idx === cellIndex) {
-          const sectionLabel = structure.length <= 1 ? '' :
-            s === 0 ? 'left' : s === structure.length - 1 ? 'right' : 'center'
-          const subLabel = subs <= 1 ? '' :
-            sub === 0 ? 'top' : sub === subs - 1 ? 'bottom' : 'middle'
-          return [sectionLabel, subLabel].filter(Boolean).join(', ')
-        }
-        idx++
-      }
+      idx++
     }
   }
   return ''
@@ -125,52 +113,56 @@ function getCellPositionLabel(layout, cellIndex, totalCells) {
 
 // Requirement: MiniCellGrid needs to be usable on mobile (#14)
 // Approach: responsive width — full-width on mobile (<sm), fixed on desktop
+const FULLBLEED_STRUCTURE = [{ size: 100, subdivisions: 1, subSizes: [100] }]
+
 function MiniCellGrid({ layout, imageCells = [], highlightCell, onSelectCell, platform, cellsWithContent, size = 'small' }) {
   const { type, structure } = layout
   const isFullbleed = type === 'fullbleed'
   const isRows = type === 'rows'
-  const normalizedImageCells = imageCells
 
   const normalizedStructure =
     isFullbleed || !structure || structure.length === 0
-      ? [{ size: 100, subdivisions: 1, subSizes: [100] }]
+      ? FULLBLEED_STRUCTURE
       : structure
 
   const platformData = platforms.find((p) => p.id === platform) || platforms[0]
   const aspectRatio = platformData.width / platformData.height
 
-  // Responsive: large size on mobile for touch, smaller on desktop
   const gridWidth = size === 'large' ? 120 : 64
   const fontSize = size === 'large' ? 'text-[11px] sm:text-[10px]' : 'text-[9px] sm:text-[8px]'
   const minCellH = size === 'large' ? 'min-h-[24px] sm:min-h-[20px]' : 'min-h-[14px] sm:min-h-[12px]'
 
-  // Pre-compute cell mapping to avoid mutable cellIndex during render (#15)
-  const cellMap = useMemo(() => {
-    const cells = []
+  // Pre-compute cell mapping grouped by section to avoid mutable cellIndex during render (#15)
+  // and eliminate per-section .filter() calls (#8 from review)
+  const sectionCellMap = useMemo(() => {
+    const grouped = new Map()
     let idx = 0
-    normalizedStructure.forEach((section, sectionIndex) => {
+    const src = isFullbleed || !structure || structure.length === 0 ? FULLBLEED_STRUCTURE : structure
+    src.forEach((section, sectionIndex) => {
       const subdivisions = section.subdivisions || 1
       const subSizes = section.subSizes || Array(subdivisions).fill(100 / subdivisions)
+      const cells = []
       for (let subIndex = 0; subIndex < subdivisions; subIndex++) {
-        cells.push({ cellIndex: idx, sectionIndex, subIndex, subSize: subSizes[subIndex] })
+        cells.push({ cellIndex: idx, subSize: subSizes[subIndex] })
         idx++
       }
+      grouped.set(sectionIndex, cells)
     })
-    return cells
-  }, [normalizedStructure])
+    return grouped
+  }, [type, structure])
 
   return (
     <div
       className={`flex overflow-hidden border border-ui-border-strong rounded ${size === 'large' ? 'w-full sm:w-[120px]' : ''}`}
       style={{
-        ...( size !== 'large' ? { width: `${gridWidth}px` } : {}),
+        ...(size !== 'large' ? { width: `${gridWidth}px` } : {}),
         aspectRatio: `${aspectRatio}`,
         flexDirection: isRows || isFullbleed ? 'column' : 'row',
       }}
     >
       {normalizedStructure.map((section, sectionIndex) => {
         const sectionSize = section.size || 100 / normalizedStructure.length
-        const sectionCells = cellMap.filter(c => c.sectionIndex === sectionIndex)
+        const sectionCells = sectionCellMap.get(sectionIndex) || []
 
         return (
           <div
@@ -179,7 +171,7 @@ function MiniCellGrid({ layout, imageCells = [], highlightCell, onSelectCell, pl
             style={{ flex: `1 1 ${sectionSize}%` }}
           >
             {sectionCells.map(({ cellIndex: currentCellIndex, subSize }) => {
-              const isImage = normalizedImageCells.includes(currentCellIndex)
+              const isImage = imageCells.includes(currentCellIndex)
               const isSelected = highlightCell === currentCellIndex
               const hasContent = cellsWithContent?.has(currentCellIndex)
 
@@ -251,8 +243,9 @@ function TextElementEditor({
 
   // Scroll into view on mobile keyboard (#12)
   const handleFocus = useCallback((e) => {
+    const el = e.target
     setTimeout(() => {
-      e.target.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' })
     }, 100)
   }, [])
 
@@ -314,7 +307,7 @@ function TextElementEditor({
 
         {/* Cell Label */}
         <span className="text-[10px] text-ui-text-subtle w-10 shrink-0 text-right">
-          {currentCell !== null && currentCell !== undefined ? `Cell ${currentCell + 1}` : 'Auto'}
+          {currentCell !== null && currentCell !== undefined ? `Cell ${currentCell + 1}` : 'Default'}
         </span>
 
         {/* Reset Cell */}
@@ -322,7 +315,7 @@ function TextElementEditor({
           <button
             onClick={() => onTextCellsChange?.({ [element.id]: null })}
             className="text-xs text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 shrink-0"
-            title="Reset to auto"
+            title="Reset to default"
           >
             ×
           </button>
@@ -456,6 +449,8 @@ const markdownFormats = [
 
 // Requirement: Toolbar needs visual separators between groups and horizontal scroll on narrow screens (#8)
 // Approach: Group buttons by type (inline/block/insert) with dividers, flex-nowrap + overflow-x-auto
+const markdownGroups = ['inline', 'block', 'insert']
+
 function MarkdownToolbar({ textareaRef, content, onContentChange }) {
   const applyFormat = useCallback(
     (fmt) => {
@@ -492,11 +487,9 @@ function MarkdownToolbar({ textareaRef, content, onContentChange }) {
     [textareaRef, content, onContentChange],
   )
 
-  const groups = ['inline', 'block', 'insert']
-
   return (
     <div className="flex items-center gap-0.5 flex-nowrap overflow-x-auto scrollbar-thin">
-      {groups.map((group, gi) => (
+      {markdownGroups.map((group, gi) => (
         <div key={group} className="flex items-center gap-0.5 shrink-0">
           {gi > 0 && <span className="w-px h-4 bg-ui-border-subtle mx-0.5 shrink-0" />}
           {markdownFormats.filter(f => f.group === group).map((fmt) => (
@@ -545,8 +538,9 @@ function FreeformCellEditor({
 
   // Scroll into view on mobile keyboard (#12)
   const handleFocus = useCallback((e) => {
+    const el = e.target
     setTimeout(() => {
-      e.target.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' })
     }, 100)
   }, [])
 

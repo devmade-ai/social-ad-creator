@@ -64,5 +64,3 @@ export default memo(function AlignmentPicker({ value, onChange }) {
     </div>
   )
 })
-
-export { textAlignOptions }
