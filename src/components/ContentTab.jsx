@@ -647,7 +647,7 @@ export default memo(function ContentTab({
   selectedCell: selectedCellProp = 0,
   onSelectCell,
 }) {
-  const cellInfoList = useMemo(() => getCellInfo(layout), [layout])
+  const cellInfoList = useMemo(() => getCellInfo(layout), [layout.structure])
   const selectedFreeformCell = selectedCellProp
   const setSelectedFreeformCell = onSelectCell || (() => {})
 
@@ -667,7 +667,7 @@ export default memo(function ContentTab({
   // Cell position label (#5)
   const cellPositionLabel = useMemo(
     () => getCellPositionLabel(layout, activeCell, cellInfoList.length),
-    [layout, activeCell, cellInfoList.length],
+    [layout.type, layout.structure, activeCell, cellInfoList.length],
   )
 
   return (
