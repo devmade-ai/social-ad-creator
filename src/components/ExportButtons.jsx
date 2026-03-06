@@ -1,5 +1,6 @@
 import { useState, useCallback, memo, useMemo } from 'react'
 import { toPng } from 'html-to-image'
+import { jsPDF } from 'jspdf'
 import JSZip from 'jszip'
 import { saveAs } from 'file-saver'
 import { platforms } from '../config/platforms'
@@ -184,10 +185,13 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
   }, [canvasRef, state.platform, state.activePage, pageCount, onSetActivePage, updateExporting])
 
   // Requirement: PDF export for LinkedIn carousel documents and general print-to-PDF
-  // Approach: Capture pages as PNGs, open a print window with one image per page,
-  //   trigger window.print() for native "Save as PDF" dialog
+  // Approach: Capture pages as PNGs, build PDF with jsPDF using exact platform dimensions
+  // Why: Previous window.open + window.print approach failed on mobile:
+  //   - Opened about:blank tab (popup handling differs on mobile)
+  //   - Mobile browsers ignore @page size CSS, defaulting to A4/Letter (wrong dimensions)
+  //   - Required user to navigate print dialog instead of direct download
   // Alternatives:
-  //   - jsPDF library: Rejected - adds dependency, browser print is cross-platform and free
+  //   - window.open + window.print: Rejected - broken on mobile (about:blank, wrong sizes)
   //   - Direct window.print() on app: Rejected - prints entire UI, not just canvas
   const handleExportPDF = useCallback(async () => {
     if (!canvasRef.current) return
@@ -238,68 +242,29 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
         onSetActivePage(originalActivePage)
       }
 
-      // Build print-optimized HTML with one image per page
-      // Requirement: PDF page size must match platform dimensions exactly to prevent
-      //   letterboxing on LinkedIn carousels (e.g. 1080x1080 for square, 1080x1350 for portrait)
-      // Approach: Use exact pixel dimensions in @page size instead of generic landscape/portrait
-      // Why: Generic "portrait"/"landscape" maps to paper sizes (A4/Letter), causing white bars
-      //   around non-standard aspect ratios like 1:1 or 4:5
-      const printWindow = window.open('', '_blank')
-      if (!printWindow) {
-        alert('Pop-up blocked. Please allow pop-ups for this site to save as PDF.')
-        return
+      // Build PDF with exact platform dimensions using jsPDF
+      // jsPDF uses points (72 per inch). Convert pixels to points at 72 DPI
+      // so the PDF page size matches the image pixel dimensions exactly.
+      // This prevents letterboxing on non-standard aspect ratios (1:1, 4:5, etc.)
+      const pxToPt = 72 / 96
+      const widthPt = platform.width * pxToPt
+      const heightPt = platform.height * pxToPt
+      const orientation = platform.width >= platform.height ? 'landscape' : 'portrait'
+
+      const pdf = new jsPDF({
+        orientation,
+        unit: 'pt',
+        format: [widthPt, heightPt],
+      })
+
+      for (let i = 0; i < pageDataUrls.length; i++) {
+        if (i > 0) {
+          pdf.addPage([widthPt, heightPt], orientation)
+        }
+        pdf.addImage(pageDataUrls[i], 'PNG', 0, 0, widthPt, heightPt)
       }
 
-      const imagesHtml = pageDataUrls.map((url, i) => `
-        <div class="page${i < pageDataUrls.length - 1 ? '' : ' last'}">
-          <img src="${url}" alt="Page ${i + 1}" />
-        </div>
-      `).join('')
-
-      printWindow.document.write(`<!DOCTYPE html>
-<html>
-<head>
-  <title>CanvaGrid Export</title>
-  <style>
-    @page {
-      size: ${platform.width}px ${platform.height}px;
-      margin: 0;
-    }
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { background: white; }
-    .page {
-      width: ${platform.width}px;
-      height: ${platform.height}px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      page-break-after: always;
-      break-after: page;
-    }
-    .page.last {
-      page-break-after: auto;
-      break-after: auto;
-    }
-    img {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-    }
-  </style>
-</head>
-<body>${imagesHtml}</body>
-</html>`)
-
-      printWindow.document.close()
-
-      // Wait for images to load before triggering print
-      const images = printWindow.document.querySelectorAll('img')
-      await Promise.all(Array.from(images).map((img) =>
-        img.complete ? Promise.resolve() : new Promise((resolve) => { img.onload = resolve; img.onerror = resolve })
-      ))
-
-      printWindow.focus()
-      printWindow.print()
+      pdf.save(`canvagrid-${platform.id}-${platform.width}x${platform.height}.pdf`)
     } catch (error) {
       console.error('PDF export failed:', error)
       alert('PDF export failed. Please try again.')
@@ -398,7 +363,7 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
         </button>
       )}
 
-      {/* Save as PDF - for LinkedIn carousels and print */}
+      {/* Download as PDF - for LinkedIn carousels and print */}
       <button
         onClick={handleExportPDF}
         disabled={isExporting}
@@ -407,8 +372,8 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
         {exportProgress && !showMultiSelect
           ? `Preparing Page ${exportProgress.current}/${exportProgress.total}...`
           : pageCount > 1
-            ? `Save ${pageCount} Pages as PDF`
-            : 'Save as PDF'}
+            ? `Download ${pageCount} Pages as PDF`
+            : 'Download as PDF'}
       </button>
 
       <button
