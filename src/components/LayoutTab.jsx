@@ -138,8 +138,7 @@ function CellGrid({
   size = 'normal',
 }) {
   const { type, structure } = layout
-  // Normalize imageCells to always be an array
-  const normalizedImageCells = Array.isArray(imageCells) ? imageCells : [imageCells]
+  const normalizedImageCells = imageCells
   const isFullbleed = type === 'fullbleed'
   const isRows = type === 'rows'
 
@@ -321,8 +320,7 @@ export default memo(function LayoutTab({
   platform,
 }) {
   const { type = 'fullbleed', structure = [], textAlign, textVerticalAlign, cellAlignments = [] } = layout
-  // Support both old imageCell (single) and new imageCells (array) format
-  const imageCells = layout.imageCells ?? (layout.imageCell !== undefined ? [layout.imageCell] : [0])
+  const imageCells = layout.imageCells || [0]
   const [structureSelection, setStructureSelection] = useState(null)
 
   const cellInfoList = useMemo(() => getCellInfo(layout), [layout])

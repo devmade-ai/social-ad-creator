@@ -122,7 +122,7 @@ function MiniCellGrid({ layout, imageCells = [], highlightCell, onSelectCell, pl
   const { type, structure } = layout
   const isFullbleed = type === 'fullbleed'
   const isRows = type === 'rows'
-  const normalizedImageCells = Array.isArray(imageCells) ? imageCells : [imageCells]
+  const normalizedImageCells = imageCells
 
   const normalizedStructure =
     isFullbleed || !structure || structure.length === 0
@@ -210,7 +210,7 @@ function TextElementEditor({
   theme,
   platform,
 }) {
-  const imageCells = layout.imageCells ?? (layout.imageCell !== undefined ? [layout.imageCell] : [0])
+  const imageCells = layout.imageCells || [0]
   const layerState = text?.[element.id] || {
     content: '',
     visible: false,
@@ -539,7 +539,7 @@ export default memo(function ContentTab({
     return set
   }, [freeformText])
 
-  const imageCells = layout.imageCells ?? (layout.imageCell !== undefined ? [layout.imageCell] : [0])
+  const imageCells = layout.imageCells || [0]
 
   return (
     <div className="space-y-3">

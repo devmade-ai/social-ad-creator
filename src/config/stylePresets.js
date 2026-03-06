@@ -1933,8 +1933,3 @@ export const getLookSettingsForLayout = (lookId, layoutId) => {
     ...fallbackSettings,
   }
 }
-
-// Legacy exports for backwards compatibility
-export const stylePresets = lookPresets
-export const styleCategories = [{ id: 'all', name: 'All' }]
-export const getFilteredStylePresets = () => lookPresets
