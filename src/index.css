@@ -212,6 +212,8 @@ input[type="checkbox"] {
 .freeform-markdown h2 { font-size: 1.5em; font-weight: 600; margin: 0 0 0.3em; line-height: 1.3; }
 .freeform-markdown h3 { font-size: 1.2em; font-weight: 600; margin: 0 0 0.2em; line-height: 1.3; }
 .freeform-markdown h4 { font-size: 1.1em; font-weight: 600; margin: 0 0 0.2em; line-height: 1.4; }
+.freeform-markdown h5 { font-size: 1em; font-weight: 600; margin: 0 0 0.2em; line-height: 1.4; }
+.freeform-markdown h6 { font-size: 0.9em; font-weight: 600; margin: 0 0 0.2em; line-height: 1.4; opacity: 0.85; }
 .freeform-markdown p { margin: 0 0 0.5em; }
 .freeform-markdown p:last-child { margin-bottom: 0; }
 .freeform-markdown strong { font-weight: 700; }
@@ -226,6 +228,12 @@ input[type="checkbox"] {
 .freeform-markdown code { font-family: monospace; background: rgba(0,0,0,0.1); padding: 0.1em 0.3em; border-radius: 3px; font-size: 0.9em; }
 .freeform-markdown pre code { background: none; padding: 0; border-radius: 0; }
 .freeform-markdown a { text-decoration: underline; }
+.freeform-markdown del { text-decoration: line-through; }
+.freeform-markdown table { border-collapse: collapse; width: 100%; margin: 0.5em 0; }
+.freeform-markdown th, .freeform-markdown td { border: 1px solid currentColor; padding: 0.3em 0.6em; text-align: left; }
+.freeform-markdown th { font-weight: 600; background: rgba(0,0,0,0.05); }
+.freeform-markdown tr:nth-child(even) { background: rgba(0,0,0,0.03); }
+.freeform-markdown input[type="checkbox"] { margin-right: 0.4em; vertical-align: middle; pointer-events: none; }
 
 /* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
