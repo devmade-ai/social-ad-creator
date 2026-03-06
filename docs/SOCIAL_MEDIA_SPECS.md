@@ -503,3 +503,121 @@ Every Snapchat format uses the 1080 × 1920 px (9:16) canvas. Video: H.264; audi
 
 - Bitmoji-driven (no traditional upload)
 - Business ad profiles: square icon, 200 × 200 to 2000 × 2000 px PNG
+
+---
+
+## Telegram
+
+Telegram offers unparalleled community features: groups up to 200,000 members, broadcast channels with unlimited subscribers, and file sharing up to 2 GB (Regular) or 4 GB (Premium). The Bot API allows businesses to build automated flows for lead capture, appointment booking, and order status checks — reducing manual support workload by up to 60%.
+
+### Profile image
+
+- 512 × 512 px (1:1, circle-cropped in chats). JPG/PNG
+
+### Image posts
+
+- Recommended: 1080 × 1350 px (4:5) for vertical engagement, also supports 1:1 and 16:9
+- Up to 10 images per post. Max: 50 MB per image. File types: JPG, PNG
+
+### Video posts
+
+- 1080 × 1920 px (vertical) or 1920 × 1080 (landscape)
+- Max: 4 GB (Premium) / 2 GB (Regular). Duration: unlimited. MP4 preferred
+- Supports long-form podcasts, demos, and onboarding content
+
+### Documents/files
+
+- Up to 2 GB (Regular) / 4 GB (Premium). Any file type
+
+**Tips:** Telegram channels function as one-way broadcast tools (like email lists but with push notifications). Pair channels with discussion groups for two-way engagement. Telegram does not compress images/files the way WhatsApp does — useful for sharing high-resolution product assets.
+
+---
+
+## Reddit
+
+Reddit has become a "trust signal" for consumers looking to avoid AI-generated marketing noise. Small businesses thrive by participating authentically in industry-related subreddits, not by advertising. Reddit posts and comments now appear directly in Google search results, making the platform a long-term SEO play.
+
+### Single image post
+
+- 1200 × 1200 px (1:1 square) — most reliable across mobile and desktop feeds
+- Also supports 1080 × 1350 (4:5 portrait) and 1920 × 1080 (16:9 landscape)
+
+### Video posts
+
+- 1920 × 1080 px (16:9). Duration sweet spot: 5–30 seconds for completion rates
+- MP4 preferred. Max varies by subreddit
+
+### Link post thumbnail
+
+- 400 × 300 px (4:3). Max: 500 KB. Mandatory for visibility in feed
+
+### Safe zones
+
+- The bottom ~20% of images is obscured by Reddit's engagement bar overlay
+- Keep text and logos away from the lower edge
+
+### Community assets
+
+| Format | Dimensions |
+|--------|-----------|
+| Community icon | 256 × 256 px (1:1) |
+| Community banner (mobile) | 4000 × 192 px |
+| Community banner (desktop) | 4000 × 128 px |
+
+**Tips:** Self-promotion rules are strict — most subreddits enforce a 10:1 ratio (10 helpful/engaging posts for every 1 promotional post). AMAs (Ask Me Anything) in relevant subreddits build credibility. Product feedback subreddits can provide free market validation.
+
+---
+
+## Discord
+
+Relevant for brands building product communities, running live tutorials, or targeting gaming/tech audiences.
+
+### Server icon
+
+- 512 × 512 px (1:1). PNG/JPG/GIF (animated GIFs for Nitro-boosted servers). Max: 8 MB
+
+### Server banner
+
+- 1920 × 1080 px (16:9). Requires Level 1 server boost. Max: 8 MB
+
+### Server invite splash
+
+- 1920 × 1080 px. Requires Level 1 boost
+
+### In-chat media sharing
+
+- Max: 8 MB (free users), 50 MB (Nitro Classic), 500 MB (Nitro)
+- File types: JPG, PNG, GIF, MP4, MOV
+
+**Tips:** Discord's 8 MB free-tier limit means high-resolution product images or videos must be shared via external links or compressed.
+
+---
+
+## Twitch
+
+Primarily a live-streaming platform — VOD (video on demand) replays auto-delete after 14 days (60 days for Partners/Affiliates).
+
+### Profile picture
+
+- 800 × 800 px (1:1). PNG, JPG, GIF. Max: 10 MB. Displays at ~300 px
+
+### Offline screen / video player banner
+
+- 1920 × 1080 px (16:9)
+
+### Channel banner
+
+- 1200 × 480 px (2.5:1). Max: 10 MB
+
+### Stories
+
+- 1080 × 1920 px (9:16). Up to 60 seconds video
+
+### Panels (below stream)
+
+- 320 × 160 px (2:1) standard. PNG/JPG
+
+### Emotes
+
+- 112 × 112 px (uploaded), auto-scaled to 56 × 56, 28 × 28, and 112 × 112
+- Transparent PNG required
