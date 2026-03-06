@@ -875,3 +875,109 @@ TikTok ad specs mirror organic video specs (1080 × 1920 px, 9:16, MP4/MOV, 500 
 - Brand name: 2–20 characters (no emojis)
 - UGC-style content delivers 30%+ higher CTR than polished production
 - Full specifications are detailed in the TikTok section above
+
+---
+
+## Google Business Profile
+
+Businesses with quality photos receive 42% more direction requests and 35% more click-throughs. Photos take 24–48 hours to appear after upload.
+
+### General photo requirements
+
+- JPG or PNG. Size: 10 KB min – 5 MB max
+- Recommended: 720 × 720 px (1:1). Min: 250 × 250 px. Max: 5200 × 5300 px
+- Well-lit, in-focus, no heavy filters
+
+### Photo dimensions by type
+
+| Type | Dimensions | Ratio |
+|------|-----------|-------|
+| Business photos | 720 × 720 or 1200 × 900 px | 1:1 or 4:3 |
+| Logo | 250 × 250 px (min 120 × 120) | 1:1 |
+| Cover photo | 1024 × 576 px | 16:9 |
+| Product photos | 1200 × 900 px | 4:3 |
+| Posts (updates/offers) | 1200 × 900 px | 4:3 |
+
+- Posts using 4:3 ratio at 1200 × 900 px see 15–20% higher click-through rates
+- Post lifespan: ~6 months (extended from the previous 7-day rule)
+- Videos: max 75 MB / 30 seconds
+- Include diverse photos — exterior, interior, products, team. Geo-tag when possible for local SEO
+- 2026 change: GBP Manager dashboard deprecated — profiles now managed directly in Google Search/Maps. AI Overviews integration beginning.
+
+---
+
+## Email Marketing
+
+Gmail clips emails larger than 102 KB (total HTML), hiding content behind a "View entire message" link. Image-heavy emails (>40% images) are more likely flagged as spam. 60:40 text-to-image ratio is the target.
+
+### Core email specifications
+
+| Asset | Display Size | Retina Upload Size |
+|-------|-------------|-------------------|
+| Email max width | 600–660 px | 1200–1320 px |
+| Header image | 600–650 px wide, 200–300 px tall | 1200 px |
+| Hero/banner | 600–900 px | 1200 px+ |
+| Inline body images | 300–400 px | 600–800 px |
+| 2-column images | ~264–300 px each | ~528–600 px |
+| 3-column images | ~164–200 px each | ~328–400 px |
+
+- File types: JPG (photos), PNG (text/transparency), GIF (animated)
+- Per image: ideally under 200 KB, max 1 MB
+- Upload at 2× display size for retina screens. 72 DPI standard. RGB color mode only (CMYK won't render)
+
+### Platform-specific notes
+
+**Mailchimp:** Legacy builder: 600 px wide. New builder: 660 px wide (upload 1320 px for retina). Full-width image block: 564 px. Max recommended: 1 MB. Supported: JPG, PNG, GIF, BMP.
+
+**Klaviyo:** Supports JPEG, PNG, GIF, WebP (auto-converts to PNG). Max: 10 MB/image. Built-in compression tool. Supports custom dark/light image versions via CSS.
+
+**Constant Contact:** Template ~600 px. Max upload: 5 MB. Auto-compresses images >800 px wide. Max height: 1728 px (Outlook crops taller). 72 PPI recommended.
+
+### Critical rendering differences
+
+- **Outlook:** Uses Word's rendering engine — limited CSS, may ignore image scaling, poor background image support
+- **Gmail:** Clips at 102 KB and strips some `<style>` tags
+- **Apple Mail:** Good CSS support including dark mode detection
+- Use tables for layout (not CSS grid/flexbox). Inline CSS recommended
+
+### Dark mode (affects ~80%+ of mobile users)
+
+- Avoid pure black (#000000) and pure white (#FFFFFF) — use #1A1A1A and #F5F5F5
+- Use transparent PNGs for logos. Add white stroke around dark logos
+- Don't embed text in images
+- Include `@media (prefers-color-scheme: dark)` CSS queries where supported
+- The European Accessibility Act (2026) pushes stronger accessibility requirements
+
+---
+
+## South Africa — Strategic Timing & Cultural Context
+
+### Posting times adjusted for load shedding and mobile-first audiences
+
+South African SMEs must synchronize digital activity with national power constraints and data cost sensitivity. Use scheduling tools (Buffer, Later, Hootsuite) to maintain consistency during offline periods.
+
+#### Recommended posting times (SAST)
+
+| Platform | Best Times | Notes |
+|----------|-----------|-------|
+| Facebook | Weekdays 10 AM – 1 PM | Schedule during peak hours when business may be offline |
+| Instagram | 11 AM – 2 PM and 7 PM – 9 PM | Focus Reels for evening "unwind" hours |
+| LinkedIn | Weekdays 8 AM – 11 AM | Target early morning "desk-time" before potential rotations |
+| TikTok | 6 PM – 10 PM | Prime entertainment hours; vertical viral-style videos perform best |
+| X/Twitter | Weekdays 9 AM – 12 PM | Focus on real-time news and trending business discussions |
+
+During load shedding, consumers search for "services near me" on mobile with limited battery. A verified, up-to-date Google Business Profile captures this high-intent traffic even when the business website or social accounts can't be actively managed.
+
+### Data cost considerations
+
+1280 × 720 video remains the practical standard for fast-loading, data-efficient delivery in regions with high mobile data costs. While 1080p and 4K are technically supported, many South African users consume content on prepaid data — optimizing file sizes without sacrificing visible quality directly impacts view completion rates.
+
+### Cultural nuances that drive engagement in the SA market
+
+South African consumers reward authenticity. The "glossy corporate" era is over — the competitive advantage belongs to brands that feel like community members.
+
+- **Use local languages:** Content in isiZulu, Afrikaans, Sesotho, or Setswana alongside English builds massive trust and reaches demographics that English-only competitors miss
+- **Local slang and colloquialisms:** Makes the brand feel like a person, not a corporation — especially effective on TikTok and Facebook
+- **Celebrate local holidays:** Heritage Day, Youth Day, Freedom Day, and Mandela Day create relatable, shareable content with built-in trending potential
+- **Show real faces and real premises:** Photos of the actual team and workspace outperform stock images by 3–5× in engagement — particularly true on GBP, Facebook, and Instagram
+- **Community impact storytelling:** Businesses that integrate local impact into their digital narrative (sponsoring school events, supporting local suppliers, showcasing behind-the-scenes) see higher loyalty and repeat engagement
