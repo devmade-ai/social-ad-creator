@@ -99,6 +99,7 @@ function CellGrid({
   layout,
   imageCells = [],  // Array of image cell indices
   selectedCell = null,
+  globalSelectedCell = null, // Global cell from ContextBar (shown as indicator in structure mode)
   mode = 'cell', // 'cell' | 'image' | 'structure'
   onSelectCell,
   onSelectSection,
@@ -132,8 +133,14 @@ function CellGrid({
     flexShrink: 0,
   }
 
+  // Requirement: Show which cell is globally selected (from ContextBar) in the Structure grid
+  // Approach: Inset ring indicator, separate from structure editing selection colors
+  // Alternatives:
+  //   - Auto-sync global→structure selection: Rejected — splitting rows hides split controls
+  //   - Colored background: Rejected — conflicts with section/cell selection highlighting
   const getCellContent = (cellIndex, isImage, isSelected, isSectionSelected, subdivisions, subSize) => {
     let bgClass, textClass, content
+    const isGlobalSelected = mode === 'structure' && globalSelectedCell === cellIndex
 
     if (mode === 'image') {
       bgClass = isImage ? 'bg-primary hover:bg-primary-hover' : 'bg-ui-surface-inset hover:bg-ui-surface-hover'
@@ -152,6 +159,10 @@ function CellGrid({
       } else {
         bgClass = 'bg-ui-surface-inset hover:bg-ui-surface-hover'
         textClass = 'text-ui-text-subtle'
+      }
+      // Show global selection ring unless this cell is already the structure selection
+      if (isGlobalSelected && !isSelected) {
+        bgClass += ' ring-2 ring-inset ring-violet-400 dark:ring-violet-500'
       }
       content = isImage ? '📷' : subdivisions > 1 ? `${Math.round(subSize)}%` : ''
     } else {
@@ -569,6 +580,7 @@ export default memo(function LayoutTab({
                 layout={layout}
                 imageCells={imageCells}
                 mode="structure"
+                globalSelectedCell={selectedCell}
                 structureSelection={structureSelection}
                 aspectRatio={platformAspectRatio}
                 size="large"
