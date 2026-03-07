@@ -35,11 +35,7 @@ export default memo(function StyleTab({
   const totalCells = useMemo(() => countCells(layout.structure), [layout.structure])
   const clampedCell = selectedCellProp >= totalCells ? 0 : selectedCellProp
 
-  // Use global selectedCell for both overlay and spacing
-  const selectedOverlayCell = clampedCell
-  const setSelectedOverlayCell = onSelectCell || (() => {})
-  const selectedSpacingCell = clampedCell
-  const setSelectedSpacingCell = onSelectCell || (() => {})
+  // Both overlay and spacing sections use the same global cell selection
 
   // Determine which cells have images
   const cellHasImage = (cellIndex) => !!cellImages[cellIndex]
@@ -144,8 +140,8 @@ export default memo(function StyleTab({
           {/* Cell indicator */}
           <div className="text-xs text-center py-1.5 bg-ui-surface-elevated rounded">
             <span className="text-primary dark:text-violet-400">
-              Cell {selectedOverlayCell + 1}
-              {cellHasImage(selectedOverlayCell) && <span className="text-violet-400 ml-1">(image)</span>}
+              Cell {clampedCell + 1}
+              {cellHasImage(clampedCell) && <span className="text-violet-400 ml-1">(image)</span>}
             </span>
           </div>
 
@@ -155,48 +151,52 @@ export default memo(function StyleTab({
               <div className="flex items-center gap-2">
                 <input
                   type="checkbox"
-                  id={`overlay-enabled-${selectedOverlayCell}`}
-                  checked={isCellOverlayEnabled(selectedOverlayCell)}
-                  onChange={(e) => updateCellOverlay(selectedOverlayCell, { enabled: e.target.checked })}
+                  id={`overlay-enabled-${clampedCell}`}
+                  checked={isCellOverlayEnabled(clampedCell)}
+                  onChange={(e) => updateCellOverlay(clampedCell, { enabled: e.target.checked })}
                   className="w-4 h-4 text-primary rounded border-zinc-300 focus:ring-primary"
                 />
                 <label
-                  htmlFor={`overlay-enabled-${selectedOverlayCell}`}
+                  htmlFor={`overlay-enabled-${clampedCell}`}
                   className="text-xs font-medium text-ui-text-muted"
                 >
                   Enable Color Tint
                 </label>
               </div>
 
-              {isCellOverlayEnabled(selectedOverlayCell) && (
+              {isCellOverlayEnabled(clampedCell) && (
                 <>
                   {/* Custom settings toggle */}
                   <div className="flex items-center gap-2">
                     <input
                       type="checkbox"
-                      id={`overlay-custom-${selectedOverlayCell}`}
-                      checked={getCellOverlayConfig(selectedOverlayCell)?.type !== undefined}
+                      id={`overlay-custom-${clampedCell}`}
+                      checked={getCellOverlayConfig(clampedCell)?.type !== undefined}
+                      // Requirement: Toggle custom overlay settings on/off per cell.
+                      // Approach: When disabling, keep only `enabled: true` — removing type/color/opacity
+                      //   keys entirely instead of setting them to undefined.
+                      // Alternatives:
+                      //   - Set to undefined: Rejected — leaves keys present with undefined values,
+                      //     creating confusing state that passes truthiness checks differently.
                       onChange={(e) => {
                         if (e.target.checked) {
-                          updateCellOverlay(selectedOverlayCell, {
+                          updateCellOverlay(clampedCell, {
                             enabled: true,
                             type: 'solid',
                             color: 'primary',
                             opacity: 50,
                           })
                         } else {
-                          updateCellOverlay(selectedOverlayCell, {
-                            enabled: true,
-                            type: undefined,
-                            color: undefined,
-                            opacity: undefined,
-                          })
+                          // Replace entire config with just `enabled: true` to clear custom settings
+                          const newCellOverlays = { ...cellOverlays }
+                          newCellOverlays[clampedCell] = { enabled: true }
+                          onLayoutChange({ cellOverlays: newCellOverlays })
                         }
                       }}
                       className="w-4 h-4 text-primary rounded border-zinc-300 focus:ring-primary"
                     />
                     <label
-                      htmlFor={`overlay-custom-${selectedOverlayCell}`}
+                      htmlFor={`overlay-custom-${clampedCell}`}
                       className="text-xs text-ui-text-subtle"
                     >
                       Custom settings
@@ -204,7 +204,7 @@ export default memo(function StyleTab({
                   </div>
 
                   {/* Custom overlay settings */}
-                  {getCellOverlayConfig(selectedOverlayCell)?.type !== undefined && (
+                  {getCellOverlayConfig(clampedCell)?.type !== undefined && (
                     <div className="space-y-3 pt-2 border-t border-ui-border">
                       {/* Type - organized by category */}
                       <div className="space-y-2">
@@ -216,9 +216,9 @@ export default memo(function StyleTab({
                             {overlayTypesByCategory.basicAndLinear.map((t) => (
                               <button
                                 key={t.id}
-                                onClick={() => updateCellOverlay(selectedOverlayCell, { type: t.id })}
+                                onClick={() => updateCellOverlay(clampedCell, { type: t.id })}
                                 className={`px-1.5 py-1 text-[9px] rounded truncate ${
-                                  getCellOverlayConfig(selectedOverlayCell)?.type === t.id
+                                  getCellOverlayConfig(clampedCell)?.type === t.id
                                     ? 'bg-primary text-white'
                                     : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
                                 }`}
@@ -236,9 +236,9 @@ export default memo(function StyleTab({
                             {overlayTypesByCategory.radial.map((t) => (
                               <button
                                 key={t.id}
-                                onClick={() => updateCellOverlay(selectedOverlayCell, { type: t.id })}
+                                onClick={() => updateCellOverlay(clampedCell, { type: t.id })}
                                 className={`px-1.5 py-1 text-[9px] rounded truncate ${
-                                  getCellOverlayConfig(selectedOverlayCell)?.type === t.id
+                                  getCellOverlayConfig(clampedCell)?.type === t.id
                                     ? 'bg-primary text-white'
                                     : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
                                 }`}
@@ -256,9 +256,9 @@ export default memo(function StyleTab({
                             {overlayTypesByCategory.effectAndTexture.map((t) => (
                               <button
                                 key={t.id}
-                                onClick={() => updateCellOverlay(selectedOverlayCell, { type: t.id })}
+                                onClick={() => updateCellOverlay(clampedCell, { type: t.id })}
                                 className={`px-1.5 py-1 text-[9px] rounded truncate ${
-                                  getCellOverlayConfig(selectedOverlayCell)?.type === t.id
+                                  getCellOverlayConfig(clampedCell)?.type === t.id
                                     ? 'bg-primary text-white'
                                     : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
                                 }`}
@@ -276,9 +276,9 @@ export default memo(function StyleTab({
                             {overlayTypesByCategory.blend.map((t) => (
                               <button
                                 key={t.id}
-                                onClick={() => updateCellOverlay(selectedOverlayCell, { type: t.id })}
+                                onClick={() => updateCellOverlay(clampedCell, { type: t.id })}
                                 className={`px-1.5 py-1 text-[9px] rounded truncate ${
-                                  getCellOverlayConfig(selectedOverlayCell)?.type === t.id
+                                  getCellOverlayConfig(clampedCell)?.type === t.id
                                     ? 'bg-primary text-white'
                                     : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
                                 }`}
@@ -295,8 +295,8 @@ export default memo(function StyleTab({
                       <div className="space-y-1.5">
                         <label className="block text-xs font-medium text-ui-text-muted">Color</label>
                         <ThemeColorPicker
-                          value={getCellOverlayConfig(selectedOverlayCell)?.color}
-                          onChange={(id) => updateCellOverlay(selectedOverlayCell, { color: id })}
+                          value={getCellOverlayConfig(clampedCell)?.color}
+                          onChange={(id) => updateCellOverlay(clampedCell, { color: id })}
                           theme={theme}
                         />
                       </div>
@@ -306,7 +306,7 @@ export default memo(function StyleTab({
                         <div className="flex justify-between">
                           <label className="text-xs font-medium text-ui-text-muted">Transparency</label>
                           <span className="text-xs text-ui-text-subtle">
-                            {getCellOverlayConfig(selectedOverlayCell)?.opacity ?? 50}%
+                            {getCellOverlayConfig(clampedCell)?.opacity ?? 50}%
                           </span>
                         </div>
                         <input
@@ -314,9 +314,9 @@ export default memo(function StyleTab({
                           min="0"
                           max="100"
                           step="5"
-                          value={getCellOverlayConfig(selectedOverlayCell)?.opacity ?? 50}
+                          value={getCellOverlayConfig(clampedCell)?.opacity ?? 50}
                           onChange={(e) =>
-                            updateCellOverlay(selectedOverlayCell, { opacity: parseInt(e.target.value, 10) })
+                            updateCellOverlay(clampedCell, { opacity: parseInt(e.target.value, 10) })
                           }
                           className="w-full h-2 bg-ui-surface-hover rounded-lg appearance-none cursor-pointer"
                         />
@@ -328,7 +328,7 @@ export default memo(function StyleTab({
 
               {/* Reset */}
               <button
-                onClick={() => updateCellOverlay(selectedOverlayCell, null)}
+                onClick={() => updateCellOverlay(clampedCell, null)}
                 className="w-full px-2 py-1.5 text-xs bg-zinc-200 dark:bg-dark-subtle text-ui-text-muted hover:bg-zinc-300 dark:hover:bg-dark-elevated rounded"
               >
                 Reset to Default
@@ -400,7 +400,7 @@ export default memo(function StyleTab({
           <div className="pt-3 border-t border-ui-border-subtle space-y-3">
             <div className="text-xs text-center py-1.5 bg-ui-surface-elevated rounded">
               <span className="text-primary dark:text-violet-400">
-                Cell {selectedSpacingCell + 1}
+                Cell {clampedCell + 1}
               </span>
             </div>
 
@@ -411,31 +411,31 @@ export default memo(function StyleTab({
                   <div className="flex items-center gap-2">
                     <input
                       type="checkbox"
-                      id={`padding-custom-${selectedSpacingCell}`}
-                      checked={padding.cellOverrides?.[selectedSpacingCell] !== undefined}
+                      id={`padding-custom-${clampedCell}`}
+                      checked={padding.cellOverrides?.[clampedCell] !== undefined}
                       onChange={(e) => {
                         if (e.target.checked) {
-                          updateCellPadding(selectedSpacingCell, padding.global)
+                          updateCellPadding(clampedCell, padding.global)
                         } else {
-                          updateCellPadding(selectedSpacingCell, null)
+                          updateCellPadding(clampedCell, null)
                         }
                       }}
                       className="w-4 h-4 text-primary rounded border-zinc-300 focus:ring-primary"
                     />
                     <label
-                      htmlFor={`padding-custom-${selectedSpacingCell}`}
+                      htmlFor={`padding-custom-${clampedCell}`}
                       className="text-xs text-ui-text-subtle"
                     >
                       Custom spacing
                     </label>
                   </div>
 
-                  {padding.cellOverrides?.[selectedSpacingCell] !== undefined && (
+                  {padding.cellOverrides?.[clampedCell] !== undefined && (
                     <div className="space-y-1 pl-6">
                       <div className="flex justify-between">
                         <label className="text-xs text-ui-text-subtle">Spacing</label>
                         <span className="text-xs text-ui-text-subtle">
-                          {getCellPaddingValue(selectedSpacingCell)}px
+                          {getCellPaddingValue(clampedCell)}px
                         </span>
                       </div>
                       <input
@@ -443,8 +443,8 @@ export default memo(function StyleTab({
                         min="0"
                         max="60"
                         step="5"
-                        value={getCellPaddingValue(selectedSpacingCell)}
-                        onChange={(e) => updateCellPadding(selectedSpacingCell, parseInt(e.target.value, 10))}
+                        value={getCellPaddingValue(clampedCell)}
+                        onChange={(e) => updateCellPadding(clampedCell, parseInt(e.target.value, 10))}
                         className="w-full h-2 bg-ui-surface-hover rounded-lg appearance-none cursor-pointer"
                       />
                     </div>
@@ -456,35 +456,35 @@ export default memo(function StyleTab({
                   <div className="flex items-center gap-2">
                     <input
                       type="checkbox"
-                      id={`frame-custom-${selectedSpacingCell}`}
-                      checked={frame.cellFrames?.[selectedSpacingCell] !== undefined}
+                      id={`frame-custom-${clampedCell}`}
+                      checked={frame.cellFrames?.[clampedCell] !== undefined}
                       onChange={(e) => {
                         if (e.target.checked) {
-                          const newCellFrames = { ...frame.cellFrames, [selectedSpacingCell]: { percent: 50, color: 'primary' } }
+                          const newCellFrames = { ...frame.cellFrames, [clampedCell]: { percent: 50, color: 'primary' } }
                           onFrameChange?.({ cellFrames: newCellFrames })
                         } else {
                           const newCellFrames = { ...frame.cellFrames }
-                          delete newCellFrames[selectedSpacingCell]
+                          delete newCellFrames[clampedCell]
                           onFrameChange?.({ cellFrames: newCellFrames })
                         }
                       }}
                       className="w-4 h-4 text-primary rounded border-zinc-300 focus:ring-primary"
                     />
                     <label
-                      htmlFor={`frame-custom-${selectedSpacingCell}`}
+                      htmlFor={`frame-custom-${clampedCell}`}
                       className="text-xs text-ui-text-subtle"
                     >
                       Custom frame
                     </label>
                   </div>
 
-                  {frame.cellFrames?.[selectedSpacingCell] !== undefined && (
+                  {frame.cellFrames?.[clampedCell] !== undefined && (
                     <div className="space-y-2 pl-6">
                       <div className="space-y-1">
                         <div className="flex justify-between">
                           <label className="text-xs text-ui-text-subtle">Border %</label>
                           <span className="text-xs text-ui-text-subtle">
-                            {frame.cellFrames[selectedSpacingCell]?.percent || 0}%
+                            {frame.cellFrames[clampedCell]?.percent || 0}%
                           </span>
                         </div>
                         <input
@@ -492,12 +492,12 @@ export default memo(function StyleTab({
                           min="0"
                           max="100"
                           step="10"
-                          value={frame.cellFrames[selectedSpacingCell]?.percent || 0}
+                          value={frame.cellFrames[clampedCell]?.percent || 0}
                           onChange={(e) => {
                             const newCellFrames = {
                               ...frame.cellFrames,
-                              [selectedSpacingCell]: {
-                                ...frame.cellFrames[selectedSpacingCell],
+                              [clampedCell]: {
+                                ...frame.cellFrames[clampedCell],
                                 percent: parseInt(e.target.value, 10),
                               },
                             }
@@ -510,12 +510,12 @@ export default memo(function StyleTab({
                       <div className="space-y-1.5">
                         <label className="text-xs text-ui-text-subtle">Color</label>
                         <ThemeColorPicker
-                          value={frame.cellFrames[selectedSpacingCell]?.color}
+                          value={frame.cellFrames[clampedCell]?.color}
                           onChange={(id) => {
                             const newCellFrames = {
                               ...frame.cellFrames,
-                              [selectedSpacingCell]: {
-                                ...frame.cellFrames[selectedSpacingCell],
+                              [clampedCell]: {
+                                ...frame.cellFrames[clampedCell],
                                 color: id,
                               },
                             }

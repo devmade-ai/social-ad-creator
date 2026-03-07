@@ -38,10 +38,11 @@ function getTimestamp() {
   return `${yy}${mm}${dd}-${hh}${min}`
 }
 
-// Wait for React re-render + browser paint to settle before canvas capture
+// Wait for React re-render + browser paint to settle before canvas capture.
+// Double-rAF ensures at least one paint cycle has occurred.
 function waitForPaint() {
   return new Promise((resolve) => {
-    requestAnimationFrame(() => requestAnimationFrame(() => setTimeout(resolve, 100)))
+    requestAnimationFrame(() => requestAnimationFrame(resolve))
   })
 }
 
@@ -74,7 +75,13 @@ async function captureAsBlob(element, width, height, format) {
   })
   const mime = MIME_TYPES[format] || 'image/png'
   const quality = format === 'png' ? undefined : 0.92
-  return new Promise((resolve) => canvas.toBlob(resolve, mime, quality))
+  return new Promise((resolve, reject) =>
+    canvas.toBlob(
+      (blob) => blob ? resolve(blob) : reject(new Error('Canvas capture failed — image may be cross-origin')),
+      mime,
+      quality,
+    )
+  )
 }
 
 // Capture element as data URL (for PDF embedding, always PNG)
@@ -90,6 +97,11 @@ async function captureAsDataUrl(element, width, height) {
 export default memo(function ExportButtons({ canvasRef, state, onPlatformChange, onExportFormatChange, onExportingChange, pageCount = 1, onSetActivePage }) {
   const [isExporting, setIsExporting] = useState(false)
   const [exportProgress, setExportProgress] = useState(null)
+  // Requirement: Track which export operation is active so each button shows its own progress.
+  // Approach: String state ('single' | 'allPages' | 'pdf' | 'multi') instead of shared boolean.
+  // Alternatives:
+  //   - Shared boolean: Rejected — PDF button couldn't show progress when multi-select panel was open.
+  const [exportOp, setExportOp] = useState(null)
   const [showMultiSelect, setShowMultiSelect] = useState(false)
   const [selectedPlatforms, setSelectedPlatforms] = useState(() => new Set())
 
@@ -117,11 +129,20 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
     setSelectedPlatforms(new Set())
   }, [])
 
+  // Requirement: Category header toggles selection (select all if any unselected, deselect all if all selected).
+  // Approach: Check if all platforms in the category are already selected; if so, deselect them.
+  // Alternatives:
+  //   - Add-only: Rejected — users expect toggle behavior from a category header click.
   const selectCategory = useCallback((category) => {
     const catPlatforms = platforms.filter((p) => (p.category || 'other') === category)
     setSelectedPlatforms((prev) => {
       const next = new Set(prev)
-      catPlatforms.forEach((p) => next.add(p.id))
+      const allSelected = catPlatforms.every((p) => prev.has(p.id))
+      if (allSelected) {
+        catPlatforms.forEach((p) => next.delete(p.id))
+      } else {
+        catPlatforms.forEach((p) => next.add(p.id))
+      }
       return next
     })
   }, [])
@@ -143,6 +164,7 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
     if (!platform) return
 
     updateExporting(true)
+    setExportOp('single')
     const restoreOpacity = hideCanvas(canvasRef.current)
 
     try {
@@ -158,11 +180,11 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
       const pageSuffix = pageCount > 1 ? `-p${String(state.activePage + 1).padStart(2, '0')}` : ''
       saveAs(blob, `${ts}-${platform.id}-${platform.width}x${platform.height}${pageSuffix}.${ext}`)
     } catch (error) {
-      console.error('Export failed:', error)
       alert('Export failed. Please try again.')
     } finally {
       restoreOpacity()
       updateExporting(false)
+      setExportOp(null)
     }
   }, [canvasRef, state.platform, state.activePage, exportFormat, ext, pageCount, updateExporting])
 
@@ -170,9 +192,10 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
     if (!canvasRef.current || pageCount <= 1) return
 
     updateExporting(true)
+    setExportOp('allPages')
     const zip = new JSZip()
     const platform = platforms.find((p) => p.id === state.platform)
-    if (!platform) { updateExporting(false); return }
+    if (!platform) { updateExporting(false); setExportOp(null); return }
 
     const originalActivePage = state.activePage
     const restoreOpacity = hideCanvas(canvasRef.current)
@@ -201,13 +224,13 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
 
       onSetActivePage(originalActivePage)
     } catch (error) {
-      console.error('Page export failed:', error)
       alert('Export failed. Please try again.')
       onSetActivePage(originalActivePage)
     } finally {
       restoreOpacity()
       updateExporting(false)
       setExportProgress(null)
+      setExportOp(null)
     }
   }, [canvasRef, state.platform, state.activePage, exportFormat, ext, pageCount, onSetActivePage, updateExporting])
 
@@ -228,6 +251,7 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
     if (!platform) return
 
     updateExporting(true)
+    setExportOp('pdf')
     const restoreOpacity = hideCanvas(canvasRef.current)
 
     const pageDataUrls = []
@@ -257,9 +281,9 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
         onSetActivePage(originalActivePage)
       }
 
-      // Build PDF with exact platform dimensions using jsPDF
-      // jsPDF uses points (72 per inch). Convert pixels to points at 72 DPI
-      // so the PDF page size matches the image pixel dimensions exactly.
+      // Build PDF with exact platform dimensions using jsPDF.
+      // jsPDF uses points (72 per inch). We map 1 image pixel (captured at pixelRatio:1)
+      // to 72/96 points, so the PDF page dimensions are proportional to the image.
       // This prevents letterboxing on non-standard aspect ratios (1:1, 4:5, etc.)
       const pxToPt = 72 / 96
       const widthPt = platform.width * pxToPt
@@ -282,7 +306,6 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
       const ts = getTimestamp()
       pdf.save(`${ts}-${platform.id}-${platform.width}x${platform.height}.pdf`)
     } catch (error) {
-      console.error('PDF export failed:', error)
       alert('PDF export failed. Please try again.')
       if (totalPages > 1) {
         onSetActivePage(originalActivePage)
@@ -291,6 +314,7 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
       restoreOpacity()
       updateExporting(false)
       setExportProgress(null)
+      setExportOp(null)
     }
   }, [canvasRef, state.platform, state.activePage, pageCount, onSetActivePage, updateExporting])
 
@@ -302,6 +326,7 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
     }
 
     updateExporting(true)
+    setExportOp('multi')
     const zip = new JSZip()
     const originalPlatform = state.platform
 
@@ -332,13 +357,13 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
       onPlatformChange(originalPlatform)
       setShowMultiSelect(false)
     } catch (error) {
-      console.error('Export failed:', error)
       alert('Export failed. Please try again.')
       onPlatformChange(originalPlatform)
     } finally {
       restoreOpacity()
       updateExporting(false)
       setExportProgress(null)
+      setExportOp(null)
     }
   }, [canvasRef, state.platform, exportFormat, ext, onPlatformChange, updateExporting, selectedPlatforms])
 
@@ -380,7 +405,7 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
         disabled={isExporting}
         className="w-full px-4 py-3 text-sm font-semibold text-white bg-primary rounded-xl hover:bg-primary-hover disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm hover:shadow-glow active:scale-[0.98] btn-scale"
       >
-        {isExporting && !exportProgress ? 'Exporting...' : `Download Current (.${ext})`}
+        {exportOp === 'single' ? 'Exporting...' : `Download Current (.${ext})`}
       </button>
 
       {/* Download all pages as ZIP */}
@@ -390,7 +415,7 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
           disabled={isExporting}
           className="w-full px-4 py-3 text-sm font-semibold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl hover:bg-emerald-100 dark:hover:bg-emerald-900/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-[0.98]"
         >
-          {exportProgress && !showMultiSelect
+          {exportOp === 'allPages' && exportProgress
             ? `Exporting Page ${exportProgress.current}/${exportProgress.total}...`
             : `Download All ${pageCount} Pages (ZIP)`}
         </button>
@@ -402,7 +427,7 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
         disabled={isExporting}
         className="w-full px-4 py-3 text-sm font-semibold text-orange-700 dark:text-orange-400 bg-orange-50 dark:bg-orange-900/20 rounded-xl hover:bg-orange-100 dark:hover:bg-orange-900/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-[0.98]"
       >
-        {exportProgress && !showMultiSelect
+        {exportOp === 'pdf' && exportProgress
           ? `Preparing Page ${exportProgress.current}/${exportProgress.total}...`
           : pageCount > 1
             ? `Download ${pageCount} Pages as PDF`
@@ -483,7 +508,7 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
             disabled={isExporting || selectedPlatforms.size === 0}
             className="w-full px-4 py-2.5 text-sm font-semibold text-white bg-primary rounded-lg hover:bg-primary-hover disabled:opacity-50 disabled:cursor-not-allowed transition-all"
           >
-            {exportProgress
+            {exportOp === 'multi' && exportProgress
               ? `Exporting ${exportProgress.current}/${exportProgress.total}...`
               : `Export ${selectedPlatforms.size} Platform${selectedPlatforms.size !== 1 ? 's' : ''}`}
           </button>

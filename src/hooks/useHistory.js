@@ -2,8 +2,18 @@ import { useState, useCallback, useRef } from 'react'
 
 const MAX_HISTORY = 50
 
+// Requirement: Undo/redo with canUndo/canRedo that stay in sync with React renders.
+// Approach: Track history index in both a ref (for synchronous access inside updaters)
+//   and a state variable (to trigger re-renders when it changes). canUndo/canRedo are
+//   derived from the state variable, not the ref, so they update on every render.
+// Alternatives:
+//   - Refs only: Rejected — canUndo/canRedo derived from refs don't trigger re-renders,
+//     causing stale disabled states on undo/redo buttons.
+//   - State only: Rejected — need synchronous access inside setStateInternal updater.
 export function useHistory(initialState) {
   const [state, setStateInternal] = useState(initialState)
+  const [historyIndex, setHistoryIndex] = useState(0)
+  const [historyLength, setHistoryLength] = useState(1)
   const historyRef = useRef([initialState])
   const indexRef = useRef(0)
 
@@ -37,6 +47,8 @@ export function useHistory(initialState) {
       }
 
       historyRef.current = history
+      setHistoryIndex(indexRef.current)
+      setHistoryLength(history.length)
       return newState
     })
   }, [])
@@ -44,6 +56,7 @@ export function useHistory(initialState) {
   const undo = useCallback(() => {
     if (indexRef.current > 0) {
       indexRef.current--
+      setHistoryIndex(indexRef.current)
       setStateInternal(historyRef.current[indexRef.current])
     }
   }, [])
@@ -51,17 +64,20 @@ export function useHistory(initialState) {
   const redo = useCallback(() => {
     if (indexRef.current < historyRef.current.length - 1) {
       indexRef.current++
+      setHistoryIndex(indexRef.current)
       setStateInternal(historyRef.current[indexRef.current])
     }
   }, [])
 
-  const canUndo = indexRef.current > 0
-  const canRedo = indexRef.current < historyRef.current.length - 1
+  const canUndo = historyIndex > 0
+  const canRedo = historyIndex < historyLength - 1
 
   // Reset history (e.g., when loading a saved design)
   const resetHistory = useCallback((newState) => {
     historyRef.current = [newState]
     indexRef.current = 0
+    setHistoryIndex(0)
+    setHistoryLength(1)
     setStateInternal(newState)
   }, [])
 

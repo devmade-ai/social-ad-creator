@@ -99,6 +99,7 @@ function CellGrid({
   layout,
   imageCells = [],  // Array of image cell indices
   selectedCell = null,
+  globalSelectedCell = null, // Global cell from ContextBar (shown as indicator in structure mode)
   mode = 'cell', // 'cell' | 'image' | 'structure'
   onSelectCell,
   onSelectSection,
@@ -107,7 +108,6 @@ function CellGrid({
   size = 'normal',
 }) {
   const { type, structure } = layout
-  const normalizedImageCells = imageCells
   const isFullbleed = type === 'fullbleed'
   const isRows = type === 'rows'
 
@@ -132,8 +132,14 @@ function CellGrid({
     flexShrink: 0,
   }
 
+  // Requirement: Show which cell is globally selected (from ContextBar) in the Structure grid
+  // Approach: Inset ring indicator, separate from structure editing selection colors
+  // Alternatives:
+  //   - Auto-sync global→structure selection: Rejected — splitting rows hides split controls
+  //   - Colored background: Rejected — conflicts with section/cell selection highlighting
   const getCellContent = (cellIndex, isImage, isSelected, isSectionSelected, subdivisions, subSize) => {
     let bgClass, textClass, content
+    const isGlobalSelected = mode === 'structure' && globalSelectedCell === cellIndex
 
     if (mode === 'image') {
       bgClass = isImage ? 'bg-primary hover:bg-primary-hover' : 'bg-ui-surface-inset hover:bg-ui-surface-hover'
@@ -141,7 +147,8 @@ function CellGrid({
       content = isImage ? '📷' : cellIndex + 1
     } else if (mode === 'structure') {
       if (isSelected) {
-        bgClass = 'bg-primary hover:bg-primary-hover'
+        // Darker shade for selected image cells so they're distinguishable from unselected ones
+        bgClass = isImage ? 'bg-violet-800 hover:bg-violet-900 dark:bg-violet-700 dark:hover:bg-violet-600' : 'bg-primary hover:bg-primary-hover'
         textClass = 'text-white'
       } else if (isSectionSelected) {
         bgClass = 'bg-violet-100 dark:bg-violet-900/30 hover:bg-violet-200 dark:hover:bg-violet-900/40'
@@ -153,7 +160,12 @@ function CellGrid({
         bgClass = 'bg-ui-surface-inset hover:bg-ui-surface-hover'
         textClass = 'text-ui-text-subtle'
       }
-      content = isImage ? '📷' : subdivisions > 1 ? `${Math.round(subSize)}%` : ''
+      // Show global selection ring unless this cell is already the structure selection
+      if (isGlobalSelected && !isSelected) {
+        bgClass += ' ring-2 ring-inset ring-violet-400 dark:ring-violet-500'
+      }
+      // Show checkmark on selected image cells so selection is visible
+      content = isImage ? (isSelected ? '📷 ✓' : '📷') : subdivisions > 1 ? `${Math.round(subSize)}%` : ''
     } else {
       if (isSelected) {
         bgClass = 'bg-primary hover:bg-primary-hover'
@@ -173,7 +185,29 @@ function CellGrid({
     return { bgClass, textClass, content }
   }
 
-  let cellIndex = 0
+  // Requirement: Pre-compute cell mapping to avoid mutable cellIndex during render.
+  // Approach: useMemo builds a Map like MiniCellGrid does.
+  // Alternatives:
+  //   - Mutable let cellIndex = 0 in render: Rejected — side effect during render,
+  //     breaks under React strict mode or concurrent features.
+  const sectionCellMap = useMemo(() => {
+    const grouped = new Map()
+    let idx = 0
+    const src = isFullbleed || !structure || structure.length === 0
+      ? [{ size: 100, subdivisions: 1, subSizes: [100] }]
+      : structure
+    src.forEach((section, sectionIndex) => {
+      const subdivisions = section.subdivisions || 1
+      const subSizes = section.subSizes || Array(subdivisions).fill(100 / subdivisions)
+      const cells = []
+      for (let subIndex = 0; subIndex < subdivisions; subIndex++) {
+        cells.push({ cellIndex: idx, subIndex, subSize: subSizes[subIndex] })
+        idx++
+      }
+      grouped.set(sectionIndex, cells)
+    })
+    return grouped
+  }, [type, structure])
 
   const renderCells = () => (
     <div
@@ -184,51 +218,9 @@ function CellGrid({
       {normalizedStructure.map((section, sectionIndex) => {
         const sectionSize = section.size || 100 / normalizedStructure.length
         const subdivisions = section.subdivisions || 1
-        const subSizes = section.subSizes || Array(subdivisions).fill(100 / subdivisions)
         const isSectionSelected =
           mode === 'structure' && structureSelection?.type === 'section' && structureSelection.index === sectionIndex
-
-        const sectionCells = []
-        for (let subIndex = 0; subIndex < subdivisions; subIndex++) {
-          const currentCellIndex = cellIndex
-          const isImage = normalizedImageCells.includes(currentCellIndex)
-          const isCellSelected =
-            mode === 'structure'
-              ? structureSelection?.type === 'cell' && structureSelection.cellIndex === currentCellIndex
-              : selectedCell === currentCellIndex
-          cellIndex++
-
-          const { bgClass, textClass, content } = getCellContent(
-            currentCellIndex,
-            isImage,
-            isCellSelected,
-            isSectionSelected,
-            subdivisions,
-            subSizes[subIndex]
-          )
-
-          sectionCells.push(
-            <div
-              key={`cell-${currentCellIndex}`}
-              className={`relative cursor-pointer transition-colors min-h-[20px] ${bgClass} ${
-                mode === 'structure' && subdivisions > 1 ? 'border border-ui-border' : ''
-              }`}
-              style={{ flex: `1 1 ${subSizes[subIndex]}%` }}
-              onClick={(e) => {
-                e.stopPropagation()
-                if (mode === 'structure') {
-                  onSelectCell?.(currentCellIndex, sectionIndex, subIndex)
-                } else {
-                  onSelectCell?.(currentCellIndex)
-                }
-              }}
-            >
-              <div className={`absolute inset-0 flex items-center justify-center text-[11px] font-medium ${textClass}`}>
-                {content}
-              </div>
-            </div>
-          )
-        }
+        const cells = sectionCellMap.get(sectionIndex) || []
 
         return (
           <div
@@ -236,7 +228,44 @@ function CellGrid({
             className={`flex ${isRows || isFullbleed ? 'flex-row' : 'flex-col'}`}
             style={{ flex: `1 1 ${sectionSize}%` }}
           >
-            {sectionCells}
+            {cells.map(({ cellIndex: currentCellIndex, subIndex, subSize }) => {
+              const isImage = imageCells.includes(currentCellIndex)
+              const isCellSelected =
+                mode === 'structure'
+                  ? structureSelection?.type === 'cell' && structureSelection.cellIndex === currentCellIndex
+                  : selectedCell === currentCellIndex
+
+              const { bgClass, textClass, content } = getCellContent(
+                currentCellIndex,
+                isImage,
+                isCellSelected,
+                isSectionSelected,
+                subdivisions,
+                subSize
+              )
+
+              return (
+                <div
+                  key={`cell-${currentCellIndex}`}
+                  className={`relative cursor-pointer transition-colors min-h-[20px] ${bgClass} ${
+                    mode === 'structure' && subdivisions > 1 ? 'border border-ui-border' : ''
+                  }`}
+                  style={{ flex: `1 1 ${subSize}%` }}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    if (mode === 'structure') {
+                      onSelectCell?.(currentCellIndex, sectionIndex, subIndex)
+                    } else {
+                      onSelectCell?.(currentCellIndex)
+                    }
+                  }}
+                >
+                  <div className={`absolute inset-0 flex items-center justify-center text-[11px] font-medium ${textClass}`}>
+                    {content}
+                  </div>
+                </div>
+              )
+            })}
           </div>
         )
       })}
@@ -287,6 +316,8 @@ export default memo(function LayoutTab({
   textCells = {},
   onTextCellsChange,
   platform,
+  selectedCell = 0,
+  onSelectCell,
 }) {
   const { type = 'fullbleed', structure = [], textAlign, textVerticalAlign, cellAlignments = [] } = layout
   const imageCells = layout.imageCells || [0]
@@ -567,6 +598,7 @@ export default memo(function LayoutTab({
                 layout={layout}
                 imageCells={imageCells}
                 mode="structure"
+                globalSelectedCell={selectedCell}
                 structureSelection={structureSelection}
                 aspectRatio={platformAspectRatio}
                 size="large"
@@ -578,6 +610,8 @@ export default memo(function LayoutTab({
                   }
                 }}
                 onSelectCell={(cellIndex, sectionIndex, subIndex) => {
+                  // Always sync to global cell selection so ContextBar and other tabs stay in sync
+                  onSelectCell?.(cellIndex)
                   const normalizedStructure =
                     !structure || structure.length === 0
                       ? [{ size: 100, subdivisions: 1, subSizes: [100] }]
@@ -778,57 +812,51 @@ export default memo(function LayoutTab({
         </div>
       </CollapsibleSection>
 
-      {/* Text Alignment Section */}
+      {/* Requirement: Text Alignment uses global selectedCell from ContextBar, not Structure grid.
+          Approach: Read/write cellAlignments[selectedCell] directly. Fullbleed sets global alignment.
+          Alternatives:
+            - Keep tied to structureSelection: Rejected — forces re-selection, disconnected from ContextBar. */}
       <CollapsibleSection title="Text Alignment" defaultExpanded={false}>
         <div className="space-y-3">
           {/* Context-aware label */}
           <div className="text-xs text-ui-text-subtle">
             {type === 'fullbleed' ? (
               'Global alignment for all text'
-            ) : structureSelection?.type === 'section' ? (
-              <>Alignment for <span className="font-medium text-primary dark:text-violet-400">{type === 'rows' ? 'Row' : 'Column'} {structureSelection.index + 1}</span> (all cells)</>
-            ) : structureSelection?.type === 'cell' ? (
-              <>Alignment for <span className="font-medium text-primary dark:text-violet-400">Cell {structureSelection.cellIndex + 1}</span></>
             ) : (
-              <>Select a cell/row above, or set <span className="font-medium">global</span> alignment</>
+              <>Alignment for <span className="font-medium text-primary dark:text-violet-400">Cell {selectedCell + 1}</span> — use the cell bar above to switch</>
             )}
           </div>
+
+          {/* Cell selector for quick switching (multi-cell only) */}
+          {type !== 'fullbleed' && cellInfoList.length > 1 && (
+            <div className="flex gap-1.5 flex-wrap">
+              {cellInfoList.map((cell) => (
+                <button
+                  key={cell.index}
+                  onClick={() => onSelectCell?.(cell.index)}
+                  className={`min-w-[32px] px-2 py-1 text-xs rounded-lg font-medium transition-colors ${
+                    selectedCell === cell.index
+                      ? 'bg-primary text-white shadow-sm'
+                      : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
+                  }`}
+                >
+                  {cell.label}
+                </button>
+              ))}
+            </div>
+          )}
 
           <div className="flex gap-4">
             <div className="flex-1">
               <span className="text-xs text-ui-text-subtle block mb-1.5">Horizontal</span>
               <div className="flex gap-1.5">
                 {textAlignOptions.map((align) => {
-                  const targetCell = structureSelection?.type === 'cell' ? structureSelection.cellIndex : null
+                  const targetCell = type === 'fullbleed' ? null : selectedCell
                   const isActive = getAlignmentForCell(targetCell, 'textAlign') === align.id
                   return (
                     <button
                       key={align.id}
-                      onClick={() => {
-                        if (structureSelection?.type === 'section') {
-                          // Batch all cells in section into a single onLayoutChange call
-                          const sectionIndex = structureSelection.index
-                          const section = structure[sectionIndex]
-                          const subdivisions = section?.subdivisions || 1
-                          let cellStart = 0
-                          for (let i = 0; i < sectionIndex; i++) {
-                            cellStart += structure[i]?.subdivisions || 1
-                          }
-                          const newAlignments = [...(cellAlignments || [])]
-                          for (let i = 0; i < subdivisions; i++) {
-                            const ci = cellStart + i
-                            while (newAlignments.length <= ci) {
-                              newAlignments.push({ textAlign: null, textVerticalAlign: null })
-                            }
-                            newAlignments[ci] = { ...newAlignments[ci], textAlign: align.id }
-                          }
-                          onLayoutChange({ cellAlignments: newAlignments })
-                        } else if (structureSelection?.type === 'cell') {
-                          setAlignmentForCell(structureSelection.cellIndex, 'textAlign', align.id)
-                        } else {
-                          setAlignmentForCell(null, 'textAlign', align.id)
-                        }
-                      }}
+                      onClick={() => setAlignmentForCell(targetCell, 'textAlign', align.id)}
                       title={align.name}
                       className={`flex-1 px-2 py-2 rounded-lg flex items-center justify-center ${
                         isActive
@@ -846,36 +874,12 @@ export default memo(function LayoutTab({
               <span className="text-xs text-ui-text-subtle block mb-1.5">Vertical</span>
               <div className="flex gap-1.5">
                 {verticalAlignOptions.map((align) => {
-                  const targetCell = structureSelection?.type === 'cell' ? structureSelection.cellIndex : null
+                  const targetCell = type === 'fullbleed' ? null : selectedCell
                   const isActive = getAlignmentForCell(targetCell, 'textVerticalAlign') === align.id
                   return (
                     <button
                       key={align.id}
-                      onClick={() => {
-                        if (structureSelection?.type === 'section') {
-                          // Batch all cells in section into a single onLayoutChange call
-                          const sectionIndex = structureSelection.index
-                          const section = structure[sectionIndex]
-                          const subdivisions = section?.subdivisions || 1
-                          let cellStart = 0
-                          for (let i = 0; i < sectionIndex; i++) {
-                            cellStart += structure[i]?.subdivisions || 1
-                          }
-                          const newAlignments = [...(cellAlignments || [])]
-                          for (let i = 0; i < subdivisions; i++) {
-                            const ci = cellStart + i
-                            while (newAlignments.length <= ci) {
-                              newAlignments.push({ textAlign: null, textVerticalAlign: null })
-                            }
-                            newAlignments[ci] = { ...newAlignments[ci], textVerticalAlign: align.id }
-                          }
-                          onLayoutChange({ cellAlignments: newAlignments })
-                        } else if (structureSelection?.type === 'cell') {
-                          setAlignmentForCell(structureSelection.cellIndex, 'textVerticalAlign', align.id)
-                        } else {
-                          setAlignmentForCell(null, 'textVerticalAlign', align.id)
-                        }
-                      }}
+                      onClick={() => setAlignmentForCell(targetCell, 'textVerticalAlign', align.id)}
                       title={align.name}
                       className={`flex-1 px-2 py-2 rounded-lg flex items-center justify-center ${
                         isActive

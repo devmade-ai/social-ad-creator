@@ -602,6 +602,8 @@ function App() {
                     textCells={state.textCells}
                     onTextCellsChange={setTextCells}
                     platform={state.platform}
+                    selectedCell={selectedCell}
+                    onSelectCell={setSelectedCell}
                   />
                 )}
               </ErrorBoundary>

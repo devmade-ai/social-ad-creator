@@ -15,6 +15,8 @@ import MiniCellGrid from './MiniCellGrid'
 import { getCellInfo, getCellPositionLabel } from '../utils/cellUtils'
 import { platforms } from '../config/platforms'
 
+const noop = () => {}
+
 const sizeOptions = [
   { id: 0.6, name: 'XS' },
   { id: 0.8, name: 'S' },
@@ -500,7 +502,7 @@ export default memo(function ContentTab({
 }) {
   const cellInfoList = useMemo(() => getCellInfo(layout), [layout])
   const selectedFreeformCell = selectedCellProp
-  const setSelectedFreeformCell = onSelectCell || (() => {})
+  const setSelectedFreeformCell = onSelectCell || noop
 
   const maxCell = cellInfoList.length - 1
   const activeCell = selectedFreeformCell < 0 || selectedFreeformCell > maxCell ? 0 : selectedFreeformCell
@@ -518,7 +520,7 @@ export default memo(function ContentTab({
   // Cell position label (#5)
   const cellPositionLabel = useMemo(
     () => getCellPositionLabel(layout, activeCell, cellInfoList.length),
-    [layout.type, layout.structure, activeCell, cellInfoList.length],
+    [layout, activeCell, cellInfoList.length],
   )
 
   return (

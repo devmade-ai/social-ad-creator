@@ -202,12 +202,11 @@ export const categoryLabels = {
   banner: 'Banners',
   email: 'Email',
   print: 'Print',
-  ecommerce: 'E-Commerce',
   other: 'Other',
 }
 
 // Category display order
-export const categoryOrder = ['social', 'web', 'banner', 'email', 'print', 'ecommerce', 'other']
+export const categoryOrder = ['social', 'web', 'banner', 'email', 'print', 'other']
 
 // Flat array for consumers that just need { id, name, width, height, category }
 // Derived from platformGroups so there's a single source of truth

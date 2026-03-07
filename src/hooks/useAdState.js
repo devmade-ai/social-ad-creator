@@ -304,15 +304,15 @@ export function useAdState() {
 
   const setLogo = useCallback((logo) => {
     setState((prev) => ({ ...prev, logo }))
-  }, [])
+  }, [setState])
 
   const setLogoPosition = useCallback((logoPosition) => {
     setState((prev) => ({ ...prev, logoPosition }))
-  }, [])
+  }, [setState])
 
   const setLogoSize = useCallback((logoSize) => {
     setState((prev) => ({ ...prev, logoSize }))
-  }, [])
+  }, [setState])
 
   const setText = useCallback((layer, updates) => {
     setState((prev) => ({
@@ -322,14 +322,14 @@ export function useAdState() {
         [layer]: { ...prev.text[layer], ...updates },
       },
     }))
-  }, [])
+  }, [setState])
 
   const setTextCells = useCallback((updates) => {
     setState((prev) => ({
       ...prev,
       textCells: { ...prev.textCells, ...updates },
     }))
-  }, [])
+  }, [setState])
 
   // Requirement: Changing layout structure must not leave orphaned cell references.
   // Approach: On every layout update, clean up textCells, cellImages, cellAlignments,
@@ -365,11 +365,11 @@ export function useAdState() {
         activeLayoutPreset: null,
       }
     })
-  }, [])
+  }, [setState])
 
   const setTheme = useCallback((theme) => {
     setState((prev) => ({ ...prev, theme: { ...prev.theme, ...theme } }))
-  }, [])
+  }, [setState])
 
   const setThemePreset = useCallback((presetId) => {
     const preset = presetThemes.find((t) => t.id === presetId)
@@ -384,11 +384,11 @@ export function useAdState() {
         },
       }))
     }
-  }, [])
+  }, [setState])
 
   const setFonts = useCallback((fonts) => {
     setState((prev) => ({ ...prev, fonts: { ...prev.fonts, ...fonts } }))
-  }, [])
+  }, [setState])
 
   const setPadding = useCallback((padding) => {
     setState((prev) => ({ ...prev, padding: { ...prev.padding, ...padding } }))
@@ -430,7 +430,7 @@ export function useAdState() {
 
   const resetState = useCallback(() => {
     setState(defaultState)
-  }, [])
+  }, [setState])
 
   const applyStylePreset = useCallback((preset) => {
     if (!preset) return
@@ -467,11 +467,11 @@ export function useAdState() {
         images: updatedImages,
       }
     })
-  }, [])
+  }, [setState])
 
   const clearStylePreset = useCallback(() => {
     setState((prev) => ({ ...prev, activeStylePreset: null }))
-  }, [])
+  }, [setState])
 
   const applyLayoutPreset = useCallback((preset) => {
     if (!preset) return
@@ -500,7 +500,7 @@ export function useAdState() {
         freeformText: cleaned.freeformText,
       }
     })
-  }, [])
+  }, [setState])
 
   const setActivePage = useCallback((newIndex) => {
     setState((prev) => {
@@ -690,17 +690,26 @@ export function useAdState() {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(existingDesigns))
       return { success: true, id: newDesign.id }
     } catch (error) {
-      console.error('Failed to save design:', error)
       return { success: false, error: error.message }
     }
   }, [state])
 
+  // Requirement: Load saved designs with backward compatibility for older saves.
+  // Approach: Merge with defaultState to fill missing fields from older saves that
+  //   predate multi-page support (pages, textMode, freeformText).
+  // Alternatives:
+  //   - Version field + explicit migrations: Rejected — overkill for a single-user tool.
+  //   - No migration: Rejected — older saves crash on missing pages/textMode fields.
   const loadDesign = useCallback((designId) => {
     try {
       const designs = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]')
       const design = designs.find(d => d.id === designId)
       if (design && design.state) {
-        const loadedState = { ...design.state }
+        const loadedState = { ...defaultState, ...design.state }
+        // Ensure multi-page fields exist for pre-multi-page saves
+        if (!loadedState.pages) loadedState.pages = [null]
+        if (!loadedState.textMode) loadedState.textMode = 'structured'
+        if (!loadedState.freeformText) loadedState.freeformText = {}
         // saveDesign syncs all pages to non-null, so restore the active one to top-level
         const activePage = loadedState.activePage || 0
         if (loadedState.pages[activePage] !== null) {
@@ -713,10 +722,9 @@ export function useAdState() {
       }
       return { success: false, error: 'Design not found' }
     } catch (error) {
-      console.error('Failed to load design:', error)
       return { success: false, error: error.message }
     }
-  }, [setState, resetHistory])
+  }, [resetHistory])
 
   const getSavedDesigns = useCallback(() => {
     try {
