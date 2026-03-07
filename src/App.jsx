@@ -98,7 +98,7 @@ function App() {
   const canvasRef = useRef(null)
   const previewContainerRef = useRef(null)
   const [activeSection, setActiveSection] = useState('templates')
-  const [imageAspectRatio] = useState(null)
+
   const [containerWidth, setContainerWidth] = useState(600)
   const [windowHeight, setWindowHeight] = useState(window.innerHeight)
   const [isExporting, setIsExporting] = useState(false)
@@ -378,17 +378,20 @@ function App() {
         <link key={font.id} rel="stylesheet" href={font.url} />
       ))}
 
+      {/* Requirement: Deduplicate desktop/mobile header buttons.
+          Approach: Single button set with responsive Tailwind classes.
+          Alternatives:
+            - Separate desktop/mobile JSX: Rejected — 200 lines of duplication. */}
       {/* Header - scrolls away, ContextBar below is sticky */}
       <header className="bg-white/80 dark:bg-dark-card/80 backdrop-blur-sm border-b border-zinc-200/60 dark:border-zinc-700/60 px-4 py-3">
-        {/* Desktop: single row */}
-        <div className="hidden sm:flex sm:items-center sm:justify-between">
-          <div className="flex items-center gap-2">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          <div className="flex items-center justify-center sm:justify-start gap-2">
             <h1 className="text-lg font-display font-bold text-ui-text tracking-tight">CanvaGrid</h1>
             <span className="px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300 rounded">
               Research Preview
             </span>
           </div>
-          <div className="flex gap-1.5">
+          <div className="flex flex-wrap justify-center sm:justify-end gap-1.5">
             <button
               onClick={() => setIsReaderMode(true)}
               title="Reader mode - view pages without editing UI"
@@ -398,7 +401,7 @@ function App() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
               </svg>
-              <span>View</span>
+              <span className="hidden sm:inline">View</span>
             </button>
             <button
               onClick={() => setShowSaveLoadModal(true)}
@@ -408,7 +411,7 @@ function App() {
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
               </svg>
-              <span>Save</span>
+              <span className="hidden sm:inline">Save</span>
             </button>
             <button
               onClick={() => setShowTutorial(true)}
@@ -418,7 +421,7 @@ function App() {
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              <span>Help</span>
+              <span className="hidden sm:inline">Help</span>
             </button>
             <button
               onClick={toggleDarkMode}
@@ -435,7 +438,7 @@ function App() {
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
               </svg>
-              <span>Refresh</span>
+              <span className="hidden sm:inline">Refresh</span>
             </button>
             {canInstall && (
               <button
@@ -474,108 +477,6 @@ function App() {
               </button>
             )}
           </div>
-        </div>
-
-        {/* Mobile: stacked rows */}
-        <div className="flex flex-col gap-2 sm:hidden">
-          {/* Row 1: Title */}
-          <div className="flex items-center justify-center gap-2">
-            <h1 className="text-lg font-display font-bold text-ui-text tracking-tight">CanvaGrid</h1>
-            <span className="px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300 rounded">
-              Research Preview
-            </span>
-          </div>
-
-          {/* Row 2: Utility buttons (centered) */}
-          <div className="flex justify-center gap-1.5">
-            <button
-              onClick={() => setIsReaderMode(true)}
-              title="Reader mode"
-              className="px-3 py-1.5 text-sm rounded-lg flex items-center gap-1.5 font-medium bg-zinc-100 dark:bg-dark-subtle text-ui-text hover:bg-zinc-200 dark:hover:bg-dark-elevated active:scale-95 transition-all"
-            >
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-              </svg>
-            </button>
-            <button
-              onClick={() => setShowSaveLoadModal(true)}
-              title="Save or load designs"
-              className="px-3 py-1.5 text-sm rounded-lg flex items-center gap-1.5 font-medium bg-zinc-100 dark:bg-dark-subtle text-ui-text hover:bg-zinc-200 dark:hover:bg-dark-elevated active:scale-95 transition-all"
-            >
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
-              </svg>
-            </button>
-            <button
-              onClick={() => setShowTutorial(true)}
-              title="Help & Tutorial"
-              className="px-3 py-1.5 text-sm rounded-lg flex items-center gap-1.5 font-medium bg-zinc-100 dark:bg-dark-subtle text-ui-text hover:bg-zinc-200 dark:hover:bg-dark-elevated active:scale-95 transition-all"
-            >
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </button>
-            <button
-              onClick={toggleDarkMode}
-              title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-              className="px-3 py-1.5 text-sm rounded-lg flex items-center gap-1.5 font-medium bg-zinc-100 dark:bg-dark-subtle text-ui-text hover:bg-zinc-200 dark:hover:bg-dark-elevated active:scale-95 transition-all"
-            >
-              {isDark ? '☀️' : '🌙'}
-            </button>
-            <button
-              onClick={() => window.location.reload()}
-              title="Refresh page"
-              className="px-3 py-1.5 text-sm rounded-lg flex items-center gap-1.5 font-medium bg-zinc-100 dark:bg-dark-subtle text-ui-text hover:bg-zinc-200 dark:hover:bg-dark-elevated active:scale-95 transition-all"
-            >
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-              </svg>
-            </button>
-          </div>
-
-          {/* Row 3: Install/Update CTAs (conditional, centered) */}
-          {(canInstall || (!canInstall && showManualInstructions && !isInstalled) || hasUpdate) && (
-            <div className="flex justify-center gap-1.5">
-              {canInstall && (
-                <button
-                  onClick={install}
-                  title="Install app"
-                  className="px-3 py-1.5 text-sm rounded-lg flex items-center gap-1.5 font-medium bg-primary text-white hover:bg-primary-hover active:scale-95 transition-all"
-                >
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                  </svg>
-                  <span>Install App</span>
-                </button>
-              )}
-              {!canInstall && showManualInstructions && !isInstalled && (
-                <button
-                  onClick={() => setShowInstallModal(true)}
-                  title="How to install this app"
-                  className="px-3 py-1.5 text-sm rounded-lg flex items-center gap-1.5 font-medium bg-zinc-100 dark:bg-dark-subtle text-ui-text hover:bg-zinc-200 dark:hover:bg-dark-elevated active:scale-95 transition-all"
-                >
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                  </svg>
-                  <span>Install App</span>
-                </button>
-              )}
-              {hasUpdate && (
-                <button
-                  onClick={update}
-                  title="Update available - click to refresh"
-                  className="px-3 py-1.5 text-sm rounded-lg flex items-center gap-1.5 font-medium bg-emerald-500 text-white hover:bg-emerald-600 active:scale-95 transition-all"
-                >
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                  </svg>
-                  <span>Update Available</span>
-                </button>
-              )}
-            </div>
-          )}
-
         </div>
       </header>
 
@@ -634,7 +535,7 @@ function App() {
                     onSelectStylePreset={applyStylePreset}
                     layout={state.layout}
                     onApplyLayoutPreset={applyLayoutPreset}
-                    imageAspectRatio={imageAspectRatio}
+
                     platform={state.platform}
                     theme={state.theme}
                     onThemeChange={setTheme}

@@ -12,7 +12,13 @@ export function useHistory(initialState) {
     setStateInternal((prev) => {
       const newState = typeof updater === 'function' ? updater(prev) : updater
 
-      // Don't add to history if state hasn't changed
+      // Requirement: Avoid expensive JSON.stringify on every state update.
+      // Approach: Reference equality check first (covers most cases where updater
+      //   returns prev unchanged), then fall back to JSON comparison only when needed.
+      // Alternatives:
+      //   - JSON.stringify only: Rejected — O(n) on every update, expensive with base64 images.
+      //   - Shallow comparison: Rejected — nested state objects would miss deep changes.
+      if (prev === newState) return prev
       if (JSON.stringify(prev) === JSON.stringify(newState)) {
         return prev
       }

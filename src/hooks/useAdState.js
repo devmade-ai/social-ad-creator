@@ -10,6 +10,7 @@ import { useCallback } from 'react'
 import { presetThemes } from '../config/themes'
 import { getLookSettingsForLayout } from '../config/stylePresets'
 import { useHistory } from './useHistory'
+import { countCells, cleanupOrphanedCells } from '../utils/cellUtils'
 
 const defaultTheme = presetThemes[0] // Dark theme
 const STORAGE_KEY = 'canvagrid-designs'
@@ -330,15 +331,10 @@ export function useAdState() {
     }))
   }, [])
 
-  const countCells = (structure) => {
-    if (!structure || structure.length === 0) return 1
-    return structure.reduce((total, section) => total + (section.subdivisions || 1), 0)
-  }
-
   // Requirement: Changing layout structure must not leave orphaned cell references.
   // Approach: On every layout update, clean up textCells, cellImages, cellAlignments,
   //   cellOverlays, padding overrides, cell frames, and freeformText that reference
-  //   cells beyond the new cell count.
+  //   cells beyond the new cell count. Uses shared cleanupOrphanedCells utility.
   // Alternatives:
   //   - Lazy cleanup on render: Rejected - would cause subtle bugs when rendering stale refs.
   //   - Separate cleanup action: Rejected - user could forget; automatic is safer.
@@ -346,24 +342,9 @@ export function useAdState() {
     setState((prev) => {
       const newLayout = { ...prev.layout, ...updates }
       const newCellCount = countCells(newLayout.structure)
-
-      // Reset assignments pointing to cells that no longer exist (e.g. cell 3 after switching from 4 cells to 2)
-      const cleanTextCells = { ...prev.textCells }
-      Object.keys(cleanTextCells).forEach((key) => {
-        if (cleanTextCells[key] !== null && cleanTextCells[key] >= newCellCount) {
-          cleanTextCells[key] = null
-        }
-      })
-
-      const cleanCellImages = { ...prev.cellImages }
-      Object.keys(cleanCellImages).forEach((cellIndex) => {
-        if (parseInt(cellIndex) >= newCellCount) {
-          delete cleanCellImages[cellIndex]
-        }
-      })
+      const cleaned = cleanupOrphanedCells(prev, newCellCount)
 
       const cleanCellAlignments = (newLayout.cellAlignments || []).slice(0, newCellCount)
-
       const cleanCellOverlays = { ...newLayout.cellOverlays }
       Object.keys(cleanCellOverlays).forEach((cellIndex) => {
         if (parseInt(cellIndex) >= newCellCount) {
@@ -371,36 +352,14 @@ export function useAdState() {
         }
       })
 
-      const cleanPaddingOverrides = { ...prev.padding.cellOverrides }
-      Object.keys(cleanPaddingOverrides).forEach((cellIndex) => {
-        if (parseInt(cellIndex) >= newCellCount) {
-          delete cleanPaddingOverrides[cellIndex]
-        }
-      })
-
-      const cleanCellFrames = { ...prev.frame.cellFrames }
-      Object.keys(cleanCellFrames).forEach((cellIndex) => {
-        if (parseInt(cellIndex) >= newCellCount) {
-          delete cleanCellFrames[cellIndex]
-        }
-      })
-
-      // Same cleanup for freeform text (e.g. cell 2 text after switching from 3 cells to 1)
-      const cleanFreeformText = { ...(prev.freeformText || {}) }
-      Object.keys(cleanFreeformText).forEach((cellIndex) => {
-        if (parseInt(cellIndex) >= newCellCount) {
-          delete cleanFreeformText[cellIndex]
-        }
-      })
-
       return {
         ...prev,
         layout: { ...newLayout, cellAlignments: cleanCellAlignments, cellOverlays: cleanCellOverlays },
-        textCells: cleanTextCells,
-        cellImages: cleanCellImages,
-        padding: { ...prev.padding, cellOverrides: cleanPaddingOverrides },
-        frame: { ...prev.frame, cellFrames: cleanCellFrames },
-        freeformText: cleanFreeformText,
+        textCells: cleaned.textCells,
+        cellImages: cleaned.cellImages,
+        padding: { ...prev.padding, cellOverrides: cleaned.paddingOverrides },
+        frame: { ...prev.frame, cellFrames: cleaned.cellFrames },
+        freeformText: cleaned.freeformText,
         activeLayoutPreset: null,
       }
     })
@@ -517,27 +476,7 @@ export function useAdState() {
 
     setState((prev) => {
       const newCellCount = countCells(preset.layout.structure)
-
-      const cleanCellImages = { ...prev.cellImages }
-      Object.keys(cleanCellImages).forEach((cellIndex) => {
-        if (parseInt(cellIndex) >= newCellCount) {
-          delete cleanCellImages[cellIndex]
-        }
-      })
-
-      const cleanPaddingOverrides = { ...prev.padding.cellOverrides }
-      Object.keys(cleanPaddingOverrides).forEach((cellIndex) => {
-        if (parseInt(cellIndex) >= newCellCount) {
-          delete cleanPaddingOverrides[cellIndex]
-        }
-      })
-
-      const cleanCellFrames = { ...prev.frame.cellFrames }
-      Object.keys(cleanCellFrames).forEach((cellIndex) => {
-        if (parseInt(cellIndex) >= newCellCount) {
-          delete cleanCellFrames[cellIndex]
-        }
-      })
+      const cleaned = cleanupOrphanedCells(prev, newCellCount)
 
       return {
         ...prev,
@@ -553,9 +492,9 @@ export function useAdState() {
           cta: preset.textCells.cta ?? null,
           footnote: preset.textCells.footnote ?? null,
         } : prev.textCells,
-        cellImages: cleanCellImages,
-        padding: { ...prev.padding, cellOverrides: cleanPaddingOverrides },
-        frame: { ...prev.frame, cellFrames: cleanCellFrames },
+        cellImages: cleaned.cellImages,
+        padding: { ...prev.padding, cellOverrides: cleaned.paddingOverrides },
+        frame: { ...prev.frame, cellFrames: cleaned.cellFrames },
       }
     })
   }, [])

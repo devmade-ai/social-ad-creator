@@ -11,6 +11,7 @@ import { memo, useMemo, useRef, useCallback, useState } from 'react'
 import CollapsibleSection from './CollapsibleSection'
 import ColorPicker from './ColorPicker'
 import AlignmentPicker from './AlignmentPicker'
+import { getCellInfo, getCellPositionLabel } from '../utils/cellUtils'
 import { platforms } from '../config/platforms'
 
 const sizeOptions = [
@@ -56,61 +57,6 @@ const textGroups = [
     elements: [{ id: 'footnote', label: 'Footnote', placeholder: 'Terms apply...' }],
   },
 ]
-
-// Requirement: Pre-compute cell mapping to avoid mutable cellIndex during render (#15)
-// Approach: useMemo returns array of cell info objects
-// Alternatives:
-//   - Mutable counter in render: Rejected - fragile, hard to reason about
-function getCellInfo(layout) {
-  const { structure } = layout
-  if (!structure || structure.length === 0) {
-    return [{ index: 0, label: '1' }]
-  }
-
-  const cells = []
-  let cellIndex = 0
-
-  structure.forEach((section) => {
-    const subdivisions = section.subdivisions || 1
-    for (let subIndex = 0; subIndex < subdivisions; subIndex++) {
-      cells.push({ index: cellIndex, label: `${cellIndex + 1}` })
-      cellIndex++
-    }
-  })
-
-  return cells
-}
-
-// Requirement: Positional hints for cells (#5) so users know which cell is where
-// Approach: Derive position from layout type and cell index using axis mapping
-function getCellPositionLabel(layout, cellIndex, totalCells) {
-  if (totalCells <= 1) return ''
-  const { type, structure } = layout
-  // Fullbleed has no structure to derive positions from
-  if (type === 'fullbleed' || !structure || structure.length === 0) return ''
-
-  // Rows: sections stack vertically (top/bottom), subs go horizontally (left/right)
-  // Columns: sections stack horizontally (left/right), subs go vertically (top/bottom)
-  const isRows = type === 'rows'
-  const sectionAxis = isRows ? ['top', 'middle', 'bottom'] : ['left', 'center', 'right']
-  const subAxis = isRows ? ['left', 'center', 'right'] : ['top', 'middle', 'bottom']
-
-  let idx = 0
-  for (let s = 0; s < structure.length; s++) {
-    const subs = structure[s].subdivisions || 1
-    for (let sub = 0; sub < subs; sub++) {
-      if (idx === cellIndex) {
-        const sectionLabel = structure.length <= 1 ? '' :
-          s === 0 ? sectionAxis[0] : s === structure.length - 1 ? sectionAxis[2] : sectionAxis[1]
-        const subLabel = subs <= 1 ? '' :
-          sub === 0 ? subAxis[0] : sub === subs - 1 ? subAxis[2] : subAxis[1]
-        return [sectionLabel, subLabel].filter(Boolean).join(', ')
-      }
-      idx++
-    }
-  }
-  return ''
-}
 
 // Requirement: MiniCellGrid needs to be usable on mobile (#14)
 // Approach: responsive width — full-width on mobile (<sm), fixed on desktop

@@ -7,6 +7,7 @@
 //   - Numeric input only: Rejected - sliders give visual feedback for proportional sizing.
 import { useState, useMemo, memo } from 'react'
 import CollapsibleSection from './CollapsibleSection'
+import { getCellInfo, countCells } from '../utils/cellUtils'
 import { platforms } from '../config/platforms'
 import { defaultState } from '../hooks/useAdState'
 
@@ -79,12 +80,6 @@ const verticalAlignOptions = [
   { id: 'end', name: 'Bottom', Icon: AlignBottomIcon },
 ]
 
-// Helper to count total cells in structure
-function getTotalCells(structure) {
-  if (!structure) return 1
-  return structure.reduce((sum, section) => sum + (section.subdivisions || 1), 0)
-}
-
 // Helper to validate textCells against total cell count
 function validateTextCells(textCells, totalCells) {
   if (!textCells) return textCells
@@ -97,32 +92,6 @@ function validateTextCells(textCells, totalCells) {
     }
   })
   return hasChanges ? validated : null
-}
-
-// Helper to get cell info for display
-function getCellInfo(layout) {
-  const { structure } = layout
-  if (!structure || structure.length === 0) {
-    return [{ index: 0, label: '1', sectionIndex: 0, subIndex: 0 }]
-  }
-
-  const cells = []
-  let cellIndex = 0
-
-  structure.forEach((section, sectionIndex) => {
-    const subdivisions = section.subdivisions || 1
-    for (let subIndex = 0; subIndex < subdivisions; subIndex++) {
-      cells.push({
-        index: cellIndex,
-        label: `${cellIndex + 1}`,
-        sectionIndex,
-        subIndex,
-      })
-      cellIndex++
-    }
-  })
-
-  return cells
 }
 
 // Unified grid component for cell selection
@@ -379,7 +348,7 @@ export default memo(function LayoutTab({
     const newStructure = structure
       .filter((_, i) => i !== index)
       .map((s) => ({ ...s, size: newSize }))
-    const newTotalCells = getTotalCells(newStructure)
+    const newTotalCells = countCells(newStructure)
     // Filter out image cells that no longer exist
     const newImageCells = imageCells.filter(cell => cell < newTotalCells)
     // Ensure at least one image cell remains
@@ -462,7 +431,7 @@ export default memo(function LayoutTab({
 
     newStructure[sectionIndex] = { ...section, subdivisions: newSubs, subSizes: newSubSizes }
 
-    const newTotalCells = getTotalCells(newStructure)
+    const newTotalCells = countCells(newStructure)
     // Filter out image cells that no longer exist
     const newImageCells = imageCells.filter(cell => cell < newTotalCells)
     // Ensure at least one image cell remains

@@ -8,43 +8,11 @@
 //   - Separate frame tab: Rejected - frames are visual spacing; grouping with padding is intuitive.
 import { useMemo, memo } from 'react'
 import CollapsibleSection from './CollapsibleSection'
-import { neutralColors } from '../config/themes'
+import ThemeColorPicker from './ThemeColorPicker'
+import { getCellInfo } from '../utils/cellUtils'
 import { fonts } from '../config/fonts'
-import { overlayTypes } from '../config/layouts'
+import { overlayTypesByCategory } from '../config/layouts'
 import { platforms } from '../config/platforms'
-
-// Theme color options for overlay
-const themeColorOptions = [
-  { id: 'primary', name: 'Primary' },
-  { id: 'secondary', name: 'Secondary' },
-  { id: 'accent', name: 'Accent' },
-]
-
-// Helper to get cell info for display
-function getCellInfo(layout) {
-  const { structure } = layout
-  if (!structure || structure.length === 0) {
-    return [{ index: 0, label: '1', sectionIndex: 0, subIndex: 0 }]
-  }
-
-  const cells = []
-  let cellIndex = 0
-
-  structure.forEach((section, sectionIndex) => {
-    const subdivisions = section.subdivisions || 1
-    for (let subIndex = 0; subIndex < subdivisions; subIndex++) {
-      cells.push({
-        index: cellIndex,
-        label: `${cellIndex + 1}`,
-        sectionIndex,
-        subIndex,
-      })
-      cellIndex++
-    }
-  })
-
-  return cells
-}
 
 // Mini cell grid for overlay/spacing selection
 function MiniCellGrid({ layout, cellImages = {}, selectedCell, onSelectCell, platform }) {
@@ -318,7 +286,7 @@ export default memo(function StyleTab({
                         <div className="space-y-1">
                           <span className="text-[9px] text-ui-text-faint uppercase tracking-wide">Basic & Gradients</span>
                           <div className="grid grid-cols-3 gap-1">
-                            {overlayTypes.filter(t => t.category === 'basic' || t.category === 'linear').map((t) => (
+                            {overlayTypesByCategory.basicAndLinear.map((t) => (
                               <button
                                 key={t.id}
                                 onClick={() => updateCellOverlay(selectedOverlayCell, { type: t.id })}
@@ -338,7 +306,7 @@ export default memo(function StyleTab({
                         <div className="space-y-1">
                           <span className="text-[9px] text-ui-text-faint uppercase tracking-wide">Circular</span>
                           <div className="grid grid-cols-3 gap-1">
-                            {overlayTypes.filter(t => t.category === 'radial').map((t) => (
+                            {overlayTypesByCategory.radial.map((t) => (
                               <button
                                 key={t.id}
                                 onClick={() => updateCellOverlay(selectedOverlayCell, { type: t.id })}
@@ -358,7 +326,7 @@ export default memo(function StyleTab({
                         <div className="space-y-1">
                           <span className="text-[9px] text-ui-text-faint uppercase tracking-wide">Effects</span>
                           <div className="grid grid-cols-3 gap-1">
-                            {overlayTypes.filter(t => t.category === 'effect' || t.category === 'texture').map((t) => (
+                            {overlayTypesByCategory.effectAndTexture.map((t) => (
                               <button
                                 key={t.id}
                                 onClick={() => updateCellOverlay(selectedOverlayCell, { type: t.id })}
@@ -378,7 +346,7 @@ export default memo(function StyleTab({
                         <div className="space-y-1">
                           <span className="text-[9px] text-ui-text-faint uppercase tracking-wide">Blending</span>
                           <div className="grid grid-cols-3 gap-1">
-                            {overlayTypes.filter(t => t.category === 'blend').map((t) => (
+                            {overlayTypesByCategory.blend.map((t) => (
                               <button
                                 key={t.id}
                                 onClick={() => updateCellOverlay(selectedOverlayCell, { type: t.id })}
@@ -399,41 +367,11 @@ export default memo(function StyleTab({
                       {/* Color */}
                       <div className="space-y-1.5">
                         <label className="block text-xs font-medium text-ui-text-muted">Color</label>
-                        <div className="flex gap-1">
-                          {themeColorOptions.map((c) => (
-                            <button
-                              key={c.id}
-                              onClick={() => updateCellOverlay(selectedOverlayCell, { color: c.id })}
-                              className={`flex-1 px-2 py-1.5 text-[10px] rounded ${
-                                getCellOverlayConfig(selectedOverlayCell)?.color === c.id
-                                  ? 'ring-2 ring-primary ring-offset-1'
-                                  : ''
-                              }`}
-                              style={{ backgroundColor: theme?.[c.id] || '#000' }}
-                            >
-                              <span style={{ color: c.id === 'primary' ? theme?.secondary : theme?.primary }}>
-                                {c.name}
-                              </span>
-                            </button>
-                          ))}
-                        </div>
-                        {/* Neutral colors */}
-                        <div className="flex items-center gap-1.5">
-                          <span className="text-[10px] text-ui-text-subtle">Neutrals:</span>
-                          {neutralColors.map((c) => (
-                            <button
-                              key={c.id}
-                              onClick={() => updateCellOverlay(selectedOverlayCell, { color: c.id })}
-                              title={c.name}
-                              className={`w-5 h-5 rounded-full border transition-transform hover:scale-110 ${
-                                getCellOverlayConfig(selectedOverlayCell)?.color === c.id
-                                  ? 'ring-2 ring-primary ring-offset-1 border-transparent'
-                                  : 'border-ui-border-strong'
-                              }`}
-                              style={{ backgroundColor: c.hex }}
-                            />
-                          ))}
-                        </div>
+                        <ThemeColorPicker
+                          value={getCellOverlayConfig(selectedOverlayCell)?.color}
+                          onChange={(id) => updateCellOverlay(selectedOverlayCell, { color: id })}
+                          theme={theme}
+                        />
                       </div>
 
                       {/* Opacity */}
@@ -522,40 +460,11 @@ export default memo(function StyleTab({
             {(frame.outer?.percent || 0) > 0 && (
               <div className="space-y-1.5">
                 <label className="text-xs text-ui-text-subtle">Color</label>
-                <div className="flex gap-1">
-                  {themeColorOptions.map((c) => (
-                    <button
-                      key={c.id}
-                      onClick={() => onFrameChange?.({ outer: { ...frame.outer, color: c.id } })}
-                      className={`flex-1 px-2 py-1.5 text-[10px] rounded ${
-                        frame.outer?.color === c.id
-                          ? 'ring-2 ring-primary ring-offset-1'
-                          : ''
-                      }`}
-                      style={{ backgroundColor: theme?.[c.id] || '#000' }}
-                    >
-                      <span style={{ color: c.id === 'primary' ? theme?.secondary : theme?.primary }}>
-                        {c.name}
-                      </span>
-                    </button>
-                  ))}
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <span className="text-[10px] text-ui-text-subtle">Neutrals:</span>
-                  {neutralColors.map((c) => (
-                    <button
-                      key={c.id}
-                      onClick={() => onFrameChange?.({ outer: { ...frame.outer, color: c.id } })}
-                      title={c.name}
-                      className={`w-5 h-5 rounded-full border transition-transform hover:scale-110 ${
-                        frame.outer?.color === c.id
-                          ? 'ring-2 ring-primary ring-offset-1 border-transparent'
-                          : 'border-ui-border-strong'
-                      }`}
-                      style={{ backgroundColor: c.hex }}
-                    />
-                  ))}
-                </div>
+                <ThemeColorPicker
+                  value={frame.outer?.color}
+                  onChange={(id) => onFrameChange?.({ outer: { ...frame.outer, color: id } })}
+                  theme={theme}
+                />
               </div>
             )}
           </div>
@@ -673,33 +582,20 @@ export default memo(function StyleTab({
 
                       <div className="space-y-1.5">
                         <label className="text-xs text-ui-text-subtle">Color</label>
-                        <div className="flex gap-1">
-                          {themeColorOptions.map((c) => (
-                            <button
-                              key={c.id}
-                              onClick={() => {
-                                const newCellFrames = {
-                                  ...frame.cellFrames,
-                                  [selectedSpacingCell]: {
-                                    ...frame.cellFrames[selectedSpacingCell],
-                                    color: c.id,
-                                  },
-                                }
-                                onFrameChange?.({ cellFrames: newCellFrames })
-                              }}
-                              className={`flex-1 px-2 py-1.5 text-[10px] rounded ${
-                                frame.cellFrames[selectedSpacingCell]?.color === c.id
-                                  ? 'ring-2 ring-primary ring-offset-1'
-                                  : ''
-                              }`}
-                              style={{ backgroundColor: theme?.[c.id] || '#000' }}
-                            >
-                              <span style={{ color: c.id === 'primary' ? theme?.secondary : theme?.primary }}>
-                                {c.name}
-                              </span>
-                            </button>
-                          ))}
-                        </div>
+                        <ThemeColorPicker
+                          value={frame.cellFrames[selectedSpacingCell]?.color}
+                          onChange={(id) => {
+                            const newCellFrames = {
+                              ...frame.cellFrames,
+                              [selectedSpacingCell]: {
+                                ...frame.cellFrames[selectedSpacingCell],
+                                color: id,
+                              },
+                            }
+                            onFrameChange?.({ cellFrames: newCellFrames })
+                          }}
+                          theme={theme}
+                        />
                       </div>
                     </div>
                   )}
