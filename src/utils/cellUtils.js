@@ -122,22 +122,14 @@ export function cleanupOrphanedCells(prevState, newCellCount) {
     }
   })
 
-  // Clean layout-internal cell-indexed structures
-  const cleanCellAlignments = (prevState.layout?.cellAlignments || []).slice(0, newCellCount)
-  const cleanCellOverlays = { ...(prevState.layout?.cellOverlays || {}) }
-  Object.keys(cleanCellOverlays).forEach((cellIndex) => {
-    if (parseInt(cellIndex, 10) >= newCellCount) {
-      delete cleanCellOverlays[cellIndex]
-    }
-  })
-
+  // Note: cellAlignments and cellOverlays live inside layout and are cleaned
+  // by setLayout/applyLayoutPreset separately (they need to clean from the
+  // NEW layout, not prev.layout). Don't duplicate that cleanup here.
   return {
     textCells: cleanTextCells,
     cellImages: cleanCellImages,
     paddingOverrides: cleanPaddingOverrides,
     cellFrames: cleanCellFrames,
     freeformText: cleanFreeformText,
-    cellAlignments: cleanCellAlignments,
-    cellOverlays: cleanCellOverlays,
   }
 }

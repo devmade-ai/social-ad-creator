@@ -3,6 +3,7 @@
 // Approach: Single component replacing 3 copy-pasted color picker UIs.
 // Alternatives:
 //   - Keep per-section copies: Rejected — 3x duplication of identical UI code.
+import { memo } from 'react'
 import { neutralColors } from '../config/themes'
 
 const themeColorOptions = [
@@ -11,7 +12,7 @@ const themeColorOptions = [
   { id: 'accent', name: 'Accent' },
 ]
 
-export default function ThemeColorPicker({ value, onChange, theme }) {
+export default memo(function ThemeColorPicker({ value, onChange, theme }) {
   return (
     <div className="space-y-1.5">
       <div className="flex gap-1">
@@ -50,4 +51,4 @@ export default function ThemeColorPicker({ value, onChange, theme }) {
       </div>
     </div>
   )
-}
+})
