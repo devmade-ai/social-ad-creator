@@ -2,12 +2,17 @@
 // Approach: Single toRgba() helper replaces 28 inline conversions.
 // Alternatives:
 //   - Inline everywhere: Rejected — 28x duplication, hard to maintain.
+// Convert rgb() or rgba() color to rgba with specified opacity.
+// Safe for both rgb(...) and rgba(...) inputs.
 function toRgba(rgbColor, opacity) {
-  return rgbColor.replace(')', `, ${opacity / 100})`).replace('rgb', 'rgba')
+  const match = rgbColor.match(/^rgba?\(([^)]+)\)/)
+  if (!match) return rgbColor
+  const channels = match[1].split(',').slice(0, 3).map(s => s.trim())
+  return `rgba(${channels.join(', ')}, ${opacity / 100})`
 }
 
 function toTransparentRgba(rgbColor) {
-  return rgbColor.replace(')', ', 0)').replace('rgb', 'rgba')
+  return toRgba(rgbColor, 0)
 }
 
 export const overlayTypes = [

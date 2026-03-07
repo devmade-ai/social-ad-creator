@@ -11,6 +11,7 @@ import { memo, useMemo, useRef, useCallback, useState } from 'react'
 import CollapsibleSection from './CollapsibleSection'
 import ColorPicker from './ColorPicker'
 import AlignmentPicker from './AlignmentPicker'
+import MiniCellGrid from './MiniCellGrid'
 import { getCellInfo, getCellPositionLabel } from '../utils/cellUtils'
 import { platforms } from '../config/platforms'
 
@@ -57,103 +58,6 @@ const textGroups = [
     elements: [{ id: 'footnote', label: 'Footnote', placeholder: 'Terms apply...' }],
   },
 ]
-
-// Requirement: MiniCellGrid needs to be usable on mobile (#14)
-// Approach: responsive width — full-width on mobile (<sm), fixed on desktop
-const FULLBLEED_STRUCTURE = [{ size: 100, subdivisions: 1, subSizes: [100] }]
-
-function MiniCellGrid({ layout, imageCells = [], highlightCell, onSelectCell, platform, cellsWithContent, size = 'small' }) {
-  const { type, structure } = layout
-  const isFullbleed = type === 'fullbleed'
-  const isRows = type === 'rows'
-
-  const normalizedStructure =
-    isFullbleed || !structure || structure.length === 0
-      ? FULLBLEED_STRUCTURE
-      : structure
-
-  const platformData = platforms.find((p) => p.id === platform) || platforms[0]
-  const aspectRatio = platformData.width / platformData.height
-
-  const gridWidth = size === 'large' ? 120 : 64
-  const fontSize = size === 'large' ? 'text-[11px] sm:text-[10px]' : 'text-[9px] sm:text-[8px]'
-  const minCellH = size === 'large' ? 'min-h-[24px] sm:min-h-[20px]' : 'min-h-[14px] sm:min-h-[12px]'
-
-  // Pre-compute cell mapping grouped by section to avoid mutable cellIndex during render (#15)
-  // and eliminate per-section .filter() calls (#8 from review)
-  const sectionCellMap = useMemo(() => {
-    const grouped = new Map()
-    let idx = 0
-    const src = isFullbleed || !structure || structure.length === 0 ? FULLBLEED_STRUCTURE : structure
-    src.forEach((section, sectionIndex) => {
-      const subdivisions = section.subdivisions || 1
-      const subSizes = section.subSizes || Array(subdivisions).fill(100 / subdivisions)
-      const cells = []
-      for (let subIndex = 0; subIndex < subdivisions; subIndex++) {
-        cells.push({ cellIndex: idx, subSize: subSizes[subIndex] })
-        idx++
-      }
-      grouped.set(sectionIndex, cells)
-    })
-    return grouped
-  }, [type, structure])
-
-  return (
-    <div
-      className={`flex overflow-hidden border border-ui-border-strong rounded ${size === 'large' ? 'w-full sm:w-[120px]' : ''}`}
-      style={{
-        ...(size !== 'large' ? { width: `${gridWidth}px` } : {}),
-        aspectRatio: `${aspectRatio}`,
-        flexDirection: isRows || isFullbleed ? 'column' : 'row',
-      }}
-    >
-      {normalizedStructure.map((section, sectionIndex) => {
-        const sectionSize = section.size || 100 / normalizedStructure.length
-        const sectionCells = sectionCellMap.get(sectionIndex) || []
-
-        return (
-          <div
-            key={`section-${sectionIndex}`}
-            className={`flex ${isRows || isFullbleed ? 'flex-row' : 'flex-col'}`}
-            style={{ flex: `1 1 ${sectionSize}%` }}
-          >
-            {sectionCells.map(({ cellIndex: currentCellIndex, subSize }) => {
-              const isImage = imageCells.includes(currentCellIndex)
-              const isSelected = highlightCell === currentCellIndex
-              const hasContent = cellsWithContent?.has(currentCellIndex)
-
-              let bgClass, content
-              if (isSelected) {
-                bgClass = 'bg-primary hover:bg-primary-hover'
-                content = <span className={`text-white ${fontSize}`}>{currentCellIndex + 1}</span>
-              } else if (hasContent) {
-                bgClass = 'bg-violet-200 dark:bg-violet-800 hover:bg-violet-300 dark:hover:bg-violet-700'
-                content = <span className={`text-violet-700 dark:text-violet-200 ${fontSize}`}>{currentCellIndex + 1}</span>
-              } else if (isImage) {
-                bgClass = 'bg-primary/20 hover:bg-primary/30'
-                content = <span className={`text-primary ${fontSize}`}>📷</span>
-              } else {
-                bgClass = 'bg-ui-surface-inset hover:bg-ui-surface-hover'
-                content = <span className={`text-ui-text-subtle ${fontSize}`}>{currentCellIndex + 1}</span>
-              }
-
-              return (
-                <div
-                  key={`cell-${currentCellIndex}`}
-                  className={`relative cursor-pointer transition-colors ${minCellH} ${bgClass} flex items-center justify-center`}
-                  style={{ flex: `1 1 ${subSize}%` }}
-                  onClick={() => onSelectCell(currentCellIndex)}
-                >
-                  {content}
-                </div>
-              )
-            })}
-          </div>
-        )
-      })}
-    </div>
-  )
-}
 
 // Requirement: Collapsible styling controls to reduce visual noise (#2)
 // Approach: Style toggle button reveals alignment, color, size, bold/italic, spacing
@@ -247,9 +151,10 @@ function TextElementEditor({
         <MiniCellGrid
           layout={layout}
           imageCells={imageCells}
-          highlightCell={currentCell}
+          selectedCell={currentCell}
           onSelectCell={(idx) => onTextCellsChange?.({ [element.id]: idx })}
           platform={platform}
+          mode="content"
         />
 
         {/* Cell Label */}
@@ -593,7 +498,7 @@ export default memo(function ContentTab({
   selectedCell: selectedCellProp = 0,
   onSelectCell,
 }) {
-  const cellInfoList = useMemo(() => getCellInfo(layout), [layout.structure])
+  const cellInfoList = useMemo(() => getCellInfo(layout), [layout])
   const selectedFreeformCell = selectedCellProp
   const setSelectedFreeformCell = onSelectCell || (() => {})
 
@@ -690,11 +595,12 @@ export default memo(function ContentTab({
             <MiniCellGrid
               layout={layout}
               imageCells={imageCells}
-              highlightCell={activeCell}
+              selectedCell={activeCell}
               onSelectCell={setSelectedFreeformCell}
               platform={platform}
               cellsWithContent={cellsWithContent}
               size="large"
+              mode="content"
             />
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-ui-text">

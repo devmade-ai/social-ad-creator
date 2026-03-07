@@ -9,86 +9,10 @@
 import { useMemo, memo } from 'react'
 import CollapsibleSection from './CollapsibleSection'
 import ThemeColorPicker from './ThemeColorPicker'
-import { getCellInfo } from '../utils/cellUtils'
+import MiniCellGrid from './MiniCellGrid'
+import { countCells } from '../utils/cellUtils'
 import { fonts } from '../config/fonts'
 import { overlayTypesByCategory } from '../config/layouts'
-import { platforms } from '../config/platforms'
-
-// Mini cell grid for overlay/spacing selection
-function MiniCellGrid({ layout, cellImages = {}, selectedCell, onSelectCell, platform }) {
-  const { type, structure } = layout
-  const isFullbleed = type === 'fullbleed'
-  const isRows = type === 'rows'
-
-  const normalizedStructure =
-    isFullbleed || !structure || structure.length === 0
-      ? [{ size: 100, subdivisions: 1, subSizes: [100] }]
-      : structure
-
-  // Calculate aspect ratio
-  const platformData = platforms.find((p) => p.id === platform) || platforms[0]
-  const aspectRatio = platformData.width / platformData.height
-
-  let cellIndex = 0
-
-  return (
-    <div
-      className="flex overflow-hidden border border-ui-border-strong rounded"
-      style={{
-        width: '120px',
-        height: `${120 / aspectRatio}px`,
-        flexDirection: isRows || isFullbleed ? 'column' : 'row',
-      }}
-    >
-      {normalizedStructure.map((section, sectionIndex) => {
-        const sectionSize = section.size || 100 / normalizedStructure.length
-        const subdivisions = section.subdivisions || 1
-        const subSizes = section.subSizes || Array(subdivisions).fill(100 / subdivisions)
-
-        const sectionCells = []
-        for (let subIndex = 0; subIndex < subdivisions; subIndex++) {
-          const currentCellIndex = cellIndex
-          const hasImage = !!cellImages[currentCellIndex]
-          const isSelected = selectedCell === currentCellIndex
-          cellIndex++
-
-          let bgClass, content
-          if (isSelected) {
-            bgClass = 'bg-primary hover:bg-primary-hover'
-            content = <span className="text-white text-[10px]">✓</span>
-          } else if (hasImage) {
-            bgClass = 'bg-violet-200 dark:bg-violet-800 hover:bg-violet-300 dark:hover:bg-violet-700'
-            content = <span className="text-violet-700 dark:text-violet-200 text-[10px]">📷</span>
-          } else {
-            bgClass = 'bg-ui-surface-inset hover:bg-ui-surface-hover'
-            content = <span className="text-ui-text-subtle text-[10px]">{currentCellIndex + 1}</span>
-          }
-
-          sectionCells.push(
-            <div
-              key={`cell-${currentCellIndex}`}
-              className={`relative cursor-pointer transition-colors min-h-[16px] ${bgClass} flex items-center justify-center`}
-              style={{ flex: `1 1 ${subSizes[subIndex]}%` }}
-              onClick={() => onSelectCell(currentCellIndex)}
-            >
-              {content}
-            </div>
-          )
-        }
-
-        return (
-          <div
-            key={`section-${sectionIndex}`}
-            className={`flex ${isRows || isFullbleed ? 'flex-row' : 'flex-col'}`}
-            style={{ flex: `1 1 ${sectionSize}%` }}
-          >
-            {sectionCells}
-          </div>
-        )
-      })}
-    </div>
-  )
-}
 
 export default memo(function StyleTab({
   theme,
@@ -106,16 +30,19 @@ export default memo(function StyleTab({
   onSelectCell,
 }) {
   const { cellOverlays = {} } = layout
+
+  // Clamp selectedCell to valid range when layout shrinks
+  const totalCells = useMemo(() => countCells(layout.structure), [layout.structure])
+  const clampedCell = selectedCellProp >= totalCells ? 0 : selectedCellProp
+
   // Use global selectedCell for both overlay and spacing
-  const selectedOverlayCell = selectedCellProp
+  const selectedOverlayCell = clampedCell
   const setSelectedOverlayCell = onSelectCell || (() => {})
-  const selectedSpacingCell = selectedCellProp
+  const selectedSpacingCell = clampedCell
   const setSelectedSpacingCell = onSelectCell || (() => {})
 
   // Determine which cells have images
   const cellHasImage = (cellIndex) => !!cellImages[cellIndex]
-
-  const cellInfoList = useMemo(() => getCellInfo(layout), [layout])
 
   // Overlay helpers
   const getCellOverlayConfig = (cellIndex) => {

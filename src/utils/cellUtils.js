@@ -44,6 +44,18 @@ export function getCellPositionLabel(layout, cellIndex, totalCells) {
   // Rows: sections stack vertically (top/bottom), subs go horizontally (left/right)
   // Columns: sections stack horizontally (left/right), subs go vertically (top/bottom)
   const isRows = type === 'rows'
+
+  // Positional label for a section or subdivision index within its group
+  const getPositionLabel = (index, total, axis) => {
+    if (total <= 1) return ''
+    if (total === 2) return index === 0 ? axis[0] : axis[2]
+    if (index === 0) return axis[0]
+    if (index === total - 1) return axis[2]
+    // For 4+ items, use numbered middle labels (e.g. "middle 2", "middle 3")
+    if (total > 3) return `${axis[1]} ${index}`
+    return axis[1]
+  }
+
   const sectionAxis = isRows ? ['top', 'middle', 'bottom'] : ['left', 'center', 'right']
   const subAxis = isRows ? ['left', 'center', 'right'] : ['top', 'middle', 'bottom']
 
@@ -52,10 +64,8 @@ export function getCellPositionLabel(layout, cellIndex, totalCells) {
     const subs = structure[s].subdivisions || 1
     for (let sub = 0; sub < subs; sub++) {
       if (idx === cellIndex) {
-        const sectionLabel = structure.length <= 1 ? '' :
-          s === 0 ? sectionAxis[0] : s === structure.length - 1 ? sectionAxis[2] : sectionAxis[1]
-        const subLabel = subs <= 1 ? '' :
-          sub === 0 ? subAxis[0] : sub === subs - 1 ? subAxis[2] : subAxis[1]
+        const sectionLabel = getPositionLabel(s, structure.length, sectionAxis)
+        const subLabel = getPositionLabel(sub, subs, subAxis)
         return [sectionLabel, subLabel].filter(Boolean).join(', ')
       }
       idx++
@@ -86,29 +96,38 @@ export function cleanupOrphanedCells(prevState, newCellCount) {
 
   const cleanCellImages = { ...prevState.cellImages }
   Object.keys(cleanCellImages).forEach((cellIndex) => {
-    if (parseInt(cellIndex) >= newCellCount) {
+    if (parseInt(cellIndex, 10) >= newCellCount) {
       delete cleanCellImages[cellIndex]
     }
   })
 
   const cleanPaddingOverrides = { ...(prevState.padding?.cellOverrides || {}) }
   Object.keys(cleanPaddingOverrides).forEach((cellIndex) => {
-    if (parseInt(cellIndex) >= newCellCount) {
+    if (parseInt(cellIndex, 10) >= newCellCount) {
       delete cleanPaddingOverrides[cellIndex]
     }
   })
 
   const cleanCellFrames = { ...(prevState.frame?.cellFrames || {}) }
   Object.keys(cleanCellFrames).forEach((cellIndex) => {
-    if (parseInt(cellIndex) >= newCellCount) {
+    if (parseInt(cellIndex, 10) >= newCellCount) {
       delete cleanCellFrames[cellIndex]
     }
   })
 
   const cleanFreeformText = { ...(prevState.freeformText || {}) }
   Object.keys(cleanFreeformText).forEach((cellIndex) => {
-    if (parseInt(cellIndex) >= newCellCount) {
+    if (parseInt(cellIndex, 10) >= newCellCount) {
       delete cleanFreeformText[cellIndex]
+    }
+  })
+
+  // Clean layout-internal cell-indexed structures
+  const cleanCellAlignments = (prevState.layout?.cellAlignments || []).slice(0, newCellCount)
+  const cleanCellOverlays = { ...(prevState.layout?.cellOverlays || {}) }
+  Object.keys(cleanCellOverlays).forEach((cellIndex) => {
+    if (parseInt(cellIndex, 10) >= newCellCount) {
+      delete cleanCellOverlays[cellIndex]
     }
   })
 
@@ -118,5 +137,7 @@ export function cleanupOrphanedCells(prevState, newCellCount) {
     paddingOverrides: cleanPaddingOverrides,
     cellFrames: cleanCellFrames,
     freeformText: cleanFreeformText,
+    cellAlignments: cleanCellAlignments,
+    cellOverlays: cleanCellOverlays,
   }
 }

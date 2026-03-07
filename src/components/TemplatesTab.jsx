@@ -117,7 +117,6 @@ export default memo(function TemplatesTab({
   onSelectStylePreset,
   layout,
   onApplyLayoutPreset,
-  imageAspectRatio,
   platform,
   theme,
   onThemeChange,
@@ -135,14 +134,14 @@ export default memo(function TemplatesTab({
 
     // Then filter by category
     if (layoutCategory === 'suggested') {
-      const suggestedIds = getSuggestedLayouts(imageAspectRatio, platform)
+      const suggestedIds = getSuggestedLayouts(null, platform)
       presets = presets.filter((p) => suggestedIds.includes(p.id))
     } else if (layoutCategory !== 'all') {
       presets = presets.filter((p) => p.category === layoutCategory)
     }
 
     return presets
-  }, [layoutCategory, aspectRatioFilter, imageAspectRatio, platform])
+  }, [layoutCategory, aspectRatioFilter, platform])
 
   const activeLookPreset = lookPresets.find((p) => p.id === activeStylePreset)
 

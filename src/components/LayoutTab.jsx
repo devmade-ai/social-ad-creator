@@ -806,7 +806,7 @@ export default memo(function LayoutTab({
                       key={align.id}
                       onClick={() => {
                         if (structureSelection?.type === 'section') {
-                          // Apply to all cells in this section
+                          // Batch all cells in section into a single onLayoutChange call
                           const sectionIndex = structureSelection.index
                           const section = structure[sectionIndex]
                           const subdivisions = section?.subdivisions || 1
@@ -814,9 +814,15 @@ export default memo(function LayoutTab({
                           for (let i = 0; i < sectionIndex; i++) {
                             cellStart += structure[i]?.subdivisions || 1
                           }
+                          const newAlignments = [...(cellAlignments || [])]
                           for (let i = 0; i < subdivisions; i++) {
-                            setAlignmentForCell(cellStart + i, 'textAlign', align.id)
+                            const ci = cellStart + i
+                            while (newAlignments.length <= ci) {
+                              newAlignments.push({ textAlign: null, textVerticalAlign: null })
+                            }
+                            newAlignments[ci] = { ...newAlignments[ci], textAlign: align.id }
                           }
+                          onLayoutChange({ cellAlignments: newAlignments })
                         } else if (structureSelection?.type === 'cell') {
                           setAlignmentForCell(structureSelection.cellIndex, 'textAlign', align.id)
                         } else {
@@ -847,7 +853,7 @@ export default memo(function LayoutTab({
                       key={align.id}
                       onClick={() => {
                         if (structureSelection?.type === 'section') {
-                          // Apply to all cells in this section
+                          // Batch all cells in section into a single onLayoutChange call
                           const sectionIndex = structureSelection.index
                           const section = structure[sectionIndex]
                           const subdivisions = section?.subdivisions || 1
@@ -855,9 +861,15 @@ export default memo(function LayoutTab({
                           for (let i = 0; i < sectionIndex; i++) {
                             cellStart += structure[i]?.subdivisions || 1
                           }
+                          const newAlignments = [...(cellAlignments || [])]
                           for (let i = 0; i < subdivisions; i++) {
-                            setAlignmentForCell(cellStart + i, 'textVerticalAlign', align.id)
+                            const ci = cellStart + i
+                            while (newAlignments.length <= ci) {
+                              newAlignments.push({ textAlign: null, textVerticalAlign: null })
+                            }
+                            newAlignments[ci] = { ...newAlignments[ci], textVerticalAlign: align.id }
                           }
+                          onLayoutChange({ cellAlignments: newAlignments })
                         } else if (structureSelection?.type === 'cell') {
                           setAlignmentForCell(structureSelection.cellIndex, 'textVerticalAlign', align.id)
                         } else {

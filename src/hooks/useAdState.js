@@ -344,10 +344,12 @@ export function useAdState() {
       const newCellCount = countCells(newLayout.structure)
       const cleaned = cleanupOrphanedCells(prev, newCellCount)
 
+      // For layout-internal fields, cleanup from newLayout (which includes user's updates)
+      // rather than prev.layout (which cleanupOrphanedCells uses)
       const cleanCellAlignments = (newLayout.cellAlignments || []).slice(0, newCellCount)
-      const cleanCellOverlays = { ...newLayout.cellOverlays }
+      const cleanCellOverlays = { ...(newLayout.cellOverlays || {}) }
       Object.keys(cleanCellOverlays).forEach((cellIndex) => {
-        if (parseInt(cellIndex) >= newCellCount) {
+        if (parseInt(cellIndex, 10) >= newCellCount) {
           delete cleanCellOverlays[cellIndex]
         }
       })
@@ -491,10 +493,11 @@ export function useAdState() {
           bodyText: preset.textCells.bodyText ?? null,
           cta: preset.textCells.cta ?? null,
           footnote: preset.textCells.footnote ?? null,
-        } : prev.textCells,
+        } : cleaned.textCells,
         cellImages: cleaned.cellImages,
         padding: { ...prev.padding, cellOverrides: cleaned.paddingOverrides },
         frame: { ...prev.frame, cellFrames: cleaned.cellFrames },
+        freeformText: cleaned.freeformText,
       }
     })
   }, [])
@@ -568,7 +571,6 @@ export function useAdState() {
       const newPages = [...pages]
 
       if (index === prev.activePage) {
-        const newActiveIndex = index > 0 ? index - 1 : 0
         const currentPageData = extractPageData(prev)
         newPages[prev.activePage] = currentPageData
 
@@ -706,8 +708,7 @@ export function useAdState() {
           Object.assign(loadedState, pageData)
           loadedState.pages[activePage] = null
         }
-        setState(loadedState)
-        resetHistory()
+        resetHistory(loadedState)
         return { success: true }
       }
       return { success: false, error: 'Design not found' }

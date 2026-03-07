@@ -224,15 +224,13 @@ function App() {
   // Track window height for reader mode scaling
   useEffect(() => {
     const handleResize = () => setWindowHeight(window.innerHeight)
+    // Delay on orientation change to let the browser update layout
+    const handleOrientation = () => setTimeout(handleResize, 100)
     window.addEventListener('resize', handleResize)
-    // Also listen to orientationchange for mobile
-    window.addEventListener('orientationchange', () => {
-      // Delay to let the browser update layout after orientation change
-      setTimeout(handleResize, 100)
-    })
+    window.addEventListener('orientationchange', handleOrientation)
     return () => {
       window.removeEventListener('resize', handleResize)
-      window.removeEventListener('orientationchange', handleResize)
+      window.removeEventListener('orientationchange', handleOrientation)
     }
   }, [])
 
