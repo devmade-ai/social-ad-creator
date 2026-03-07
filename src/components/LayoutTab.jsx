@@ -148,7 +148,8 @@ function CellGrid({
       content = isImage ? '📷' : cellIndex + 1
     } else if (mode === 'structure') {
       if (isSelected) {
-        bgClass = 'bg-primary hover:bg-primary-hover'
+        // Darker shade for selected image cells so they're distinguishable from unselected ones
+        bgClass = isImage ? 'bg-violet-800 hover:bg-violet-900 dark:bg-violet-700 dark:hover:bg-violet-600' : 'bg-primary hover:bg-primary-hover'
         textClass = 'text-white'
       } else if (isSectionSelected) {
         bgClass = 'bg-violet-100 dark:bg-violet-900/30 hover:bg-violet-200 dark:hover:bg-violet-900/40'
@@ -164,7 +165,8 @@ function CellGrid({
       if (isGlobalSelected && !isSelected) {
         bgClass += ' ring-2 ring-inset ring-violet-400 dark:ring-violet-500'
       }
-      content = isImage ? '📷' : subdivisions > 1 ? `${Math.round(subSize)}%` : ''
+      // Show checkmark on selected image cells so selection is visible
+      content = isImage ? (isSelected ? '📷 ✓' : '📷') : subdivisions > 1 ? `${Math.round(subSize)}%` : ''
     } else {
       if (isSelected) {
         bgClass = 'bg-primary hover:bg-primary-hover'
