@@ -78,9 +78,14 @@ function extractPageData(state) {
   return data
 }
 
+// Requirement: Default to split-horizontal (2 rows: image top, text bottom) for simplicity
+// Approach: Simple 2-cell layout is less overwhelming for first-time users than quad-grid
+// Alternatives:
+//   - quad-grid (4 cells): Rejected — too complex for initial experience, confuses new users
+//   - hero (fullbleed): Rejected — user wanted split-horizontal specifically
 const defaultPageData = {
   activeStylePreset: null,
-  activeLayoutPreset: 'quad-grid',
+  activeLayoutPreset: 'split-horizontal',
   images: [],
   cellImages: {},
   defaultImageSettings: {
@@ -89,23 +94,17 @@ const defaultPageData = {
     filters: { grayscale: 0, sepia: 0, blur: 0, contrast: 100, brightness: 100 },
     overlay: { type: 'solid', color: 'primary', opacity: 0 },
   },
-  // Requirement: Per-cell structured text — each cell gets its own set of text fields
-  // Approach: text is keyed by cell index, each cell has all 6 fields
-  // Alternatives:
-  //   - Global text with cell assignment (textCells): Rejected — indirect, confusing UX
   text: {},
   layout: {
     type: 'rows',
     structure: [
-      { size: 50, subdivisions: 2, subSizes: [50, 50] },
-      { size: 50, subdivisions: 2, subSizes: [50, 50] },
+      { size: 50, subdivisions: 1, subSizes: [100] },
+      { size: 50, subdivisions: 1, subSizes: [100] },
     ],
-    imageCells: [0, 3],
+    imageCells: [0],
     textAlign: 'center',
     textVerticalAlign: 'center',
     cellAlignments: [
-      { textAlign: 'center', textVerticalAlign: 'center' },
-      { textAlign: 'center', textVerticalAlign: 'center' },
       { textAlign: 'center', textVerticalAlign: 'center' },
       { textAlign: 'center', textVerticalAlign: 'center' },
     ],
@@ -119,7 +118,7 @@ const defaultPageData = {
 
 export const defaultState = {
   activeStylePreset: null,
-  activeLayoutPreset: 'quad-grid',
+  activeLayoutPreset: 'split-horizontal',
 
   images: [],
 
@@ -142,18 +141,14 @@ export const defaultState = {
     },
   },
 
-  // Requirement: Per-cell structured text — each cell gets its own title, tagline, body, etc.
+  // Requirement: Per-cell structured text — cell 1 gets all text (only non-image cell)
   // Approach: text[cellIndex] = { title: {...}, tagline: {...}, ... }
   text: {
     1: {
       title: { content: 'Your Title Here', visible: true, color: 'secondary', size: 1, bold: true, italic: false, letterSpacing: 0, textAlign: null, textVerticalAlign: null },
       tagline: { content: 'Elevate your brand today', visible: true, color: 'secondary', size: 1, bold: false, italic: false, letterSpacing: 0, textAlign: null, textVerticalAlign: null },
-    },
-    2: {
-      bodyHeading: { content: 'Why Choose Us', visible: true, color: 'secondary', size: 1, bold: true, italic: false, letterSpacing: 0, textAlign: null, textVerticalAlign: null },
       bodyText: { content: 'Transform your business with innovative solutions designed for success.', visible: true, color: 'secondary', size: 1, bold: false, italic: false, letterSpacing: 0, textAlign: null, textVerticalAlign: null },
       cta: { content: 'Learn More', visible: true, color: 'accent', size: 1, bold: true, italic: false, letterSpacing: 0, textAlign: null, textVerticalAlign: null },
-      footnote: { content: '*Terms and conditions apply', visible: true, color: 'secondary', size: 1, bold: false, italic: false, letterSpacing: 0, textAlign: null, textVerticalAlign: null },
     },
   },
 
@@ -164,15 +159,13 @@ export const defaultState = {
   layout: {
     type: 'rows',
     structure: [
-      { size: 50, subdivisions: 2, subSizes: [50, 50] },
-      { size: 50, subdivisions: 2, subSizes: [50, 50] },
+      { size: 50, subdivisions: 1, subSizes: [100] },
+      { size: 50, subdivisions: 1, subSizes: [100] },
     ],
-    imageCells: [0, 3],
+    imageCells: [0],
     textAlign: 'center',
     textVerticalAlign: 'center',
     cellAlignments: [
-      { textAlign: 'center', textVerticalAlign: 'center' },
-      { textAlign: 'center', textVerticalAlign: 'center' },
       { textAlign: 'center', textVerticalAlign: 'center' },
       { textAlign: 'center', textVerticalAlign: 'center' },
     ],
@@ -619,56 +612,48 @@ export function useAdState() {
 
     setState((prev) => {
       const newCellCount = countCells(preset.layout.structure)
-      const cleaned = cleanupOrphanedCells(prev, newCellCount)
       const imageCells = preset.layout.imageCells || []
       const allCells = Array.from({ length: newCellCount }, (_, i) => i)
       const nonImageCells = allCells.filter((i) => !imageCells.includes(i))
 
-      // Requirement: Distribute text across non-image cells when switching presets
-      // Approach: Collect all text from image cells, split into header/body groups,
-      //   distribute across available non-image cells so presets look complete
+      // Requirement: Collect ALL text before cleanup so orphaned cells aren't lost
+      // Approach: Gather all text elements from all old cells first, then redistribute
+      //   into non-image cells of the new layout. Cleanup only applies to non-text data.
       // Alternatives:
-      //   - Dump all text into first non-image cell: Rejected — looks cramped, bad UX
-      //   - Per-preset text mapping: Rejected — too much config to maintain
-      const redistributedText = { ...cleaned.text }
-      if (nonImageCells.length > 0) {
-        // Collect text elements displaced from image cells
-        const displaced = {}
-        Object.keys(redistributedText).forEach((cellIndex) => {
-          const ci = parseInt(cellIndex, 10)
-          if (imageCells.includes(ci)) {
-            Object.assign(displaced, redistributedText[ci])
-            delete redistributedText[ci]
-          }
+      //   - Cleanup first then redistribute: Rejected — loses text from cells beyond new count
+      //   - Keep text on image cells: Rejected — text hidden behind images, confusing UX
+      const cleaned = cleanupOrphanedCells(prev, newCellCount)
+
+      // Collect ALL text from every old cell (before cleanup deletes orphaned ones)
+      const allTextElements = {}
+      Object.values(prev.text || {}).forEach((cellData) => {
+        if (cellData && typeof cellData === 'object') {
+          Object.entries(cellData).forEach(([key, val]) => {
+            if (val && val.content) allTextElements[key] = val
+          })
+        }
+      })
+
+      // Distribute collected text into non-image cells
+      const redistributedText = {}
+      if (nonImageCells.length > 0 && Object.keys(allTextElements).length > 0) {
+        const headerKeys = ['title', 'tagline']
+        const bodyKeys = ['bodyHeading', 'bodyText', 'cta', 'footnote']
+
+        const headerGroup = {}
+        const bodyGroup = {}
+        Object.entries(allTextElements).forEach(([key, val]) => {
+          if (headerKeys.includes(key)) headerGroup[key] = val
+          else if (bodyKeys.includes(key)) bodyGroup[key] = val
         })
 
-        // If we have displaced text, distribute it across non-image cells
-        if (Object.keys(displaced).length > 0) {
-          const headerKeys = ['title', 'tagline']
-          const bodyKeys = ['bodyHeading', 'bodyText', 'cta', 'footnote']
-
-          const headerGroup = {}
-          const bodyGroup = {}
-          Object.entries(displaced).forEach(([key, val]) => {
-            if (headerKeys.includes(key)) headerGroup[key] = val
-            else if (bodyKeys.includes(key)) bodyGroup[key] = val
-          })
-
-          // Find non-image cells that don't already have text
-          const emptyNonImageCells = nonImageCells.filter(
-            (ci) => !redistributedText[ci] || Object.keys(redistributedText[ci]).length === 0
-          )
-          const targetCells = emptyNonImageCells.length > 0 ? emptyNonImageCells : nonImageCells
-
-          if (Object.keys(headerGroup).length > 0) {
-            const target = targetCells[0]
-            redistributedText[target] = { ...headerGroup, ...(redistributedText[target] || {}) }
-          }
-          if (Object.keys(bodyGroup).length > 0) {
-            // Use second cell if available, otherwise same as header
-            const target = targetCells.length > 1 ? targetCells[1] : targetCells[0]
-            redistributedText[target] = { ...bodyGroup, ...(redistributedText[target] || {}) }
-          }
+        if (Object.keys(headerGroup).length > 0) {
+          const target = nonImageCells[0]
+          redistributedText[target] = { ...(redistributedText[target] || {}), ...headerGroup }
+        }
+        if (Object.keys(bodyGroup).length > 0) {
+          const target = nonImageCells.length > 1 ? nonImageCells[1] : nonImageCells[0]
+          redistributedText[target] = { ...(redistributedText[target] || {}), ...bodyGroup }
         }
       }
 

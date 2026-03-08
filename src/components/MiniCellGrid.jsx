@@ -60,9 +60,11 @@ export default memo(function MiniCellGrid({
   // Determine cell appearance based on mode
   const getCellAppearance = (currentCellIndex) => {
     const isSelected = selectedCell === currentCellIndex
-    const hasImage = mode === 'content'
-      ? imageCells.includes(currentCellIndex)
-      : !!cellImages[currentCellIndex]
+    // Requirement: Show actual image assignments, not preset designations
+    // Approach: Always use cellImages object (actual assignments) for image indicators
+    // Alternatives:
+    //   - imageCells array for content mode: Rejected — shows preset designation, not actual state
+    const hasImage = !!cellImages[currentCellIndex]
     const hasContent = cellsWithContent?.has(currentCellIndex)
 
     if (mode === 'content') {

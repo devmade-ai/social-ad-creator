@@ -180,9 +180,7 @@ function CellGrid({
               return (
                 <div
                   key={`cell-${currentCellIndex}`}
-                  className={`relative cursor-pointer transition-colors min-h-[20px] ${bgClass} ${
-                    mode === 'structure' && subdivisions > 1 ? 'border border-ui-border' : ''
-                  }`}
+                  className={`relative cursor-pointer transition-colors min-h-[20px] ${bgClass}`}
                   style={{ flex: `1 1 ${subSize}%` }}
                   onClick={(e) => {
                     e.stopPropagation()
@@ -278,6 +276,12 @@ export default memo(function LayoutTab({
       })
     }
     setStructureSelection(null)
+    // Clamp global cell selection to valid range for the new layout
+    // Requirement: Prevent stale selectedCell causing wrong highlight after type change
+    const newCellCount = newType === 'fullbleed' ? 1 : 2
+    if (selectedCell >= newCellCount) {
+      onSelectCell?.(0)
+    }
   }
 
   // Requirement: Insert a section at a specific position (before/after a given index)
