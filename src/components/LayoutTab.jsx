@@ -299,9 +299,11 @@ export default memo(function LayoutTab({
       structure: newStructure,
       _cellShift: { fromIndex: firstCellAtPosition, shiftBy: 1 },
     })
-    // Update selection to track the section that moved
+    // Update selection to track the element that moved
     if (structureSelection?.type === 'section' && structureSelection.index >= position) {
       setStructureSelection({ type: 'section', index: structureSelection.index + 1 })
+    } else if (structureSelection?.type === 'cell' && structureSelection.cellIndex >= firstCellAtPosition) {
+      setStructureSelection({ type: 'cell', cellIndex: structureSelection.cellIndex + 1 })
     }
   }
 
@@ -330,6 +332,15 @@ export default memo(function LayoutTab({
       structure: newStructure,
       _cellShift: { fromIndex: firstCellOfRemoved + removedSubs, shiftBy: -removedSubs },
     })
+    // Update cell selection: clear if selected cell was in removed section, shift if after it
+    if (structureSelection?.type === 'cell') {
+      const ci = structureSelection.cellIndex
+      if (ci >= firstCellOfRemoved && ci < firstCellOfRemoved + removedSubs) {
+        setStructureSelection(null)
+      } else if (ci >= firstCellOfRemoved + removedSubs) {
+        setStructureSelection({ type: 'cell', cellIndex: ci - removedSubs })
+      }
+    }
   }
 
   // Update section size with dynamic constraints
@@ -398,6 +409,10 @@ export default memo(function LayoutTab({
       structure: newStructure,
       _cellShift: { fromIndex: firstCellAfterSection, shiftBy: 1 },
     })
+    // Update cell selection if it's after the newly added subdivision
+    if (structureSelection?.type === 'cell' && structureSelection.cellIndex >= firstCellAfterSection) {
+      setStructureSelection({ type: 'cell', cellIndex: structureSelection.cellIndex + 1 })
+    }
   }
 
   // Requirement: Remove subdivision from a section, shifting cell indices after it.
@@ -423,10 +438,20 @@ export default memo(function LayoutTab({
       firstCellAfterSection += structure[i].subdivisions || 1
     }
     // Shift from firstCellAfterSection (the cell that was after the removed sub)
+    const removedCellIndex = firstCellAfterSection - 1
     onLayoutChange({
       structure: newStructure,
       _cellShift: { fromIndex: firstCellAfterSection, shiftBy: -1 },
     })
+    // Update cell selection: clear if it was the removed sub, shift if after it
+    if (structureSelection?.type === 'cell') {
+      const ci = structureSelection.cellIndex
+      if (ci === removedCellIndex) {
+        setStructureSelection(null)
+      } else if (ci >= firstCellAfterSection) {
+        setStructureSelection({ type: 'cell', cellIndex: ci - 1 })
+      }
+    }
   }
 
   // Update subdivision sizes with dynamic constraints

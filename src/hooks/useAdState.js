@@ -573,12 +573,38 @@ export function useAdState() {
     setState((prev) => ({ ...prev, activeStylePreset: null }))
   }, [setState])
 
+  // Requirement: Apply layout preset and redistribute text from image cells to non-image cells
+  // Approach: After cleanup, move text entries that land on image cells to the first available
+  //   non-image cell. Preserves user content while respecting the preset's cell roles.
+  // Alternatives:
+  //   - Drop text on image cells: Rejected — loses user content silently
+  //   - Keep text on image cells: Rejected — text hidden behind images, confusing UX
   const applyLayoutPreset = useCallback((preset) => {
     if (!preset) return
 
     setState((prev) => {
       const newCellCount = countCells(preset.layout.structure)
       const cleaned = cleanupOrphanedCells(prev, newCellCount)
+      const imageCells = preset.layout.imageCells || []
+      const allCells = Array.from({ length: newCellCount }, (_, i) => i)
+      const nonImageCells = allCells.filter((i) => !imageCells.includes(i))
+
+      // Move text from image cells to first non-image cell (merge, don't overwrite)
+      const redistributedText = { ...cleaned.text }
+      if (nonImageCells.length > 0) {
+        const targetCell = nonImageCells[0]
+        Object.keys(redistributedText).forEach((cellIndex) => {
+          const ci = parseInt(cellIndex, 10)
+          if (imageCells.includes(ci) && ci !== targetCell) {
+            // Merge text fields into the target non-image cell
+            const existing = redistributedText[targetCell] || {}
+            const moving = redistributedText[ci]
+            // Only copy fields that don't already exist in target
+            redistributedText[targetCell] = { ...moving, ...existing }
+            delete redistributedText[ci]
+          }
+        })
+      }
 
       return {
         ...prev,
@@ -586,7 +612,7 @@ export function useAdState() {
         layout: {
           ...preset.layout,
         },
-        text: cleaned.text,
+        text: redistributedText,
         cellImages: cleaned.cellImages,
         padding: { ...prev.padding, cellOverrides: cleaned.paddingOverrides },
         frame: { ...prev.frame, cellFrames: cleaned.cellFrames },
@@ -818,8 +844,13 @@ export function useAdState() {
             if (page && page.text) migrateTextToPerCell(page)
           })
         }
-        // Clean up legacy field
+        // Clean up legacy textCells field from top-level and all pages
         delete loadedState.textCells
+        if (loadedState.pages) {
+          loadedState.pages.forEach((page) => {
+            if (page) delete page.textCells
+          })
+        }
         resetHistory(loadedState)
         return { success: true }
       }

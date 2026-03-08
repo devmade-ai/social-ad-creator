@@ -40,9 +40,10 @@ function getTimestamp() {
 
 // Wait for React re-render + browser paint to settle before canvas capture.
 // Double-rAF ensures at least one paint cycle has occurred.
+// Extra 100ms timeout ensures complex layouts with images/fonts are fully composited on slower devices.
 function waitForPaint() {
   return new Promise((resolve) => {
-    requestAnimationFrame(() => requestAnimationFrame(resolve))
+    requestAnimationFrame(() => requestAnimationFrame(() => setTimeout(resolve, 100)))
   })
 }
 
