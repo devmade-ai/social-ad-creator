@@ -498,6 +498,83 @@ export default memo(function LayoutTab({
     onLayoutChange({ structure: newStructure })
   }
 
+  // Requirement: Swap two adjacent sections so users can reorder rows/columns.
+  // Approach: Swap structure entries and build a bidirectional cell index map via _cellSwap.
+  // Alternatives:
+  //   - Drag-and-drop reorder: Rejected — complex for mobile, overkill for 2-4 sections.
+  //   - Two sequential shifts: Rejected — overlapping ranges cause data loss.
+  const swapSections = (indexA, indexB) => {
+    if (indexA < 0 || indexB < 0 || indexA >= structure.length || indexB >= structure.length) return
+    if (indexA === indexB) return
+
+    // Ensure A < B for consistent mapping
+    const [lo, hi] = indexA < indexB ? [indexA, indexB] : [indexB, indexA]
+
+    const newStructure = [...structure]
+    newStructure[lo] = structure[hi]
+    newStructure[hi] = structure[lo]
+
+    // Build bidirectional cell index map.
+    // Compute cell start offsets for old and new structure, then map each cell
+    // from its old position to where it lands after the swap.
+    const cellMap = {}
+
+    const oldStarts = []
+    let idx = 0
+    for (let i = 0; i < structure.length; i++) {
+      oldStarts.push(idx)
+      idx += structure[i].subdivisions || 1
+    }
+    const newStarts = []
+    idx = 0
+    for (let i = 0; i < newStructure.length; i++) {
+      newStarts.push(idx)
+      idx += newStructure[i].subdivisions || 1
+    }
+
+    // Old section s moves to destIndex in new order.
+    // Middle sections (between lo and hi) stay at same index but may shift
+    // if lo and hi have different subdivision counts.
+    for (let s = 0; s < structure.length; s++) {
+      const subs = structure[s].subdivisions || 1
+      const destIndex = s === lo ? hi : s === hi ? lo : s
+      const oldStart = oldStarts[s]
+      const newStart = newStarts[destIndex]
+
+      for (let sub = 0; sub < subs; sub++) {
+        cellMap[oldStart + sub] = newStart + sub
+      }
+    }
+
+    onLayoutChange({
+      structure: newStructure,
+      _cellSwap: cellMap,
+    })
+
+    // Update selection to follow the moved section
+    if (structureSelection?.type === 'section') {
+      if (structureSelection.index === lo) setStructureSelection({ type: 'section', index: hi })
+      else if (structureSelection.index === hi) setStructureSelection({ type: 'section', index: lo })
+    } else if (structureSelection?.type === 'cell') {
+      const ci = structureSelection.cellIndex
+      if (cellMap[ci] !== undefined) {
+        // Find the new section/sub for the remapped cell
+        let newCi = cellMap[ci]
+        let newSectionIdx = 0
+        let remaining = newCi
+        for (let i = 0; i < newStructure.length; i++) {
+          const subs = newStructure[i].subdivisions || 1
+          if (remaining < subs) {
+            newSectionIdx = i
+            break
+          }
+          remaining -= subs
+        }
+        setStructureSelection({ type: 'cell', cellIndex: newCi, sectionIndex: newSectionIdx, subIndex: remaining })
+      }
+    }
+  }
+
   // Reset to default
   const handleReset = () => {
     onLayoutChange(defaultState.layout)
@@ -637,6 +714,34 @@ export default memo(function LayoutTab({
                   ✕ Deselect
                 </button>
               </div>
+
+              {/* Move section up/down (reorder) */}
+              {structure.length > 1 && (
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => swapSections(selectedSectionIndex, selectedSectionIndex - 1)}
+                    disabled={selectedSectionIndex === 0}
+                    className={`flex-1 px-3 py-2 text-sm rounded-lg font-medium ${
+                      selectedSectionIndex === 0
+                        ? 'bg-violet-100 dark:bg-violet-900/30 text-violet-300 dark:text-violet-600 cursor-not-allowed'
+                        : 'bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300 hover:bg-violet-200 dark:hover:bg-violet-900/40'
+                    }`}
+                  >
+                    {type === 'rows' ? '↑ Move Up' : '← Move Left'}
+                  </button>
+                  <button
+                    onClick={() => swapSections(selectedSectionIndex, selectedSectionIndex + 1)}
+                    disabled={selectedSectionIndex === structure.length - 1}
+                    className={`flex-1 px-3 py-2 text-sm rounded-lg font-medium ${
+                      selectedSectionIndex === structure.length - 1
+                        ? 'bg-violet-100 dark:bg-violet-900/30 text-violet-300 dark:text-violet-600 cursor-not-allowed'
+                        : 'bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300 hover:bg-violet-200 dark:hover:bg-violet-900/40'
+                    }`}
+                  >
+                    {type === 'rows' ? '↓ Move Down' : '→ Move Right'}
+                  </button>
+                </div>
+              )}
 
               {structure.length > 1 && (
                 <div>

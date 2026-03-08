@@ -10,7 +10,7 @@ import { useCallback } from 'react'
 import { presetThemes } from '../config/themes'
 import { getLookSettingsForLayout } from '../config/stylePresets'
 import { useHistory } from './useHistory'
-import { countCells, cleanupOrphanedCells, shiftCellIndices } from '../utils/cellUtils'
+import { countCells, cleanupOrphanedCells, shiftCellIndices, swapCellIndices } from '../utils/cellUtils'
 
 const defaultTheme = presetThemes[0] // Dark theme
 const STORAGE_KEY = 'canvagrid-designs'
@@ -380,8 +380,8 @@ export function useAdState() {
   //   - Separate cleanup action: Rejected - user could forget; automatic is safer.
   const setLayout = useCallback((updates) => {
     setState((prev) => {
-      // Extract _cellShift metadata (not stored in layout)
-      const { _cellShift, ...layoutUpdates } = updates
+      // Extract cell remap metadata (not stored in layout)
+      const { _cellShift, _cellSwap, ...layoutUpdates } = updates
       const newLayout = { ...prev.layout, ...layoutUpdates }
       const newCellCount = countCells(newLayout.structure)
 
@@ -439,6 +439,47 @@ export function useAdState() {
           padding: { ...prev.padding, cellOverrides: shifted.paddingOverrides },
           frame: { ...prev.frame, cellFrames: shifted.cellFrames },
           freeformText: shifted.freeformText,
+        }
+      }
+
+      // Requirement: Swapping sections must remap all per-cell data bidirectionally.
+      // Approach: _cellSwap provides a complete oldIndex→newIndex map for affected cells.
+      if (_cellSwap) {
+        const swapped = swapCellIndices(stateForCleanup, _cellSwap)
+
+        // Remap cellAlignments (array)
+        const oldAlignments = newLayout.cellAlignments || []
+        const swappedAlignments = [...oldAlignments]
+        for (const [oldIdx, newIdx] of Object.entries(_cellSwap)) {
+          swappedAlignments[newIdx] = oldAlignments[parseInt(oldIdx, 10)] || { textAlign: null, textVerticalAlign: null }
+        }
+        newLayout.cellAlignments = swappedAlignments
+
+        // Remap cellOverlays (object)
+        const oldOverlays = newLayout.cellOverlays || {}
+        const swappedOverlays = { ...oldOverlays }
+        // Clear old keys for swapped cells first, then set new
+        for (const oldIdx of Object.keys(_cellSwap)) {
+          delete swappedOverlays[oldIdx]
+        }
+        for (const [oldIdx, newIdx] of Object.entries(_cellSwap)) {
+          if (oldOverlays[oldIdx]) swappedOverlays[newIdx] = oldOverlays[oldIdx]
+        }
+        newLayout.cellOverlays = swappedOverlays
+
+        // Remap imageCells array values
+        const oldImageCells = newLayout.imageCells || [0]
+        newLayout.imageCells = oldImageCells.map((cellIdx) =>
+          _cellSwap[cellIdx] !== undefined ? _cellSwap[cellIdx] : cellIdx,
+        )
+
+        stateForCleanup = {
+          ...stateForCleanup,
+          text: swapped.text,
+          cellImages: swapped.cellImages,
+          padding: { ...stateForCleanup.padding, cellOverrides: swapped.paddingOverrides },
+          frame: { ...stateForCleanup.frame, cellFrames: swapped.cellFrames },
+          freeformText: swapped.freeformText,
         }
       }
 

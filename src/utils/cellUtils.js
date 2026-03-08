@@ -172,3 +172,36 @@ export function shiftCellIndices(prevState, fromIndex, shiftBy) {
     freeformText: shiftObjectKeys(prevState.freeformText),
   }
 }
+
+/**
+ * Swap cell-indexed data between two sections.
+ * Requirement: When reordering sections, all per-cell data must follow the content.
+ * Approach: Build a bidirectional index mapping from the two sections' cell ranges, then rekey.
+ * Alternatives:
+ *   - Two sequential shifts: Rejected — overlapping ranges cause data loss.
+ *   - Store data by section ID instead of index: Rejected — massive refactor for one feature.
+ *
+ * @param {Object} prevState - Current state
+ * @param {Object} cellMap - Map of oldIndex → newIndex (must be bidirectional/complete for affected cells)
+ * @returns {Object} State fields with remapped cell indices
+ */
+export function swapCellIndices(prevState, cellMap) {
+  const remapObjectKeys = (obj) => {
+    if (!obj) return {}
+    const result = {}
+    for (const [key, value] of Object.entries(obj)) {
+      const idx = parseInt(key, 10)
+      const newIdx = cellMap[idx]
+      result[newIdx !== undefined ? newIdx : idx] = value
+    }
+    return result
+  }
+
+  return {
+    text: remapObjectKeys(prevState.text),
+    cellImages: remapObjectKeys(prevState.cellImages),
+    paddingOverrides: remapObjectKeys(prevState.padding?.cellOverrides),
+    cellFrames: remapObjectKeys(prevState.frame?.cellFrames),
+    freeformText: remapObjectKeys(prevState.freeformText),
+  }
+}
