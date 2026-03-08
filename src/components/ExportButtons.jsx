@@ -21,20 +21,22 @@ const FORMAT_OPTIONS = [
 
 const FILE_EXTENSIONS = { jpg: 'jpg', webp: 'webp', png: 'png' }
 
-// Requirement: User-selectable export quality for all export types.
-// Approach: Plain-language labels mapping to pixelRatio values.
-// Why: Non-technical users need clear labels; print users need higher DPI.
+// Requirement: User-selectable PDF quality to control file size vs sharpness.
+// Approach: Plain-language labels mapping to pixelRatio for PDF capture only.
+//   Image exports stay at 1x (platform dimensions are already correct for their targets).
+// Why: PDF embeds rasterized PNGs, so pixelRatio directly affects file size and sharpness.
+//   Image exports at 1x produce exact platform dimensions (e.g. 1080x1080 for Instagram).
 // Alternatives:
+//   - Apply to all exports: Rejected — image exports were already perfect at 1x.
 //   - Raw DPI input: Rejected — confusing for non-technical users.
-//   - Auto quality from platform: Rejected — user should have final say.
-const QUALITY_OPTIONS = [
-  { id: 'standard', label: 'Standard', description: 'Good for social media & web', pixelRatio: 1 },
-  { id: 'high', label: 'High', description: 'Sharper for presentations & carousels', pixelRatio: 2 },
+const PDF_QUALITY_OPTIONS = [
+  { id: 'standard', label: 'Standard', description: 'Smaller file, good for carousels & sharing', pixelRatio: 1 },
+  { id: 'high', label: 'High', description: 'Sharper overlays & gradients', pixelRatio: 2 },
   { id: 'max', label: 'Maximum', description: 'Best for print (A3/A4/A5)', pixelRatio: 3 },
 ]
 
-function getPixelRatio(qualityId) {
-  return QUALITY_OPTIONS.find(q => q.id === qualityId)?.pixelRatio || 1
+function getPdfPixelRatio(qualityId) {
+  return PDF_QUALITY_OPTIONS.find(q => q.id === qualityId)?.pixelRatio || 1
 }
 
 // Requirement: Timestamp-first filenames for chronological sort in downloads folder
@@ -82,11 +84,11 @@ function setFullScale(element) {
 // fetch(dataUrl) round-trip that the toJpeg/toPng → fetch pattern requires.
 const MIME_TYPES = { jpg: 'image/jpeg', webp: 'image/webp', png: 'image/png' }
 
-async function captureAsBlob(element, width, height, format, pixelRatio = 1) {
+async function captureAsBlob(element, width, height, format) {
   const canvas = await toCanvas(element, {
     width,
     height,
-    pixelRatio,
+    pixelRatio: 1,
     style: { opacity: '1', transform: 'scale(1)' },
   })
   const mime = MIME_TYPES[format] || 'image/png'
@@ -101,16 +103,18 @@ async function captureAsBlob(element, width, height, format, pixelRatio = 1) {
 }
 
 // Capture element as data URL (for PDF embedding, always PNG).
-// Requirement: PDF overlays must match image export quality.
-// Approach: Use user-selected pixelRatio (minimum 2 for PDF to avoid soft overlays).
+// Requirement: PDF quality controlled by user-selected pixelRatio.
+// Approach: Pass through user's chosen pixelRatio directly (no minimum floor).
+// Why: Users exporting for social sharing want small files (1x is fine).
+//   Users exporting for print need higher quality (2x or 3x).
 // Alternatives:
-//   - Always pixelRatio 2: Rejected — user should control quality for print use cases.
-//   - No minimum: Rejected — pixelRatio 1 looks blurry after PDF viewer resampling.
-async function captureAsDataUrl(element, width, height, pixelRatio = 2) {
+//   - Minimum 2x floor: Rejected — makes PDFs ~6x larger than needed for carousels.
+//   - Always 2x: Rejected — user should control quality vs file size tradeoff.
+async function captureAsDataUrl(element, width, height, pixelRatio = 1) {
   return toPng(element, {
     width,
     height,
-    pixelRatio: Math.max(pixelRatio, 2),
+    pixelRatio,
     style: { opacity: '1', transform: 'scale(1)' },
   })
 }
@@ -128,7 +132,7 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
 
   const exportFormat = state.exportFormat || 'png'
   const exportQuality = state.exportQuality || 'standard'
-  const pixelRatio = getPixelRatio(exportQuality)
+  const pdfPixelRatio = getPdfPixelRatio(exportQuality)
   const ext = FILE_EXTENSIONS[exportFormat] || 'png'
   const currentFormat = findFormat(state.platform)
 
@@ -196,7 +200,7 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
       const restoreTransform = setFullScale(canvasRef.current)
       await waitForPaint()
 
-      const blob = await captureAsBlob(canvasRef.current, platform.width, platform.height, exportFormat, pixelRatio)
+      const blob = await captureAsBlob(canvasRef.current, platform.width, platform.height, exportFormat)
       restoreTransform()
 
       const ts = getTimestamp()
@@ -209,7 +213,7 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
       updateExporting(false)
       setExportOp(null)
     }
-  }, [canvasRef, state.platform, state.activePage, exportFormat, ext, pixelRatio, pageCount, updateExporting])
+  }, [canvasRef, state.platform, state.activePage, exportFormat, ext, pageCount, updateExporting])
 
   const handleExportAllPages = useCallback(async () => {
     if (!canvasRef.current || pageCount <= 1) return
@@ -234,7 +238,7 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
         const restoreTransform = setFullScale(canvasRef.current)
         await waitForPaint()
 
-        const blob = await captureAsBlob(canvasRef.current, platform.width, platform.height, exportFormat, pixelRatio)
+        const blob = await captureAsBlob(canvasRef.current, platform.width, platform.height, exportFormat)
         restoreTransform()
 
         const pageNum = String(i + 1).padStart(2, '0')
@@ -255,7 +259,7 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
       setExportProgress(null)
       setExportOp(null)
     }
-  }, [canvasRef, state.platform, state.activePage, exportFormat, ext, pixelRatio, pageCount, onSetActivePage, updateExporting])
+  }, [canvasRef, state.platform, state.activePage, exportFormat, ext, pageCount, onSetActivePage, updateExporting])
 
   // Requirement: PDF export for LinkedIn carousel documents and general print-to-PDF
   // Approach: Capture pages as PNGs, build PDF with jsPDF using exact platform dimensions
@@ -295,7 +299,7 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
         const restoreTransform = setFullScale(canvasRef.current)
         await waitForPaint()
 
-        const dataUrl = await captureAsDataUrl(canvasRef.current, platform.width, platform.height, pixelRatio)
+        const dataUrl = await captureAsDataUrl(canvasRef.current, platform.width, platform.height, pdfPixelRatio)
         restoreTransform()
         pageDataUrls.push(dataUrl)
       }
@@ -339,7 +343,7 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
       setExportProgress(null)
       setExportOp(null)
     }
-  }, [canvasRef, state.platform, state.activePage, pixelRatio, pageCount, onSetActivePage, updateExporting])
+  }, [canvasRef, state.platform, state.activePage, pdfPixelRatio, pageCount, onSetActivePage, updateExporting])
 
   const handleExportMultiple = useCallback(async () => {
     if (!canvasRef.current) return
@@ -367,7 +371,7 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
         const restoreTransform = setFullScale(canvasRef.current)
         await waitForPaint()
 
-        const blob = await captureAsBlob(canvasRef.current, platform.width, platform.height, exportFormat, pixelRatio)
+        const blob = await captureAsBlob(canvasRef.current, platform.width, platform.height, exportFormat)
         restoreTransform()
 
         zip.file(`${platform.id}-${platform.width}x${platform.height}.${ext}`, blob)
@@ -388,7 +392,7 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
       setExportProgress(null)
       setExportOp(null)
     }
-  }, [canvasRef, state.platform, exportFormat, ext, pixelRatio, onPlatformChange, updateExporting, selectedPlatforms])
+  }, [canvasRef, state.platform, exportFormat, ext, onPlatformChange, updateExporting, selectedPlatforms])
 
   return (
     <div className="space-y-3">
@@ -423,27 +427,6 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
         </div>
       </div>
 
-      {/* Quality selector */}
-      <div className="space-y-1.5">
-        <span className="text-xs font-medium text-ui-text-muted">Quality</span>
-        <div className="flex gap-1">
-          {QUALITY_OPTIONS.map((opt) => (
-            <button
-              key={opt.id}
-              onClick={() => onExportQualityChange(opt.id)}
-              title={opt.description}
-              className={`flex-1 px-2 py-1.5 text-xs font-semibold rounded-lg transition-all ${
-                exportQuality === opt.id
-                  ? 'bg-primary text-white shadow-sm'
-                  : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
-              }`}
-            >
-              {opt.label}
-            </button>
-          ))}
-        </div>
-      </div>
-
       <button
         onClick={handleExportSingle}
         disabled={isExporting}
@@ -465,7 +448,26 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
         </button>
       )}
 
-      {/* Download as PDF - for LinkedIn carousels and print */}
+      {/* PDF quality selector + download */}
+      <div className="space-y-1.5">
+        <span className="text-xs font-medium text-ui-text-muted">PDF Quality</span>
+        <div className="flex gap-1">
+          {PDF_QUALITY_OPTIONS.map((opt) => (
+            <button
+              key={opt.id}
+              onClick={() => onExportQualityChange(opt.id)}
+              title={opt.description}
+              className={`flex-1 px-2 py-1.5 text-xs font-semibold rounded-lg transition-all ${
+                exportQuality === opt.id
+                  ? 'bg-primary text-white shadow-sm'
+                  : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
+              }`}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+      </div>
       <button
         onClick={handleExportPDF}
         disabled={isExporting}

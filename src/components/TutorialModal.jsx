@@ -163,7 +163,7 @@ const tutorialSteps = [
           </li>
           <li className="flex gap-2">
             <span className="text-violet-500">•</span>
-            <span><strong>Quality:</strong> Standard for social media, High for presentations, Maximum for print.</span>
+            <span><strong>PDF quality:</strong> Standard for carousels, High for sharper overlays, Maximum for print.</span>
           </li>
         </ul>
         <p className="text-ui-text-muted text-sm">The preview on the right updates live as you make changes.</p>

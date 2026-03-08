@@ -166,13 +166,14 @@ export const defaultState = {
 
   platform: 'instagram-square',
   exportFormat: 'png',
-  // Requirement: User-selectable export quality for image and PDF exports.
-  // Approach: exportQuality maps to pixelRatio in html-to-image capture.
+  // Requirement: User-selectable PDF quality (controls pixelRatio for PDF capture).
+  // Approach: exportQuality maps to pixelRatio in PDF's captureAsDataUrl only.
+  //   Image exports stay at 1x (platform dimensions are already correct).
   // Values: 'standard' (1x), 'high' (2x), 'max' (3x).
-  // Why: Print users need higher DPI; social media users want smaller files.
+  // Why: PDF embeds rasterized PNGs — higher ratio = sharper but larger files.
   // Alternatives:
+  //   - Apply to all exports: Rejected — images were already perfect at 1x.
   //   - Raw pixelRatio number: Rejected — non-technical users need plain labels.
-  //   - Auto-detect from platform category: Rejected — user should have final say.
   exportQuality: 'standard',
 
   // pages[activePage] = null because active page data lives at top-level state
