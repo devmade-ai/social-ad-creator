@@ -109,7 +109,7 @@ function getPdfPixelRatio(width, height) {
   return 1
 }
 
-async function captureAsDataUrl(element, width, height) {
+async function captureForPdf(element, width, height) {
   const pixelRatio = getPdfPixelRatio(width, height)
   const canvas = await toCanvas(element, {
     width,
@@ -117,7 +117,16 @@ async function captureAsDataUrl(element, width, height) {
     pixelRatio,
     style: { opacity: '1', transform: 'scale(1)' },
   })
-  return canvas.toDataURL('image/jpeg', PDF_JPEG_QUALITY)
+  // Use toBlob → Uint8Array instead of toDataURL to avoid ~33% base64 overhead.
+  // jsPDF accepts Uint8Array directly and skips base64 parsing.
+  const blob = await new Promise((resolve, reject) =>
+    canvas.toBlob(
+      (b) => b ? resolve(b) : reject(new Error('Canvas capture failed')),
+      'image/jpeg',
+      PDF_JPEG_QUALITY,
+    )
+  )
+  return new Uint8Array(await blob.arrayBuffer())
 }
 
 export default memo(function ExportButtons({ canvasRef, state, onPlatformChange, onExportFormatChange, onExportingChange, pageCount = 1, onSetActivePage }) {
@@ -280,7 +289,7 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
     setExportOp('pdf')
     const restoreOpacity = hideCanvas(canvasRef.current)
 
-    const pageDataUrls = []
+    const pageImages = []
     const originalActivePage = state.activePage
     const totalPages = pageCount > 1 ? pageCount : 1
 
@@ -298,9 +307,9 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
         const restoreTransform = setFullScale(canvasRef.current)
         await waitForPaint()
 
-        const dataUrl = await captureAsDataUrl(canvasRef.current, platform.width, platform.height)
+        const imageData = await captureForPdf(canvasRef.current, platform.width, platform.height)
         restoreTransform()
-        pageDataUrls.push(dataUrl)
+        pageImages.push(imageData)
       }
 
       if (totalPages > 1) {
@@ -322,11 +331,11 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
         format: [widthPt, heightPt],
       })
 
-      for (let i = 0; i < pageDataUrls.length; i++) {
+      for (let i = 0; i < pageImages.length; i++) {
         if (i > 0) {
           pdf.addPage([widthPt, heightPt], orientation)
         }
-        pdf.addImage(pageDataUrls[i], 'JPEG', 0, 0, widthPt, heightPt)
+        pdf.addImage(pageImages[i], 'JPEG', 0, 0, widthPt, heightPt)
       }
 
       const ts = getTimestamp()
