@@ -10,8 +10,8 @@ CanvaGrid helps you create visual designs — social posts, ads, presentations, 
 
 1. **Presets** - Start here with layouts, themes, and looks
 2. **Media** - Upload your images and logo
-3. **Content** - Write your text and configure visibility
-4. **Structure** - Adjust the grid structure and cell alignment
+3. **Content** - Write your text, configure visibility, set alignment
+4. **Structure** - Adjust the grid structure, reorder sections
 5. **Style** - Customize fonts, overlays, and spacing
 
 ---
@@ -216,18 +216,23 @@ Text elements organized into collapsible groups:
 - **Call to Action** - Action prompt like "Learn More" or "Shop Now"
 - **Footnote** - Fine print, disclaimers, or legal text
 
+Each cell has its own text elements. Select a cell using the Context Bar, then edit its text.
+
 **Text Controls (for each element):**
 
 | Control | What it does |
 | ------- | ------------ |
 | Eye icon | Toggle visibility on/off |
 | Text input | Enter your content |
-| Cell dropdown | Choose which layout cell this text appears in |
 | Alignment | Left, Center, Right, or Auto (uses cell default) |
 | Color | Pick from theme colors or neutrals |
 | Size slider | Adjust relative size |
 | B / I buttons | Bold and italic styling |
 | Letter spacing | Tight, Normal, Wide, Wider |
+
+**Cell Alignment** (below the text groups):
+- **Horizontal:** Left, Center, Right — sets default for all text in the selected cell
+- **Vertical:** Top, Middle, Bottom — controls vertical positioning within the cell
 
 #### Freeform Mode
 
@@ -241,26 +246,16 @@ Per-cell text editors with independent content per cell. Each cell gets its own 
 
 ### Structure Tab
 
-Fine-tune your grid structure and text alignment.
+Fine-tune your grid structure.
 
 #### Structure
 - **Layout Type:** Full Bleed (single cell), Rows, or Columns
 - **Interactive Grid:** Click and drag dividers to resize sections
-- **Add/Remove:** Adjust the number of sections and subdivisions
+- **Add/Remove:** Add sections, insert before/after, add subdivisions within sections
+- **Reorder:** Move rows up/down or columns left/right to rearrange sections
 - Click on a section or cell in the grid to select it
 
-#### Text Alignment
-Context-aware alignment controls that respond to your selection in the Structure grid:
-
-| Selection | What happens |
-|-----------|--------------|
-| **Section selected** (row/column) | Alignment applies to all cells in that section |
-| **Cell selected** | Alignment applies to that specific cell only |
-| **Nothing selected** | Sets the global alignment default |
-
-Controls available:
-- **Horizontal:** Left, Center, Right
-- **Vertical:** Top, Middle, Bottom
+**Note:** Text alignment controls are in the Content tab, not here.
 
 ---
 
@@ -366,7 +361,7 @@ Choose PNG, JPG, or WebP before exporting. Each platform shows a recommended for
 
 - **Download Current** - Export the current platform in selected format
 - **Download All Pages (ZIP)** - Export every page as a numbered image in a ZIP (appears when multiple pages exist)
-- **Download as PDF** - Save as PDF via jsPDF (for LinkedIn carousels, works on mobile). Multi-page designs get one PDF page per document page.
+- **Download as PDF** - Save as PDF (sharp, small files). Multi-page designs get one PDF page per document page. Great for LinkedIn carousels.
 - **Download Multiple Platforms (ZIP)** - Select multiple platforms and export as a ZIP
 
 ---

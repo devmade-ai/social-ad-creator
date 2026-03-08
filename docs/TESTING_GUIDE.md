@@ -182,16 +182,19 @@ Run these tests after making changes to ensure nothing is broken.
 | 2 | Click eye icon next to Title | Title row | Title disappears from preview |
 | 3 | Click eye icon again | Title row | Title reappears |
 
-### C3: Cell Assignment
+### C3: Per-Cell Text
 
-**Scenario:** Text can be assigned to different layout cells.
+**Scenario:** Each cell has its own text elements.
 
 | Step | Action | Where | Expected |
 |------|--------|-------|----------|
 | 1 | Apply a 2-row layout | Presets → Layout | Preview shows 2 cells |
-| 2 | Go to Content tab | Top tab bar | Content tab opens |
-| 3 | Find Cell dropdown for Title | Title controls | Dropdown shows "Auto" and cell numbers |
-| 4 | Select "Cell 2" | Cell dropdown | Title moves to second cell in preview |
+| 2 | Select Cell 1 in Context Bar | Cell selector | Cell 1 highlighted |
+| 3 | Go to Content tab | Top tab bar | Content tab opens, shows Cell 1 text |
+| 4 | Type "Cell 1 Title" in Title | Title input | Text appears in cell 1 in preview |
+| 5 | Select Cell 2 in Context Bar | Cell selector | Cell 2 highlighted |
+| 6 | Type "Cell 2 Title" in Title | Title input | Text appears in cell 2 in preview |
+| 7 | Switch back to Cell 1 | Cell selector | Cell 1 Title still shows "Cell 1 Title" |
 
 ### C4: Text Alignment
 
@@ -244,40 +247,44 @@ Run these tests after making changes to ensure nothing is broken.
 | 3 | Drag the divider up or down | Grid divider | Cell sizes change proportionally |
 | 4 | Check preview | Ad preview | Preview reflects new proportions |
 
-### L3: Text Alignment - Section Selection
+### L3: Section Reorder
 
-**Scenario:** Selecting a section applies alignment to all cells in that section.
-
-| Step | Action | Where | Expected |
-|------|--------|-------|----------|
-| 1 | Apply a 2-row layout | Structure → Structure | 2 rows visible in grid editor |
-| 2 | Click on Row 1 in the grid | Structure grid | Row 1 highlights as selected |
-| 3 | Check Text Alignment section | Structure tab | Shows "Row 1" or section indicator |
-| 4 | Set horizontal to "Left" | Alignment buttons | All cells in Row 1 align left |
-| 5 | Add text to both cells in Row 1 | Content tab | Both show left alignment |
-
-### L4: Text Alignment - Cell Selection
-
-**Scenario:** Selecting a cell applies alignment to just that cell.
+**Scenario:** Rows can be moved up/down, columns left/right.
 
 | Step | Action | Where | Expected |
 |------|--------|-------|----------|
-| 1 | Apply a layout with subdivisions | Structure → Structure | Multiple cells visible |
-| 2 | Click on a specific cell | Structure grid | Single cell highlights |
-| 3 | Check Text Alignment section | Structure tab | Shows "Cell X" indicator |
-| 4 | Set vertical to "Top" | Alignment buttons | Only that cell aligns to top |
-| 5 | Check adjacent cells | Preview | Other cells unaffected |
+| 1 | Apply a 3-row layout or add 3 sections | Structure → Structure | 3 rows visible in grid editor |
+| 2 | Add text to each cell for identification | Content tab | Different text in each cell |
+| 3 | Click on Row 2 in the grid | Structure grid | Row 2 highlights as selected |
+| 4 | Click "Move Up" button | Structure grid controls | Row 2 moves to position 1, text follows |
+| 5 | Click "Move Down" button | Structure grid controls | Row moves back down, text follows |
+| 6 | Check image assignments | Media tab | Images remain assigned to correct cells |
 
-### L5: Text Alignment - Global Default
+### L4: Text Alignment (in Content Tab)
 
-**Scenario:** With nothing selected, alignment sets the global default.
+**Scenario:** Per-cell alignment controls work from the Content tab.
 
 | Step | Action | Where | Expected |
 |------|--------|-------|----------|
-| 1 | Click empty area in Structure grid | Structure grid | No selection highlighted |
-| 2 | Check Text Alignment section | Structure tab | Shows "Global" or default indicator |
-| 3 | Set alignment to "Center" + "Middle" | Alignment buttons | All cells without overrides use this |
-| 4 | Add text to any cell | Content tab | Text centers (unless cell has override) |
+| 1 | Apply a 2-cell layout | Presets → Layout | 2 cells visible |
+| 2 | Select Cell 1 in Context Bar | Cell selector | Cell 1 highlighted |
+| 3 | Go to Content tab | Top tab bar | Content tab opens |
+| 4 | Find alignment controls | Content tab (below text groups) | Horizontal + Vertical alignment buttons visible |
+| 5 | Set horizontal to "Left" | Alignment buttons | Cell 1 text aligns left |
+| 6 | Select Cell 2 in Context Bar | Cell selector | Cell 2 highlighted |
+| 7 | Set horizontal to "Right" | Alignment buttons | Cell 2 text aligns right, Cell 1 still left |
+
+### L5: Insert Section
+
+**Scenario:** Sections can be inserted before or after existing sections.
+
+| Step | Action | Where | Expected |
+|------|--------|-------|----------|
+| 1 | Apply a 2-row layout | Structure → Structure | 2 rows visible |
+| 2 | Click on Row 1 in the grid | Structure grid | Row 1 highlights |
+| 3 | Click "Insert After" | Structure grid controls | New row appears between rows 1 and 2 |
+| 4 | Check cell numbering | Context Bar cell grid | Cells renumbered correctly |
+| 5 | Check existing text and images | Preview | Original content remains in correct cells |
 
 ---
 
@@ -377,6 +384,46 @@ Run these tests after making changes to ensure nothing is broken.
 | 5 | Extract ZIP | File system | Contains 28 image files, one per format |
 | 6 | Check dimensions | Each file | Correct dimensions for each platform |
 
+### E4: Format Selection
+
+**Scenario:** PNG/JPG/WebP format toggle works correctly.
+
+| Step | Action | Where | Expected |
+|------|--------|-------|----------|
+| 1 | Select a platform | Platform selector | Platform selected |
+| 2 | Click "JPG" format button | File Format toggle | JPG highlighted |
+| 3 | Click "Download Current" | Export buttons | Downloaded file is .jpg |
+| 4 | Click "WebP" format button | File Format toggle | WebP highlighted |
+| 5 | Click "Download Current" | Export buttons | Downloaded file is .webp |
+| 6 | Check "Use recommended" link | File Format area | Link appears if current format differs from recommended |
+
+### E5: PDF Export
+
+**Scenario:** PDF export creates a properly formatted PDF.
+
+| Step | Action | Where | Expected |
+|------|--------|-------|----------|
+| 1 | Add an image and some text | Media + Content tabs | Design visible in preview |
+| 2 | Click "Download as PDF" | Export buttons | PDF file downloads |
+| 3 | Open the PDF | File system | Image is sharp, text readable, correct dimensions |
+| 4 | Check file size | File system | Reasonable size (not bloated — should be under 1MB for simple designs) |
+| 5 | Add a second page | Context Bar → Pages | 2 pages exist |
+| 6 | Click "Download as PDF" | Export buttons | PDF has 2 pages |
+
+### E6: Save and Load Designs
+
+**Scenario:** Designs can be saved, loaded, and deleted.
+
+| Step | Action | Where | Expected |
+|------|--------|-------|----------|
+| 1 | Create a design with text and images | Various tabs | Design visible |
+| 2 | Click "Save" in header | Header | Save/Load modal opens |
+| 3 | Enter a name and click Save | Save tab | Success confirmation shown |
+| 4 | Switch to Load tab | Modal tabs | Saved design appears in list |
+| 5 | Modify the current design | Various tabs | Design looks different |
+| 6 | Click the saved design to load it | Load tab | Original design restored |
+| 7 | Delete the design | Load tab → delete button | Confirm dialog, design removed from list |
+
 ---
 
 ## Error Handling Tests
@@ -434,6 +481,11 @@ Quick checks to run after any code change:
 - [ ] Sample images: error state shows retry button if manifest fails
 - [ ] Image Cell selector works in Media tab (multi-cell layouts)
 - [ ] Image Overlay controls work in Media tab
-- [ ] Text Alignment responds to grid selection in Structure tab
-- [ ] Export produces a valid PNG matching preview
+- [ ] Text alignment controls work in Content tab (per-cell)
+- [ ] Per-cell text: switching cells in Context Bar shows correct text
+- [ ] Section reorder: move up/down preserves text and image assignments
+- [ ] Export produces a valid image matching preview
+- [ ] Format selection (PNG/JPG/WebP) produces correct file type
+- [ ] PDF export produces sharp, reasonably-sized PDF
+- [ ] Save/Load designs works (save, load, delete)
 - [ ] No React warnings in console
