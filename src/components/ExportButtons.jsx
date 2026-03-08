@@ -85,20 +85,22 @@ async function captureAsBlob(element, width, height, format) {
   )
 }
 
-// Requirement: PDF image capture with good quality, small file size, AND transparency.
-// Approach: Use PNG at pixelRatio:2 for sharp rendering with transparency, then let
-//   jsPDF compress the PNG data with deflate (compression: 'FAST'). This gives:
-//   - Sharp rendering (2x is plenty for downscaling into PDF page dimensions)
-//   - Transparency preserved (PNG supports alpha channel, JPEG does not)
-//   - Reasonable file size (jsPDF deflate compresses the raw pixel data)
+// Requirement: PDF image capture with sharp quality and small file size.
+// Approach: Use JPEG at pixelRatio:2 for sharp rendering, quality 0.92.
+//   jsPDF embeds JPEG streams directly (DCT_DECODE) — no re-encoding overhead.
+//   A 1080×1350 @2x JPEG at 0.92 = ~200-500 KB embedded directly.
 // Alternatives:
-//   - JPEG at pixelRatio:3: Rejected — loses transparency, no alpha channel support
-//   - PNG at pixelRatio:1: Rejected — blurry on retina/high-DPI screens
-//   - PNG at pixelRatio:3: Rejected — 3x creates very large canvases on big formats
+//   - PNG at pixelRatio:2: Rejected — jsPDF decodes PNG to raw pixels (~23 MB for
+//     2160×2700) then re-compresses with deflate, producing files 5-10x larger than
+//     JPEG while being visually identical. PDF pages have white backgrounds so
+//     transparency isn't visible anyway.
+//   - JPEG at pixelRatio:1: Rejected — blurry when downscaled into PDF page dimensions.
+//   - JPEG at pixelRatio:3: Rejected — 3x creates very large canvases on big formats.
 // Requirement: Cap canvas size to prevent memory crashes on large formats.
 // Approach: Target max ~16M pixels. For larger platforms (e.g. YouTube Banner 2560x1440),
 //   reduce pixelRatio to stay within budget.
 const MAX_PDF_PIXELS = 16_000_000 // ~16 megapixels budget
+const PDF_JPEG_QUALITY = 0.92
 
 function getPdfPixelRatio(width, height) {
   for (let ratio = 2; ratio >= 1; ratio--) {
@@ -115,7 +117,7 @@ async function captureAsDataUrl(element, width, height) {
     pixelRatio,
     style: { opacity: '1', transform: 'scale(1)' },
   })
-  return canvas.toDataURL('image/png')
+  return canvas.toDataURL('image/jpeg', PDF_JPEG_QUALITY)
 }
 
 export default memo(function ExportButtons({ canvasRef, state, onPlatformChange, onExportFormatChange, onExportingChange, pageCount = 1, onSetActivePage }) {
@@ -267,7 +269,7 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
   // Alternatives:
   //   - window.open + window.print: Rejected - broken on mobile (about:blank, wrong sizes)
   //   - Direct window.print() on app: Rejected - prints entire UI, not just canvas
-  // Note: PDF uses PNG at 2x with deflate compression — sharp, preserves transparency
+  // Note: PDF uses JPEG at 2x — jsPDF embeds JPEG directly (no re-encoding), sharp and small
   const handleExportPDF = useCallback(async () => {
     if (!canvasRef.current) return
 
@@ -324,7 +326,7 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
         if (i > 0) {
           pdf.addPage([widthPt, heightPt], orientation)
         }
-        pdf.addImage(pageDataUrls[i], 'PNG', 0, 0, widthPt, heightPt, undefined, 'FAST')
+        pdf.addImage(pageDataUrls[i], 'JPEG', 0, 0, widthPt, heightPt)
       }
 
       const ts = getTimestamp()
