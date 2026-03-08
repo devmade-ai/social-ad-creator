@@ -112,7 +112,7 @@ export default memo(function MiniCellGrid({
 
   return (
     <div
-      className={`flex overflow-hidden border border-ui-border-strong rounded ${size === 'large' ? 'w-full sm:w-[120px]' : ''}`}
+      className={`flex overflow-hidden border border-ui-border-strong rounded ${size === 'large' ? 'w-[120px]' : ''}`}
       style={{
         ...(size !== 'large' ? { width: `${gridWidth}px` } : {}),
         ...(size === 'large' ? {} : { height: `${gridWidth / aspectRatio}px` }),

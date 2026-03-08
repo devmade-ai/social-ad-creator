@@ -593,17 +593,21 @@ export default memo(function ContentTab({
       ) : (
         <div className="space-y-3">
           {/* Cell selector + label — with position hint (#5), responsive grid (#14) */}
+          {/* Requirement: Help text was squashed on mobile because MiniCellGrid used w-full */}
+          {/* Approach: Constrain grid width so text always has room */}
           <div className="flex items-center gap-3">
-            <MiniCellGrid
-              layout={layout}
-              imageCells={imageCells}
-              selectedCell={activeCell}
-              onSelectCell={setSelectedFreeformCell}
-              platform={platform}
-              cellsWithContent={cellsWithContent}
-              size="large"
-              mode="content"
-            />
+            <div className="shrink-0">
+              <MiniCellGrid
+                layout={layout}
+                imageCells={imageCells}
+                selectedCell={activeCell}
+                onSelectCell={setSelectedFreeformCell}
+                platform={platform}
+                cellsWithContent={cellsWithContent}
+                size="large"
+                mode="content"
+              />
+            </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-ui-text">
                 Cell {activeCell + 1}
