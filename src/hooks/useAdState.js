@@ -6,56 +6,40 @@
 //   - Separate state per page: Rejected - shared fields (theme, fonts, platform) would
 //     need cross-page sync logic, and undo/redo would only cover the active page.
 //   - Redux/Zustand: Rejected - adds dependency for a single-page app with no async state.
-import { useCallback } from 'react'
+import { useCallback, useEffect, useRef } from 'react'
 import { presetThemes } from '../config/themes'
 import { getLookSettingsForLayout } from '../config/stylePresets'
 import { useHistory } from './useHistory'
 import { countCells, cleanupOrphanedCells, shiftCellIndices, swapCellIndices } from '../utils/cellUtils'
+import * as designStorage from '../utils/designStorage'
 
 const defaultTheme = presetThemes[0] // Dark theme
-const STORAGE_KEY = 'canvagrid-designs'
 
-// Element IDs for structured text
+// Element IDs for structured text (used only in legacy migration)
 const TEXT_ELEMENT_IDS = ['title', 'tagline', 'bodyHeading', 'bodyText', 'cta', 'footnote']
 
-// Requirement: Migrate old global text format (text.title + textCells) to per-cell format (text[cellIndex].title)
-// Approach: Detect old format by checking if text has element keys directly, then redistribute
-//   using textCells assignments. For null (auto-assign) entries, replicate old auto-placement:
-//   title/tagline/cta → first image cell, bodyHeading/bodyText/footnote → first non-image cell.
-// Alternatives:
-//   - Breaking change with no migration: Rejected — users lose saved designs
-//   - Map all null to cell 0: Rejected — stacks everything in one cell for multi-cell layouts
-function migrateTextToPerCell(stateObj) {
+// Requirement: Migrate old global text format for the one-time localStorage→IndexedDB transfer.
+// This runs during migration only, not on every load. After migration, designs in IndexedDB
+// are already in the per-cell format.
+function migrateTextForStorage(stateObj) {
   if (!stateObj.text) return
-  // Detect old format: text has element keys like 'title', 'tagline' directly
   const hasOldFormat = TEXT_ELEMENT_IDS.some((id) => stateObj.text[id] && typeof stateObj.text[id] === 'object' && 'content' in stateObj.text[id])
   if (!hasOldFormat) return
 
   const oldText = stateObj.text
   const textCells = stateObj.textCells || {}
   const newText = {}
-
-  // Replicate old auto-assignment for null entries
   const imageCells = stateObj.layout?.imageCells || [0]
   const totalCells = countCells(stateObj.layout?.structure)
   const firstImageCell = imageCells.length > 0 ? imageCells[0] : 0
   const firstNonImageCell = totalCells > 1
     ? Array.from({ length: totalCells }, (_, i) => i).find((i) => !imageCells.includes(i)) ?? 0
     : 0
-  // Old auto-assignment: title/tagline/cta on image cell, body/footnote on non-image cell
-  const autoAssign = {
-    title: firstImageCell,
-    tagline: firstImageCell,
-    cta: firstImageCell,
-    bodyHeading: firstNonImageCell,
-    bodyText: firstNonImageCell,
-    footnote: firstNonImageCell,
-  }
+  const autoAssign = { title: firstImageCell, tagline: firstImageCell, cta: firstImageCell, bodyHeading: firstNonImageCell, bodyText: firstNonImageCell, footnote: firstNonImageCell }
 
   for (const elementId of TEXT_ELEMENT_IDS) {
     const elementData = oldText[elementId]
     if (!elementData) continue
-    // Use explicit assignment, or auto-assign based on old placement logic
     const cellIndex = textCells[elementId] ?? autoAssign[elementId] ?? 0
     if (!newText[cellIndex]) newText[cellIndex] = {}
     newText[cellIndex][elementId] = { ...elementData }
@@ -63,6 +47,16 @@ function migrateTextToPerCell(stateObj) {
 
   stateObj.text = newText
   delete stateObj.textCells
+
+  // Migrate inactive pages too
+  if (stateObj.pages) {
+    stateObj.pages.forEach((page) => {
+      if (page) {
+        migrateTextForStorage(page)
+        delete page.textCells
+      }
+    })
+  }
 }
 
 // Fields that are unique per page (swapped in/out when switching pages).
@@ -864,64 +858,51 @@ export function useAdState() {
     }))
   }, [setState])
 
-  const saveDesign = useCallback((name = 'My Design') => {
+  // Requirement: Migrate localStorage designs to IndexedDB on first mount.
+  // Approach: Run once via ref guard. migrateTextForStorage handles old text format
+  //   during the one-time transfer so loadDesign doesn't need compat code.
+  const migrationRan = useRef(false)
+  useEffect(() => {
+    if (!migrationRan.current) {
+      migrationRan.current = true
+      designStorage.migrateFromLocalStorage(migrateTextForStorage)
+    }
+  }, [])
+
+  // Requirement: Design persistence via IndexedDB (no size limits, handles binary natively).
+  // Approach: Async save/load/list/delete. Callers must await results.
+  const saveDesign = useCallback(async (name = 'My Design') => {
     const pages = state.pages || [null]
     const syncedPages = [...pages]
     syncedPages[state.activePage] = extractPageData(state)
 
     const design = {
+      id: `design-${Date.now()}`,
       name,
       savedAt: new Date().toISOString(),
       state: { ...state, pages: syncedPages },
     }
     try {
-      const existingDesigns = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]')
-      const newDesign = { id: `design-${Date.now()}`, ...design }
-      existingDesigns.push(newDesign)
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(existingDesigns))
-      return { success: true, id: newDesign.id }
+      await designStorage.saveDesign(design)
+      return { success: true, id: design.id }
     } catch (error) {
       return { success: false, error: error.message }
     }
   }, [state])
 
-  // Requirement: Load saved designs with backward compatibility for older saves.
-  // Approach: Merge with defaultState to fill missing fields. Migrate old global text
-  //   format (text.title, textCells) to per-cell format (text[cellIndex].title).
-  // Alternatives:
-  //   - Version field + explicit migrations: Rejected — overkill for a single-user tool.
-  //   - No migration: Rejected — older saves crash on missing pages/textMode fields.
-  const loadDesign = useCallback((designId) => {
+  const loadDesign = useCallback(async (designId) => {
     try {
-      const designs = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]')
-      const design = designs.find(d => d.id === designId)
+      const design = await designStorage.loadDesign(designId)
       if (design && design.state) {
         const loadedState = { ...defaultState, ...design.state }
-        // Ensure multi-page fields exist for pre-multi-page saves
         if (!loadedState.pages) loadedState.pages = [null]
         if (!loadedState.textMode) loadedState.textMode = 'structured'
         if (!loadedState.freeformText) loadedState.freeformText = {}
-        // saveDesign syncs all pages to non-null, so restore the active one to top-level
         const activePage = loadedState.activePage || 0
         if (loadedState.pages[activePage] !== null) {
           const pageData = loadedState.pages[activePage]
           Object.assign(loadedState, pageData)
           loadedState.pages[activePage] = null
-        }
-        // Migrate old global text format to per-cell format
-        migrateTextToPerCell(loadedState)
-        // Migrate inactive pages too
-        if (loadedState.pages) {
-          loadedState.pages.forEach((page) => {
-            if (page && page.text) migrateTextToPerCell(page)
-          })
-        }
-        // Clean up legacy textCells field from top-level and all pages
-        delete loadedState.textCells
-        if (loadedState.pages) {
-          loadedState.pages.forEach((page) => {
-            if (page) delete page.textCells
-          })
         }
         resetHistory(loadedState)
         return { success: true }
@@ -932,24 +913,17 @@ export function useAdState() {
     }
   }, [resetHistory])
 
-  const getSavedDesigns = useCallback(() => {
+  const getSavedDesigns = useCallback(async () => {
     try {
-      const designs = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]')
-      return designs.map(d => ({
-        id: d.id,
-        name: d.name,
-        savedAt: d.savedAt,
-      }))
+      return await designStorage.listDesigns()
     } catch {
       return []
     }
   }, [])
 
-  const deleteDesign = useCallback((designId) => {
+  const deleteDesign = useCallback(async (designId) => {
     try {
-      const designs = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]')
-      const filtered = designs.filter(d => d.id !== designId)
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered))
+      await designStorage.deleteDesign(designId)
       return { success: true }
     } catch (error) {
       return { success: false, error: error.message }

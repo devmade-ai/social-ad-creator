@@ -14,13 +14,13 @@ const themeColorOptions = [
 
 export default memo(function ColorPicker({ value, onChange, theme }) {
   return (
-    <div className="flex items-center gap-1 flex-wrap">
+    <div className="flex items-center gap-1.5 flex-wrap">
       {themeColorOptions.map((color) => (
         <button
           key={color.id}
           onClick={() => onChange(color.id)}
           title={color.name}
-          className={`w-6 h-6 sm:w-5 sm:h-5 rounded-full border-2 transition-transform hover:scale-110 ${
+          className={`w-7 h-7 rounded-full border-2 transition-transform hover:scale-110 active:scale-95 ${
             value === color.id
               ? 'border-primary ring-2 ring-primary/20'
               : 'border-ui-border'
@@ -28,13 +28,13 @@ export default memo(function ColorPicker({ value, onChange, theme }) {
           style={{ backgroundColor: theme[color.id] }}
         />
       ))}
-      <span className="w-px h-4 sm:h-3 bg-ui-surface-hover mx-0.5" />
+      <span className="w-px h-5 bg-ui-surface-hover mx-0.5" />
       {neutralColors.map((color) => (
         <button
           key={color.id}
           onClick={() => onChange(color.id)}
           title={color.name}
-          className={`w-5 h-5 sm:w-3.5 sm:h-3.5 rounded-full border transition-transform hover:scale-110 ${
+          className={`w-6 h-6 rounded-full border transition-transform hover:scale-110 active:scale-95 ${
             value === color.id
               ? 'border-primary ring-2 ring-primary/20'
               : 'border-ui-border-strong'

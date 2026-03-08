@@ -73,7 +73,7 @@ function CellGrid({ layout, cellImages = {}, selectedCell, onSelectCell, platfor
               return (
                 <div
                   key={`cell-${currentCellIndex}`}
-                  className={`relative cursor-pointer transition-colors min-h-[6px] ${bgClass} flex items-center justify-center`}
+                  className={`relative cursor-pointer transition-colors min-h-[10px] ${bgClass} flex items-center justify-center active:opacity-70`}
                   style={{ flex: `1 1 ${subSize}%` }}
                   onClick={() => onSelectCell(currentCellIndex)}
                   title={`Cell ${currentCellIndex + 1}`}
@@ -98,7 +98,7 @@ function PageDot({ pageState, isActive, onClick, index }) {
   return (
     <button
       onClick={onClick}
-      className={`relative shrink-0 w-7 h-7 rounded-md overflow-hidden border-2 transition-all hover:scale-110 ${
+      className={`relative shrink-0 w-8 h-8 rounded-md overflow-hidden border-2 transition-all hover:scale-110 active:scale-95 ${
         isActive
           ? 'border-primary ring-1 ring-primary/30'
           : 'border-ui-border hover:border-ui-border-strong'
@@ -182,7 +182,7 @@ export default memo(function ContextBar({
                   onClick={() => onMovePage(activePage, activePage - 1)}
                   disabled={activePage === 0}
                   title="Move page left"
-                  className="w-6 h-6 sm:w-5 sm:h-5 rounded flex items-center justify-center text-ui-text-subtle hover:bg-ui-surface-hover disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                  className="w-8 h-8 sm:w-7 sm:h-7 rounded flex items-center justify-center text-ui-text-subtle hover:bg-ui-surface-hover active:bg-ui-surface-inset disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                 >
                   <svg className="w-3.5 h-3.5 sm:w-3 sm:h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -192,7 +192,7 @@ export default memo(function ContextBar({
                   onClick={() => onMovePage(activePage, activePage + 1)}
                   disabled={activePage === pageCount - 1}
                   title="Move page right"
-                  className="w-6 h-6 sm:w-5 sm:h-5 rounded flex items-center justify-center text-ui-text-subtle hover:bg-ui-surface-hover disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                  className="w-8 h-8 sm:w-7 sm:h-7 rounded flex items-center justify-center text-ui-text-subtle hover:bg-ui-surface-hover active:bg-ui-surface-inset disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                 >
                   <svg className="w-3.5 h-3.5 sm:w-3 sm:h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -204,7 +204,7 @@ export default memo(function ContextBar({
               <button
                 onClick={onDuplicatePage}
                 title="Duplicate page"
-                className="w-6 h-6 sm:w-5 sm:h-5 rounded flex items-center justify-center text-ui-text-subtle hover:bg-ui-surface-hover transition-colors"
+                className="w-8 h-8 sm:w-7 sm:h-7 rounded flex items-center justify-center text-ui-text-subtle hover:bg-ui-surface-hover active:bg-ui-surface-inset transition-colors"
               >
                 <svg className="w-3.5 h-3.5 sm:w-3 sm:h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
@@ -214,7 +214,7 @@ export default memo(function ContextBar({
             <button
               onClick={onAddPage}
               title="Add new page"
-              className="w-6 h-6 sm:w-5 sm:h-5 rounded flex items-center justify-center text-primary hover:bg-primary/10 transition-colors"
+              className="w-8 h-8 sm:w-7 sm:h-7 rounded flex items-center justify-center text-primary hover:bg-primary/10 active:bg-primary/20 transition-colors"
             >
               <svg className="w-4 h-4 sm:w-3.5 sm:h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -229,7 +229,7 @@ export default memo(function ContextBar({
                 }}
                 disabled={pageCount <= 1}
                 title="Remove current page"
-                className="w-6 h-6 sm:w-5 sm:h-5 rounded flex items-center justify-center text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                className="w-8 h-8 sm:w-7 sm:h-7 rounded flex items-center justify-center text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 active:bg-red-100 dark:active:bg-red-900/30 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
               >
                 <svg className="w-3.5 h-3.5 sm:w-3 sm:h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />

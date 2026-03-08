@@ -53,7 +53,7 @@ export default memo(function AlignmentPicker({ value, onChange }) {
             key={align.id ?? 'default'}
             onClick={() => onChange(align.id)}
             title={align.name}
-            className={`w-8 h-7 sm:w-6 sm:h-5 rounded flex items-center justify-center transition-colors ${
+            className={`w-8 h-7 sm:w-7 sm:h-6 rounded flex items-center justify-center transition-colors active:scale-90 ${
               isActive
                 ? 'bg-primary text-white'
                 : 'bg-ui-surface-inset text-ui-text-subtle hover:bg-ui-surface-hover'

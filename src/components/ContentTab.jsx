@@ -95,7 +95,7 @@ function TextElementEditor({
         {/* Visibility Toggle */}
         <button
           onClick={() => onTextChange(cellIndex, element.id, { visible: !isVisible })}
-          className={`w-7 h-7 sm:w-6 sm:h-6 rounded-md flex items-center justify-center text-xs shrink-0 ${
+          className={`w-8 h-8 sm:w-7 sm:h-7 rounded-md flex items-center justify-center text-xs shrink-0 active:scale-90 ${
             isVisible ? 'bg-green-100 dark:bg-green-900/50 text-green-600 dark:text-green-400' : 'bg-ui-surface-inset text-ui-text-faint'
           }`}
           title={isVisible ? 'Visible - click to hide' : 'Hidden - click to show'}
@@ -112,7 +112,7 @@ function TextElementEditor({
         {layerState.content && (
           <button
             onClick={() => onTextChange(cellIndex, element.id, { content: '' })}
-            className="w-6 h-6 rounded flex items-center justify-center text-ui-text-faint hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+            className="w-7 h-7 rounded flex items-center justify-center text-ui-text-faint hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 active:bg-red-100 dark:active:bg-red-900/30 transition-colors"
             title="Clear text"
           >
             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -124,7 +124,7 @@ function TextElementEditor({
         {/* Style toggle (#2) */}
         <button
           onClick={() => setShowStyle(!showStyle)}
-          className={`w-7 h-7 sm:w-6 sm:h-6 rounded flex items-center justify-center text-xs transition-colors ${
+          className={`w-8 h-8 sm:w-7 sm:h-7 rounded flex items-center justify-center text-xs transition-colors active:scale-90 ${
             showStyle ? 'bg-primary/10 text-primary' : 'bg-ui-surface-inset text-ui-text-subtle hover:bg-ui-surface-hover'
           }`}
           title="Text style options"
@@ -180,7 +180,7 @@ function TextElementEditor({
                   key={size.id}
                   onClick={() => onTextChange(cellIndex, element.id, { size: size.id })}
                   title={`Size ${size.name}`}
-                  className={`w-7 h-6 sm:w-5 sm:h-5 text-[11px] sm:text-[10px] font-medium rounded ${
+                  className={`w-8 h-7 sm:w-7 sm:h-6 text-[11px] sm:text-[10px] active:scale-90 font-medium rounded ${
                     layerState.size === size.id
                       ? 'bg-primary text-white'
                       : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
@@ -195,7 +195,7 @@ function TextElementEditor({
               <button
                 onClick={() => onTextChange(cellIndex, element.id, { bold: !layerState.bold })}
                 title="Bold"
-                className={`w-8 h-6 sm:w-6 sm:h-5 text-[11px] sm:text-[10px] font-bold rounded ${
+                className={`w-9 h-7 sm:w-7 sm:h-6 text-[11px] sm:text-[10px] active:scale-90 font-bold rounded ${
                   layerState.bold
                     ? 'bg-primary text-white'
                     : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
@@ -206,7 +206,7 @@ function TextElementEditor({
               <button
                 onClick={() => onTextChange(cellIndex, element.id, { italic: !layerState.italic })}
                 title="Italic"
-                className={`w-8 h-6 sm:w-6 sm:h-5 text-[11px] sm:text-[10px] italic rounded ${
+                className={`w-9 h-7 sm:w-7 sm:h-6 text-[11px] sm:text-[10px] active:scale-90 italic rounded ${
                   layerState.italic
                     ? 'bg-primary text-white'
                     : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
@@ -226,7 +226,7 @@ function TextElementEditor({
                   key={opt.id}
                   onClick={() => onTextChange(cellIndex, element.id, { letterSpacing: opt.id })}
                   title={opt.name}
-                  className={`px-2 h-6 sm:px-1.5 sm:h-5 text-[11px] sm:text-[10px] rounded ${
+                  className={`px-2.5 h-7 sm:px-2 sm:h-6 text-[11px] sm:text-[10px] active:scale-90 rounded ${
                     layerState.letterSpacing === opt.id
                       ? 'bg-primary text-white'
                       : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
@@ -317,7 +317,7 @@ function MarkdownToolbar({ textareaRef, content, onContentChange }) {
               type="button"
               onClick={() => applyFormat(fmt)}
               title={fmt.title}
-              className="px-2.5 py-1.5 sm:px-1.5 sm:py-0.5 text-[12px] sm:text-[11px] font-medium rounded text-ui-text-muted hover:bg-ui-surface-hover hover:text-ui-text transition-colors shrink-0"
+              className="px-2.5 py-1.5 sm:px-2 sm:py-1 text-[12px] sm:text-[11px] font-medium rounded text-ui-text-muted hover:bg-ui-surface-hover hover:text-ui-text active:bg-ui-surface-inset transition-colors shrink-0"
               style={fmt.style ? { textDecoration: fmt.style === 'line-through' ? 'line-through' : undefined, fontStyle: fmt.style === 'italic' ? 'italic' : undefined } : undefined}
             >
               {fmt.label}
@@ -419,7 +419,7 @@ function FreeformCellEditor({
               key={size.id}
               onClick={() => onFreeformTextChange(cellIndex, { size: size.id })}
               title={`Size ${size.name}`}
-              className={`w-7 h-6 sm:w-5 sm:h-5 text-[11px] sm:text-[10px] font-medium rounded ${
+              className={`w-8 h-7 sm:w-7 sm:h-6 text-[11px] sm:text-[10px] active:scale-90 font-medium rounded ${
                 data.size === size.id
                   ? 'bg-primary text-white'
                   : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'

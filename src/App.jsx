@@ -23,6 +23,7 @@ import InstallInstructionsModal from './components/InstallInstructionsModal'
 import TutorialModal from './components/TutorialModal'
 import SaveLoadModal from './components/SaveLoadModal'
 import ContextBar from './components/ContextBar'
+import { useOnlineStatus } from './hooks/useOnlineStatus'
 import { platforms } from './config/platforms'
 import { fonts } from './config/fonts'
 
@@ -68,10 +69,10 @@ function CanvasCellOverlay({ layout, selectedCell, onSelectCell }) {
                 flex: `1 1 ${subSizes[subIndex]}%`,
                 cursor: 'pointer',
                 boxSizing: 'border-box',
-                border: isSelected ? '2px solid rgba(99, 102, 241, 0.7)' : '1px solid transparent',
-                transition: 'border-color 0.15s',
+                border: isSelected ? '2px solid rgba(99, 102, 241, 0.7)' : '1px solid rgba(99, 102, 241, 0.15)',
+                transition: 'border-color 0.15s, background-color 0.15s',
               }}
-              className="hover:border-primary/40"
+              className="hover:border-primary/40 active:bg-primary/10"
               title={`Cell ${currentCellIndex + 1}`}
             />
           )
@@ -110,6 +111,7 @@ function App() {
   const { isDark, toggle: toggleDarkMode } = useDarkMode()
   const { canInstall, install, showManualInstructions, getInstallInstructions, isInstalled } = usePWAInstall()
   const { hasUpdate, update } = usePWAUpdate()
+  const isOnline = useOnlineStatus()
 
   const {
     state,
@@ -476,6 +478,13 @@ function App() {
           </div>
         </div>
       </header>
+
+      {/* Offline banner */}
+      {!isOnline && (
+        <div className="bg-amber-50 dark:bg-amber-900/30 border-b border-amber-200 dark:border-amber-800 px-4 py-2 text-center text-sm text-amber-700 dark:text-amber-300">
+          You're offline. Your work is saved locally, but sample images and fonts may not load.
+        </div>
+      )}
 
       {/* Tab Navigation Bar - full width, website header style */}
       <nav className="bg-white/90 dark:bg-dark-card/90 backdrop-blur-sm border-b border-zinc-200/60 dark:border-zinc-700/60 sticky top-0 z-10">
