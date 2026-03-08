@@ -272,6 +272,8 @@ These footers are required on every commit. No exceptions.
 - **PWA install prompt race condition:** `beforeinstallprompt` is captured by an inline script in `index.html` before React mounts. The `usePWAInstall` hook checks `window.__pwaInstallPrompt` on mount. Never remove that inline script.
 - **PWA icon purposes:** Never combine `"any maskable"` in a single icon entry. Use separate entries with individual `purpose` values. Dedicated 1024px maskable icon at `pwa-maskable-1024.png`.
 - **Debug system (dev only):** `src/utils/debugLog.js` is an in-memory 200-entry circular buffer with pub/sub. `src/components/DebugPill.jsx` renders in a separate React root (survives App crashes). Only mounted in `import.meta.env.DEV`. Use `debugLog(source, event, details, severity)` to add entries.
+- **jsPDF image handling:** jsPDF embeds JPEG directly (DCT_DECODE passthrough — no re-encoding), but decodes PNG to raw pixels and re-compresses with deflate (5-10x larger for photos). Always use JPEG for PDF image capture. PDF pages have white backgrounds so transparency isn't needed.
+- **Design storage is IndexedDB:** `utils/designStorage.js` wraps IndexedDB with async save/load/list/delete. One-time migration from localStorage runs on first mount via `migrateFromLocalStorage()`. Never use localStorage for designs.
 - **Sister project reference:** `devmade-ai/glow-props` shares the same CLAUDE.md scaffolding (process, principles, standards). Its `Suggested Implementations` section documents PWA patterns, debug system, and icon generation that were adopted here. Check it for future cross-pollination: `https://github.com/devmade-ai/glow-props/blob/main/CLAUDE.md`
 
 ### REMINDER: READ AND FOLLOW THE FUCKING AI NOTES EVERY TIME
@@ -338,11 +340,9 @@ Core features working:
 - Logo upload with position (corners, center) and size options
 - Frame system: Colored borders using percentage of padding
 - Flexible layout system with sub-tab organization (see Layout Tab Sub-tabs below)
-- Text groups with cell assignment (structured mode):
-  - Title + Tagline (paired)
-  - Body Heading + Body Text (paired)
-  - CTA (independent)
-  - Footnote (independent)
+- Per-cell structured text (structured mode):
+  - Each cell has its own text elements: title, tagline, bodyHeading, bodyText, cta, footnote
+  - Text elements organized in groups: Title+Tagline, Body, CTA, Footnote
 - Theme system with 12 color themes and custom colors
 - Overlay system with 34 effects:
   - Basic: Solid color
@@ -360,7 +360,7 @@ Core features working:
   - Other: Email Header, Zoom Background
 - **Export format selection**: PNG, JPG, or WebP with per-platform recommendations
 - Single download, ZIP batch download, multi-page ZIP export, and PDF export
-- **PDF export**: Save as PDF via jsPDF (for LinkedIn carousels, works on mobile)
+- **PDF export**: Save as PDF via jsPDF (JPEG at 2x, embedded directly — sharp and small)
 - **Platform specs**: Two-level selector (platform → format), tips, file size limits, recommended formats
 - Responsive preview that adapts to device width
 - **PWA support**: Installable app with offline capability and update prompts
@@ -387,7 +387,7 @@ Tab descriptions (workflow-based organization):
 - **Presets** - Start here: Layout presets (with aspect ratio filtering), color themes, and visual looks
 - **Media** - Sample images, upload images to library, assign to cells, per-image overlay & filters, logo
 - **Content** - Write text, set visibility, cell assignment, alignment, color, size
-- **Structure** - Fine-tune grid structure and cell alignment
+- **Structure** - Fine-tune grid structure (section sizes, subdivisions, reorder)
 - **Style** - Typography, per-cell overlay, spacing, frames
 
 ## Tech Stack
@@ -423,10 +423,12 @@ src/
 │   ├── PlatformPreview.jsx    # Platform selector
 │   ├── ExportButtons.jsx      # Export controls (single, multi-platform, multi-page)
 │   ├── TutorialModal.jsx      # In-app help walkthrough (8 steps covering all tabs)
-│   ├── SaveLoadModal.jsx      # Save/load/delete designs to localStorage
+│   ├── SaveLoadModal.jsx      # Save/load/delete designs (IndexedDB)
 │   ├── LogoUploader.jsx       # Logo upload, position, and size controls
 │   ├── InstallInstructionsModal.jsx # Manual PWA install instructions
 │   ├── ErrorBoundary.jsx      # Error handling wrapper
+│   ├── AlignmentPicker.jsx    # Reusable alignment button group
+│   ├── MiniCellGrid.jsx       # Compact cell grid for ContextBar
 │   └── DebugPill.jsx          # Floating debug panel (separate React root, dev only)
 ├── config/         # Configuration
 │   ├── layouts.js        # 34 overlay types (solid, gradients, radial, effects, blends, textures)
@@ -435,14 +437,19 @@ src/
 │   ├── platforms.js      # 28 formats across 12 platform groups (nested: platformGroups + flat: platforms)
 │   ├── sampleImages.js   # CDN manifest URL for sample images (fetched at runtime)
 │   ├── themes.js         # 12 color themes
-│   └── fonts.js          # 15 Google Fonts
+│   ├── fonts.js          # 15 Google Fonts
+│   ├── textDefaults.js   # Default text layer state (shared by AdCanvas + ContentTab)
+│   └── alignment.jsx     # Alignment icon components and option arrays
 ├── hooks/
-│   ├── useAdState.js     # Central state (multi-page, textGroups, freeformText, layout)
-│   ├── useHistory.js     # Undo/redo history management
+│   ├── useAdState.js     # Central state (multi-page, per-cell text, freeformText, layout)
+│   ├── useHistory.js     # Undo/redo history management (shallowEqual skips base64)
 │   ├── useDarkMode.js    # Dark mode toggle
+│   ├── useOnlineStatus.js # Online/offline detection
 │   ├── usePWAInstall.js  # PWA install prompt state
 │   └── usePWAUpdate.js   # PWA update detection state
 ├── utils/
+│   ├── cellUtils.js      # Cell counting, shifting, swapping, cleanup utilities
+│   ├── designStorage.js  # IndexedDB wrapper for design persistence
 │   └── debugLog.js       # In-memory debug event store (200-entry circular buffer)
 ├── App.jsx
 └── main.jsx
@@ -458,7 +465,7 @@ pages: [null, { images: [...], layout: {...}, text: {...}, ... }]
 activePage: 0  // Index of active page
 
 // Per-page fields: activeStylePreset, activeLayoutPreset, images, cellImages,
-//   defaultImageSettings, text, textCells, layout, padding, frame, textMode, freeformText
+//   defaultImageSettings, text, layout, padding, frame, textMode, freeformText
 // Shared fields: theme, fonts, platform, exportFormat, logo, logoPosition, logoSize
 
 // Text mode: 'structured' (text groups) or 'freeform' (per-cell text)
@@ -508,25 +515,23 @@ frame: {
   cellFrames: { 0: { percent: 50, color: 'accent' } }  // Per-cell frames
 }
 
+// Per-cell structured text — each cell has its own text elements
 text: {
-  title: {
-    content: '...',
-    visible: true,
-    color: 'secondary',
-    size: 1,
-    bold: true,
-    italic: false,
-    letterSpacing: 0,
-    textAlign: null,         // Per-element horizontal alignment (null = use cell default)
-    textVerticalAlign: null, // Per-element vertical alignment (null = use cell default)
+  0: {  // cell index
+    title: {
+      content: '...',
+      visible: true,
+      color: 'secondary',
+      size: 1,
+      bold: true,
+      italic: false,
+      letterSpacing: 0,
+      textAlign: null,         // Per-element horizontal alignment (null = use cell default)
+      textVerticalAlign: null, // Per-element vertical alignment (null = use cell default)
+    },
+    // ... same structure for tagline, bodyHeading, bodyText, cta, footnote
   },
-  // ... same structure for tagline, bodyHeading, bodyText, cta, footnote
-}
-
-textCells: {
-  title: null,      // null = auto, number = specific cell index
-  tagline: null,
-  // ...
+  1: { title: {...}, bodyText: {...} },  // Another cell
 }
 
 // Alignment fallback chain: element.textAlign → cellAlignments[cell] → layout.textAlign
@@ -557,7 +562,8 @@ Top-level toggle: **Structured** / **Freeform**
 - **Body** - Heading + body text
 - **Call to Action** - CTA button text
 - **Footnote** - Fine print
-- Each text element has: visibility toggle, text input, cell assignment, alignment, color, size, bold/italic, letter spacing
+- Each text element has: visibility toggle, text input, alignment, color, size, bold/italic, letter spacing
+- Text alignment controls (horizontal + vertical) per cell — moved from Structure tab
 
 **Freeform mode** - Per-cell text editors:
 - One text block per cell with independent content
@@ -566,8 +572,7 @@ Top-level toggle: **Structured** / **Freeform**
 
 ### Structure Tab (formerly Layout)
 Collapsible sections:
-- **Structure** - Layout type (Full/Rows/Columns), interactive grid for editing section/cell sizes, add/remove sections and subdivisions
-- **Text Alignment** - Context-aware alignment controls (section selected = all cells in section, cell selected = that cell, nothing = global)
+- **Structure** - Layout type (Full/Rows/Columns), interactive grid for editing section/cell sizes, add/remove sections and subdivisions, reorder sections (move up/down for rows, left/right for columns)
 
 ### Style Tab
 Collapsible sections:

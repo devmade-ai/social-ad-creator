@@ -75,14 +75,14 @@ const tutorialSteps = [
         <ul className="space-y-2 text-sm">
           <li className="flex gap-2">
             <span className="text-violet-500">•</span>
-            <span><strong>Structured:</strong> Ready-made text slots — Title, Tagline, Body, Call to Action, and Footnote. Pick which cell each one appears in.</span>
+            <span><strong>Structured:</strong> Ready-made text slots — Title, Tagline, Body, Call to Action, and Footnote. Each cell has its own text elements.</span>
           </li>
           <li className="flex gap-2">
             <span className="text-violet-500">•</span>
             <span><strong>Freeform:</strong> Write anything you want in each cell. Supports rich text formatting.</span>
           </li>
         </ul>
-        <p className="text-ui-text-muted text-sm">Both modes let you change alignment, color, size, bold/italic, and letter spacing.</p>
+        <p className="text-ui-text-muted text-sm">Both modes let you change alignment, color, size, bold/italic, and letter spacing. Text alignment controls (horizontal + vertical) are here too.</p>
       </div>
     ),
   },
@@ -103,10 +103,10 @@ const tutorialSteps = [
           </li>
           <li className="flex gap-2">
             <span className="text-violet-500">•</span>
-            <span><strong>Text position:</strong> Control where text sits inside a cell — top, center, bottom, left, right.</span>
+            <span><strong>Reorder:</strong> Move rows up/down or columns left/right to rearrange sections.</span>
           </li>
         </ul>
-        <p className="text-ui-text-muted text-sm">Tip: Click a cell first, then change its text position.</p>
+        <p className="text-ui-text-muted text-sm">Tip: Text alignment controls are in the Content tab.</p>
       </div>
     ),
   },
@@ -143,23 +143,19 @@ const tutorialSteps = [
     icon: '📤',
     content: (
       <div className="space-y-3">
-        <p>Download your finished design as an image.</p>
+        <p>Download your finished design.</p>
         <ul className="space-y-2 text-sm">
           <li className="flex gap-2">
             <span className="text-violet-500">•</span>
-            <span><strong>Pick a size:</strong> Choose from 20+ sizes for Instagram, TikTok, LinkedIn, print, and more.</span>
+            <span><strong>Pick a size:</strong> Choose from 28 formats for Instagram, TikTok, LinkedIn, print, and more.</span>
           </li>
           <li className="flex gap-2">
             <span className="text-violet-500">•</span>
-            <span><strong>Download:</strong> Save the current size as a single image.</span>
+            <span><strong>File format:</strong> Choose PNG, JPG, or WebP. Each platform shows a recommended format.</span>
           </li>
           <li className="flex gap-2">
             <span className="text-violet-500">•</span>
-            <span><strong>Batch download:</strong> Export multiple sizes at once in a ZIP file.</span>
-          </li>
-          <li className="flex gap-2">
-            <span className="text-violet-500">•</span>
-            <span><strong>All pages:</strong> If you have multiple pages, download them all as numbered images in a ZIP.</span>
+            <span><strong>Download:</strong> Single image, batch ZIP (multiple sizes), all pages ZIP, or PDF.</span>
           </li>
         </ul>
         <p className="text-ui-text-muted text-sm">The preview on the right updates live as you make changes.</p>

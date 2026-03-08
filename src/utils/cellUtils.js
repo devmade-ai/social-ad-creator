@@ -87,13 +87,6 @@ export function countCells(structure) {
  * Used when layout changes reduce the number of cells.
  */
 export function cleanupOrphanedCells(prevState, newCellCount) {
-  const cleanTextCells = { ...prevState.textCells }
-  Object.keys(cleanTextCells).forEach((key) => {
-    if (cleanTextCells[key] !== null && cleanTextCells[key] >= newCellCount) {
-      cleanTextCells[key] = null
-    }
-  })
-
   const cleanCellImages = { ...prevState.cellImages }
   Object.keys(cleanCellImages).forEach((cellIndex) => {
     if (parseInt(cellIndex, 10) >= newCellCount) {
@@ -122,14 +115,93 @@ export function cleanupOrphanedCells(prevState, newCellCount) {
     }
   })
 
+  // Clean per-cell structured text
+  const cleanText = { ...(prevState.text || {}) }
+  Object.keys(cleanText).forEach((cellIndex) => {
+    if (parseInt(cellIndex, 10) >= newCellCount) {
+      delete cleanText[cellIndex]
+    }
+  })
+
   // Note: cellAlignments and cellOverlays live inside layout and are cleaned
   // by setLayout/applyLayoutPreset separately (they need to clean from the
   // NEW layout, not prev.layout). Don't duplicate that cleanup here.
   return {
-    textCells: cleanTextCells,
+    text: cleanText,
     cellImages: cleanCellImages,
     paddingOverrides: cleanPaddingOverrides,
     cellFrames: cleanCellFrames,
     freeformText: cleanFreeformText,
+  }
+}
+
+/**
+ * Shift cell-indexed data when cells are inserted or removed at a position.
+ * Requirement: When inserting/removing sections or subdivisions, all per-cell data
+ *   (text, images, overlays, etc.) must be remapped so content stays with the correct cell.
+ * Approach: Remap object keys and array indices by shifting all indices >= fromIndex by shiftBy.
+ * Alternatives:
+ *   - Only clean orphans (no shift): Rejected — silently reassigns content to wrong cells.
+ *
+ * @param {Object} prevState - Current state
+ * @param {number} fromIndex - First cell index affected by the shift
+ * @param {number} shiftBy - Number of cells to shift (positive = insert, negative = remove)
+ * @returns {Object} State fields with remapped cell indices
+ */
+export function shiftCellIndices(prevState, fromIndex, shiftBy) {
+  const shiftObjectKeys = (obj) => {
+    if (!obj) return {}
+    const result = {}
+    for (const [key, value] of Object.entries(obj)) {
+      const idx = parseInt(key, 10)
+      if (idx >= fromIndex) {
+        const newIdx = idx + shiftBy
+        if (newIdx >= 0) result[newIdx] = value
+      } else {
+        result[key] = value
+      }
+    }
+    return result
+  }
+
+  return {
+    text: shiftObjectKeys(prevState.text),
+    cellImages: shiftObjectKeys(prevState.cellImages),
+    paddingOverrides: shiftObjectKeys(prevState.padding?.cellOverrides),
+    cellFrames: shiftObjectKeys(prevState.frame?.cellFrames),
+    freeformText: shiftObjectKeys(prevState.freeformText),
+  }
+}
+
+/**
+ * Swap cell-indexed data between two sections.
+ * Requirement: When reordering sections, all per-cell data must follow the content.
+ * Approach: Build a bidirectional index mapping from the two sections' cell ranges, then rekey.
+ * Alternatives:
+ *   - Two sequential shifts: Rejected — overlapping ranges cause data loss.
+ *   - Store data by section ID instead of index: Rejected — massive refactor for one feature.
+ *
+ * @param {Object} prevState - Current state
+ * @param {Object} cellMap - Map of oldIndex → newIndex (must be bidirectional/complete for affected cells)
+ * @returns {Object} State fields with remapped cell indices
+ */
+export function swapCellIndices(prevState, cellMap) {
+  const remapObjectKeys = (obj) => {
+    if (!obj) return {}
+    const result = {}
+    for (const [key, value] of Object.entries(obj)) {
+      const idx = parseInt(key, 10)
+      const newIdx = cellMap[idx]
+      result[newIdx !== undefined ? newIdx : idx] = value
+    }
+    return result
+  }
+
+  return {
+    text: remapObjectKeys(prevState.text),
+    cellImages: remapObjectKeys(prevState.cellImages),
+    paddingOverrides: remapObjectKeys(prevState.padding?.cellOverrides),
+    cellFrames: remapObjectKeys(prevState.frame?.cellFrames),
+    freeformText: remapObjectKeys(prevState.freeformText),
   }
 }

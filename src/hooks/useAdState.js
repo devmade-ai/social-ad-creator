@@ -6,21 +6,65 @@
 //   - Separate state per page: Rejected - shared fields (theme, fonts, platform) would
 //     need cross-page sync logic, and undo/redo would only cover the active page.
 //   - Redux/Zustand: Rejected - adds dependency for a single-page app with no async state.
-import { useCallback } from 'react'
+import { useCallback, useEffect, useRef } from 'react'
 import { presetThemes } from '../config/themes'
 import { getLookSettingsForLayout } from '../config/stylePresets'
 import { useHistory } from './useHistory'
-import { countCells, cleanupOrphanedCells } from '../utils/cellUtils'
+import { countCells, cleanupOrphanedCells, shiftCellIndices, swapCellIndices } from '../utils/cellUtils'
+import * as designStorage from '../utils/designStorage'
 
 const defaultTheme = presetThemes[0] // Dark theme
-const STORAGE_KEY = 'canvagrid-designs'
+
+// Element IDs for structured text (used only in legacy migration)
+const TEXT_ELEMENT_IDS = ['title', 'tagline', 'bodyHeading', 'bodyText', 'cta', 'footnote']
+
+// Requirement: Migrate old global text format for the one-time localStorage→IndexedDB transfer.
+// This runs during migration only, not on every load. After migration, designs in IndexedDB
+// are already in the per-cell format.
+function migrateTextForStorage(stateObj) {
+  if (!stateObj.text) return
+  const hasOldFormat = TEXT_ELEMENT_IDS.some((id) => stateObj.text[id] && typeof stateObj.text[id] === 'object' && 'content' in stateObj.text[id])
+  if (!hasOldFormat) return
+
+  const oldText = stateObj.text
+  const textCells = stateObj.textCells || {}
+  const newText = {}
+  const imageCells = stateObj.layout?.imageCells || [0]
+  const totalCells = countCells(stateObj.layout?.structure)
+  const firstImageCell = imageCells.length > 0 ? imageCells[0] : 0
+  const firstNonImageCell = totalCells > 1
+    ? Array.from({ length: totalCells }, (_, i) => i).find((i) => !imageCells.includes(i)) ?? 0
+    : 0
+  const autoAssign = { title: firstImageCell, tagline: firstImageCell, cta: firstImageCell, bodyHeading: firstNonImageCell, bodyText: firstNonImageCell, footnote: firstNonImageCell }
+
+  for (const elementId of TEXT_ELEMENT_IDS) {
+    const elementData = oldText[elementId]
+    if (!elementData) continue
+    const cellIndex = textCells[elementId] ?? autoAssign[elementId] ?? 0
+    if (!newText[cellIndex]) newText[cellIndex] = {}
+    newText[cellIndex][elementId] = { ...elementData }
+  }
+
+  stateObj.text = newText
+  delete stateObj.textCells
+
+  // Migrate inactive pages too
+  if (stateObj.pages) {
+    stateObj.pages.forEach((page) => {
+      if (page) {
+        migrateTextForStorage(page)
+        delete page.textCells
+      }
+    })
+  }
+}
 
 // Fields that are unique per page (swapped in/out when switching pages).
 // Everything NOT listed here is shared across all pages (theme, fonts, platform, logo).
 const PAGE_FIELDS = [
   'activeStylePreset', 'activeLayoutPreset',
   'images', 'cellImages', 'defaultImageSettings',
-  'text', 'textCells',
+  'text',
   'layout',
   'padding', 'frame',
   'textMode', 'freeformText',
@@ -45,15 +89,11 @@ const defaultPageData = {
     filters: { grayscale: 0, sepia: 0, blur: 0, contrast: 100, brightness: 100 },
     overlay: { type: 'solid', color: 'primary', opacity: 0 },
   },
-  text: {
-    title: { content: '', visible: true, color: 'secondary', size: 1, bold: true, italic: false, letterSpacing: 0, textAlign: null, textVerticalAlign: null },
-    tagline: { content: '', visible: false, color: 'secondary', size: 1, bold: false, italic: false, letterSpacing: 0, textAlign: null, textVerticalAlign: null },
-    bodyHeading: { content: '', visible: false, color: 'secondary', size: 1, bold: true, italic: false, letterSpacing: 0, textAlign: null, textVerticalAlign: null },
-    bodyText: { content: '', visible: false, color: 'secondary', size: 1, bold: false, italic: false, letterSpacing: 0, textAlign: null, textVerticalAlign: null },
-    cta: { content: '', visible: false, color: 'accent', size: 1, bold: true, italic: false, letterSpacing: 0, textAlign: null, textVerticalAlign: null },
-    footnote: { content: '', visible: false, color: 'secondary', size: 1, bold: false, italic: false, letterSpacing: 0, textAlign: null, textVerticalAlign: null },
-  },
-  textCells: { title: 1, tagline: 1, bodyHeading: 2, bodyText: 2, cta: 2, footnote: 2 },
+  // Requirement: Per-cell structured text — each cell gets its own set of text fields
+  // Approach: text is keyed by cell index, each cell has all 6 fields
+  // Alternatives:
+  //   - Global text with cell assignment (textCells): Rejected — indirect, confusing UX
+  text: {},
   layout: {
     type: 'rows',
     structure: [
@@ -102,22 +142,19 @@ export const defaultState = {
     },
   },
 
+  // Requirement: Per-cell structured text — each cell gets its own title, tagline, body, etc.
+  // Approach: text[cellIndex] = { title: {...}, tagline: {...}, ... }
   text: {
-    title: { content: 'Your Title Here', visible: true, color: 'secondary', size: 1, bold: true, italic: false, letterSpacing: 0, textAlign: null, textVerticalAlign: null },
-    tagline: { content: 'Elevate your brand today', visible: true, color: 'secondary', size: 1, bold: false, italic: false, letterSpacing: 0, textAlign: null, textVerticalAlign: null },
-    bodyHeading: { content: 'Why Choose Us', visible: true, color: 'secondary', size: 1, bold: true, italic: false, letterSpacing: 0, textAlign: null, textVerticalAlign: null },
-    bodyText: { content: 'Transform your business with innovative solutions designed for success.', visible: true, color: 'secondary', size: 1, bold: false, italic: false, letterSpacing: 0, textAlign: null, textVerticalAlign: null },
-    cta: { content: 'Learn More', visible: true, color: 'accent', size: 1, bold: true, italic: false, letterSpacing: 0, textAlign: null, textVerticalAlign: null },
-    footnote: { content: '*Terms and conditions apply', visible: true, color: 'secondary', size: 1, bold: false, italic: false, letterSpacing: 0, textAlign: null, textVerticalAlign: null },
-  },
-
-  textCells: {
-    title: 1,
-    tagline: 1,
-    bodyHeading: 2,
-    bodyText: 2,
-    cta: 2,
-    footnote: 2,
+    1: {
+      title: { content: 'Your Title Here', visible: true, color: 'secondary', size: 1, bold: true, italic: false, letterSpacing: 0, textAlign: null, textVerticalAlign: null },
+      tagline: { content: 'Elevate your brand today', visible: true, color: 'secondary', size: 1, bold: false, italic: false, letterSpacing: 0, textAlign: null, textVerticalAlign: null },
+    },
+    2: {
+      bodyHeading: { content: 'Why Choose Us', visible: true, color: 'secondary', size: 1, bold: true, italic: false, letterSpacing: 0, textAlign: null, textVerticalAlign: null },
+      bodyText: { content: 'Transform your business with innovative solutions designed for success.', visible: true, color: 'secondary', size: 1, bold: false, italic: false, letterSpacing: 0, textAlign: null, textVerticalAlign: null },
+      cta: { content: 'Learn More', visible: true, color: 'accent', size: 1, bold: true, italic: false, letterSpacing: 0, textAlign: null, textVerticalAlign: null },
+      footnote: { content: '*Terms and conditions apply', visible: true, color: 'secondary', size: 1, bold: false, italic: false, letterSpacing: 0, textAlign: null, textVerticalAlign: null },
+    },
   },
 
   logo: null,
@@ -314,35 +351,133 @@ export function useAdState() {
     setState((prev) => ({ ...prev, logoSize }))
   }, [setState])
 
-  const setText = useCallback((layer, updates) => {
+  // Requirement: Per-cell structured text — setText now takes cellIndex
+  // Approach: text[cellIndex][layer] = { ...updates }
+  const setText = useCallback((cellIndex, layer, updates) => {
     setState((prev) => ({
       ...prev,
       text: {
         ...prev.text,
-        [layer]: { ...prev.text[layer], ...updates },
+        [cellIndex]: {
+          ...(prev.text?.[cellIndex] || {}),
+          [layer]: { ...(prev.text?.[cellIndex]?.[layer] || {}), ...updates },
+        },
       },
     }))
   }, [setState])
 
-  const setTextCells = useCallback((updates) => {
-    setState((prev) => ({
-      ...prev,
-      textCells: { ...prev.textCells, ...updates },
-    }))
-  }, [setState])
-
   // Requirement: Changing layout structure must not leave orphaned cell references.
-  // Approach: On every layout update, clean up textCells, cellImages, cellAlignments,
-  //   cellOverlays, padding overrides, cell frames, and freeformText that reference
-  //   cells beyond the new cell count. Uses shared cleanupOrphanedCells utility.
+  // Approach: On every layout update, shift cell-indexed data if cells were inserted/removed
+  //   (via _cellShift metadata), then clean up orphaned references beyond the new cell count.
   // Alternatives:
   //   - Lazy cleanup on render: Rejected - would cause subtle bugs when rendering stale refs.
   //   - Separate cleanup action: Rejected - user could forget; automatic is safer.
   const setLayout = useCallback((updates) => {
     setState((prev) => {
-      const newLayout = { ...prev.layout, ...updates }
+      // Extract cell remap metadata (not stored in layout)
+      const { _cellShift, _cellSwap, ...layoutUpdates } = updates
+      const newLayout = { ...prev.layout, ...layoutUpdates }
       const newCellCount = countCells(newLayout.structure)
-      const cleaned = cleanupOrphanedCells(prev, newCellCount)
+
+      // If cells were inserted/removed, remap indices first so content stays
+      // with the correct visual cell. Then clean up any orphans beyond bounds.
+      let stateForCleanup = prev
+      if (_cellShift) {
+        const { fromIndex, shiftBy } = _cellShift
+        const shifted = shiftCellIndices(prev, fromIndex, shiftBy)
+
+        // Shift cellAlignments (array) and cellOverlays (object) from the layout too
+        const oldAlignments = newLayout.cellAlignments || []
+        const shiftedAlignments = []
+        for (let i = 0; i < oldAlignments.length; i++) {
+          if (i >= fromIndex) {
+            const newIdx = i + shiftBy
+            if (newIdx >= 0) shiftedAlignments[newIdx] = oldAlignments[i]
+          } else {
+            shiftedAlignments[i] = oldAlignments[i]
+          }
+        }
+        // Fill gaps with null alignment
+        for (let i = 0; i < shiftedAlignments.length; i++) {
+          if (!shiftedAlignments[i]) shiftedAlignments[i] = { textAlign: null, textVerticalAlign: null }
+        }
+
+        const oldOverlays = newLayout.cellOverlays || {}
+        const shiftedOverlays = {}
+        for (const [key, value] of Object.entries(oldOverlays)) {
+          const idx = parseInt(key, 10)
+          if (idx >= fromIndex) {
+            const newIdx = idx + shiftBy
+            if (newIdx >= 0) shiftedOverlays[newIdx] = value
+          } else {
+            shiftedOverlays[key] = value
+          }
+        }
+
+        // Shift imageCells array values
+        const oldImageCells = newLayout.imageCells || [0]
+        const shiftedImageCells = oldImageCells.map((cellIdx) =>
+          cellIdx >= fromIndex ? cellIdx + shiftBy : cellIdx,
+        ).filter((cellIdx) => cellIdx >= 0 && cellIdx < newCellCount)
+        const finalImageCells = shiftedImageCells.length > 0 ? shiftedImageCells : [0]
+
+        newLayout.cellAlignments = shiftedAlignments
+        newLayout.cellOverlays = shiftedOverlays
+        newLayout.imageCells = finalImageCells
+
+        // Build intermediate state with shifted data for cleanupOrphanedCells
+        stateForCleanup = {
+          ...prev,
+          text: shifted.text,
+          cellImages: shifted.cellImages,
+          padding: { ...prev.padding, cellOverrides: shifted.paddingOverrides },
+          frame: { ...prev.frame, cellFrames: shifted.cellFrames },
+          freeformText: shifted.freeformText,
+        }
+      }
+
+      // Requirement: Swapping sections must remap all per-cell data bidirectionally.
+      // Approach: _cellSwap provides a complete oldIndex→newIndex map for affected cells.
+      if (_cellSwap) {
+        const swapped = swapCellIndices(stateForCleanup, _cellSwap)
+
+        // Remap cellAlignments (array)
+        const oldAlignments = newLayout.cellAlignments || []
+        const swappedAlignments = [...oldAlignments]
+        for (const [oldIdx, newIdx] of Object.entries(_cellSwap)) {
+          swappedAlignments[newIdx] = oldAlignments[parseInt(oldIdx, 10)] || { textAlign: null, textVerticalAlign: null }
+        }
+        newLayout.cellAlignments = swappedAlignments
+
+        // Remap cellOverlays (object)
+        const oldOverlays = newLayout.cellOverlays || {}
+        const swappedOverlays = { ...oldOverlays }
+        // Clear old keys for swapped cells first, then set new
+        for (const oldIdx of Object.keys(_cellSwap)) {
+          delete swappedOverlays[oldIdx]
+        }
+        for (const [oldIdx, newIdx] of Object.entries(_cellSwap)) {
+          if (oldOverlays[oldIdx]) swappedOverlays[newIdx] = oldOverlays[oldIdx]
+        }
+        newLayout.cellOverlays = swappedOverlays
+
+        // Remap imageCells array values
+        const oldImageCells = newLayout.imageCells || [0]
+        newLayout.imageCells = oldImageCells.map((cellIdx) =>
+          _cellSwap[cellIdx] !== undefined ? _cellSwap[cellIdx] : cellIdx,
+        )
+
+        stateForCleanup = {
+          ...stateForCleanup,
+          text: swapped.text,
+          cellImages: swapped.cellImages,
+          padding: { ...stateForCleanup.padding, cellOverrides: swapped.paddingOverrides },
+          frame: { ...stateForCleanup.frame, cellFrames: swapped.cellFrames },
+          freeformText: swapped.freeformText,
+        }
+      }
+
+      const cleaned = cleanupOrphanedCells(stateForCleanup, newCellCount)
 
       // For layout-internal fields, cleanup from newLayout (which includes user's updates)
       // rather than prev.layout (which cleanupOrphanedCells uses)
@@ -357,7 +492,7 @@ export function useAdState() {
       return {
         ...prev,
         layout: { ...newLayout, cellAlignments: cleanCellAlignments, cellOverlays: cleanCellOverlays },
-        textCells: cleaned.textCells,
+        text: cleaned.text,
         cellImages: cleaned.cellImages,
         padding: { ...prev.padding, cellOverrides: cleaned.paddingOverrides },
         frame: { ...prev.frame, cellFrames: cleaned.cellFrames },
@@ -473,12 +608,69 @@ export function useAdState() {
     setState((prev) => ({ ...prev, activeStylePreset: null }))
   }, [setState])
 
+  // Requirement: Apply layout preset and redistribute text from image cells to non-image cells
+  // Approach: After cleanup, move text entries that land on image cells to the first available
+  //   non-image cell. Preserves user content while respecting the preset's cell roles.
+  // Alternatives:
+  //   - Drop text on image cells: Rejected — loses user content silently
+  //   - Keep text on image cells: Rejected — text hidden behind images, confusing UX
   const applyLayoutPreset = useCallback((preset) => {
     if (!preset) return
 
     setState((prev) => {
       const newCellCount = countCells(preset.layout.structure)
       const cleaned = cleanupOrphanedCells(prev, newCellCount)
+      const imageCells = preset.layout.imageCells || []
+      const allCells = Array.from({ length: newCellCount }, (_, i) => i)
+      const nonImageCells = allCells.filter((i) => !imageCells.includes(i))
+
+      // Requirement: Distribute text across non-image cells when switching presets
+      // Approach: Collect all text from image cells, split into header/body groups,
+      //   distribute across available non-image cells so presets look complete
+      // Alternatives:
+      //   - Dump all text into first non-image cell: Rejected — looks cramped, bad UX
+      //   - Per-preset text mapping: Rejected — too much config to maintain
+      const redistributedText = { ...cleaned.text }
+      if (nonImageCells.length > 0) {
+        // Collect text elements displaced from image cells
+        const displaced = {}
+        Object.keys(redistributedText).forEach((cellIndex) => {
+          const ci = parseInt(cellIndex, 10)
+          if (imageCells.includes(ci)) {
+            Object.assign(displaced, redistributedText[ci])
+            delete redistributedText[ci]
+          }
+        })
+
+        // If we have displaced text, distribute it across non-image cells
+        if (Object.keys(displaced).length > 0) {
+          const headerKeys = ['title', 'tagline']
+          const bodyKeys = ['bodyHeading', 'bodyText', 'cta', 'footnote']
+
+          const headerGroup = {}
+          const bodyGroup = {}
+          Object.entries(displaced).forEach(([key, val]) => {
+            if (headerKeys.includes(key)) headerGroup[key] = val
+            else if (bodyKeys.includes(key)) bodyGroup[key] = val
+          })
+
+          // Find non-image cells that don't already have text
+          const emptyNonImageCells = nonImageCells.filter(
+            (ci) => !redistributedText[ci] || Object.keys(redistributedText[ci]).length === 0
+          )
+          const targetCells = emptyNonImageCells.length > 0 ? emptyNonImageCells : nonImageCells
+
+          if (Object.keys(headerGroup).length > 0) {
+            const target = targetCells[0]
+            redistributedText[target] = { ...headerGroup, ...(redistributedText[target] || {}) }
+          }
+          if (Object.keys(bodyGroup).length > 0) {
+            // Use second cell if available, otherwise same as header
+            const target = targetCells.length > 1 ? targetCells[1] : targetCells[0]
+            redistributedText[target] = { ...bodyGroup, ...(redistributedText[target] || {}) }
+          }
+        }
+      }
 
       return {
         ...prev,
@@ -486,14 +678,7 @@ export function useAdState() {
         layout: {
           ...preset.layout,
         },
-        textCells: preset.textCells ? {
-          title: preset.textCells.title ?? null,
-          tagline: preset.textCells.tagline ?? null,
-          bodyHeading: preset.textCells.bodyHeading ?? null,
-          bodyText: preset.textCells.bodyText ?? null,
-          cta: preset.textCells.cta ?? null,
-          footnote: preset.textCells.footnote ?? null,
-        } : cleaned.textCells,
+        text: redistributedText,
         cellImages: cleaned.cellImages,
         padding: { ...prev.padding, cellOverrides: cleaned.paddingOverrides },
         frame: { ...prev.frame, cellFrames: cleaned.cellFrames },
@@ -673,44 +858,46 @@ export function useAdState() {
     }))
   }, [setState])
 
-  const saveDesign = useCallback((name = 'My Design') => {
+  // Requirement: Migrate localStorage designs to IndexedDB on first mount.
+  // Approach: Run once via ref guard. migrateTextForStorage handles old text format
+  //   during the one-time transfer so loadDesign doesn't need compat code.
+  const migrationRan = useRef(false)
+  useEffect(() => {
+    if (!migrationRan.current) {
+      migrationRan.current = true
+      designStorage.migrateFromLocalStorage(migrateTextForStorage)
+    }
+  }, [])
+
+  // Requirement: Design persistence via IndexedDB (no size limits, handles binary natively).
+  // Approach: Async save/load/list/delete. Callers must await results.
+  const saveDesign = useCallback(async (name = 'My Design') => {
     const pages = state.pages || [null]
     const syncedPages = [...pages]
     syncedPages[state.activePage] = extractPageData(state)
 
     const design = {
+      id: `design-${Date.now()}`,
       name,
       savedAt: new Date().toISOString(),
       state: { ...state, pages: syncedPages },
     }
     try {
-      const existingDesigns = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]')
-      const newDesign = { id: `design-${Date.now()}`, ...design }
-      existingDesigns.push(newDesign)
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(existingDesigns))
-      return { success: true, id: newDesign.id }
+      await designStorage.saveDesign(design)
+      return { success: true, id: design.id }
     } catch (error) {
       return { success: false, error: error.message }
     }
   }, [state])
 
-  // Requirement: Load saved designs with backward compatibility for older saves.
-  // Approach: Merge with defaultState to fill missing fields from older saves that
-  //   predate multi-page support (pages, textMode, freeformText).
-  // Alternatives:
-  //   - Version field + explicit migrations: Rejected — overkill for a single-user tool.
-  //   - No migration: Rejected — older saves crash on missing pages/textMode fields.
-  const loadDesign = useCallback((designId) => {
+  const loadDesign = useCallback(async (designId) => {
     try {
-      const designs = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]')
-      const design = designs.find(d => d.id === designId)
+      const design = await designStorage.loadDesign(designId)
       if (design && design.state) {
         const loadedState = { ...defaultState, ...design.state }
-        // Ensure multi-page fields exist for pre-multi-page saves
         if (!loadedState.pages) loadedState.pages = [null]
         if (!loadedState.textMode) loadedState.textMode = 'structured'
         if (!loadedState.freeformText) loadedState.freeformText = {}
-        // saveDesign syncs all pages to non-null, so restore the active one to top-level
         const activePage = loadedState.activePage || 0
         if (loadedState.pages[activePage] !== null) {
           const pageData = loadedState.pages[activePage]
@@ -726,24 +913,17 @@ export function useAdState() {
     }
   }, [resetHistory])
 
-  const getSavedDesigns = useCallback(() => {
+  const getSavedDesigns = useCallback(async () => {
     try {
-      const designs = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]')
-      return designs.map(d => ({
-        id: d.id,
-        name: d.name,
-        savedAt: d.savedAt,
-      }))
+      return await designStorage.listDesigns()
     } catch {
       return []
     }
   }, [])
 
-  const deleteDesign = useCallback((designId) => {
+  const deleteDesign = useCallback(async (designId) => {
     try {
-      const designs = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]')
-      const filtered = designs.filter(d => d.id !== designId)
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered))
+      await designStorage.deleteDesign(designId)
       return { success: true }
     } catch (error) {
       return { success: false, error: error.message }
@@ -763,7 +943,6 @@ export function useAdState() {
     setLogoPosition,
     setLogoSize,
     setText,
-    setTextCells,
     setLayout,
     setTheme,
     setThemePreset,

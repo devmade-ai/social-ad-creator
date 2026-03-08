@@ -1,5 +1,5 @@
 import { useState, useCallback, memo } from 'react'
-import { toPng, toCanvas } from 'html-to-image'
+import { toCanvas } from 'html-to-image'
 import { jsPDF } from 'jspdf'
 import JSZip from 'jszip'
 import { saveAs } from 'file-saver'
@@ -40,9 +40,10 @@ function getTimestamp() {
 
 // Wait for React re-render + browser paint to settle before canvas capture.
 // Double-rAF ensures at least one paint cycle has occurred.
+// Extra 100ms timeout ensures complex layouts with images/fonts are fully composited on slower devices.
 function waitForPaint() {
   return new Promise((resolve) => {
-    requestAnimationFrame(() => requestAnimationFrame(resolve))
+    requestAnimationFrame(() => requestAnimationFrame(() => setTimeout(resolve, 100)))
   })
 }
 
@@ -84,14 +85,48 @@ async function captureAsBlob(element, width, height, format) {
   )
 }
 
-// Capture element as data URL (for PDF embedding, always PNG)
-async function captureAsDataUrl(element, width, height) {
-  return toPng(element, {
+// Requirement: PDF image capture with sharp quality and small file size.
+// Approach: Use JPEG at pixelRatio:2 for sharp rendering, quality 0.92.
+//   jsPDF embeds JPEG streams directly (DCT_DECODE) — no re-encoding overhead.
+//   A 1080×1350 @2x JPEG at 0.92 = ~200-500 KB embedded directly.
+// Alternatives:
+//   - PNG at pixelRatio:2: Rejected — jsPDF decodes PNG to raw pixels (~23 MB for
+//     2160×2700) then re-compresses with deflate, producing files 5-10x larger than
+//     JPEG while being visually identical. PDF pages have white backgrounds so
+//     transparency isn't visible anyway.
+//   - JPEG at pixelRatio:1: Rejected — blurry when downscaled into PDF page dimensions.
+//   - JPEG at pixelRatio:3: Rejected — 3x creates very large canvases on big formats.
+// Requirement: Cap canvas size to prevent memory crashes on large formats.
+// Approach: Target max ~16M pixels. For larger platforms (e.g. YouTube Banner 2560x1440),
+//   reduce pixelRatio to stay within budget.
+const MAX_PDF_PIXELS = 16_000_000 // ~16 megapixels budget
+const PDF_JPEG_QUALITY = 0.92
+
+function getPdfPixelRatio(width, height) {
+  for (let ratio = 2; ratio >= 1; ratio--) {
+    if (width * ratio * height * ratio <= MAX_PDF_PIXELS) return ratio
+  }
+  return 1
+}
+
+async function captureForPdf(element, width, height) {
+  const pixelRatio = getPdfPixelRatio(width, height)
+  const canvas = await toCanvas(element, {
     width,
     height,
-    pixelRatio: 1,
+    pixelRatio,
     style: { opacity: '1', transform: 'scale(1)' },
   })
+  // Use toBlob → Uint8Array instead of toDataURL to avoid ~33% base64 overhead.
+  // jsPDF accepts Uint8Array directly and skips base64 parsing.
+  const blob = await new Promise((resolve, reject) =>
+    canvas.toBlob(
+      (b) => b ? resolve(b) : reject(new Error('Canvas capture failed')),
+      'image/jpeg',
+      PDF_JPEG_QUALITY,
+    )
+  )
+  return new Uint8Array(await blob.arrayBuffer())
 }
 
 export default memo(function ExportButtons({ canvasRef, state, onPlatformChange, onExportFormatChange, onExportingChange, pageCount = 1, onSetActivePage }) {
@@ -235,7 +270,7 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
   }, [canvasRef, state.platform, state.activePage, exportFormat, ext, pageCount, onSetActivePage, updateExporting])
 
   // Requirement: PDF export for LinkedIn carousel documents and general print-to-PDF
-  // Approach: Capture pages as PNGs, build PDF with jsPDF using exact platform dimensions
+  // Approach: Capture pages as JPEGs, build PDF with jsPDF using exact platform dimensions
   // Why: Previous window.open + window.print approach failed on mobile:
   //   - Opened about:blank tab (popup handling differs on mobile)
   //   - Mobile browsers ignore @page size CSS, defaulting to A4/Letter (wrong dimensions)
@@ -243,7 +278,7 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
   // Alternatives:
   //   - window.open + window.print: Rejected - broken on mobile (about:blank, wrong sizes)
   //   - Direct window.print() on app: Rejected - prints entire UI, not just canvas
-  // Note: PDF always uses PNG internally for lossless quality regardless of exportFormat
+  // Note: PDF uses JPEG at 2x — jsPDF embeds JPEG directly (no re-encoding), sharp and small
   const handleExportPDF = useCallback(async () => {
     if (!canvasRef.current) return
 
@@ -254,7 +289,7 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
     setExportOp('pdf')
     const restoreOpacity = hideCanvas(canvasRef.current)
 
-    const pageDataUrls = []
+    const pageImages = []
     const originalActivePage = state.activePage
     const totalPages = pageCount > 1 ? pageCount : 1
 
@@ -272,9 +307,9 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
         const restoreTransform = setFullScale(canvasRef.current)
         await waitForPaint()
 
-        const dataUrl = await captureAsDataUrl(canvasRef.current, platform.width, platform.height)
+        const imageData = await captureForPdf(canvasRef.current, platform.width, platform.height)
         restoreTransform()
-        pageDataUrls.push(dataUrl)
+        pageImages.push(imageData)
       }
 
       if (totalPages > 1) {
@@ -282,9 +317,9 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
       }
 
       // Build PDF with exact platform dimensions using jsPDF.
-      // jsPDF uses points (72 per inch). We map 1 image pixel (captured at pixelRatio:1)
-      // to 72/96 points, so the PDF page dimensions are proportional to the image.
-      // This prevents letterboxing on non-standard aspect ratios (1:1, 4:5, etc.)
+      // jsPDF uses points (72 per inch). Page size is based on platform pixel dimensions
+      // (not the 2x capture size), so the high-res image is downscaled into the page —
+      // resulting in sharp rendering. This prevents letterboxing on non-standard aspect ratios.
       const pxToPt = 72 / 96
       const widthPt = platform.width * pxToPt
       const heightPt = platform.height * pxToPt
@@ -296,11 +331,11 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
         format: [widthPt, heightPt],
       })
 
-      for (let i = 0; i < pageDataUrls.length; i++) {
+      for (let i = 0; i < pageImages.length; i++) {
         if (i > 0) {
           pdf.addPage([widthPt, heightPt], orientation)
         }
-        pdf.addImage(pageDataUrls[i], 'PNG', 0, 0, widthPt, heightPt)
+        pdf.addImage(pageImages[i], 'JPEG', 0, 0, widthPt, heightPt)
       }
 
       const ts = getTimestamp()

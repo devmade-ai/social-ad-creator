@@ -1,5 +1,66 @@
 # Changelog
 
+## 2026-03-08
+
+### PDF export quality and file size fix
+
+**Root cause identified and fixed** — jsPDF handles JPEG and PNG completely differently:
+- JPEG: embedded directly as DCT_DECODE stream (no re-encoding) → small files
+- PNG: decoded to raw pixels, re-compressed with deflate → 5-10x larger files
+- Switched PDF capture from PNG to JPEG at pixelRatio:2, quality 0.92
+- Switched from `toDataURL()` to `toBlob()` → `Uint8Array` to skip ~33% base64 overhead
+- Added `MAX_PDF_PIXELS` budget (16M) to prevent canvas memory crashes on large formats
+
+### Per-cell structured text model
+
+**Replaced `textCells` indirection with per-cell text** — Text elements now stored directly per cell:
+- Old: `text.title = {...}` + `textCells.title = 2` (global text + cell assignment)
+- New: `text[2].title = {...}` (text stored directly on the cell)
+- Removed `textCells` from all layout presets (35+ entries cleaned up)
+- Moved text alignment controls from Structure tab to Content tab
+- Extracted `defaultTextLayer` to `config/textDefaults.js` (shared by AdCanvas + ContentTab)
+- Extracted alignment icons/options to `config/alignment.jsx`
+
+### Section reorder (move up/down)
+
+- Added move up/down buttons for rows and move left/right for columns in Structure tab
+- Bidirectional cell index remapping via `swapCellIndices()` in `cellUtils.js`
+- Selection follows the moved section
+
+### IndexedDB migration
+
+**Replaced localStorage with IndexedDB** — No practical size limits, handles binary natively:
+- New `utils/designStorage.js` with async save/load/list/delete API
+- One-time auto-migration from `canvagrid-designs` localStorage key
+- Text format migration runs during transfer (old global text → per-cell)
+- `SaveLoadModal` updated to async with loading states, error handling, error banner
+
+### History comparison optimization
+
+**Replaced full JSON.stringify with `shallowEqual`** in `useHistory.js`:
+- Reference equality first, then per-key comparison
+- `images` key: compares by ID + non-src metadata (skips multi-MB base64)
+- `logo` key: reference change = content change (skips base64)
+- Other keys: falls back to JSON.stringify per-key
+
+### Mobile UX improvements
+
+- Increased touch targets across all interactive elements (buttons, swatches, toggles)
+- Added `active:scale-*` feedback on buttons and controls
+- Delete button visible on mobile in SaveLoadModal (was hover-only)
+- Added offline status banner in App.jsx
+- Added `viewport-fit=cover` and safe-area padding for notched devices
+- Used `100dvh` for proper mobile viewport height
+
+### Cleanup
+
+- Removed dead `txn()` helper from `designStorage.js`
+- Removed backward compatibility code from load path (migration handles it)
+- Added error handling to `handleDelete` in `SaveLoadModal`
+- Fixed stale comments referencing PNG in PDF export
+
+---
+
 ## 2026-03-06
 
 ### Platform specs system and export format selection
@@ -21,8 +82,8 @@
 - Three-button toggle above export buttons, persists in state as `exportFormat`
 - "Use recommended" link when platform suggests a different format
 - All export paths updated: single, multi-platform ZIP, all-pages ZIP
-- PDF export always uses PNG internally for lossless quality
-- Uses html-to-image's `toJpeg` for JPG, `toCanvas` + `canvas.toBlob` for WebP
+- PDF export uses JPEG at 2x internally — jsPDF embeds directly for sharp, small files
+- Uses html-to-image's `toCanvas` + `canvas.toBlob` for all formats
 
 **Format additions:**
 - Instagram: 2 → 4 formats (added Feed Portrait 1080×1350, Feed Landscape 1080×566)

@@ -1,39 +1,62 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 
 export default function SaveLoadModal({ isOpen, onClose, onSave, onLoad, onDelete, getSavedDesigns }) {
   const [designs, setDesigns] = useState([])
   const [saveName, setSaveName] = useState('')
   const [activeTab, setActiveTab] = useState('save')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
+
+  const refreshDesigns = useCallback(async () => {
+    const list = await getSavedDesigns()
+    setDesigns(list)
+  }, [getSavedDesigns])
 
   useEffect(() => {
     if (isOpen) {
-      setDesigns(getSavedDesigns())
+      refreshDesigns()
       setSaveName('')
+      setError(null)
     }
-  }, [isOpen, getSavedDesigns])
+  }, [isOpen, refreshDesigns])
 
-  const handleSave = () => {
+  const handleSave = async () => {
+    setLoading(true)
+    setError(null)
     const name = saveName.trim() || `Design ${new Date().toLocaleDateString()}`
-    const result = onSave(name)
+    const result = await onSave(name)
+    setLoading(false)
     if (result.success) {
-      setDesigns(getSavedDesigns())
+      await refreshDesigns()
       setSaveName('')
       setActiveTab('load')
+    } else {
+      setError(result.error || 'Failed to save design')
     }
   }
 
-  const handleLoad = (designId) => {
-    const result = onLoad(designId)
+  const handleLoad = async (designId) => {
+    setLoading(true)
+    setError(null)
+    const result = await onLoad(designId)
+    setLoading(false)
     if (result.success) {
       onClose()
+    } else {
+      setError(result.error || 'Failed to load design')
     }
   }
 
-  const handleDelete = (designId, e) => {
+  const handleDelete = async (designId, e) => {
     e.stopPropagation()
     if (confirm('Delete this design?')) {
-      onDelete(designId)
-      setDesigns(getSavedDesigns())
+      setError(null)
+      const result = await onDelete(designId)
+      if (result.success) {
+        await refreshDesigns()
+      } else {
+        setError(result.error || 'Failed to delete design')
+      }
     }
   }
 
@@ -52,7 +75,7 @@ export default function SaveLoadModal({ isOpen, onClose, onSave, onLoad, onDelet
           <h2 className="text-lg font-semibold text-ui-text">Saved Designs</h2>
           <button
             onClick={onClose}
-            className="p-1 rounded-lg hover:bg-ui-surface-hover text-ui-text-muted"
+            className="p-2 rounded-lg hover:bg-ui-surface-hover active:bg-ui-surface-inset text-ui-text-muted"
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -64,7 +87,7 @@ export default function SaveLoadModal({ isOpen, onClose, onSave, onLoad, onDelet
         <div className="flex border-b border-ui-border">
           <button
             onClick={() => setActiveTab('save')}
-            className={`flex-1 px-4 py-2 text-sm font-medium ${
+            className={`flex-1 px-4 py-2.5 text-sm font-medium ${
               activeTab === 'save'
                 ? 'text-primary border-b-2 border-primary'
                 : 'text-ui-text-muted hover:text-ui-text'
@@ -74,7 +97,7 @@ export default function SaveLoadModal({ isOpen, onClose, onSave, onLoad, onDelet
           </button>
           <button
             onClick={() => setActiveTab('load')}
-            className={`flex-1 px-4 py-2 text-sm font-medium ${
+            className={`flex-1 px-4 py-2.5 text-sm font-medium ${
               activeTab === 'load'
                 ? 'text-primary border-b-2 border-primary'
                 : 'text-ui-text-muted hover:text-ui-text'
@@ -83,6 +106,13 @@ export default function SaveLoadModal({ isOpen, onClose, onSave, onLoad, onDelet
             Load ({designs.length})
           </button>
         </div>
+
+        {/* Error banner */}
+        {error && (
+          <div className="mx-4 mt-3 px-3 py-2 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-sm text-red-600 dark:text-red-400">
+            {error}
+          </div>
+        )}
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-4">
@@ -97,17 +127,18 @@ export default function SaveLoadModal({ isOpen, onClose, onSave, onLoad, onDelet
                   value={saveName}
                   onChange={(e) => setSaveName(e.target.value)}
                   placeholder="My Design"
-                  className="w-full px-3 py-2 rounded-lg bg-ui-surface-inset border border-ui-border text-ui-text placeholder-ui-text-muted focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="w-full px-3 py-2.5 rounded-lg bg-ui-surface-inset border border-ui-border text-ui-text placeholder-ui-text-muted focus:outline-none focus:ring-2 focus:ring-primary"
                 />
               </div>
               <button
                 onClick={handleSave}
-                className="w-full px-4 py-2 rounded-lg bg-primary text-white font-medium hover:bg-primary-hover active:scale-[0.98] transition-all"
+                disabled={loading}
+                className="w-full px-4 py-2.5 rounded-lg bg-primary text-white font-medium hover:bg-primary-hover active:scale-[0.98] disabled:opacity-50 transition-all"
               >
-                Save Design
+                {loading ? 'Saving...' : 'Save Design'}
               </button>
               <p className="text-xs text-ui-text-muted text-center">
-                Designs are saved to your browser's local storage.
+                Designs are saved in your browser.
               </p>
             </div>
           )}
@@ -123,7 +154,8 @@ export default function SaveLoadModal({ isOpen, onClose, onSave, onLoad, onDelet
                   <button
                     key={design.id}
                     onClick={() => handleLoad(design.id)}
-                    className="w-full p-3 rounded-lg bg-ui-surface-inset hover:bg-ui-surface-hover text-left group transition-colors"
+                    disabled={loading}
+                    className="w-full p-3 rounded-lg bg-ui-surface-inset hover:bg-ui-surface-hover active:bg-ui-surface-hover/80 text-left group transition-colors disabled:opacity-50"
                   >
                     <div className="flex items-center justify-between">
                       <div>
@@ -132,7 +164,7 @@ export default function SaveLoadModal({ isOpen, onClose, onSave, onLoad, onDelet
                       </div>
                       <button
                         onClick={(e) => handleDelete(design.id, e)}
-                        className="p-1.5 rounded-lg opacity-0 group-hover:opacity-100 hover:bg-red-100 dark:hover:bg-red-900/30 text-red-500 transition-all"
+                        className="p-2 rounded-lg opacity-50 sm:opacity-0 group-hover:opacity-100 hover:bg-red-100 dark:hover:bg-red-900/30 active:bg-red-200 dark:active:bg-red-900/50 text-red-500 transition-all"
                         title="Delete design"
                       >
                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

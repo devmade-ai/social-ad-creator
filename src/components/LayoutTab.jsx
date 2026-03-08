@@ -7,7 +7,7 @@
 //   - Numeric input only: Rejected - sliders give visual feedback for proportional sizing.
 import { useState, useMemo, memo } from 'react'
 import CollapsibleSection from './CollapsibleSection'
-import { getCellInfo, countCells } from '../utils/cellUtils'
+import { countCells } from '../utils/cellUtils'
 import { platforms } from '../config/platforms'
 import { defaultState } from '../hooks/useAdState'
 
@@ -25,73 +25,6 @@ const MAX_SIZE = 90
 const getMaxSize = (totalItems) => {
   if (totalItems <= 1) return 100
   return Math.min(MAX_SIZE, 100 - (totalItems - 1) * MIN_SIZE)
-}
-
-// Alignment icon components
-const AlignLeftIcon = () => (
-  <svg width="14" height="10" viewBox="0 0 14 10" fill="currentColor">
-    <rect x="0" y="0" width="10" height="2" />
-    <rect x="0" y="4" width="14" height="2" />
-    <rect x="0" y="8" width="8" height="2" />
-  </svg>
-)
-const AlignCenterIcon = () => (
-  <svg width="14" height="10" viewBox="0 0 14 10" fill="currentColor">
-    <rect x="2" y="0" width="10" height="2" />
-    <rect x="0" y="4" width="14" height="2" />
-    <rect x="3" y="8" width="8" height="2" />
-  </svg>
-)
-const AlignRightIcon = () => (
-  <svg width="14" height="10" viewBox="0 0 14 10" fill="currentColor">
-    <rect x="4" y="0" width="10" height="2" />
-    <rect x="0" y="4" width="14" height="2" />
-    <rect x="6" y="8" width="8" height="2" />
-  </svg>
-)
-const AlignTopIcon = () => (
-  <svg width="10" height="14" viewBox="0 0 10 14" fill="currentColor">
-    <rect x="0" y="0" width="10" height="2" />
-    <rect x="3" y="4" width="4" height="10" opacity="0.4" />
-  </svg>
-)
-const AlignMiddleIcon = () => (
-  <svg width="10" height="14" viewBox="0 0 10 14" fill="currentColor">
-    <rect x="0" y="6" width="10" height="2" />
-    <rect x="3" y="2" width="4" height="10" opacity="0.4" />
-  </svg>
-)
-const AlignBottomIcon = () => (
-  <svg width="10" height="14" viewBox="0 0 10 14" fill="currentColor">
-    <rect x="0" y="12" width="10" height="2" />
-    <rect x="3" y="0" width="4" height="10" opacity="0.4" />
-  </svg>
-)
-
-const textAlignOptions = [
-  { id: 'left', name: 'Left', Icon: AlignLeftIcon },
-  { id: 'center', name: 'Center', Icon: AlignCenterIcon },
-  { id: 'right', name: 'Right', Icon: AlignRightIcon },
-]
-
-const verticalAlignOptions = [
-  { id: 'start', name: 'Top', Icon: AlignTopIcon },
-  { id: 'center', name: 'Middle', Icon: AlignMiddleIcon },
-  { id: 'end', name: 'Bottom', Icon: AlignBottomIcon },
-]
-
-// Helper to validate textCells against total cell count
-function validateTextCells(textCells, totalCells) {
-  if (!textCells) return textCells
-  const validated = { ...textCells }
-  let hasChanges = false
-  Object.keys(validated).forEach((key) => {
-    if (validated[key] !== null && validated[key] >= totalCells) {
-      validated[key] = null
-      hasChanges = true
-    }
-  })
-  return hasChanges ? validated : null
 }
 
 // Unified grid component for cell selection
@@ -313,17 +246,13 @@ function CellGrid({
 export default memo(function LayoutTab({
   layout,
   onLayoutChange,
-  textCells = {},
-  onTextCellsChange,
   platform,
   selectedCell = 0,
   onSelectCell,
 }) {
-  const { type = 'fullbleed', structure = [], textAlign, textVerticalAlign, cellAlignments = [] } = layout
+  const { type = 'fullbleed', structure = [] } = layout
   const imageCells = layout.imageCells || [0]
   const [structureSelection, setStructureSelection] = useState(null)
-
-  const cellInfoList = useMemo(() => getCellInfo(layout), [layout])
 
   const platformAspectRatio = useMemo(() => {
     const p = platforms.find((pl) => pl.id === platform) || platforms[0]
@@ -338,12 +267,6 @@ export default memo(function LayoutTab({
         structure: [{ size: 100, subdivisions: 1, subSizes: [100] }],
         imageCells: [0],
       })
-      if (onTextCellsChange) {
-        const validatedTextCells = validateTextCells(textCells, 1)
-        if (validatedTextCells) {
-          onTextCellsChange(validatedTextCells)
-        }
-      }
     } else {
       onLayoutChange({
         type: newType,
@@ -353,41 +276,70 @@ export default memo(function LayoutTab({
         ],
         imageCells: [0],
       })
-      if (onTextCellsChange) {
-        const validatedTextCells = validateTextCells(textCells, 2)
-        if (validatedTextCells) {
-          onTextCellsChange(validatedTextCells)
-        }
-      }
     }
     setStructureSelection(null)
   }
 
-  // Add a section
-  const addSection = () => {
-    if (type === 'fullbleed') return
+  // Requirement: Insert a section at a specific position (before/after a given index)
+  // Approach: splice() to insert at position, redistribute sizes equally, shift cell indices
+  // Alternatives:
+  //   - Always append at end: Rejected — user can't control placement without manual resizing
+  //   - No index shift: Rejected — silently reassigns content to wrong cells
+  const insertSection = (position) => {
+    if (type === 'fullbleed' || structure.length >= 4) return
     const newSize = 100 / (structure.length + 1)
     const newStructure = structure.map((s) => ({ ...s, size: newSize }))
-    newStructure.push({ size: newSize, subdivisions: 1, subSizes: [100] })
-    onLayoutChange({ structure: newStructure })
+    newStructure.splice(position, 0, { size: newSize, subdivisions: 1, subSizes: [100] })
+    // Calculate which cell index the new section occupies so we can shift data
+    let firstCellAtPosition = 0
+    for (let i = 0; i < position; i++) {
+      firstCellAtPosition += structure[i].subdivisions || 1
+    }
+    onLayoutChange({
+      structure: newStructure,
+      _cellShift: { fromIndex: firstCellAtPosition, shiftBy: 1 },
+    })
+    // Update selection to track the element that moved
+    if (structureSelection?.type === 'section' && structureSelection.index >= position) {
+      setStructureSelection({ type: 'section', index: structureSelection.index + 1 })
+    } else if (structureSelection?.type === 'cell' && structureSelection.cellIndex >= firstCellAtPosition) {
+      setStructureSelection({ type: 'cell', cellIndex: structureSelection.cellIndex + 1 })
+    }
   }
 
-  // Remove a section
+  // Add a section at the end (used when no section is selected)
+  const addSection = () => {
+    insertSection(structure.length)
+  }
+
+  // Requirement: Remove a section, shifting cell indices after the removed section.
+  // Approach: Remove section, shift cells after it down by the section's subdivision count.
+  // Alternatives:
+  //   - No shift: Rejected — content in later cells moves to wrong visual position.
   const removeSection = (index) => {
     if (structure.length <= 1) return
+    const removedSubs = structure[index].subdivisions || 1
     const newSize = 100 / (structure.length - 1)
     const newStructure = structure
       .filter((_, i) => i !== index)
       .map((s) => ({ ...s, size: newSize }))
-    const newTotalCells = countCells(newStructure)
-    // Filter out image cells that no longer exist
-    const newImageCells = imageCells.filter(cell => cell < newTotalCells)
-    // Ensure at least one image cell remains
-    const finalImageCells = newImageCells.length > 0 ? newImageCells : [0]
-    onLayoutChange({ structure: newStructure, imageCells: finalImageCells })
-    const validatedTextCells = validateTextCells(textCells, newTotalCells)
-    if (validatedTextCells && onTextCellsChange) {
-      onTextCellsChange(validatedTextCells)
+    // Calculate first cell index of the removed section
+    let firstCellOfRemoved = 0
+    for (let i = 0; i < index; i++) {
+      firstCellOfRemoved += structure[i].subdivisions || 1
+    }
+    onLayoutChange({
+      structure: newStructure,
+      _cellShift: { fromIndex: firstCellOfRemoved + removedSubs, shiftBy: -removedSubs },
+    })
+    // Update cell selection: clear if selected cell was in removed section, shift if after it
+    if (structureSelection?.type === 'cell') {
+      const ci = structureSelection.cellIndex
+      if (ci >= firstCellOfRemoved && ci < firstCellOfRemoved + removedSubs) {
+        setStructureSelection(null)
+      } else if (ci >= firstCellOfRemoved + removedSubs) {
+        setStructureSelection({ type: 'cell', cellIndex: ci - removedSubs })
+      }
     }
   }
 
@@ -432,7 +384,10 @@ export default memo(function LayoutTab({
     onLayoutChange({ structure: newStructure })
   }
 
-  // Add subdivision
+  // Requirement: Add subdivision to a section, shifting cell indices after this section.
+  // Approach: New sub is appended at end of section. Cells after this section shift by 1.
+  // Alternatives:
+  //   - No shift: Rejected — content in later cells moves to wrong visual position.
   const addSubdivision = (sectionIndex) => {
     const newStructure = [...structure]
     const section = newStructure[sectionIndex]
@@ -445,10 +400,25 @@ export default memo(function LayoutTab({
     const newSubSizes = Array(newSubs).fill(evenSize)
 
     newStructure[sectionIndex] = { ...section, subdivisions: newSubs, subSizes: newSubSizes }
-    onLayoutChange({ structure: newStructure })
+    // The new sub is added at the end of this section, so cells after it shift
+    let firstCellAfterSection = 0
+    for (let i = 0; i <= sectionIndex; i++) {
+      firstCellAfterSection += structure[i].subdivisions || 1
+    }
+    onLayoutChange({
+      structure: newStructure,
+      _cellShift: { fromIndex: firstCellAfterSection, shiftBy: 1 },
+    })
+    // Update cell selection if it's after the newly added subdivision
+    if (structureSelection?.type === 'cell' && structureSelection.cellIndex >= firstCellAfterSection) {
+      setStructureSelection({ type: 'cell', cellIndex: structureSelection.cellIndex + 1 })
+    }
   }
 
-  // Remove subdivision
+  // Requirement: Remove subdivision from a section, shifting cell indices after it.
+  // Approach: Last sub is removed. Cells after this section shift down by 1.
+  // Alternatives:
+  //   - No shift: Rejected — content in later cells moves to wrong visual position.
   const removeSubdivision = (sectionIndex) => {
     const newStructure = [...structure]
     const section = newStructure[sectionIndex]
@@ -462,15 +432,25 @@ export default memo(function LayoutTab({
 
     newStructure[sectionIndex] = { ...section, subdivisions: newSubs, subSizes: newSubSizes }
 
-    const newTotalCells = countCells(newStructure)
-    // Filter out image cells that no longer exist
-    const newImageCells = imageCells.filter(cell => cell < newTotalCells)
-    // Ensure at least one image cell remains
-    const finalImageCells = newImageCells.length > 0 ? newImageCells : [0]
-    onLayoutChange({ structure: newStructure, imageCells: finalImageCells })
-    const validatedTextCells = validateTextCells(textCells, newTotalCells)
-    if (validatedTextCells && onTextCellsChange) {
-      onTextCellsChange(validatedTextCells)
+    // The last sub of this section is removed, so cells after it shift down
+    let firstCellAfterSection = 0
+    for (let i = 0; i <= sectionIndex; i++) {
+      firstCellAfterSection += structure[i].subdivisions || 1
+    }
+    // Shift from firstCellAfterSection (the cell that was after the removed sub)
+    const removedCellIndex = firstCellAfterSection - 1
+    onLayoutChange({
+      structure: newStructure,
+      _cellShift: { fromIndex: firstCellAfterSection, shiftBy: -1 },
+    })
+    // Update cell selection: clear if it was the removed sub, shift if after it
+    if (structureSelection?.type === 'cell') {
+      const ci = structureSelection.cellIndex
+      if (ci === removedCellIndex) {
+        setStructureSelection(null)
+      } else if (ci >= firstCellAfterSection) {
+        setStructureSelection({ type: 'cell', cellIndex: ci - 1 })
+      }
     }
   }
 
@@ -518,37 +498,87 @@ export default memo(function LayoutTab({
     onLayoutChange({ structure: newStructure })
   }
 
+  // Requirement: Swap two adjacent sections so users can reorder rows/columns.
+  // Approach: Swap structure entries and build a bidirectional cell index map via _cellSwap.
+  // Alternatives:
+  //   - Drag-and-drop reorder: Rejected — complex for mobile, overkill for 2-4 sections.
+  //   - Two sequential shifts: Rejected — overlapping ranges cause data loss.
+  const swapSections = (indexA, indexB) => {
+    if (indexA < 0 || indexB < 0 || indexA >= structure.length || indexB >= structure.length) return
+    if (indexA === indexB) return
+
+    // Ensure A < B for consistent mapping
+    const [lo, hi] = indexA < indexB ? [indexA, indexB] : [indexB, indexA]
+
+    const newStructure = [...structure]
+    newStructure[lo] = structure[hi]
+    newStructure[hi] = structure[lo]
+
+    // Build bidirectional cell index map.
+    // Compute cell start offsets for old and new structure, then map each cell
+    // from its old position to where it lands after the swap.
+    const cellMap = {}
+
+    const oldStarts = []
+    let idx = 0
+    for (let i = 0; i < structure.length; i++) {
+      oldStarts.push(idx)
+      idx += structure[i].subdivisions || 1
+    }
+    const newStarts = []
+    idx = 0
+    for (let i = 0; i < newStructure.length; i++) {
+      newStarts.push(idx)
+      idx += newStructure[i].subdivisions || 1
+    }
+
+    // Old section s moves to destIndex in new order.
+    // Middle sections (between lo and hi) stay at same index but may shift
+    // if lo and hi have different subdivision counts.
+    for (let s = 0; s < structure.length; s++) {
+      const subs = structure[s].subdivisions || 1
+      const destIndex = s === lo ? hi : s === hi ? lo : s
+      const oldStart = oldStarts[s]
+      const newStart = newStarts[destIndex]
+
+      for (let sub = 0; sub < subs; sub++) {
+        cellMap[oldStart + sub] = newStart + sub
+      }
+    }
+
+    onLayoutChange({
+      structure: newStructure,
+      _cellSwap: cellMap,
+    })
+
+    // Update selection to follow the moved section
+    if (structureSelection?.type === 'section') {
+      if (structureSelection.index === lo) setStructureSelection({ type: 'section', index: hi })
+      else if (structureSelection.index === hi) setStructureSelection({ type: 'section', index: lo })
+    } else if (structureSelection?.type === 'cell') {
+      const ci = structureSelection.cellIndex
+      if (cellMap[ci] !== undefined) {
+        // Find the new section/sub for the remapped cell
+        let newCi = cellMap[ci]
+        let newSectionIdx = 0
+        let remaining = newCi
+        for (let i = 0; i < newStructure.length; i++) {
+          const subs = newStructure[i].subdivisions || 1
+          if (remaining < subs) {
+            newSectionIdx = i
+            break
+          }
+          remaining -= subs
+        }
+        setStructureSelection({ type: 'cell', cellIndex: newCi, sectionIndex: newSectionIdx, subIndex: remaining })
+      }
+    }
+  }
+
   // Reset to default
   const handleReset = () => {
     onLayoutChange(defaultState.layout)
-    if (onTextCellsChange) {
-      onTextCellsChange(defaultState.textCells)
-    }
     setStructureSelection(null)
-  }
-
-  // Get alignment for selected cell or global
-  const getAlignmentForCell = (cellIndex, prop) => {
-    if (cellIndex === null) {
-      return prop === 'textAlign' ? textAlign : textVerticalAlign
-    }
-    const cellAlign = cellAlignments?.[cellIndex]?.[prop]
-    if (cellAlign !== null && cellAlign !== undefined) return cellAlign
-    return prop === 'textAlign' ? textAlign : textVerticalAlign
-  }
-
-  // Update alignment for selected cell or global
-  const setAlignmentForCell = (cellIndex, prop, value) => {
-    if (cellIndex === null) {
-      onLayoutChange({ [prop]: value })
-    } else {
-      const newAlignments = [...(cellAlignments || [])]
-      while (newAlignments.length <= cellIndex) {
-        newAlignments.push({ textAlign: null, textVerticalAlign: null })
-      }
-      newAlignments[cellIndex] = { ...newAlignments[cellIndex], [prop]: value }
-      onLayoutChange({ cellAlignments: newAlignments })
-    }
   }
 
   // Get info about current selection
@@ -685,6 +715,34 @@ export default memo(function LayoutTab({
                 </button>
               </div>
 
+              {/* Move section up/down (reorder) */}
+              {structure.length > 1 && (
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => swapSections(selectedSectionIndex, selectedSectionIndex - 1)}
+                    disabled={selectedSectionIndex === 0}
+                    className={`flex-1 px-3 py-2 text-sm rounded-lg font-medium ${
+                      selectedSectionIndex === 0
+                        ? 'bg-violet-100 dark:bg-violet-900/30 text-violet-300 dark:text-violet-600 cursor-not-allowed'
+                        : 'bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300 hover:bg-violet-200 dark:hover:bg-violet-900/40'
+                    }`}
+                  >
+                    {type === 'rows' ? '↑ Move Up' : '← Move Left'}
+                  </button>
+                  <button
+                    onClick={() => swapSections(selectedSectionIndex, selectedSectionIndex + 1)}
+                    disabled={selectedSectionIndex === structure.length - 1}
+                    className={`flex-1 px-3 py-2 text-sm rounded-lg font-medium ${
+                      selectedSectionIndex === structure.length - 1
+                        ? 'bg-violet-100 dark:bg-violet-900/30 text-violet-300 dark:text-violet-600 cursor-not-allowed'
+                        : 'bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300 hover:bg-violet-200 dark:hover:bg-violet-900/40'
+                    }`}
+                  >
+                    {type === 'rows' ? '↓ Move Down' : '→ Move Right'}
+                  </button>
+                </div>
+              )}
+
               {structure.length > 1 && (
                 <div>
                   <label className="block text-xs text-primary dark:text-violet-400 mb-2 font-medium">
@@ -739,6 +797,23 @@ export default memo(function LayoutTab({
                   </button>
                 </div>
               </div>
+
+              {structure.length < 4 && (
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => insertSection(selectedSectionIndex)}
+                    className="flex-1 px-3 py-2 text-sm bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300 hover:bg-violet-200 dark:hover:bg-violet-900/40 rounded-lg font-medium"
+                  >
+                    + {type === 'rows' ? 'Above' : 'Before'}
+                  </button>
+                  <button
+                    onClick={() => insertSection(selectedSectionIndex + 1)}
+                    className="flex-1 px-3 py-2 text-sm bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300 hover:bg-violet-200 dark:hover:bg-violet-900/40 rounded-lg font-medium"
+                  >
+                    + {type === 'rows' ? 'Below' : 'After'}
+                  </button>
+                </div>
+              )}
 
               {structure.length > 1 && (
                 <button
@@ -809,91 +884,6 @@ export default memo(function LayoutTab({
           >
             Reset to Default
           </button>
-        </div>
-      </CollapsibleSection>
-
-      {/* Requirement: Text Alignment uses global selectedCell from ContextBar, not Structure grid.
-          Approach: Read/write cellAlignments[selectedCell] directly. Fullbleed sets global alignment.
-          Alternatives:
-            - Keep tied to structureSelection: Rejected — forces re-selection, disconnected from ContextBar. */}
-      <CollapsibleSection title="Text Alignment" defaultExpanded={false}>
-        <div className="space-y-3">
-          {/* Context-aware label */}
-          <div className="text-xs text-ui-text-subtle">
-            {type === 'fullbleed' ? (
-              'Global alignment for all text'
-            ) : (
-              <>Alignment for <span className="font-medium text-primary dark:text-violet-400">Cell {selectedCell + 1}</span> — use the cell bar above to switch</>
-            )}
-          </div>
-
-          {/* Cell selector for quick switching (multi-cell only) */}
-          {type !== 'fullbleed' && cellInfoList.length > 1 && (
-            <div className="flex gap-1.5 flex-wrap">
-              {cellInfoList.map((cell) => (
-                <button
-                  key={cell.index}
-                  onClick={() => onSelectCell?.(cell.index)}
-                  className={`min-w-[32px] px-2 py-1 text-xs rounded-lg font-medium transition-colors ${
-                    selectedCell === cell.index
-                      ? 'bg-primary text-white shadow-sm'
-                      : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
-                  }`}
-                >
-                  {cell.label}
-                </button>
-              ))}
-            </div>
-          )}
-
-          <div className="flex gap-4">
-            <div className="flex-1">
-              <span className="text-xs text-ui-text-subtle block mb-1.5">Horizontal</span>
-              <div className="flex gap-1.5">
-                {textAlignOptions.map((align) => {
-                  const targetCell = type === 'fullbleed' ? null : selectedCell
-                  const isActive = getAlignmentForCell(targetCell, 'textAlign') === align.id
-                  return (
-                    <button
-                      key={align.id}
-                      onClick={() => setAlignmentForCell(targetCell, 'textAlign', align.id)}
-                      title={align.name}
-                      className={`flex-1 px-2 py-2 rounded-lg flex items-center justify-center ${
-                        isActive
-                          ? 'bg-primary text-white shadow-sm'
-                          : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
-                      }`}
-                    >
-                      <align.Icon />
-                    </button>
-                  )
-                })}
-              </div>
-            </div>
-            <div className="flex-1">
-              <span className="text-xs text-ui-text-subtle block mb-1.5">Vertical</span>
-              <div className="flex gap-1.5">
-                {verticalAlignOptions.map((align) => {
-                  const targetCell = type === 'fullbleed' ? null : selectedCell
-                  const isActive = getAlignmentForCell(targetCell, 'textVerticalAlign') === align.id
-                  return (
-                    <button
-                      key={align.id}
-                      onClick={() => setAlignmentForCell(targetCell, 'textVerticalAlign', align.id)}
-                      title={align.name}
-                      className={`flex-1 px-2 py-2 rounded-lg flex items-center justify-center ${
-                        isActive
-                          ? 'bg-primary text-white shadow-sm'
-                          : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
-                      }`}
-                    >
-                      <align.Icon />
-                    </button>
-                  )
-                })}
-              </div>
-            </div>
-          </div>
         </div>
       </CollapsibleSection>
     </div>

@@ -11,9 +11,8 @@ Future enhancements and ideas for CanvaGrid.
 | Item | Effort | Description |
 |------|--------|-------------|
 | **Phase 4: Add remaining platform format data** | Medium | `platforms.js` — Add format specs for: Pinterest (Pin, Story), Snapchat (Snap Ad, Story), YouTube (Thumbnail, End Screen), WhatsApp (Status), Threads (Post, Story). Add e-commerce category: Takealot, Amazon (Product, Storefront), Shopify, Etsy. Each needs formats array with dimensions, tips, recommendedFormat, maxFileSize. |
-| **Validate loaded design state** | Low | `useAdState.js:766` — `loadDesign()` doesn't bounds-check `activePage` against `pages.length`. Corrupted or outdated saves could crash the app. Add field validation and fallbacks. |
-| **Replace history JSON.stringify comparison** | Medium | `useHistory.js:16` — `JSON.stringify(prev) === JSON.stringify(newState)` runs on every state update. With large designs (many pages, base64 images), this is expensive. Use shallow key comparison or a change flag instead. |
-| **Multi-page export uses arbitrary timeout** | Low | `ExportButtons.jsx:133` — `setTimeout(resolve, 300)` to wait for React re-render before capturing page. If state update is slow, captures stale canvas. Use a callback or ref-based signal instead of timing. |
+| **Validate loaded design state** | Low | `useAdState.js:901` — `loadDesign()` doesn't bounds-check `activePage` against `pages.length`. Corrupted or outdated saves could crash the app. Add field validation and fallbacks. |
+| **Multi-page export uses arbitrary timeout** | Low | `ExportButtons.jsx:290` — `setTimeout(resolve, 300)` to wait for React re-render before capturing page. If state update is slow, captures stale canvas. Use a callback or ref-based signal instead of timing. |
 
 ### Medium Priority
 

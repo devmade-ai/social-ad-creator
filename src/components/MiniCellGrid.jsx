@@ -37,7 +37,7 @@ export default memo(function MiniCellGrid({
 
   const gridWidth = size === 'large' ? 120 : 64
   const fontSize = size === 'large' ? 'text-[11px] sm:text-[10px]' : 'text-[9px] sm:text-[8px]'
-  const minCellH = size === 'large' ? 'min-h-[24px] sm:min-h-[20px]' : 'min-h-[14px] sm:min-h-[12px]'
+  const minCellH = size === 'large' ? 'min-h-[28px] sm:min-h-[24px]' : 'min-h-[16px] sm:min-h-[14px]'
 
   // Pre-compute cell mapping grouped by section to avoid mutable cellIndex during render
   const sectionCellMap = useMemo(() => {
@@ -112,7 +112,7 @@ export default memo(function MiniCellGrid({
 
   return (
     <div
-      className={`flex overflow-hidden border border-ui-border-strong rounded ${size === 'large' ? 'w-full sm:w-[120px]' : ''}`}
+      className={`flex overflow-hidden border border-ui-border-strong rounded ${size === 'large' ? 'w-[120px]' : ''}`}
       style={{
         ...(size !== 'large' ? { width: `${gridWidth}px` } : {}),
         ...(size === 'large' ? {} : { height: `${gridWidth / aspectRatio}px` }),
@@ -136,7 +136,7 @@ export default memo(function MiniCellGrid({
               return (
                 <div
                   key={`cell-${currentCellIndex}`}
-                  className={`relative cursor-pointer transition-colors ${minCellH} ${bgClass} flex items-center justify-center`}
+                  className={`relative cursor-pointer transition-colors ${minCellH} ${bgClass} flex items-center justify-center active:opacity-70`}
                   style={{ flex: `1 1 ${subSize}%` }}
                   onClick={() => onSelectCell(currentCellIndex)}
                 >

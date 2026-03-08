@@ -264,9 +264,6 @@ export const layoutPresets = [
       textVerticalAlign: 'center',
       cellAlignments: [],
     },
-    textCells: {
-      title: null, tagline: null, bodyHeading: null, bodyText: null, cta: null, footnote: null,
-    },
   },
   {
     id: 'split-horizontal',
@@ -288,9 +285,6 @@ export const layoutPresets = [
         { textAlign: 'center', textVerticalAlign: 'center' },
       ],
     },
-    textCells: {
-      title: 1, tagline: 1, bodyHeading: 1, bodyText: 1, cta: 1, footnote: 1,
-    },
   },
   {
     id: 'split-vertical',
@@ -311,9 +305,6 @@ export const layoutPresets = [
         { textAlign: 'center', textVerticalAlign: 'center' },
         { textAlign: 'left', textVerticalAlign: 'center' },
       ],
-    },
-    textCells: {
-      title: 1, tagline: 1, bodyHeading: 1, bodyText: 1, cta: 1, footnote: 1,
     },
   },
 
@@ -338,9 +329,6 @@ export const layoutPresets = [
         { textAlign: 'left', textVerticalAlign: 'center' },
       ],
     },
-    textCells: {
-      title: 1, tagline: 1, bodyHeading: 1, bodyText: 1, cta: 1, footnote: 1,
-    },
   },
   {
     id: 'golden-right',
@@ -361,9 +349,6 @@ export const layoutPresets = [
         { textAlign: 'left', textVerticalAlign: 'center' },
         { textAlign: 'center', textVerticalAlign: 'center' },
       ],
-    },
-    textCells: {
-      title: 0, tagline: 0, bodyHeading: 0, bodyText: 0, cta: 0, footnote: 0,
     },
   },
   {
@@ -386,9 +371,6 @@ export const layoutPresets = [
         { textAlign: 'center', textVerticalAlign: 'center' },
       ],
     },
-    textCells: {
-      title: 1, tagline: 1, bodyHeading: 1, bodyText: 1, cta: 1, footnote: 1,
-    },
   },
   {
     id: 'golden-bottom',
@@ -409,9 +391,6 @@ export const layoutPresets = [
         { textAlign: 'center', textVerticalAlign: 'center' },
         { textAlign: 'center', textVerticalAlign: 'center' },
       ],
-    },
-    textCells: {
-      title: 0, tagline: 0, bodyHeading: 0, bodyText: 0, cta: 0, footnote: 0,
     },
   },
   {
@@ -436,9 +415,6 @@ export const layoutPresets = [
         { textAlign: 'center', textVerticalAlign: 'center' },
       ],
     },
-    textCells: {
-      title: 0, tagline: 0, bodyHeading: 2, bodyText: 2, cta: 2, footnote: 2,
-    },
   },
   {
     id: 'thirds-vertical',
@@ -461,9 +437,6 @@ export const layoutPresets = [
         { textAlign: 'center', textVerticalAlign: 'center' },
         { textAlign: 'center', textVerticalAlign: 'center' },
       ],
-    },
-    textCells: {
-      title: 0, tagline: 0, bodyHeading: 2, bodyText: 2, cta: 2, footnote: 2,
     },
   },
 
@@ -490,9 +463,6 @@ export const layoutPresets = [
         { textAlign: 'center', textVerticalAlign: 'center' },
       ],
     },
-    textCells: {
-      title: 1, tagline: 1, bodyHeading: 2, bodyText: 2, cta: 2, footnote: 2,
-    },
   },
   {
     id: 'l-shape-right',
@@ -514,9 +484,6 @@ export const layoutPresets = [
         { textAlign: 'left', textVerticalAlign: 'end' },
         { textAlign: 'left', textVerticalAlign: 'start' },
       ],
-    },
-    textCells: {
-      title: 1, tagline: 1, bodyHeading: 2, bodyText: 2, cta: 2, footnote: 2,
     },
   },
   {
@@ -540,9 +507,6 @@ export const layoutPresets = [
         { textAlign: 'center', textVerticalAlign: 'center' },
       ],
     },
-    textCells: {
-      title: 0, tagline: 0, bodyHeading: 1, bodyText: 1, cta: 1, footnote: 1,
-    },
   },
   {
     id: 'l-shape-bottom',
@@ -564,9 +528,6 @@ export const layoutPresets = [
         { textAlign: 'center', textVerticalAlign: 'center' },
         { textAlign: 'center', textVerticalAlign: 'center' },
       ],
-    },
-    textCells: {
-      title: 1, tagline: 1, bodyHeading: 2, bodyText: 2, cta: 2, footnote: 2,
     },
   },
   {
@@ -590,9 +551,6 @@ export const layoutPresets = [
         { textAlign: 'center', textVerticalAlign: 'center' },
       ],
     },
-    textCells: {
-      title: 0, tagline: 0, bodyHeading: 1, bodyText: 1, cta: 1, footnote: 1,
-    },
   },
   {
     id: 't-layout',
@@ -615,9 +573,6 @@ export const layoutPresets = [
         { textAlign: 'left', textVerticalAlign: 'center' },
       ],
     },
-    textCells: {
-      title: 0, tagline: 0, bodyHeading: 2, bodyText: 2, cta: 2, footnote: 2,
-    },
   },
   {
     id: 'inverted-t',
@@ -639,9 +594,6 @@ export const layoutPresets = [
         { textAlign: 'left', textVerticalAlign: 'center' },
         { textAlign: 'center', textVerticalAlign: 'center' },
       ],
-    },
-    textCells: {
-      title: 1, tagline: 1, bodyHeading: 2, bodyText: 2, cta: 2, footnote: 2,
     },
   },
   {
@@ -666,9 +618,6 @@ export const layoutPresets = [
         { textAlign: 'center', textVerticalAlign: 'center' },
       ],
     },
-    textCells: {
-      title: 0, tagline: 0, bodyHeading: 2, bodyText: 2, cta: 2, footnote: 2,
-    },
   },
   {
     id: 'feature-middle',
@@ -691,9 +640,6 @@ export const layoutPresets = [
         { textAlign: 'center', textVerticalAlign: 'center' },
         { textAlign: 'center', textVerticalAlign: 'center' },
       ],
-    },
-    textCells: {
-      title: 0, tagline: 0, bodyHeading: 2, bodyText: 2, cta: 2, footnote: 2,
     },
   },
 
@@ -719,9 +665,6 @@ export const layoutPresets = [
         { textAlign: 'center', textVerticalAlign: 'center' },
       ],
     },
-    textCells: {
-      title: 1, tagline: 1, bodyHeading: 2, bodyText: 2, cta: 2, footnote: 2,
-    },
   },
   {
     id: 'mosaic-right',
@@ -743,9 +686,6 @@ export const layoutPresets = [
         { textAlign: 'center', textVerticalAlign: 'center' },
         { textAlign: 'center', textVerticalAlign: 'center' },
       ],
-    },
-    textCells: {
-      title: 0, tagline: 0, bodyHeading: 2, bodyText: 2, cta: 2, footnote: 2,
     },
   },
   {
@@ -772,9 +712,6 @@ export const layoutPresets = [
         { textAlign: 'center', textVerticalAlign: 'center' },
       ],
     },
-    textCells: {
-      title: 0, tagline: 0, bodyHeading: 1, bodyText: 1, cta: 3, footnote: 3,
-    },
   },
   {
     id: 'sidebar-stack',
@@ -797,9 +734,6 @@ export const layoutPresets = [
         { textAlign: 'left', textVerticalAlign: 'center' },
         { textAlign: 'left', textVerticalAlign: 'center' },
       ],
-    },
-    textCells: {
-      title: 1, tagline: 1, bodyHeading: 2, bodyText: 2, cta: 3, footnote: 3,
     },
   },
   {
@@ -826,9 +760,6 @@ export const layoutPresets = [
         { textAlign: 'center', textVerticalAlign: 'center' },
       ],
     },
-    textCells: {
-      title: 0, tagline: 0, bodyHeading: 2, bodyText: 2, cta: 3, footnote: 3,
-    },
   },
   {
     id: 'wide-feature',
@@ -853,9 +784,6 @@ export const layoutPresets = [
         { textAlign: 'center', textVerticalAlign: 'center' },
         { textAlign: 'center', textVerticalAlign: 'center' },
       ],
-    },
-    textCells: {
-      title: 1, tagline: 1, bodyHeading: 2, bodyText: 2, cta: 3, footnote: 3,
     },
   },
   {
@@ -882,9 +810,6 @@ export const layoutPresets = [
         { textAlign: 'center', textVerticalAlign: 'center' },
       ],
     },
-    textCells: {
-      title: 0, tagline: 0, bodyHeading: 2, bodyText: 2, cta: 3, footnote: 3,
-    },
   },
   {
     id: 'columns-four',
@@ -910,9 +835,6 @@ export const layoutPresets = [
         { textAlign: 'center', textVerticalAlign: 'center' },
       ],
     },
-    textCells: {
-      title: 1, tagline: 1, bodyHeading: 2, bodyText: 2, cta: 3, footnote: 3,
-    },
   },
   {
     id: 'asymmetric-grid',
@@ -935,9 +857,6 @@ export const layoutPresets = [
         { textAlign: 'right', textVerticalAlign: 'center' },
         { textAlign: 'center', textVerticalAlign: 'center' },
       ],
-    },
-    textCells: {
-      title: 1, tagline: 1, bodyHeading: 2, bodyText: 2, cta: 2, footnote: 2,
     },
   },
 ]
