@@ -84,12 +84,17 @@ async function captureAsBlob(element, width, height, format) {
   )
 }
 
-// Capture element as data URL (for PDF embedding, always PNG)
+// Capture element as data URL (for PDF embedding, always PNG).
+// Requirement: PDF overlays must match image export quality.
+// Approach: pixelRatio 2 produces sharper gradients, blend modes, and textures in PDFs.
+// Alternatives:
+//   - pixelRatio 1: Rejected — overlays look soft/blurry after PDF viewer resampling.
+//   - pixelRatio 3: Rejected — diminishing returns, significantly larger file size.
 async function captureAsDataUrl(element, width, height) {
   return toPng(element, {
     width,
     height,
-    pixelRatio: 1,
+    pixelRatio: 2,
     style: { opacity: '1', transform: 'scale(1)' },
   })
 }

@@ -96,6 +96,12 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
   }
 
   const renderSpecialOverlay = (special, overlayStyle, opacity) => {
+    // Requirement: Noise overlay must reference the global SVG filter from SvgFilters.
+    // Approach: Use url(#noise-filter) referencing the global <defs> filter — no inline filter needed.
+    // Alternatives:
+    //   - Inline filter with random ID: Rejected — rect referenced wrong ID (url(#noise-filter)
+    //     instead of the random one), and the inline filter lacked the contrast feComponentTransfer
+    //     that the global filter has, causing inconsistent rendering.
     if (special === 'noise') {
       return (
         <div
@@ -108,10 +114,6 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
           }}
         >
           <svg width="100%" height="100%" style={{ position: 'absolute', inset: 0 }}>
-            <filter id={`noise-${Math.random().toString(36).substr(2, 9)}`}>
-              <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4" />
-              <feColorMatrix type="saturate" values="0" />
-            </filter>
             <rect width="100%" height="100%" filter="url(#noise-filter)" />
           </svg>
         </div>
