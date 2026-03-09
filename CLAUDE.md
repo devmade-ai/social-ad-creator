@@ -273,7 +273,7 @@ These footers are required on every commit. No exceptions.
 - **PWA install prompt race condition:** `beforeinstallprompt` is captured by an inline script in `index.html` before React mounts. The `usePWAInstall` hook checks `window.__pwaInstallPrompt` on mount. Never remove that inline script.
 - **PWA icon purposes:** Never combine `"any maskable"` in a single icon entry. Use separate entries with individual `purpose` values. Dedicated 1024px maskable icon at `pwa-maskable-1024.png`.
 - **Debug system (dev only):** `src/utils/debugLog.js` is an in-memory 200-entry circular buffer with pub/sub. `src/components/DebugPill.jsx` renders in a separate React root (survives App crashes). Only mounted in `import.meta.env.DEV`. Use `debugLog(source, event, details, severity)` to add entries.
-- **jsPDF image handling:** jsPDF embeds JPEG directly (DCT_DECODE passthrough — no re-encoding), but decodes PNG to raw pixels and re-compresses with deflate (5-10x larger for photos). Always use JPEG for PDF image capture. PDF pages have white backgrounds so transparency isn't needed.
+- **pdf-lib image handling:** pdf-lib embeds JPEG directly (DCTDecode passthrough — no re-encoding) and PNG directly (FlateDecode — no re-encoding). Switched from jsPDF to pdf-lib to investigate PDF quality issues. Currently using PNG capture (`PDF_USE_PNG = true`) to eliminate JPEG compression as a quality variable. Diagnostic image download enabled in dev mode to compare capture quality vs PDF output.
 - **Design storage is IndexedDB:** `utils/designStorage.js` wraps IndexedDB with async save/load/list/delete. One-time migration from localStorage runs on first mount via `migrateFromLocalStorage()`. Never use localStorage for designs.
 - **Sister project reference:** `devmade-ai/glow-props` shares the same CLAUDE.md scaffolding (process, principles, standards). Its `Suggested Implementations` section documents PWA patterns, debug system, and icon generation that were adopted here. Check it for future cross-pollination: `https://github.com/devmade-ai/glow-props/blob/main/CLAUDE.md`
 
@@ -361,7 +361,7 @@ Core features working:
   - Other: Email Header, Zoom Background
 - **Export format selection**: PNG, JPG, or WebP with per-platform recommendations
 - Single download, ZIP batch download, multi-page ZIP export, and PDF export
-- **PDF export**: Save as PDF via jsPDF (JPEG at 2x, embedded directly — sharp and small)
+- **PDF export**: Save as PDF via pdf-lib (PNG at 2x for lossless quality, with JPEG fallback)
 - **Platform specs**: Two-level selector (platform → format), tips, file size limits, recommended formats
 - Responsive preview that adapts to device width
 - **PWA support**: Installable app with offline capability and update prompts

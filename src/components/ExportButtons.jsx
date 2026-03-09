@@ -1,6 +1,6 @@
 import { useState, useCallback, memo } from 'react'
 import { toCanvas } from 'html-to-image'
-import { jsPDF } from 'jspdf'
+import { PDFDocument } from 'pdf-lib'
 import JSZip from 'jszip'
 import { saveAs } from 'file-saver'
 import { platforms, categoryLabels, categoryOrder, platformsByCategory, findFormat } from '../config/platforms'
@@ -89,14 +89,13 @@ async function captureAsBlob(element, width, height, format) {
 }
 
 // Requirement: PDF image capture with sharp quality and small file size.
-// Approach: Use JPEG at pixelRatio:2 for sharp rendering, quality 0.92.
-//   jsPDF embeds JPEG streams directly (DCT_DECODE) — no re-encoding overhead.
-//   A 1080×1350 @2x JPEG at 0.92 = ~200-500 KB embedded directly.
+// Approach: Switched from jsPDF to pdf-lib for PDF generation. Both libraries embed
+//   JPEG directly via DCTDecode (no re-encoding), but pdf-lib has a cleaner API,
+//   better PNG support (FlateDecode), and more precise image XObject handling.
 // Alternatives:
-//   - PNG at pixelRatio:2: Rejected — jsPDF decodes PNG to raw pixels (~23 MB for
-//     2160×2700) then re-compresses with deflate, producing files 5-10x larger than
-//     JPEG while being visually identical. PDF pages have white backgrounds so
-//     transparency isn't visible anyway.
+//   - jsPDF: Replaced — quality issues with image downscaling into PDF page dimensions.
+//     jsPDF's addImage scales a high-res capture into pt-based page coords, potentially
+//     losing quality in the dimension mapping step.
 //   - JPEG at pixelRatio:1: Rejected — blurry when downscaled into PDF page dimensions.
 //   - JPEG at pixelRatio:3: Rejected — 3x creates very large canvases on big formats.
 // Requirement: Cap canvas size to prevent memory crashes on large formats.
@@ -107,6 +106,13 @@ const MAX_PDF_PIXELS = 16_000_000 // ~16 megapixels budget
 // 0.92 caused visible block artifacts on vignettes/radial overlays due to JPEG's
 // 8x8 DCT compression. 0.97 eliminates banding with ~50% larger files (still small).
 const PDF_JPEG_QUALITY = 0.97
+
+// Requirement: Try PNG for PDF capture to eliminate JPEG compression as a variable.
+// Approach: PNG is lossless from canvas — pdf-lib embeds PNG directly with FlateDecode.
+//   Larger files but no compression artifacts. JPEG version kept as fallback.
+// Why both: Investigating quality issues. If PNG PDFs look better, JPEG compression
+//   in the capture step is the bottleneck. If both look the same, html-to-image is.
+const PDF_USE_PNG = true
 
 function getPdfPixelRatio(width, height) {
   for (let ratio = 2; ratio >= 1; ratio--) {
@@ -123,8 +129,18 @@ async function captureForPdf(element, width, height) {
     pixelRatio,
     style: { opacity: '1', transform: 'scale(1)' },
   })
-  // Use toBlob → Uint8Array instead of toDataURL to avoid ~33% base64 overhead.
-  // jsPDF accepts Uint8Array directly and skips base64 parsing.
+  if (PDF_USE_PNG) {
+    // PNG: lossless capture — no JPEG compression artifacts.
+    // pdf-lib embeds PNG directly with FlateDecode.
+    const blob = await new Promise((resolve, reject) =>
+      canvas.toBlob(
+        (b) => b ? resolve(b) : reject(new Error('Canvas capture failed')),
+        'image/png',
+      )
+    )
+    return { data: new Uint8Array(await blob.arrayBuffer()), format: 'png' }
+  }
+  // JPEG: smaller files, DCTDecode passthrough in pdf-lib.
   const blob = await new Promise((resolve, reject) =>
     canvas.toBlob(
       (b) => b ? resolve(b) : reject(new Error('Canvas capture failed')),
@@ -132,7 +148,19 @@ async function captureForPdf(element, width, height) {
       PDF_JPEG_QUALITY,
     )
   )
-  return new Uint8Array(await blob.arrayBuffer())
+  return { data: new Uint8Array(await blob.arrayBuffer()), format: 'jpeg' }
+}
+
+// Diagnostic: download the raw captured image to compare quality vs the PDF output.
+// Requirement: Isolate whether quality loss is in capture (html-to-image) or PDF embedding.
+// Approach: Save first page's raw capture as a file alongside the PDF.
+//   If this image looks bad, the problem is html-to-image. If it looks good but
+//   the PDF looks bad, the problem is PDF embedding/scaling.
+function downloadDiagnosticImage(imageResult, platformId) {
+  const ext = imageResult.format === 'png' ? 'png' : 'jpg'
+  const mime = imageResult.format === 'png' ? 'image/png' : 'image/jpeg'
+  const blob = new Blob([imageResult.data], { type: mime })
+  saveAs(blob, `pdf-diagnostic-${platformId}.${ext}`)
 }
 
 export default memo(function ExportButtons({ canvasRef, state, onPlatformChange, onExportFormatChange, onExportingChange, pageCount = 1, onSetActivePage }) {
@@ -276,15 +304,17 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
   }, [canvasRef, state.platform, state.activePage, exportFormat, ext, pageCount, onSetActivePage, updateExporting])
 
   // Requirement: PDF export for LinkedIn carousel documents and general print-to-PDF
-  // Approach: Capture pages as JPEGs, build PDF with jsPDF using exact platform dimensions
+  // Approach: Capture pages as images, build PDF with pdf-lib using exact platform dimensions.
+  //   pdf-lib embeds JPEG via DCTDecode and PNG via FlateDecode — both are passthrough
+  //   (no re-encoding). Switched from jsPDF to investigate quality differences.
   // Why: Previous window.open + window.print approach failed on mobile:
   //   - Opened about:blank tab (popup handling differs on mobile)
   //   - Mobile browsers ignore @page size CSS, defaulting to A4/Letter (wrong dimensions)
   //   - Required user to navigate print dialog instead of direct download
   // Alternatives:
+  //   - jsPDF: Replaced — suspected quality loss in addImage dimension scaling.
   //   - window.open + window.print: Rejected - broken on mobile (about:blank, wrong sizes)
   //   - Direct window.print() on app: Rejected - prints entire UI, not just canvas
-  // Note: PDF uses JPEG at 2x — jsPDF embeds JPEG directly (no re-encoding), sharp and small
   const handleExportPDF = useCallback(async () => {
     if (!canvasRef.current) return
 
@@ -313,39 +343,55 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
         const restoreTransform = setFullScale(canvasRef.current)
         await waitForPaint()
 
-        const imageData = await captureForPdf(canvasRef.current, platform.width, platform.height)
+        const imageResult = await captureForPdf(canvasRef.current, platform.width, platform.height)
         restoreTransform()
-        pageImages.push(imageData)
+        pageImages.push(imageResult)
       }
 
       if (totalPages > 1) {
         onSetActivePage(originalActivePage)
       }
 
-      // Build PDF with exact platform dimensions using jsPDF.
-      // jsPDF uses points (72 per inch). Page size is based on platform pixel dimensions
-      // (not the 2x capture size), so the high-res image is downscaled into the page —
-      // resulting in sharp rendering. This prevents letterboxing on non-standard aspect ratios.
+      // Diagnostic: download raw captured image for first page to compare vs PDF output.
+      // This isolates whether quality loss is in capture or PDF embedding.
+      if (import.meta.env.DEV && pageImages.length > 0) {
+        downloadDiagnosticImage(pageImages[0], platform.id)
+      }
+
+      // Build PDF with pdf-lib using exact platform pixel dimensions.
+      // pdf-lib uses points (1pt = 1/72 inch). We convert platform pixels (96 DPI)
+      // to points so the PDF page matches the intended display size.
+      // The captured image (at 2x pixel ratio) is embedded at its native resolution —
+      // pdf-lib stores the full-res pixel data and the PDF viewer downsamples for display.
       const pxToPt = 72 / 96
       const widthPt = platform.width * pxToPt
       const heightPt = platform.height * pxToPt
-      const orientation = platform.width >= platform.height ? 'landscape' : 'portrait'
 
-      const pdf = new jsPDF({
-        orientation,
-        unit: 'pt',
-        format: [widthPt, heightPt],
-      })
+      const pdfDoc = await PDFDocument.create()
 
       for (let i = 0; i < pageImages.length; i++) {
-        if (i > 0) {
-          pdf.addPage([widthPt, heightPt], orientation)
-        }
-        pdf.addImage(pageImages[i], 'JPEG', 0, 0, widthPt, heightPt)
+        const { data, format } = pageImages[i]
+        // pdf-lib embedJpg/embedPng: both embed raw bytes directly.
+        // JPEG uses DCTDecode, PNG uses FlateDecode — no re-encoding in either case.
+        const image = format === 'png'
+          ? await pdfDoc.embedPng(data)
+          : await pdfDoc.embedJpg(data)
+
+        const page = pdfDoc.addPage([widthPt, heightPt])
+        page.drawImage(image, {
+          x: 0,
+          y: 0,
+          width: widthPt,
+          height: heightPt,
+        })
       }
 
+      const pdfBytes = await pdfDoc.save()
       const ts = getTimestamp()
-      pdf.save(`${ts}-${platform.id}-${platform.width}x${platform.height}.pdf`)
+      saveAs(
+        new Blob([pdfBytes], { type: 'application/pdf' }),
+        `${ts}-${platform.id}-${platform.width}x${platform.height}.pdf`
+      )
     } catch (error) {
       alert('PDF export failed. Please try again.')
       if (totalPages > 1) {
