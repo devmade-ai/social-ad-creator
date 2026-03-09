@@ -4,6 +4,7 @@ import { PDFDocument } from 'pdf-lib'
 import JSZip from 'jszip'
 import { saveAs } from 'file-saver'
 import { platforms, categoryLabels, categoryOrder, platformsByCategory, findFormat } from '../config/platforms'
+import { debugLog } from '../utils/debugLog'
 
 // Requirement: Export in multiple image formats (PNG, JPG, WebP)
 // Approach: Format toggle above export buttons, shared captureElement helper
@@ -206,6 +207,7 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
 
     updateExporting(true)
     setExportOp('single')
+    debugLog('export', 'single-start', { platform: platform.id, format: exportFormat, width: platform.width, height: platform.height })
     const restoreOpacity = hideCanvas(canvasRef.current)
 
     try {
@@ -220,7 +222,9 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
       const ts = getTimestamp()
       const pageSuffix = pageCount > 1 ? `-p${String(state.activePage + 1).padStart(2, '0')}` : ''
       saveAs(blob, `${ts}-${platform.id}-${platform.width}x${platform.height}${pageSuffix}.${ext}`)
+      debugLog('export', 'single-success', { platform: platform.id, sizeKB: Math.round(blob.size / 1024) })
     } catch (error) {
+      debugLog('export', 'single-error', { platform: platform.id, error: error.message }, 'error')
       alert('Export failed. Please try again.')
     } finally {
       restoreOpacity()
@@ -240,10 +244,12 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
 
     const originalActivePage = state.activePage
     const restoreOpacity = hideCanvas(canvasRef.current)
+    debugLog('export', 'all-pages-start', { platform: platform.id, format: exportFormat, pageCount })
 
     try {
       for (let i = 0; i < pageCount; i++) {
         setExportProgress({ current: i + 1, total: pageCount, name: `Page ${i + 1}` })
+        debugLog('export', 'all-pages-capture', { page: i + 1, total: pageCount }, 'debug')
 
         onSetActivePage(i)
         await new Promise((resolve) => setTimeout(resolve, 300))
@@ -262,9 +268,11 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
       const content = await zip.generateAsync({ type: 'blob' })
       const ts = getTimestamp()
       saveAs(content, `${ts}-pages.zip`)
+      debugLog('export', 'all-pages-success', { pageCount, sizeKB: Math.round(content.size / 1024) })
 
       onSetActivePage(originalActivePage)
     } catch (error) {
+      debugLog('export', 'all-pages-error', { error: error.message }, 'error')
       alert('Export failed. Please try again.')
       onSetActivePage(originalActivePage)
     } finally {
@@ -304,6 +312,7 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
     const isPrint = platform.category === 'print'
     const qualityToRatio = { low: 1, standard: 2, high: 3 }
     const pdfPixelRatio = isPrint ? 1 : (qualityToRatio[pdfQuality] || 2)
+    debugLog('export', 'pdf-start', { platform: platform.id, quality: pdfQuality, pixelRatio: pdfPixelRatio, totalPages, isPrint })
 
     try {
       for (let i = 0; i < totalPages; i++) {
@@ -372,7 +381,9 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
         new Blob([pdfBytes], { type: 'application/pdf' }),
         `${ts}-${platform.id}-${platform.width}x${platform.height}.pdf`
       )
+      debugLog('export', 'pdf-success', { platform: platform.id, pagePt: `${widthPt}x${heightPt}`, pixelRatio: pdfPixelRatio, sizeKB: Math.round(pdfBytes.length / 1024), totalPages })
     } catch (error) {
+      debugLog('export', 'pdf-error', { platform: platform.id, error: error.message }, 'error')
       alert('PDF export failed. Please try again.')
       if (totalPages > 1) {
         onSetActivePage(originalActivePage)
@@ -399,6 +410,7 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
 
     const platformsToExport = platforms.filter((p) => selectedPlatforms.has(p.id))
     const restoreOpacity = hideCanvas(canvasRef.current)
+    debugLog('export', 'multi-start', { format: exportFormat, platformCount: platformsToExport.length })
 
     try {
       for (let i = 0; i < platformsToExport.length; i++) {
@@ -420,10 +432,12 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
       const content = await zip.generateAsync({ type: 'blob' })
       const ts = getTimestamp()
       saveAs(content, `${ts}-multi.zip`)
+      debugLog('export', 'multi-success', { platformCount: platformsToExport.length, sizeKB: Math.round(content.size / 1024) })
 
       onPlatformChange(originalPlatform)
       setShowMultiSelect(false)
     } catch (error) {
+      debugLog('export', 'multi-error', { error: error.message }, 'error')
       alert('Export failed. Please try again.')
       onPlatformChange(originalPlatform)
     } finally {

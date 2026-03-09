@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useRegisterSW } from 'virtual:pwa-register/react'
+import { debugLog } from '../utils/debugLog'
 
 export function usePWAUpdate() {
   // Requirement: Periodic SW update checks without leaking intervals
@@ -16,6 +17,7 @@ export function usePWAUpdate() {
       if (r) {
         registrationRef.current = r
         setRegistered(true)
+        debugLog('pwa', 'sw-registered', { scope: r.scope })
       }
     },
   })
@@ -32,6 +34,7 @@ export function usePWAUpdate() {
   }, [registered])
 
   const update = () => {
+    debugLog('pwa', 'update-triggered')
     updateServiceWorker(true)
   }
 

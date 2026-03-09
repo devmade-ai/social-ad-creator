@@ -8,6 +8,7 @@
 //   - Skip non-Chromium browsers: Rejected - Safari/Firefox users can still install PWAs
 //     manually; showing instructions is better than hiding the feature.
 import { useState, useEffect, useMemo } from 'react'
+import { debugLog } from '../utils/debugLog'
 
 // Pick up beforeinstallprompt captured by inline script in index.html.
 // The inline script fires before React mounts, so on cached SW repeat visits
@@ -81,6 +82,7 @@ export function usePWAInstall() {
     }
     if (deferredPrompt) {
       setCanInstall(true)
+      debugLog('pwa', 'install-prompt-cached', { browser })
     }
 
     const handler = (e) => {
@@ -88,11 +90,13 @@ export function usePWAInstall() {
       deferredPrompt = e
       window.__pwaInstallPrompt = e
       setCanInstall(true)
+      debugLog('pwa', 'install-prompt-captured', { browser })
     }
 
     const installedHandler = () => {
       setCanInstall(false)
       deferredPrompt = null
+      debugLog('pwa', 'app-installed', { browser })
       // Track install in Google Analytics
       if (typeof gtag === 'function') {
         const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
@@ -137,6 +141,7 @@ export function usePWAInstall() {
 
     deferredPrompt.prompt()
     const { outcome } = await deferredPrompt.userChoice
+    debugLog('pwa', 'install-choice', { outcome })
 
     if (outcome === 'accepted') {
       setCanInstall(false)

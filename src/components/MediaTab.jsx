@@ -11,6 +11,7 @@ import { platforms } from '../config/platforms'
 import { overlayTypes } from '../config/layouts'
 import { neutralColors } from '../config/themes'
 import { SAMPLE_MANIFEST_URL } from '../config/sampleImages'
+import { debugLog } from '../utils/debugLog'
 
 // Theme color options for overlay
 const themeColorOptions = [
@@ -394,7 +395,9 @@ function SampleImagesSection({ images, onAddImage, selectedCell }) {
       if (!response.ok) throw new Error(`HTTP ${response.status}`)
       const data = await response.json()
       setManifest(data)
-    } catch {
+      debugLog('media', 'manifest-loaded', { images: data.images?.length, categories: data.categories?.length })
+    } catch (error) {
+      debugLog('media', 'manifest-error', { error: error.message, url: SAMPLE_MANIFEST_URL }, 'error')
       setManifestError('Could not load sample images. Check your connection.')
     } finally {
       setManifestLoading(false)

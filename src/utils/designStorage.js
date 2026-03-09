@@ -5,6 +5,8 @@
 //   - localStorage: Rejected — 5-10MB limit silently drops designs with large images.
 //   - localForage: Rejected — adds a dependency for a thin IDB wrapper we can write in 80 lines.
 
+import { debugLog } from './debugLog'
+
 const DB_NAME = 'canvagrid'
 const DB_VERSION = 1
 const STORE_NAME = 'designs'
@@ -20,7 +22,10 @@ function openDB() {
       }
     }
     request.onsuccess = () => resolve(request.result)
-    request.onerror = () => reject(request.error)
+    request.onerror = () => {
+      debugLog('design-storage', 'db-open-error', { error: request.error?.message }, 'error')
+      reject(request.error)
+    }
   })
 }
 
@@ -30,8 +35,14 @@ export async function saveDesign(design) {
   return new Promise((resolve, reject) => {
     const tx = db.transaction(STORE_NAME, 'readwrite')
     tx.objectStore(STORE_NAME).put(design)
-    tx.oncomplete = () => resolve()
-    tx.onerror = () => reject(tx.error)
+    tx.oncomplete = () => {
+      debugLog('design-storage', 'save-success', { id: design.id, name: design.name })
+      resolve()
+    }
+    tx.onerror = () => {
+      debugLog('design-storage', 'save-error', { id: design.id, error: tx.error?.message }, 'error')
+      reject(tx.error)
+    }
   })
 }
 
@@ -41,8 +52,14 @@ export async function loadDesign(designId) {
   return new Promise((resolve, reject) => {
     const tx = db.transaction(STORE_NAME, 'readonly')
     const req = tx.objectStore(STORE_NAME).get(designId)
-    req.onsuccess = () => resolve(req.result || null)
-    req.onerror = () => reject(req.error)
+    req.onsuccess = () => {
+      debugLog('design-storage', 'load-success', { id: designId, found: !!req.result })
+      resolve(req.result || null)
+    }
+    req.onerror = () => {
+      debugLog('design-storage', 'load-error', { id: designId, error: req.error?.message }, 'error')
+      reject(req.error)
+    }
   })
 }
 
@@ -60,9 +77,13 @@ export async function listDesigns() {
       }))
       // Sort newest first
       designs.sort((a, b) => new Date(b.savedAt) - new Date(a.savedAt))
+      debugLog('design-storage', 'list-success', { count: designs.length })
       resolve(designs)
     }
-    req.onerror = () => reject(req.error)
+    req.onerror = () => {
+      debugLog('design-storage', 'list-error', { error: req.error?.message }, 'error')
+      reject(req.error)
+    }
   })
 }
 
@@ -72,8 +93,14 @@ export async function deleteDesign(designId) {
   return new Promise((resolve, reject) => {
     const tx = db.transaction(STORE_NAME, 'readwrite')
     tx.objectStore(STORE_NAME).delete(designId)
-    tx.oncomplete = () => resolve()
-    tx.onerror = () => reject(tx.error)
+    tx.oncomplete = () => {
+      debugLog('design-storage', 'delete-success', { id: designId })
+      resolve()
+    }
+    tx.onerror = () => {
+      debugLog('design-storage', 'delete-error', { id: designId, error: tx.error?.message }, 'error')
+      reject(tx.error)
+    }
   })
 }
 
@@ -97,6 +124,8 @@ export async function migrateFromLocalStorage(migrateTextFn) {
     const designs = JSON.parse(raw)
     if (!Array.isArray(designs) || designs.length === 0) return
 
+    debugLog('design-storage', 'migration-start', { count: designs.length })
+
     for (const design of designs) {
       // Run text format migration on each design before storing in IDB
       if (design.state && migrateTextFn) {
@@ -107,7 +136,9 @@ export async function migrateFromLocalStorage(migrateTextFn) {
 
     // Remove legacy data after successful migration
     localStorage.removeItem(LEGACY_STORAGE_KEY)
-  } catch {
+    debugLog('design-storage', 'migration-success', { count: designs.length })
+  } catch (error) {
     // Non-critical — designs stay in localStorage if migration fails
+    debugLog('design-storage', 'migration-error', { error: error.message }, 'error')
   }
 }

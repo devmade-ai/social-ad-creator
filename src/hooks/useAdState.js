@@ -12,6 +12,7 @@ import { getLookSettingsForLayout } from '../config/stylePresets'
 import { useHistory } from './useHistory'
 import { countCells, cleanupOrphanedCells, shiftCellIndices, swapCellIndices } from '../utils/cellUtils'
 import * as designStorage from '../utils/designStorage'
+import { debugLog } from '../utils/debugLog'
 
 const defaultTheme = presetThemes[0] // Dark theme
 
@@ -633,6 +634,7 @@ export function useAdState() {
   }, [setState])
 
   const addPage = useCallback(() => {
+    debugLog('state', 'page-add', null, 'debug')
     setState((prev) => {
       const pages = prev.pages || [null]
       const currentPageData = extractPageData(prev)
@@ -652,6 +654,7 @@ export function useAdState() {
   }, [setState])
 
   const duplicatePage = useCallback(() => {
+    debugLog('state', 'page-duplicate', null, 'debug')
     setState((prev) => {
       const pages = prev.pages || [null]
       const currentPageData = extractPageData(prev)
@@ -673,6 +676,7 @@ export function useAdState() {
   }, [setState])
 
   const removePage = useCallback((index) => {
+    debugLog('state', 'page-remove', { index }, 'debug')
     setState((prev) => {
       const pages = prev.pages || [null]
       if (pages.length <= 1) return prev // Can't remove last page
@@ -789,6 +793,7 @@ export function useAdState() {
   useEffect(() => {
     if (!migrationRan.current) {
       migrationRan.current = true
+      debugLog('state', 'migration-trigger', null, 'debug')
       designStorage.migrateFromLocalStorage(migrateTextForStorage)
     }
   }, [])
@@ -808,8 +813,10 @@ export function useAdState() {
     }
     try {
       await designStorage.saveDesign(design)
+      debugLog('state', 'design-saved', { id: design.id, name })
       return { success: true, id: design.id }
     } catch (error) {
+      debugLog('state', 'design-save-error', { error: error.message }, 'error')
       return { success: false, error: error.message }
     }
   }, [state])
@@ -829,10 +836,13 @@ export function useAdState() {
           loadedState.pages[activePage] = null
         }
         resetHistory(loadedState)
+        debugLog('state', 'design-loaded', { id: designId, pages: loadedState.pages?.length || 1 })
         return { success: true }
       }
+      debugLog('state', 'design-load-not-found', { id: designId }, 'warn')
       return { success: false, error: 'Design not found' }
     } catch (error) {
+      debugLog('state', 'design-load-error', { id: designId, error: error.message }, 'error')
       return { success: false, error: error.message }
     }
   }, [resetHistory])
@@ -848,8 +858,10 @@ export function useAdState() {
   const deleteDesign = useCallback(async (designId) => {
     try {
       await designStorage.deleteDesign(designId)
+      debugLog('state', 'design-deleted', { id: designId })
       return { success: true }
     } catch (error) {
+      debugLog('state', 'design-delete-error', { id: designId, error: error.message }, 'error')
       return { success: false, error: error.message }
     }
   }, [])
