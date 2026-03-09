@@ -612,6 +612,8 @@ function App() {
                     platform={state.platform}
                     selectedCell={selectedCell}
                     onSelectCell={setSelectedCell}
+                    cellImages={state.cellImages}
+                    images={state.images}
                   />
                 )}
               </ErrorBoundary>

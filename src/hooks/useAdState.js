@@ -207,7 +207,12 @@ export const defaultState = {
 export function useAdState() {
   const { state, setState, undo, redo, canUndo, canRedo, resetHistory } = useHistory(defaultState)
 
-  const addImage = useCallback((src, name = 'Image', targetCell = null) => {
+  // Requirement: Store natural image dimensions for snap-to-fit feature.
+  // Approach: Accept optional dimensions param { width, height } from upload handlers.
+  // Alternatives:
+  //   - Async Image() load inside addImage: Rejected — addImage is synchronous setState.
+  //   - Lazy load on snap click: Rejected — storing up front is more reliable and enables future uses.
+  const addImage = useCallback((src, name = 'Image', targetCell = null, dimensions = null) => {
     const id = `img-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
     setState((prev) => {
       // If there's an active look, apply its filters/overlay to the new image
@@ -239,6 +244,7 @@ export function useAdState() {
         position: { ...prev.defaultImageSettings.position },
         filters,
         overlay,
+        ...(dimensions ? { naturalWidth: dimensions.width, naturalHeight: dimensions.height } : {}),
       }]
 
       const newCellImages = { ...prev.cellImages }

@@ -441,8 +441,16 @@ function SampleImagesSection({ images, onAddImage, selectedCell }) {
         const blob = await response.blob()
         const reader = new FileReader()
         reader.onload = (event) => {
-          onAddImage(event.target.result, sample.name, selectedCell)
-          setLoadingSample(null)
+          const img = new Image()
+          img.onload = () => {
+            onAddImage(event.target.result, sample.name, selectedCell, { width: img.naturalWidth, height: img.naturalHeight })
+            setLoadingSample(null)
+          }
+          img.onerror = () => {
+            onAddImage(event.target.result, sample.name, selectedCell)
+            setLoadingSample(null)
+          }
+          img.src = event.target.result
         }
         reader.onerror = () => {
           setSampleError('Failed to load image')
@@ -684,11 +692,15 @@ export default memo(function MediaTab({
         if (file && file.type.startsWith('image/')) {
           const reader = new FileReader()
           reader.onload = (event) => {
-            const imageId = onAddImage(event.target.result, file.name, selectedCell)
-            if (!firstImageId) {
-              firstImageId = imageId
-              setSelectedImageId(imageId)
+            const img = new Image()
+            img.onload = () => {
+              const imageId = onAddImage(event.target.result, file.name, selectedCell, { width: img.naturalWidth, height: img.naturalHeight })
+              if (!firstImageId) {
+                firstImageId = imageId
+                setSelectedImageId(imageId)
+              }
             }
+            img.src = event.target.result
           }
           reader.readAsDataURL(file)
         }
@@ -709,11 +721,15 @@ export default memo(function MediaTab({
         if (file && file.type.startsWith('image/')) {
           const reader = new FileReader()
           reader.onload = (event) => {
-            const imageId = onAddImage(event.target.result, file.name, selectedCell)
-            if (!firstImageId) {
-              firstImageId = imageId
-              setSelectedImageId(imageId)
+            const img = new Image()
+            img.onload = () => {
+              const imageId = onAddImage(event.target.result, file.name, selectedCell, { width: img.naturalWidth, height: img.naturalHeight })
+              if (!firstImageId) {
+                firstImageId = imageId
+                setSelectedImageId(imageId)
+              }
             }
+            img.src = event.target.result
           }
           reader.readAsDataURL(file)
         }

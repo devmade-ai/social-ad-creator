@@ -234,6 +234,8 @@ export default memo(function LayoutTab({
   platform,
   selectedCell = 0,
   onSelectCell,
+  cellImages = {},
+  images = [],
 }) {
   const { type = 'fullbleed', structure = [] } = layout
   const [structureSelection, setStructureSelection] = useState(null)
@@ -563,6 +565,93 @@ export default memo(function LayoutTab({
     }
   }
 
+  // Requirement: Snap cell boundary so a contained image fills the cell with no empty space.
+  // Approach: Compare image aspect ratio to cell aspect ratio, then adjust the boundary
+  //   (section size or subdivision size) that eliminates the empty space. Direction is automatic:
+  //   - If image is wider than cell → empty top/bottom → adjust section height (rows) or sub height (columns)
+  //   - If image is narrower than cell → empty left/right → adjust sub width (rows) or section width (columns)
+  // Alternatives:
+  //   - Manual slider adjustment: Still available — snap is a convenience shortcut.
+  //   - Change fit mode to cover: Rejected — user explicitly wants contain (full image visible).
+  const snapCellToImage = (cellIndex, sectionIndex, subIndex) => {
+    const imageId = cellImages[cellIndex]
+    if (!imageId) return
+
+    const image = images.find(img => img.id === imageId)
+    if (!image || image.fit !== 'contain') return
+
+    // Get image dimensions — use stored values or load async as fallback
+    const doSnap = (imgWidth, imgHeight) => {
+      const imageAR = imgWidth / imgHeight
+      const platformData = platforms.find(p => p.id === platform) || platforms[0]
+      const isRows = type === 'rows'
+
+      const section = structure[sectionIndex]
+      const subs = section.subdivisions || 1
+      const subSizes = section.subSizes || Array(subs).fill(100 / subs)
+
+      // Calculate actual cell dimensions in pixels
+      let cellWidth, cellHeight
+      if (isRows) {
+        cellWidth = platformData.width * (subSizes[subIndex] / 100)
+        cellHeight = platformData.height * (section.size / 100)
+      } else {
+        cellWidth = platformData.width * (section.size / 100)
+        cellHeight = platformData.height * (subSizes[subIndex] / 100)
+      }
+
+      const cellAR = cellWidth / cellHeight
+
+      // Already a close fit — no adjustment needed
+      if (Math.abs(imageAR - cellAR) < 0.01) return
+
+      if (imageAR > cellAR) {
+        // Image wider than cell → empty space top/bottom
+        if (isRows) {
+          // Rows: reduce section height
+          const newHeight = cellWidth / imageAR
+          const newSectionPercent = (newHeight / platformData.height) * 100
+          updateSectionSize(sectionIndex, newSectionPercent)
+        } else {
+          // Columns: reduce sub size (cell height within section)
+          const newHeight = cellWidth / imageAR
+          const newSubPercent = (newHeight / platformData.height) * 100
+          updateSubSize(sectionIndex, subIndex, newSubPercent)
+        }
+      } else {
+        // Image narrower than cell → empty space left/right
+        if (isRows) {
+          // Rows: reduce sub size (cell width within section)
+          const newWidth = cellHeight * imageAR
+          const newSubPercent = (newWidth / platformData.width) * 100
+          updateSubSize(sectionIndex, subIndex, newSubPercent)
+        } else {
+          // Columns: reduce section width
+          const newWidth = cellHeight * imageAR
+          const newSectionPercent = (newWidth / platformData.width) * 100
+          updateSectionSize(sectionIndex, newSectionPercent)
+        }
+      }
+    }
+
+    if (image.naturalWidth && image.naturalHeight) {
+      doSnap(image.naturalWidth, image.naturalHeight)
+    } else {
+      // Fallback: load image to read dimensions (for images uploaded before this feature)
+      const img = new Image()
+      img.onload = () => doSnap(img.naturalWidth, img.naturalHeight)
+      img.src = image.src
+    }
+  }
+
+  // Helper: check if snap-to-fit is available for a cell
+  const canSnapCell = (cellIndex) => {
+    const imageId = cellImages[cellIndex]
+    if (!imageId) return false
+    const image = images.find(img => img.id === imageId)
+    return image && image.fit === 'contain'
+  }
+
   // Reset to default
   const handleReset = () => {
     onLayoutChange(defaultState.layout)
@@ -802,6 +891,25 @@ export default memo(function LayoutTab({
                 </div>
               )}
 
+              {/* Snap to Fit — for single-cell sections, snap the section boundary to fit the image */}
+              {(() => {
+                if ((selectedSection.subdivisions || 1) !== 1) return null
+                let sectionFirstCell = 0
+                for (let i = 0; i < selectedSectionIndex; i++) {
+                  sectionFirstCell += structure[i].subdivisions || 1
+                }
+                if (!canSnapCell(sectionFirstCell)) return null
+                return (
+                  <button
+                    onClick={() => snapCellToImage(sectionFirstCell, selectedSectionIndex, 0)}
+                    className="w-full px-3 py-2 text-sm bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-200 dark:hover:bg-emerald-900/50 rounded-lg font-medium"
+                    title="Adjust this row/column size so the contained image fills the cell perfectly"
+                  >
+                    Snap to Fit Image
+                  </button>
+                )
+              })()}
+
               {structure.length > 1 && (
                 <button
                   onClick={() => {
@@ -852,6 +960,17 @@ export default memo(function LayoutTab({
                   </span>
                 </div>
               </div>
+
+              {/* Snap to Fit — adjust boundary so contained image fills this cell */}
+              {canSnapCell(selectedCellInfo.cellIndex) && (
+                <button
+                  onClick={() => snapCellToImage(selectedCellInfo.cellIndex, selectedCellInfo.sectionIndex, selectedCellInfo.subIndex)}
+                  className="w-full px-3 py-2 text-sm bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-200 dark:hover:bg-emerald-900/50 rounded-lg font-medium"
+                  title="Adjust this cell's boundary so the contained image fills it perfectly"
+                >
+                  Snap to Fit Image
+                </button>
+              )}
 
               <button
                 onClick={() => setStructureSelection({ type: 'section', index: selectedCellInfo.sectionIndex })}
