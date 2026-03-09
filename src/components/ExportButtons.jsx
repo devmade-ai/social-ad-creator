@@ -75,7 +75,7 @@ async function captureAsBlob(element, width, height, format) {
     style: { opacity: '1', transform: 'scale(1)' },
   })
   const mime = MIME_TYPES[format] || 'image/png'
-  const quality = format === 'png' ? undefined : 0.92
+  const quality = format === 'png' ? undefined : 0.95
   return new Promise((resolve, reject) =>
     canvas.toBlob(
       (blob) => blob ? resolve(blob) : reject(new Error('Canvas capture failed — image may be cross-origin')),
@@ -100,7 +100,10 @@ async function captureAsBlob(element, width, height, format) {
 // Approach: Target max ~16M pixels. For larger platforms (e.g. YouTube Banner 2560x1440),
 //   reduce pixelRatio to stay within budget.
 const MAX_PDF_PIXELS = 16_000_000 // ~16 megapixels budget
-const PDF_JPEG_QUALITY = 0.92
+// Requirement: High JPEG quality for PDF to prevent banding on smooth CSS gradients.
+// 0.92 caused visible block artifacts on vignettes/radial overlays due to JPEG's
+// 8x8 DCT compression. 0.97 eliminates banding with ~50% larger files (still small).
+const PDF_JPEG_QUALITY = 0.97
 
 function getPdfPixelRatio(width, height) {
   for (let ratio = 2; ratio >= 1; ratio--) {
