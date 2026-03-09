@@ -579,8 +579,8 @@ export default memo(function LayoutTab({
     <div className="space-y-3">
       <h3 className="text-sm font-semibold text-ui-text">Structure</h3>
 
-      {/* Structure Section */}
-      <CollapsibleSection title="Structure" defaultExpanded={false}>
+      {/* Grid Section */}
+      <CollapsibleSection title="Grid" defaultExpanded={false}>
         <div className="space-y-4">
           {/* Layout Type */}
           <div>
