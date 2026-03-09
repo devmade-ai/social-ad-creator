@@ -141,6 +141,7 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
   const [selectedPlatforms, setSelectedPlatforms] = useState(() => new Set())
   // PDF quality maps to pixelRatio for capture. Print formats always use 1x regardless.
   const [pdfQuality, setPdfQuality] = useState('standard')
+  const [showPdfQuality, setShowPdfQuality] = useState(false)
 
   const exportFormat = state.exportFormat || 'png'
   const ext = FILE_EXTENSIONS[exportFormat] || 'png'
@@ -483,39 +484,55 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
         </button>
       )}
 
-      {/* PDF quality selector + download button */}
-      <div className="flex items-center gap-2">
-        <span className="text-xs text-ui-text-muted whitespace-nowrap">PDF quality:</span>
-        {[
-          { id: 'low', label: 'Low', desc: '1x' },
-          { id: 'standard', label: 'Standard', desc: '2x' },
-          { id: 'high', label: 'High', desc: '3x' },
-        ].map((q) => (
+      {/* Split button: PDF download + quality dropdown */}
+      <div className="relative">
+        <div className="flex w-full rounded-xl overflow-hidden">
           <button
-            key={q.id}
-            onClick={() => setPdfQuality(q.id)}
-            className={`px-2 py-1 text-xs rounded-md transition-colors ${
-              pdfQuality === q.id
-                ? 'bg-orange-200 dark:bg-orange-800 text-orange-800 dark:text-orange-200 font-semibold'
-                : 'bg-ui-surface text-ui-text-muted hover:bg-ui-surface-elevated'
-            }`}
-            title={`${q.desc} pixel ratio`}
+            onClick={handleExportPDF}
+            disabled={isExporting}
+            className="flex-1 px-4 py-3 text-sm font-semibold text-orange-700 dark:text-orange-400 bg-orange-50 dark:bg-orange-900/20 hover:bg-orange-100 dark:hover:bg-orange-900/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-[0.98]"
           >
-            {q.label}
+            {exportOp === 'pdf' && exportProgress
+              ? `Preparing Page ${exportProgress.current}/${exportProgress.total}...`
+              : pageCount > 1
+                ? `Download ${pageCount} Pages as PDF`
+                : 'Download as PDF'}
           </button>
-        ))}
+          <button
+            onClick={() => setShowPdfQuality(!showPdfQuality)}
+            disabled={isExporting}
+            className="px-3 py-3 text-orange-700 dark:text-orange-400 bg-orange-50 dark:bg-orange-900/20 hover:bg-orange-100 dark:hover:bg-orange-900/30 border-l border-orange-200 dark:border-orange-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+          >
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" className={`transition-transform ${showPdfQuality ? 'rotate-180' : ''}`}>
+              <path d="M3 5L6 8L9 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </button>
+        </div>
+        {showPdfQuality && (
+          <div className="mt-1 p-2 bg-ui-surface-elevated rounded-lg border border-ui-border shadow-lg">
+            <span className="text-xs text-ui-text-muted block mb-1.5">PDF Quality</span>
+            <div className="flex gap-1">
+              {[
+                { id: 'low', label: 'Low', desc: '1x' },
+                { id: 'standard', label: 'Standard', desc: '2x' },
+                { id: 'high', label: 'High', desc: '3x' },
+              ].map((q) => (
+                <button
+                  key={q.id}
+                  onClick={() => { setPdfQuality(q.id); setShowPdfQuality(false) }}
+                  className={`flex-1 px-2 py-1.5 text-xs rounded-md transition-colors ${
+                    pdfQuality === q.id
+                      ? 'bg-orange-200 dark:bg-orange-800 text-orange-800 dark:text-orange-200 font-semibold'
+                      : 'bg-ui-surface text-ui-text-muted hover:bg-ui-surface-elevated'
+                  }`}
+                >
+                  {q.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
-      <button
-        onClick={handleExportPDF}
-        disabled={isExporting}
-        className="w-full px-4 py-3 text-sm font-semibold text-orange-700 dark:text-orange-400 bg-orange-50 dark:bg-orange-900/20 rounded-xl hover:bg-orange-100 dark:hover:bg-orange-900/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-[0.98]"
-      >
-        {exportOp === 'pdf' && exportProgress
-          ? `Preparing Page ${exportProgress.current}/${exportProgress.total}...`
-          : pageCount > 1
-            ? `Download ${pageCount} Pages as PDF`
-            : 'Download as PDF'}
-      </button>
 
       <button
         onClick={() => setShowMultiSelect(!showMultiSelect)}
