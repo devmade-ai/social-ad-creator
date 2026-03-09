@@ -75,7 +75,10 @@ async function captureAsBlob(element, width, height, format) {
     style: { opacity: '1', transform: 'scale(1)' },
   })
   const mime = MIME_TYPES[format] || 'image/png'
-  const quality = format === 'png' ? undefined : 0.95
+  // PNG is lossless (no quality param). WebP needs higher quality than JPG because
+  // its lossy encoder handles smooth gradients differently — 0.95 can show subtle
+  // blocking on vignettes that JPG doesn't at the same number.
+  const quality = format === 'png' ? undefined : format === 'webp' ? 0.98 : 0.95
   return new Promise((resolve, reject) =>
     canvas.toBlob(
       (blob) => blob ? resolve(blob) : reject(new Error('Canvas capture failed — image may be cross-origin')),
