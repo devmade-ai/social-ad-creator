@@ -61,6 +61,11 @@ function CanvasCellOverlay({ layout, selectedCell, onSelectCell }) {
           const isSelected = selectedCell === currentCellIndex
           cellIndex++
 
+          // Requirement: Click-to-select cells on canvas without visual clutter
+          // Approach: No borders on unselected cells, subtle outline on selected only
+          // Alternatives:
+          //   - Borders on all cells: Rejected — looks like export borders, confuses users
+          //   - Thick highlight on selected: Rejected — obscures actual design content
           sectionCells.push(
             <div
               key={`overlay-cell-${currentCellIndex}`}
@@ -69,10 +74,11 @@ function CanvasCellOverlay({ layout, selectedCell, onSelectCell }) {
                 flex: `1 1 ${subSizes[subIndex]}%`,
                 cursor: 'pointer',
                 boxSizing: 'border-box',
-                border: isSelected ? '2px solid rgba(99, 102, 241, 0.7)' : '1px solid rgba(99, 102, 241, 0.15)',
-                transition: 'border-color 0.15s, background-color 0.15s',
+                outline: isSelected ? '2px solid rgba(99, 102, 241, 0.5)' : 'none',
+                outlineOffset: '-2px',
+                transition: 'outline-color 0.15s',
               }}
-              className="hover:border-primary/40 active:bg-primary/10"
+              className="hover:outline hover:outline-2 hover:-outline-offset-2 hover:outline-primary/30 active:bg-primary/5"
               title={`Cell ${currentCellIndex + 1}`}
             />
           )
