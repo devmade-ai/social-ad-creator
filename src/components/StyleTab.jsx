@@ -406,6 +406,46 @@ export default memo(function StyleTab({
 
             <div className="space-y-3 p-3 bg-ui-surface-elevated rounded-lg">
 
+                {/* Per-cell background color */}
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      id={`bg-custom-${clampedCell}`}
+                      checked={layout.cellBackgrounds?.[clampedCell] !== undefined}
+                      onChange={(e) => {
+                        const newBgs = { ...(layout.cellBackgrounds || {}) }
+                        if (e.target.checked) {
+                          newBgs[clampedCell] = 'secondary'
+                        } else {
+                          delete newBgs[clampedCell]
+                        }
+                        onLayoutChange({ cellBackgrounds: newBgs })
+                      }}
+                      className="w-4 h-4 text-primary rounded border-zinc-300 focus:ring-primary"
+                    />
+                    <label
+                      htmlFor={`bg-custom-${clampedCell}`}
+                      className="text-xs text-ui-text-subtle"
+                    >
+                      Custom background
+                    </label>
+                  </div>
+
+                  {layout.cellBackgrounds?.[clampedCell] !== undefined && (
+                    <div className="pl-6">
+                      <ThemeColorPicker
+                        value={layout.cellBackgrounds[clampedCell]}
+                        onChange={(id) => {
+                          const newBgs = { ...(layout.cellBackgrounds || {}), [clampedCell]: id }
+                          onLayoutChange({ cellBackgrounds: newBgs })
+                        }}
+                        theme={theme}
+                      />
+                    </div>
+                  )}
+                </div>
+
                 {/* Custom padding */}
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">

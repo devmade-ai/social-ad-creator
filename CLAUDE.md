@@ -507,6 +507,7 @@ layout: {
   textVerticalAlign: 'center',   // Global vertical alignment fallback
   cellAlignments: [{ textAlign, textVerticalAlign }, ...]  // Per-cell overrides
   cellOverlays: {}  // Per-cell overlay settings
+  cellBackgrounds: {}  // Per-cell background color override (color key, e.g. 'secondary', 'accent', 'off-white')
 }
 
 // Frame settings (colored border using percentage of padding)

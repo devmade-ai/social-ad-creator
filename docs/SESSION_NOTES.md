@@ -5,23 +5,22 @@ Compact context summary for session continuity. Rewrite at session end.
 ---
 
 ## Worked on
-Fixed PDF rendering quality on mobile — page dimensions were too large for mobile viewers.
+Per-cell background color feature + PDF export improvements.
 
 ## Accomplished
 
-1. **PDF page size fix** — Changed digital pxToPt from 1 to 0.5 (144 DPI). Pages now ~7.5" wide instead of 15". Mobile viewers scale 2.5:1 instead of 5:1, significantly improving rendering quality.
-2. **Font loading** — Added `document.fonts.ready` wait before PDF capture to prevent fallback font rendering.
-3. **PDF metadata** — Added title and creator metadata for better viewer compatibility.
+1. **Per-cell background color** — Cells can now override the theme primary background with any theme color or neutral. Stored in `layout.cellBackgrounds` (object keyed by cell index). UI in Style > Spacing section with checkbox + ThemeColorPicker.
+2. **PDF font loading** — Added `document.fonts.ready` wait before PDF capture.
+3. **PDF metadata** — Added title and creator metadata to exported PDFs.
+4. **PDF page size investigation** — Tried pxToPt=0.5 to reduce page dimensions for mobile viewers, but reverted because it would reduce quality for the intended use case (sharing/uploading full-resolution designs). Still using pxToPt=1 for digital formats.
 
 ## Current state
 
-- **Fixed** — Digital PDF pages use pxToPt=0.5, creating reasonable page sizes
-- Page size example: LinkedIn Portrait 1080×1350px → 540×675pt (7.5×9.4 inches)
-- Integer pixel-per-point ratios preserved: Low=2, Standard=4, High=6
-- Print formats unchanged: pxToPt=72/150, pixelRatio=1
+- **Working** — Per-cell background colors, PDF export with font loading and metadata
+- PDF quality issue still open — user reports it "looks like shit" but specific visual problems not yet identified
 
 ## Key context
 
-- PDF quality pipeline: capture (pixelRatio) → embed in PDF (page size) → viewer scaling (page→screen)
-- All three stages matter for final quality. Previous fixes only addressed the first two.
-- pxToPt=0.5 chosen because it gives integer px/pt ratios for all quality levels (1×0.5⁻¹=2, 2×0.5⁻¹=4, 3×0.5⁻¹=6)
+- `layout.cellBackgrounds` follows the same pattern as `cellOverlays` — object with cellIndex keys, shift/swap/cleanup in setLayout
+- ThemeColorPicker supports theme colors (primary/secondary/accent) + 6 neutral colors
+- PDF export: pxToPt=1 for digital (full resolution), 72/150 for print (correct physical size)

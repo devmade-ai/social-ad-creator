@@ -83,6 +83,13 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
     return fallback
   }
 
+  // Requirement: Per-cell background color — overrides theme primary for individual cells
+  const getCellBackgroundColor = (cellIndex) => {
+    const colorKey = layout.cellBackgrounds?.[cellIndex]
+    if (!colorKey) return themeColors.primary
+    return resolveColor(colorKey, themeColors.primary)
+  }
+
   const getOverlayStyle = (overlayConfig) => {
     const color = resolveColor(overlayConfig.color, themeColors.primary)
     const type = getOverlayType(overlayConfig.type)
@@ -317,7 +324,7 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
     const combinedFilter = [imageFilterStyle, duotoneFilter].filter(f => f && f !== 'none').join(' ') || 'none'
 
     return (
-      <div style={{ position: 'relative', backgroundColor: themeColors.primary, ...style }}>
+      <div style={{ position: 'relative', backgroundColor: getCellBackgroundColor(cellIndex), ...style }}>
         <div
           style={{
             position: 'absolute',
@@ -577,8 +584,8 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
 
     return (
       <>
-        {/* Background color */}
-        <div style={{ position: 'absolute', inset: 0, backgroundColor: themeColors.primary }} />
+        {/* Background color — per-cell override or theme primary */}
+        <div style={{ position: 'absolute', inset: 0, backgroundColor: getCellBackgroundColor(0) }} />
         {/* Image layer */}
         {hasImage && renderCellImage(0, { position: 'absolute', inset: 0 })}
         {/* Cell frame (inset border) */}
@@ -641,8 +648,8 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
 
     return (
       <>
-        {/* Background for all cells */}
-        <div style={{ position: 'absolute', inset: 0, backgroundColor: themeColors.primary }} />
+        {/* Background — per-cell override or theme primary */}
+        <div style={{ position: 'absolute', inset: 0, backgroundColor: getCellBackgroundColor(cellIndex) }} />
 
         {/* Image for cells with images */}
         {hasImage && renderCellImage(cellIndex, { position: 'absolute', inset: 0 })}

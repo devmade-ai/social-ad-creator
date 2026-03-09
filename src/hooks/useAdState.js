@@ -105,6 +105,7 @@ const defaultPageData = {
       { textAlign: 'center', textVerticalAlign: 'center' },
     ],
     cellOverlays: {},
+    cellBackgrounds: {},
   },
   padding: { global: 20, cellOverrides: {} },
   frame: { outer: { percent: 0, color: 'primary' }, cellFrames: {} },
@@ -165,6 +166,7 @@ export const defaultState = {
       { textAlign: 'center', textVerticalAlign: 'center' },
     ],
     cellOverlays: {},
+    cellBackgrounds: {},
   },
 
   theme: {
@@ -403,8 +405,21 @@ export function useAdState() {
           }
         }
 
+        const oldBackgrounds = newLayout.cellBackgrounds || {}
+        const shiftedBackgrounds = {}
+        for (const [key, value] of Object.entries(oldBackgrounds)) {
+          const idx = parseInt(key, 10)
+          if (idx >= fromIndex) {
+            const newIdx = idx + shiftBy
+            if (newIdx >= 0) shiftedBackgrounds[newIdx] = value
+          } else {
+            shiftedBackgrounds[key] = value
+          }
+        }
+
         newLayout.cellAlignments = shiftedAlignments
         newLayout.cellOverlays = shiftedOverlays
+        newLayout.cellBackgrounds = shiftedBackgrounds
 
         // Build intermediate state with shifted data for cleanupOrphanedCells
         stateForCleanup = {
@@ -433,7 +448,6 @@ export function useAdState() {
         // Remap cellOverlays (object)
         const oldOverlays = newLayout.cellOverlays || {}
         const swappedOverlays = { ...oldOverlays }
-        // Clear old keys for swapped cells first, then set new
         for (const oldIdx of Object.keys(_cellSwap)) {
           delete swappedOverlays[oldIdx]
         }
@@ -441,6 +455,17 @@ export function useAdState() {
           if (oldOverlays[oldIdx]) swappedOverlays[newIdx] = oldOverlays[oldIdx]
         }
         newLayout.cellOverlays = swappedOverlays
+
+        // Remap cellBackgrounds (object)
+        const oldBgs = newLayout.cellBackgrounds || {}
+        const swappedBgs = { ...oldBgs }
+        for (const oldIdx of Object.keys(_cellSwap)) {
+          delete swappedBgs[oldIdx]
+        }
+        for (const [oldIdx, newIdx] of Object.entries(_cellSwap)) {
+          if (oldBgs[oldIdx]) swappedBgs[newIdx] = oldBgs[oldIdx]
+        }
+        newLayout.cellBackgrounds = swappedBgs
 
         stateForCleanup = {
           ...stateForCleanup,
@@ -463,10 +488,16 @@ export function useAdState() {
           delete cleanCellOverlays[cellIndex]
         }
       })
+      const cleanCellBackgrounds = { ...(newLayout.cellBackgrounds || {}) }
+      Object.keys(cleanCellBackgrounds).forEach((cellIndex) => {
+        if (parseInt(cellIndex, 10) >= newCellCount) {
+          delete cleanCellBackgrounds[cellIndex]
+        }
+      })
 
       return {
         ...prev,
-        layout: { ...newLayout, cellAlignments: cleanCellAlignments, cellOverlays: cleanCellOverlays },
+        layout: { ...newLayout, cellAlignments: cleanCellAlignments, cellOverlays: cleanCellOverlays, cellBackgrounds: cleanCellBackgrounds },
         text: cleaned.text,
         cellImages: cleaned.cellImages,
         padding: { ...prev.padding, cellOverrides: cleaned.paddingOverrides },
