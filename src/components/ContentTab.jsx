@@ -140,7 +140,20 @@ function TextElementEditor({
       <div className="relative">
         <textarea
           value={layerState.content}
-          onChange={(e) => onTextChange(cellIndex, element.id, { content: e.target.value })}
+          onChange={(e) => {
+            const updates = { content: e.target.value }
+            // Requirement: Auto-enable visibility when typing into an uninitialized element.
+            // Why: Without this, the toggle shows ON (visible !== false treats undefined as true)
+            //   but AdCanvas checks cellText[id]?.visible which is undefined (falsy) → text
+            //   doesn't render. Writing visible: true to state keeps display and rendering in sync.
+            // Guard: Only auto-enable if visible was never explicitly set (undefined).
+            //   If user set visible: false, respect that — don't override their choice.
+            const existingVisible = cellText?.[element.id]?.visible
+            if (e.target.value && existingVisible === undefined) {
+              updates.visible = true
+            }
+            onTextChange(cellIndex, element.id, updates)
+          }}
           onFocus={handleFocus}
           placeholder={element.placeholder}
           rows={textareaRows}
