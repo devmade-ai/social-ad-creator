@@ -1,13 +1,15 @@
-// Requirement: Interactive grid structure editor with per-cell alignment controls.
-// Approach: Two collapsible sections — Structure (layout type, section/subdivision sizing)
-//   and Text Alignment (context-aware: global, section, or cell depending on selection).
+// Requirement: Interactive grid structure editor with cell-based selection.
+// Approach: Uses the same global selectedCell as all other tabs. Section context
+//   (which row/column the cell belongs to) is derived, not stored separately.
 //   Size constraints (MIN_SIZE=10, MAX_SIZE=90) prevent cells from becoming unusably small.
 // Alternatives:
+//   - Separate structureSelection state: Rejected — caused sync bugs between internal
+//     and global selection, required complex bidirectional sync logic.
 //   - Drag-to-resize on canvas: Rejected - complex to implement and hard to be precise on mobile.
 //   - Numeric input only: Rejected - sliders give visual feedback for proportional sizing.
-import { useState, useMemo, useEffect, useRef, memo } from 'react'
+import { useMemo, memo } from 'react'
 import CollapsibleSection from './CollapsibleSection'
-import { countCells } from '../utils/cellUtils'
+import MiniCellGrid from './MiniCellGrid'
 import { platforms } from '../config/platforms'
 import { defaultState } from '../hooks/useAdState'
 
@@ -27,205 +29,23 @@ const getMaxSize = (totalItems) => {
   return Math.min(MAX_SIZE, 100 - (totalItems - 1) * MIN_SIZE)
 }
 
-// Unified grid component for cell selection
-function CellGrid({
-  layout,
-  selectedCell = null,
-  globalSelectedCell = null, // Global cell from ContextBar (shown as indicator in structure mode)
-  mode = 'cell', // 'cell' | 'image' | 'structure'
-  onSelectCell,
-  onSelectSection,
-  structureSelection,
-  aspectRatio = 1,
-  size = 'normal',
-}) {
-  const { type, structure } = layout
-  const isFullbleed = type === 'fullbleed'
-  const isRows = type === 'rows'
-
-  const normalizedStructure =
-    isFullbleed || !structure || structure.length === 0
+// Requirement: Derive section context from selectedCell instead of maintaining separate state.
+// Approach: Maps a cell index to its containing section index and subdivision index.
+// Why: Eliminates the parallel structureSelection state that caused sync bugs.
+function cellToSection(structure, type, cellIndex) {
+  const normalized =
+    type === 'fullbleed' || !structure || structure.length === 0
       ? [{ size: 100, subdivisions: 1, subSizes: [100] }]
       : structure
-  const showSectionLabels = mode === 'structure' && !isFullbleed && normalizedStructure.length > 1
-
-  const sizeConfig = {
-    small: { maxWidth: 100, minHeight: 50 },
-    normal: { maxWidth: 180, minHeight: 100 },
-    large: { maxWidth: 280, minHeight: 160 },
-  }
-  const config = sizeConfig[size] || sizeConfig.normal
-
-  const containerStyle = {
-    aspectRatio: aspectRatio,
-    maxWidth: `${config.maxWidth}px`,
-    minHeight: `${config.minHeight}px`,
-    width: '100%',
-    flexShrink: 0,
-  }
-
-  // Requirement: Show which cell is globally selected (from ContextBar) in the Structure grid
-  // Approach: Inset ring indicator as secondary indicator when structureSelection differs
-  //   from globalSelectedCell. Primary sync now handled via useEffect in LayoutTab.
-  // History: Previously rejected auto-sync, but users expect ContextBar clicks to select
-  //   the cell for editing in Structure tab (see useEffect above).
-  // Requirement: Cell content styling without image/text distinction
-  // Approach: All cells are equal — styling based on selection state only
-  const getCellContent = (cellIndex, isSelected, isSectionSelected, subdivisions, subSize) => {
-    let bgClass, textClass, content
-    const isGlobalSelected = mode === 'structure' && globalSelectedCell === cellIndex
-
-    if (mode === 'structure') {
-      if (isSelected) {
-        bgClass = 'bg-primary hover:bg-primary-hover'
-        textClass = 'text-white'
-      } else if (isSectionSelected) {
-        bgClass = 'bg-violet-100 dark:bg-violet-900/30 hover:bg-violet-200 dark:hover:bg-violet-900/40'
-        textClass = 'text-violet-700 dark:text-violet-300'
-      } else {
-        bgClass = 'bg-ui-surface-inset hover:bg-ui-surface-hover'
-        textClass = 'text-ui-text-subtle'
-      }
-      if (isGlobalSelected && !isSelected) {
-        bgClass += ' ring-2 ring-inset ring-violet-400 dark:ring-violet-500'
-      }
-      content = subdivisions > 1 ? `${Math.round(subSize)}%` : cellIndex + 1
-    } else {
-      if (isSelected) {
-        bgClass = 'bg-primary hover:bg-primary-hover'
-        textClass = 'text-white'
-        content = '✓'
-      } else {
-        bgClass = 'bg-ui-surface-inset hover:bg-ui-surface-hover'
-        textClass = 'text-ui-text-subtle'
-        content = cellIndex + 1
-      }
+  let idx = 0
+  for (let si = 0; si < normalized.length; si++) {
+    const subs = normalized[si].subdivisions || 1
+    for (let sub = 0; sub < subs; sub++) {
+      if (idx === cellIndex) return { sectionIndex: si, subIndex: sub }
+      idx++
     }
-
-    return { bgClass, textClass, content }
   }
-
-  // Requirement: Pre-compute cell mapping to avoid mutable cellIndex during render.
-  // Approach: useMemo builds a Map like MiniCellGrid does.
-  // Alternatives:
-  //   - Mutable let cellIndex = 0 in render: Rejected — side effect during render,
-  //     breaks under React strict mode or concurrent features.
-  const sectionCellMap = useMemo(() => {
-    const grouped = new Map()
-    let idx = 0
-    const src = isFullbleed || !structure || structure.length === 0
-      ? [{ size: 100, subdivisions: 1, subSizes: [100] }]
-      : structure
-    src.forEach((section, sectionIndex) => {
-      const subdivisions = section.subdivisions || 1
-      const subSizes = section.subSizes || Array(subdivisions).fill(100 / subdivisions)
-      const cells = []
-      for (let subIndex = 0; subIndex < subdivisions; subIndex++) {
-        cells.push({ cellIndex: idx, subIndex, subSize: subSizes[subIndex] })
-        idx++
-      }
-      grouped.set(sectionIndex, cells)
-    })
-    return grouped
-  }, [type, structure])
-
-  const renderCells = () => (
-    <div
-      className={`flex-1 ${showSectionLabels ? 'rounded-r' : 'rounded'} overflow-hidden border border-ui-border-strong flex h-full ${
-        isRows || isFullbleed ? 'flex-col' : 'flex-row'
-      }`}
-    >
-      {normalizedStructure.map((section, sectionIndex) => {
-        const sectionSize = section.size || 100 / normalizedStructure.length
-        const subdivisions = section.subdivisions || 1
-        const isSectionSelected =
-          mode === 'structure' && structureSelection?.type === 'section' && structureSelection.index === sectionIndex
-        const cells = sectionCellMap.get(sectionIndex) || []
-
-        return (
-          <div
-            key={`section-${sectionIndex}`}
-            className={`flex ${isRows || isFullbleed ? 'flex-row' : 'flex-col'}`}
-            style={{ flex: `1 1 ${sectionSize}%` }}
-          >
-            {cells.map(({ cellIndex: currentCellIndex, subIndex, subSize }) => {
-              const isCellSelected =
-                mode === 'structure'
-                  ? structureSelection?.type === 'cell' && structureSelection.cellIndex === currentCellIndex
-                  : selectedCell === currentCellIndex
-
-              const { bgClass, textClass, content } = getCellContent(
-                currentCellIndex,
-                isCellSelected,
-                isSectionSelected,
-                subdivisions,
-                subSize
-              )
-
-              return (
-                <div
-                  key={`cell-${currentCellIndex}`}
-                  className={`relative cursor-pointer transition-colors min-h-[20px] ${bgClass} ${
-                    mode === 'structure' && subdivisions > 1 ? 'border border-ui-border' : ''
-                  }`}
-                  style={{ flex: `1 1 ${subSize}%` }}
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    if (mode === 'structure') {
-                      onSelectCell?.(currentCellIndex, sectionIndex, subIndex)
-                    } else {
-                      onSelectCell?.(currentCellIndex)
-                    }
-                  }}
-                >
-                  <div className={`absolute inset-0 flex items-center justify-center text-[11px] font-medium ${textClass}`}>
-                    {content}
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-        )
-      })}
-    </div>
-  )
-
-  const renderSectionLabels = () => {
-    if (!showSectionLabels) return null
-
-    return (
-      <div className={`flex ${isRows ? 'flex-col w-8' : 'flex-row h-6'} shrink-0`}>
-        {normalizedStructure.map((section, sectionIndex) => {
-          const sectionSize = section.size || 100 / normalizedStructure.length
-          const isSelected = structureSelection?.type === 'section' && structureSelection.index === sectionIndex
-          return (
-            <div
-              key={`label-${sectionIndex}`}
-              className={`flex items-center justify-center cursor-pointer text-[10px] font-medium transition-colors ${
-                isRows ? 'rounded-l' : 'rounded-t'
-              } ${
-                isSelected
-                  ? 'bg-primary text-white'
-                  : 'bg-ui-surface-inset text-ui-text-subtle hover:bg-ui-surface-hover'
-              }`}
-              style={{ flex: `0 0 ${sectionSize}%` }}
-              onClick={() => onSelectSection?.(sectionIndex)}
-              title={`Click to edit ${isRows ? 'row' : 'column'} ${sectionIndex + 1}`}
-            >
-              {isRows ? `R${sectionIndex + 1}` : `C${sectionIndex + 1}`}
-            </div>
-          )
-        })}
-      </div>
-    )
-  }
-
-  return (
-    <div className={`flex ${showSectionLabels ? (isRows ? 'flex-row' : 'flex-col') : ''}`} style={containerStyle}>
-      {renderSectionLabels()}
-      {renderCells()}
-    </div>
-  )
+  return { sectionIndex: 0, subIndex: 0 }
 }
 
 export default memo(function LayoutTab({
@@ -238,44 +58,14 @@ export default memo(function LayoutTab({
   images = [],
 }) {
   const { type = 'fullbleed', structure = [] } = layout
-  const [structureSelection, setStructureSelection] = useState(null)
-  // Track internal selections so we can distinguish them from external (ContextBar) changes
-  const lastInternalCell = useRef(selectedCell)
 
-  // Requirement: Sync global cell selection (from ContextBar) to structure editing selection
-  // Approach: useEffect detects external selectedCell changes via ref comparison,
-  //   then maps the cell index to the correct structureSelection (section or cell)
-  // Alternatives:
-  //   - Ring indicator only (previous): Rejected — users expect clicking ContextBar to
-  //     select the cell for editing in Structure tab, not just show a subtle ring
-  //   - Always sync (no ref guard): Rejected — would override LayoutTab's toggle-to-deselect
-  useEffect(() => {
-    if (selectedCell === lastInternalCell.current) return
-    lastInternalCell.current = selectedCell
-
-    const normalizedStructure =
-      type === 'fullbleed' || !structure || structure.length === 0
-        ? [{ size: 100, subdivisions: 1, subSizes: [100] }]
-        : structure
-
-    // Reverse-map cellIndex → sectionIndex + subIndex
-    let cellCounter = 0
-    for (let si = 0; si < normalizedStructure.length; si++) {
-      const section = normalizedStructure[si]
-      const subdivisions = section.subdivisions || 1
-      for (let sub = 0; sub < subdivisions; sub++) {
-        if (cellCounter === selectedCell) {
-          if (subdivisions === 1) {
-            setStructureSelection({ type: 'section', index: si })
-          } else {
-            setStructureSelection({ type: 'cell', cellIndex: selectedCell, sectionIndex: si, subIndex: sub })
-          }
-          return
-        }
-        cellCounter++
-      }
-    }
-  }, [selectedCell, type, structure])
+  // Derive section context from the globally selected cell
+  const { sectionIndex: selectedSectionIndex, subIndex: selectedSubIndex } = useMemo(
+    () => cellToSection(structure, type, selectedCell),
+    [structure, type, selectedCell]
+  )
+  const selectedSection = type !== 'fullbleed' && structure.length > 0 ? structure[selectedSectionIndex] : null
+  const hasSubdivisions = (selectedSection?.subdivisions || 1) > 1
 
   const platformAspectRatio = useMemo(() => {
     const p = platforms.find((pl) => pl.id === platform) || platforms[0]
@@ -298,9 +88,7 @@ export default memo(function LayoutTab({
         ],
       })
     }
-    setStructureSelection(null)
     // Clamp global cell selection to valid range for the new layout
-    // Requirement: Prevent stale selectedCell causing wrong highlight after type change
     const newCellCount = newType === 'fullbleed' ? 1 : 2
     if (selectedCell >= newCellCount) {
       onSelectCell?.(0)
@@ -326,11 +114,9 @@ export default memo(function LayoutTab({
       structure: newStructure,
       _cellShift: { fromIndex: firstCellAtPosition, shiftBy: 1 },
     })
-    // Update selection to track the element that moved
-    if (structureSelection?.type === 'section' && structureSelection.index >= position) {
-      setStructureSelection({ type: 'section', index: structureSelection.index + 1 })
-    } else if (structureSelection?.type === 'cell' && structureSelection.cellIndex >= firstCellAtPosition) {
-      setStructureSelection({ type: 'cell', cellIndex: structureSelection.cellIndex + 1 })
+    // Shift selectedCell to follow the cell that moved
+    if (selectedCell >= firstCellAtPosition) {
+      onSelectCell?.(selectedCell + 1)
     }
   }
 
@@ -359,14 +145,12 @@ export default memo(function LayoutTab({
       structure: newStructure,
       _cellShift: { fromIndex: firstCellOfRemoved + removedSubs, shiftBy: -removedSubs },
     })
-    // Update cell selection: clear if selected cell was in removed section, shift if after it
-    if (structureSelection?.type === 'cell') {
-      const ci = structureSelection.cellIndex
-      if (ci >= firstCellOfRemoved && ci < firstCellOfRemoved + removedSubs) {
-        setStructureSelection(null)
-      } else if (ci >= firstCellOfRemoved + removedSubs) {
-        setStructureSelection({ type: 'cell', cellIndex: ci - removedSubs })
-      }
+    // Update selectedCell: clamp if in removed section, shift if after it
+    const newCellCount = newStructure.reduce((total, s) => total + (s.subdivisions || 1), 0)
+    if (selectedCell >= firstCellOfRemoved && selectedCell < firstCellOfRemoved + removedSubs) {
+      onSelectCell?.(Math.min(firstCellOfRemoved, newCellCount - 1))
+    } else if (selectedCell >= firstCellOfRemoved + removedSubs) {
+      onSelectCell?.(selectedCell - removedSubs)
     }
   }
 
@@ -436,9 +220,9 @@ export default memo(function LayoutTab({
       structure: newStructure,
       _cellShift: { fromIndex: firstCellAfterSection, shiftBy: 1 },
     })
-    // Update cell selection if it's after the newly added subdivision
-    if (structureSelection?.type === 'cell' && structureSelection.cellIndex >= firstCellAfterSection) {
-      setStructureSelection({ type: 'cell', cellIndex: structureSelection.cellIndex + 1 })
+    // Shift selectedCell if it's after the new subdivision
+    if (selectedCell >= firstCellAfterSection) {
+      onSelectCell?.(selectedCell + 1)
     }
   }
 
@@ -470,14 +254,11 @@ export default memo(function LayoutTab({
       structure: newStructure,
       _cellShift: { fromIndex: firstCellAfterSection, shiftBy: -1 },
     })
-    // Update cell selection: clear if it was the removed sub, shift if after it
-    if (structureSelection?.type === 'cell') {
-      const ci = structureSelection.cellIndex
-      if (ci === removedCellIndex) {
-        setStructureSelection(null)
-      } else if (ci >= firstCellAfterSection) {
-        setStructureSelection({ type: 'cell', cellIndex: ci - 1 })
-      }
+    // Update selectedCell: move to previous if removed, shift if after it
+    if (selectedCell === removedCellIndex) {
+      onSelectCell?.(Math.max(0, removedCellIndex - 1))
+    } else if (selectedCell >= firstCellAfterSection) {
+      onSelectCell?.(selectedCell - 1)
     }
   }
 
@@ -578,27 +359,9 @@ export default memo(function LayoutTab({
       _cellSwap: cellMap,
     })
 
-    // Update selection to follow the moved section
-    if (structureSelection?.type === 'section') {
-      if (structureSelection.index === lo) setStructureSelection({ type: 'section', index: hi })
-      else if (structureSelection.index === hi) setStructureSelection({ type: 'section', index: lo })
-    } else if (structureSelection?.type === 'cell') {
-      const ci = structureSelection.cellIndex
-      if (cellMap[ci] !== undefined) {
-        // Find the new section/sub for the remapped cell
-        let newCi = cellMap[ci]
-        let newSectionIdx = 0
-        let remaining = newCi
-        for (let i = 0; i < newStructure.length; i++) {
-          const subs = newStructure[i].subdivisions || 1
-          if (remaining < subs) {
-            newSectionIdx = i
-            break
-          }
-          remaining -= subs
-        }
-        setStructureSelection({ type: 'cell', cellIndex: newCi, sectionIndex: newSectionIdx, subIndex: remaining })
-      }
+    // Remap selectedCell through the same cellMap used for data
+    if (cellMap[selectedCell] !== undefined) {
+      onSelectCell?.(cellMap[selectedCell])
     }
   }
 
@@ -693,14 +456,8 @@ export default memo(function LayoutTab({
   // Reset to default
   const handleReset = () => {
     onLayoutChange(defaultState.layout)
-    setStructureSelection(null)
+    onSelectCell?.(0)
   }
-
-  // Get info about current selection
-  const selectedSection = structureSelection?.type === 'section' ? structure[structureSelection.index] : null
-  const selectedSectionIndex = structureSelection?.type === 'section' ? structureSelection.index : null
-  const selectedCellInfo = structureSelection?.type === 'cell' ? structureSelection : null
-  const selectedCellSection = selectedCellInfo ? structure[selectedCellInfo.sectionIndex] : null
 
   return (
     <div className="space-y-3">
@@ -716,10 +473,7 @@ export default memo(function LayoutTab({
               {layoutTypes.map((lt) => (
                 <button
                   key={lt.id}
-                  onClick={() => {
-                    handleTypeChange(lt.id)
-                    setStructureSelection(null)
-                  }}
+                  onClick={() => handleTypeChange(lt.id)}
                   className={`flex-1 px-3 py-2.5 text-sm rounded-lg flex flex-col items-center gap-1 font-medium ${
                     type === lt.id
                       ? 'bg-primary text-white shadow-sm'
@@ -733,101 +487,41 @@ export default memo(function LayoutTab({
             </div>
           </div>
 
-          {/* Structure Grid */}
+          {/* Cell Selector — same as other tabs */}
           <div className="space-y-3">
             <label className="block text-xs font-medium text-ui-text-muted text-center">
               Select Cell <span className="text-ui-text-faint font-normal">(to configure)</span>
             </label>
             <div className="flex justify-center">
-              <CellGrid
+              <MiniCellGrid
                 layout={layout}
-                mode="structure"
-                globalSelectedCell={selectedCell}
-                structureSelection={structureSelection}
-                aspectRatio={platformAspectRatio}
+                selectedCell={selectedCell}
+                onSelectCell={onSelectCell}
+                platform={platform}
+                cellImages={cellImages}
                 size="large"
-                onSelectSection={(index) => {
-                  if (structureSelection?.type === 'section' && structureSelection.index === index) {
-                    setStructureSelection(null)
-                  } else {
-                    setStructureSelection({ type: 'section', index })
-                  }
-                }}
-                onSelectCell={(cellIndex, sectionIndex, subIndex) => {
-                  // Always sync to global cell selection so ContextBar and other tabs stay in sync
-                  lastInternalCell.current = cellIndex
-                  onSelectCell?.(cellIndex)
-                  const normalizedStructure =
-                    !structure || structure.length === 0
-                      ? [{ size: 100, subdivisions: 1, subSizes: [100] }]
-                      : structure
-                  const section = normalizedStructure[sectionIndex]
-                  if ((section.subdivisions || 1) === 1) {
-                    if (structureSelection?.type === 'section' && structureSelection.index === sectionIndex) {
-                      setStructureSelection(null)
-                    } else {
-                      setStructureSelection({ type: 'section', index: sectionIndex })
-                    }
-                  } else {
-                    if (structureSelection?.type === 'cell' && structureSelection.cellIndex === cellIndex) {
-                      setStructureSelection(null)
-                    } else {
-                      setStructureSelection({ type: 'cell', cellIndex, sectionIndex, subIndex })
-                    }
-                  }
-                }}
               />
             </div>
-            <div className="text-sm text-center py-2 bg-ui-surface-elevated rounded-lg">
-              {structureSelection === null ? (
-                <span className="text-ui-text-subtle">
-                  {type === 'fullbleed' ? 'Single cell layout' : `Select a ${type === 'rows' ? 'row' : 'column'} or cell to edit`}
-                </span>
-              ) : structureSelection.type === 'section' ? (
+            {type !== 'fullbleed' && selectedSection && (
+              <div className="text-sm text-center py-2 bg-ui-surface-elevated rounded-lg">
                 <span className="text-primary dark:text-violet-400">
-                  Editing: <strong>{type === 'rows' || type === 'fullbleed' ? `Row ${structureSelection.index + 1}` : `Column ${structureSelection.index + 1}`}</strong>
+                  Cell {selectedCell + 1} in{' '}
+                  <strong>{type === 'rows' ? `Row ${selectedSectionIndex + 1}` : `Column ${selectedSectionIndex + 1}`}</strong>
                 </span>
-              ) : (
-                <span className="text-primary dark:text-violet-400">
-                  Editing: <strong>Cell {structureSelection.cellIndex + 1}</strong>
-                </span>
-              )}
-            </div>
+              </div>
+            )}
           </div>
 
-          {/* Add section button */}
-          {type !== 'fullbleed' && structureSelection === null && (
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-ui-text-subtle">
-                {structure.length} {type === 'rows' ? 'rows' : 'columns'}
-              </span>
-              <button
-                onClick={addSection}
-                disabled={structure.length >= 4}
-                className={`px-3 py-1.5 text-sm rounded-lg font-medium ${
-                  structure.length >= 4
-                    ? 'bg-ui-surface-inset text-ui-text-faint cursor-not-allowed'
-                    : 'bg-primary text-white hover:bg-primary-hover shadow-sm'
-                }`}
-              >
-                + Add {type === 'rows' ? 'Row' : 'Column'}
-              </button>
-            </div>
-          )}
-
-          {/* Section editing controls */}
-          {type !== 'fullbleed' && structureSelection?.type === 'section' && selectedSection && (
+          {/* Row/Column editing — controls for the section containing the selected cell */}
+          {type !== 'fullbleed' && selectedSection && (
             <div className="space-y-4 p-4 bg-violet-50 dark:bg-violet-900/20 rounded-xl">
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium text-violet-700 dark:text-violet-300">
                   {type === 'rows' ? `Row ${selectedSectionIndex + 1}` : `Column ${selectedSectionIndex + 1}`}
                 </span>
-                <button
-                  onClick={() => setStructureSelection(null)}
-                  className="text-xs text-primary hover:text-violet-700 dark:hover:text-violet-300 font-medium"
-                >
-                  ✕ Deselect
-                </button>
+                <span className="text-xs text-violet-400 dark:text-violet-500">
+                  {structure.length} {type === 'rows' ? 'rows' : 'columns'}
+                </span>
               </div>
 
               {/* Move section up/down (reorder) */}
@@ -930,31 +624,20 @@ export default memo(function LayoutTab({
                 </div>
               )}
 
-              {/* Snap to Fit — for single-cell sections, snap the section boundary to fit the image */}
-              {(() => {
-                if ((selectedSection.subdivisions || 1) !== 1) return null
-                let sectionFirstCell = 0
-                for (let i = 0; i < selectedSectionIndex; i++) {
-                  sectionFirstCell += structure[i].subdivisions || 1
-                }
-                if (!canSnapCell(sectionFirstCell)) return null
-                return (
-                  <button
-                    onClick={() => snapCellToImage(sectionFirstCell, selectedSectionIndex, 0)}
-                    className="w-full px-3 py-2 text-sm bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-200 dark:hover:bg-emerald-900/50 rounded-lg font-medium"
-                    title="Adjust this row/column size so the contained image fills the cell perfectly"
-                  >
-                    Snap to Fit Image
-                  </button>
-                )
-              })()}
+              {/* Snap to Fit — snap the section boundary to fit the image */}
+              {!hasSubdivisions && canSnapCell(selectedCell) && (
+                <button
+                  onClick={() => snapCellToImage(selectedCell, selectedSectionIndex, 0)}
+                  className="w-full px-3 py-2 text-sm bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-200 dark:hover:bg-emerald-900/50 rounded-lg font-medium"
+                  title="Adjust this row/column size so the contained image fills the cell perfectly"
+                >
+                  Snap to Fit Image
+                </button>
+              )}
 
               {structure.length > 1 && (
                 <button
-                  onClick={() => {
-                    removeSection(selectedSectionIndex)
-                    setStructureSelection(null)
-                  }}
+                  onClick={() => removeSection(selectedSectionIndex)}
                   className="w-full px-3 py-2 text-sm bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-900/50 rounded-lg font-medium"
                 >
                   Delete {type === 'rows' ? 'Row' : 'Column'}
@@ -963,68 +646,50 @@ export default memo(function LayoutTab({
             </div>
           )}
 
-          {/* Cell editing controls */}
-          {type !== 'fullbleed' && structureSelection?.type === 'cell' && selectedCellInfo && (
+          {/* Cell subdivision editing — only shown when section has subdivisions */}
+          {type !== 'fullbleed' && hasSubdivisions && selectedSection && (
             <div className="space-y-4 p-4 bg-violet-50 dark:bg-violet-900/20 rounded-xl">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-violet-700 dark:text-violet-300">
-                  {type === 'rows'
-                    ? `Row ${selectedCellInfo.sectionIndex + 1}, Column ${selectedCellInfo.subIndex + 1}`
-                    : `Column ${selectedCellInfo.sectionIndex + 1}, Row ${selectedCellInfo.subIndex + 1}`}
-                </span>
-                <button
-                  onClick={() => setStructureSelection(null)}
-                  className="text-xs text-primary hover:text-violet-700 dark:hover:text-violet-300 font-medium"
-                >
-                  ✕ Deselect
-                </button>
-              </div>
+              <span className="text-sm font-medium text-violet-700 dark:text-violet-300">
+                {type === 'rows'
+                  ? `Row ${selectedSectionIndex + 1}, Column ${selectedSubIndex + 1}`
+                  : `Column ${selectedSectionIndex + 1}, Row ${selectedSubIndex + 1}`}
+              </span>
 
               <div>
                 <label className="block text-xs text-primary dark:text-violet-400 mb-2 font-medium">
-                  {type === 'rows' ? 'Width' : 'Height'} <span className="font-normal text-violet-400 dark:text-primary">({MIN_SIZE}–{getMaxSize(selectedCellSection?.subdivisions || 2)}%)</span>
+                  {type === 'rows' ? 'Width' : 'Height'} <span className="font-normal text-violet-400 dark:text-primary">({MIN_SIZE}–{getMaxSize(selectedSection.subdivisions || 2)}%)</span>
                 </label>
                 <div className="flex items-center gap-3">
                   <input
                     type="range"
                     min={MIN_SIZE}
-                    max={getMaxSize(selectedCellSection?.subdivisions || 2)}
+                    max={getMaxSize(selectedSection.subdivisions || 2)}
                     step="5"
-                    value={selectedCellSection?.subSizes?.[selectedCellInfo.subIndex] || 50}
-                    onChange={(e) => updateSubSize(selectedCellInfo.sectionIndex, selectedCellInfo.subIndex, Number(e.target.value))}
+                    value={selectedSection.subSizes?.[selectedSubIndex] || 50}
+                    onChange={(e) => updateSubSize(selectedSectionIndex, selectedSubIndex, Number(e.target.value))}
                     className="flex-1"
                   />
                   <span className="text-sm text-violet-700 dark:text-violet-300 w-12 text-right font-medium">
-                    {Math.round(selectedCellSection?.subSizes?.[selectedCellInfo.subIndex] || 50)}%
+                    {Math.round(selectedSection.subSizes?.[selectedSubIndex] || 50)}%
                   </span>
                 </div>
               </div>
 
               {/* Snap to Fit — adjust boundary so contained image fills this cell */}
-              {canSnapCell(selectedCellInfo.cellIndex) && (
+              {canSnapCell(selectedCell) && (
                 <button
-                  onClick={() => snapCellToImage(selectedCellInfo.cellIndex, selectedCellInfo.sectionIndex, selectedCellInfo.subIndex)}
+                  onClick={() => snapCellToImage(selectedCell, selectedSectionIndex, selectedSubIndex)}
                   className="w-full px-3 py-2 text-sm bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-200 dark:hover:bg-emerald-900/50 rounded-lg font-medium"
                   title="Adjust this cell's boundary so the contained image fills it perfectly"
                 >
                   Snap to Fit Image
                 </button>
               )}
-
-              <button
-                onClick={() => setStructureSelection({ type: 'section', index: selectedCellInfo.sectionIndex })}
-                className="w-full px-3 py-2 text-sm bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300 hover:bg-violet-200 dark:hover:bg-violet-900/40 rounded-lg font-medium"
-              >
-                Edit Parent {type === 'rows' ? 'Row' : 'Column'}
-              </button>
             </div>
           )}
 
           <button
-            onClick={() => {
-              handleReset()
-              setStructureSelection(null)
-            }}
+            onClick={handleReset}
             className="w-full px-3 py-2.5 text-sm bg-zinc-100 dark:bg-dark-subtle text-ui-text-muted hover:bg-zinc-200 dark:hover:bg-dark-elevated rounded-lg font-medium"
           >
             Reset to Default
