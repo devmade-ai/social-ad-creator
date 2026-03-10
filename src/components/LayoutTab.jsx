@@ -73,6 +73,7 @@ export default memo(function LayoutTab({
   onSelectCell,
   cellImages = {},
   images = [],
+  onUpdateImage,
 }) {
   const { type = 'fullbleed', structure = [] } = layout
 
@@ -375,18 +376,23 @@ export default memo(function LayoutTab({
 
   // --- Snap to Fit ---
 
-  // Requirement: Snap cell boundary so a contained image fills the cell with no empty space.
-  // Approach: Compare image aspect ratio to cell aspect ratio, then adjust the boundary
-  //   (section size or subdivision size) that eliminates the empty space.
+  // Requirement: Snap cell boundary so image fills cell with no empty space, setting fit to contain.
+  // Approach: Set image fit to 'contain' first (so the full image is visible), then adjust the
+  //   cell boundary (section size or subdivision size) to eliminate empty space around it.
   // Alternatives:
+  //   - Require user to set contain first: Rejected — extra step, snap button should just work.
   //   - Manual slider adjustment: Still available — snap is a convenience shortcut.
-  //   - Change fit mode to cover: Rejected — user explicitly wants contain (full image visible).
   const snapCellToImage = (cellIndex, sectionIndex, subIndex) => {
     const imageId = cellImages[cellIndex]
     if (!imageId) return
 
     const image = images.find(img => img.id === imageId)
-    if (!image || image.fit !== 'contain') return
+    if (!image) return
+
+    // Set fit to contain so the full image is visible before snapping the boundary
+    if (image.fit !== 'contain') {
+      onUpdateImage?.(imageId, { fit: 'contain' })
+    }
 
     const doSnap = (imgWidth, imgHeight) => {
       const imageAR = imgWidth / imgHeight
@@ -437,11 +443,9 @@ export default memo(function LayoutTab({
     }
   }
 
+  // Show snap button for any cell with an image (snap sets fit to contain automatically)
   const canSnapCell = (cellIndex) => {
-    const imageId = cellImages[cellIndex]
-    if (!imageId) return false
-    const image = images.find(img => img.id === imageId)
-    return image && image.fit === 'contain'
+    return !!cellImages[cellIndex]
   }
 
   const handleReset = () => {
