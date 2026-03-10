@@ -4,7 +4,7 @@ import { overlayTypes, hexToRgb, getOverlayType } from '../config/layouts'
 import { platforms } from '../config/platforms'
 import { fonts } from '../config/fonts'
 import { getNeutralColor } from '../config/themes'
-import { defaultTextLayer } from '../config/textDefaults'
+import { defaultTextLayer, defaultGroupSpacing, spacerSizeMap } from '../config/textDefaults'
 
 marked.setOptions({
   breaks: true,
@@ -379,17 +379,84 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
     return getCellTextAlign(cellIndex)
   }
 
-  // Requirement: Per-cell structured text — each cell has its own text elements
+  // Requirement: Per-cell structured text — each cell has its own text elements.
+  //   Groups map element IDs to their parent group for spacer/line rendering.
   // Approach: Filter for elements that are both visible and have content, so the
   //   wrapping container div is only rendered when there's actual content to show.
   // Alternatives:
   //   - Filter only by existence (cellText[id]): Rejected — renders empty z-index:2
   //     wrapper div that could intercept clicks when all elements are hidden.
+  const textGroupDefs = [
+    { id: 'titleTagline', elements: ['title', 'tagline'] },
+    { id: 'body', elements: ['bodyHeading', 'bodyText'] },
+    { id: 'cta', elements: ['cta'] },
+    { id: 'footnote', elements: ['footnote'] },
+  ]
+
   const getElementsForCell = (cellIndex) => {
     const elementIds = ['title', 'tagline', 'bodyHeading', 'bodyText', 'cta', 'footnote']
     const cellText = text[cellIndex]
     if (!cellText) return []
     return elementIds.filter((id) => cellText[id]?.visible && cellText[id]?.content)
+  }
+
+  // Requirement: Render spacer divs and line separators between text groups.
+  // Approach: For each text group with visible elements, check groupSpacing config
+  //   and render spacer/line before/after the group's elements.
+  const renderGroupDecorations = (cellIndex, position, groupId) => {
+    const cellText = text[cellIndex]
+    const groupSpacing = cellText?.groupSpacing?.[groupId] || defaultGroupSpacing
+    const spacerKey = position === 'above' ? 'spacerAbove' : 'spacerBelow'
+    const lineKey = position === 'above' ? 'lineAbove' : 'lineBelow'
+    const spacerValue = groupSpacing[spacerKey] || 0
+    const lineActive = groupSpacing[lineKey] || false
+    const decorations = []
+
+    if (position === 'above') {
+      if (spacerValue > 0) {
+        decorations.push(
+          <div key={`spacer-above-${groupId}`} style={{ height: `${spacerSizeMap[spacerValue]}em` }} />
+        )
+      }
+      if (lineActive) {
+        decorations.push(
+          <div
+            key={`line-above-${groupId}`}
+            style={{
+              width: '60%',
+              height: 0,
+              borderTop: `1px solid ${themeColors.secondary}`,
+              opacity: 0.4,
+              alignSelf: 'center',
+              margin: '0.3em auto',
+            }}
+          />
+        )
+      }
+    } else {
+      if (lineActive) {
+        decorations.push(
+          <div
+            key={`line-below-${groupId}`}
+            style={{
+              width: '60%',
+              height: 0,
+              borderTop: `1px solid ${themeColors.secondary}`,
+              opacity: 0.4,
+              alignSelf: 'center',
+              margin: '0.3em auto',
+            }}
+          />
+        )
+      }
+      if (spacerValue > 0) {
+        decorations.push(
+          <div key={`spacer-below-${groupId}`} style={{ height: `${spacerSizeMap[spacerValue]}em` }} />
+        )
+      }
+    }
+
+    return decorations
   }
 
   const renderTextElement = (elementId, withShadow = false, cellIndex = 0) => {
@@ -546,11 +613,33 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
     )
   }
 
+  // Requirement: Render structured text with spacers and line separators between groups.
+  // Approach: Iterate text groups, render above/below decorations around each group's
+  //   visible elements. Only groups with visible content get rendered.
+  // Alternatives:
+  //   - Flat element list (previous): No support for inter-group decorations.
   const renderTextElementsForCell = (cellIndex, isOnImage) => {
-    const elements = getElementsForCell(cellIndex)
     const withShadow = isOnImage
     const padding = getCellPadding(cellIndex)
     const verticalAlign = getCellVerticalAlign(cellIndex)
+    const cellText = text[cellIndex]
+    if (!cellText) return null
+
+    const content = []
+    for (const group of textGroupDefs) {
+      const visibleElements = group.elements.filter(
+        (id) => cellText[id]?.visible && cellText[id]?.content
+      )
+      if (visibleElements.length === 0) continue
+
+      content.push(...renderGroupDecorations(cellIndex, 'above', group.id))
+      visibleElements.forEach((elementId) => {
+        content.push(renderTextElement(elementId, withShadow, cellIndex))
+      })
+      content.push(...renderGroupDecorations(cellIndex, 'below', group.id))
+    }
+
+    if (content.length === 0) return null
 
     return (
       <div
@@ -558,7 +647,7 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
           display: 'flex',
           flexDirection: 'column',
           justifyContent: getJustifyContent(verticalAlign),
-          alignItems: 'stretch', // Allow elements to control their own horizontal alignment via alignSelf
+          alignItems: 'stretch',
           padding,
           width: '100%',
           height: '100%',
@@ -567,7 +656,7 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
           overflow: 'hidden',
         }}
       >
-        {elements.map(elementId => renderTextElement(elementId, withShadow, cellIndex))}
+        {content}
       </div>
     )
   }
