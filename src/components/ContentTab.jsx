@@ -6,7 +6,7 @@
 //   - Global text with cell assignment: Rejected — indirect, confusing for non-technical users.
 //   - Single mode only: Rejected — structured is great for standard layouts, but freeform
 //     gives power users full control for custom text-heavy designs.
-import { memo, useMemo, useRef, useCallback, useState } from 'react'
+import { memo, useMemo, useRef, useCallback, useState, useEffect } from 'react'
 import CollapsibleSection from './CollapsibleSection'
 import ColorPicker from './ColorPicker'
 import AlignmentPicker from './AlignmentPicker'
@@ -16,6 +16,33 @@ import { defaultTextLayer } from '../config/textDefaults'
 import { textAlignOptions, verticalAlignOptions } from '../config/alignment'
 
 const noop = () => {}
+
+// Requirement: Deduplicate SVG icons used across multiple components.
+// Approach: Named icon components rendered inline, avoiding repeated SVG path strings.
+const GearIcon = ({ className = 'w-3.5 h-3.5' }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+  </svg>
+)
+
+const CloseIcon = ({ className = 'w-3.5 h-3.5' }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+  </svg>
+)
+
+const ChevronUpIcon = () => (
+  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+  </svg>
+)
+
+const ChevronDownIcon = () => (
+  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+  </svg>
+)
 
 const sizeOptions = [
   { id: 0.6, name: 'XS' },
@@ -60,6 +87,161 @@ const textGroups = [
     elements: [{ id: 'footnote', label: 'Footnote', placeholder: 'Terms apply...' }],
   },
 ]
+
+// Requirement: Shared style controls between structured TextElementEditor and freeform FreeformBlockEditor.
+// Approach: Single component that takes current style values and an onChange callback.
+// Alternatives:
+//   - Duplicate controls in each editor: Rejected — 150+ lines of identical JSX duplicated.
+//   - Render props: Rejected — simple value/onChange is cleaner and more readable.
+function TextStyleControls({ value, onChange, theme }) {
+  return (
+    <div className="space-y-2 p-2 bg-ui-surface-inset/50 rounded-lg">
+      {/* Alignment */}
+      <div className="flex items-center gap-2">
+        <span className="text-[10px] text-ui-text-subtle w-10 shrink-0">Align</span>
+        <AlignmentPicker
+          value={value.textAlign}
+          onChange={(id) => onChange({ textAlign: id })}
+        />
+      </div>
+
+      {/* Color */}
+      <div className="flex items-center gap-2">
+        <span className="text-[10px] text-ui-text-subtle w-10 shrink-0">Color</span>
+        <ColorPicker
+          value={value.color}
+          onChange={(id) => onChange({ color: id })}
+          theme={theme}
+        />
+      </div>
+
+      {/* Size + Bold/Italic */}
+      <div className="flex items-center gap-2 flex-wrap">
+        <span className="text-[10px] text-ui-text-subtle w-10 shrink-0">Size</span>
+        <div className="flex items-center gap-1">
+          {sizeOptions.map((size) => (
+            <button
+              key={size.id}
+              onClick={() => onChange({ size: size.id })}
+              title={`Size ${size.name}`}
+              className={`w-8 h-7 sm:w-7 sm:h-6 text-[11px] sm:text-[10px] active:scale-90 font-medium rounded ${
+                value.size === size.id
+                  ? 'bg-primary text-white'
+                  : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
+              }`}
+            >
+              {size.name}
+            </button>
+          ))}
+        </div>
+
+        <div className="flex items-center gap-1 ml-auto">
+          <button
+            onClick={() => onChange({ bold: !value.bold })}
+            title="Bold"
+            className={`w-9 h-7 sm:w-7 sm:h-6 text-[11px] sm:text-[10px] active:scale-90 font-bold rounded ${
+              value.bold
+                ? 'bg-primary text-white'
+                : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
+            }`}
+          >
+            B
+          </button>
+          <button
+            onClick={() => onChange({ italic: !value.italic })}
+            title="Italic"
+            className={`w-9 h-7 sm:w-7 sm:h-6 text-[11px] sm:text-[10px] active:scale-90 italic rounded ${
+              value.italic
+                ? 'bg-primary text-white'
+                : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
+            }`}
+          >
+            I
+          </button>
+        </div>
+      </div>
+
+      {/* Letter spacing */}
+      <div className="flex items-center gap-2">
+        <span className="text-[10px] text-ui-text-subtle w-10 shrink-0">Spacing</span>
+        <div className="flex items-center gap-1">
+          {letterSpacingOptions.map((opt) => (
+            <button
+              key={opt.id}
+              onClick={() => onChange({ letterSpacing: opt.id })}
+              title={opt.name}
+              className={`px-2.5 h-7 sm:px-2 sm:h-6 text-[11px] sm:text-[10px] active:scale-90 rounded ${
+                value.letterSpacing === opt.id
+                  ? 'bg-primary text-white'
+                  : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
+              }`}
+            >
+              {opt.name}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Spacer/line above */}
+      <div className="flex items-center gap-2">
+        <span className="text-[10px] text-ui-text-subtle w-10 shrink-0">Above</span>
+        <div className="flex items-center gap-1">
+          <button
+            onClick={() => onChange({ spacerAbove: ((value.spacerAbove || 0) + 1) % 3 })}
+            title={`Spacer above: ${['None', 'Small', 'Large'][value.spacerAbove || 0]}`}
+            className={`flex items-center gap-1 px-2 h-7 sm:h-6 text-[11px] sm:text-[10px] active:scale-90 rounded ${
+              (value.spacerAbove || 0) > 0
+                ? 'bg-primary text-white'
+                : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
+            }`}
+          >
+            Gap {['Off', 'S', 'L'][value.spacerAbove || 0]}
+          </button>
+          <button
+            onClick={() => onChange({ lineAbove: !value.lineAbove })}
+            title={`Line above: ${value.lineAbove ? 'On' : 'Off'}`}
+            className={`flex items-center gap-1 px-2 h-7 sm:h-6 text-[11px] sm:text-[10px] active:scale-90 rounded ${
+              value.lineAbove
+                ? 'bg-primary text-white'
+                : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
+            }`}
+          >
+            Line
+          </button>
+        </div>
+      </div>
+
+      {/* Spacer/line below */}
+      <div className="flex items-center gap-2">
+        <span className="text-[10px] text-ui-text-subtle w-10 shrink-0">Below</span>
+        <div className="flex items-center gap-1">
+          <button
+            onClick={() => onChange({ spacerBelow: ((value.spacerBelow || 0) + 1) % 3 })}
+            title={`Spacer below: ${['None', 'Small', 'Large'][value.spacerBelow || 0]}`}
+            className={`flex items-center gap-1 px-2 h-7 sm:h-6 text-[11px] sm:text-[10px] active:scale-90 rounded ${
+              (value.spacerBelow || 0) > 0
+                ? 'bg-primary text-white'
+                : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
+            }`}
+          >
+            Gap {['Off', 'S', 'L'][value.spacerBelow || 0]}
+          </button>
+          <button
+            onClick={() => onChange({ lineBelow: !value.lineBelow })}
+            title={`Line below: ${value.lineBelow ? 'On' : 'Off'}`}
+            className={`flex items-center gap-1 px-2 h-7 sm:h-6 text-[11px] sm:text-[10px] active:scale-90 rounded ${
+              value.lineBelow
+                ? 'bg-primary text-white'
+                : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
+            }`}
+          >
+            Line
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
 
 // Requirement: Collapsible styling controls to reduce visual noise (#2)
 // Approach: Style toggle button reveals alignment, color, size, bold/italic, spacing
@@ -115,9 +297,7 @@ function TextElementEditor({
             className="w-7 h-7 rounded flex items-center justify-center text-ui-text-faint hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 active:bg-red-100 dark:active:bg-red-900/30 transition-colors"
             title="Clear text"
           >
-            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
+            <CloseIcon />
           </button>
         )}
 
@@ -129,10 +309,7 @@ function TextElementEditor({
           }`}
           title="Text style options"
         >
-          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-          </svg>
+          <GearIcon />
         </button>
       </div>
 
@@ -162,152 +339,13 @@ function TextElementEditor({
         />
       </div>
 
-      {/* Collapsible style controls (#2) */}
+      {/* Collapsible style controls (#2) — uses shared TextStyleControls */}
       {showStyle && (
-        <div className="space-y-2 p-2 bg-ui-surface-inset/50 rounded-lg">
-          {/* Alignment */}
-          <div className="flex items-center gap-2">
-            <span className="text-[10px] text-ui-text-subtle w-10 shrink-0">Align</span>
-            <AlignmentPicker
-              value={layerState.textAlign}
-              onChange={(id) => onTextChange(cellIndex, element.id, { textAlign: id })}
-            />
-          </div>
-
-          {/* Color */}
-          <div className="flex items-center gap-2">
-            <span className="text-[10px] text-ui-text-subtle w-10 shrink-0">Color</span>
-            <ColorPicker
-              value={layerState.color}
-              onChange={(id) => onTextChange(cellIndex, element.id, { color: id })}
-              theme={theme}
-            />
-          </div>
-
-          {/* Size + Bold/Italic */}
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-[10px] text-ui-text-subtle w-10 shrink-0">Size</span>
-            <div className="flex items-center gap-1">
-              {sizeOptions.map((size) => (
-                <button
-                  key={size.id}
-                  onClick={() => onTextChange(cellIndex, element.id, { size: size.id })}
-                  title={`Size ${size.name}`}
-                  className={`w-8 h-7 sm:w-7 sm:h-6 text-[11px] sm:text-[10px] active:scale-90 font-medium rounded ${
-                    layerState.size === size.id
-                      ? 'bg-primary text-white'
-                      : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
-                  }`}
-                >
-                  {size.name}
-                </button>
-              ))}
-            </div>
-
-            <div className="flex items-center gap-1 ml-auto">
-              <button
-                onClick={() => onTextChange(cellIndex, element.id, { bold: !layerState.bold })}
-                title="Bold"
-                className={`w-9 h-7 sm:w-7 sm:h-6 text-[11px] sm:text-[10px] active:scale-90 font-bold rounded ${
-                  layerState.bold
-                    ? 'bg-primary text-white'
-                    : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
-                }`}
-              >
-                B
-              </button>
-              <button
-                onClick={() => onTextChange(cellIndex, element.id, { italic: !layerState.italic })}
-                title="Italic"
-                className={`w-9 h-7 sm:w-7 sm:h-6 text-[11px] sm:text-[10px] active:scale-90 italic rounded ${
-                  layerState.italic
-                    ? 'bg-primary text-white'
-                    : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
-                }`}
-              >
-                I
-              </button>
-            </div>
-          </div>
-
-          {/* Letter spacing — renamed from "Sp:" to "Spacing" with full labels (#11) */}
-          <div className="flex items-center gap-2">
-            <span className="text-[10px] text-ui-text-subtle w-10 shrink-0">Spacing</span>
-            <div className="flex items-center gap-1">
-              {letterSpacingOptions.map((opt) => (
-                <button
-                  key={opt.id}
-                  onClick={() => onTextChange(cellIndex, element.id, { letterSpacing: opt.id })}
-                  title={opt.name}
-                  className={`px-2.5 h-7 sm:px-2 sm:h-6 text-[11px] sm:text-[10px] active:scale-90 rounded ${
-                    layerState.letterSpacing === opt.id
-                      ? 'bg-primary text-white'
-                      : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
-                  }`}
-                >
-                  {opt.name}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Spacers and line separators above/below this element */}
-          <div className="flex items-center gap-2">
-            <span className="text-[10px] text-ui-text-subtle w-10 shrink-0">Above</span>
-            <div className="flex items-center gap-1">
-              <button
-                onClick={() => onTextChange(cellIndex, element.id, { spacerAbove: ((layerState.spacerAbove || 0) + 1) % 3 })}
-                title={`Spacer above: ${['None', 'Small', 'Large'][layerState.spacerAbove || 0]}`}
-                className={`flex items-center gap-1 px-2 h-7 sm:h-6 text-[11px] sm:text-[10px] active:scale-90 rounded ${
-                  (layerState.spacerAbove || 0) > 0
-                    ? 'bg-primary text-white'
-                    : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
-                }`}
-              >
-                Gap {['Off', 'S', 'L'][layerState.spacerAbove || 0]}
-              </button>
-              <button
-                onClick={() => onTextChange(cellIndex, element.id, { lineAbove: !layerState.lineAbove })}
-                title={`Line above: ${layerState.lineAbove ? 'On' : 'Off'}`}
-                className={`flex items-center gap-1 px-2 h-7 sm:h-6 text-[11px] sm:text-[10px] active:scale-90 rounded ${
-                  layerState.lineAbove
-                    ? 'bg-primary text-white'
-                    : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
-                }`}
-              >
-                Line
-              </button>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <span className="text-[10px] text-ui-text-subtle w-10 shrink-0">Below</span>
-            <div className="flex items-center gap-1">
-              <button
-                onClick={() => onTextChange(cellIndex, element.id, { spacerBelow: ((layerState.spacerBelow || 0) + 1) % 3 })}
-                title={`Spacer below: ${['None', 'Small', 'Large'][layerState.spacerBelow || 0]}`}
-                className={`flex items-center gap-1 px-2 h-7 sm:h-6 text-[11px] sm:text-[10px] active:scale-90 rounded ${
-                  (layerState.spacerBelow || 0) > 0
-                    ? 'bg-primary text-white'
-                    : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
-                }`}
-              >
-                Gap {['Off', 'S', 'L'][layerState.spacerBelow || 0]}
-              </button>
-              <button
-                onClick={() => onTextChange(cellIndex, element.id, { lineBelow: !layerState.lineBelow })}
-                title={`Line below: ${layerState.lineBelow ? 'On' : 'Off'}`}
-                className={`flex items-center gap-1 px-2 h-7 sm:h-6 text-[11px] sm:text-[10px] active:scale-90 rounded ${
-                  layerState.lineBelow
-                    ? 'bg-primary text-white'
-                    : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
-                }`}
-              >
-                Line
-              </button>
-            </div>
-          </div>
-        </div>
+        <TextStyleControls
+          value={layerState}
+          onChange={(updates) => onTextChange(cellIndex, element.id, updates)}
+          theme={theme}
+        />
       )}
     </div>
   )
@@ -400,9 +438,12 @@ function MarkdownToolbar({ textareaRef, content, onContentChange }) {
 }
 
 // Requirement: Multi-block freeform text — each cell has an array of independently styled blocks.
-// Approach: Each block is a collapsible card with markdown editor, style controls, move/delete.
+// Approach: Each block is a card with markdown editor, style controls, move/delete.
+//   Toolbar only shows for the focused block to reduce repeated chrome.
+//   Single-block mode hides #N and move buttons for a cleaner experience.
 // Alternatives:
 //   - Single block per cell: Rejected — user requested multiple appendable blocks with reordering.
+//   - Toolbar always visible: Rejected — repetitive with 3+ blocks.
 function FreeformBlockEditor({
   block,
   cellIndex,
@@ -416,6 +457,8 @@ function FreeformBlockEditor({
   const textareaRef = useRef(null)
   const [showStyle, setShowStyle] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
+  const [isFocused, setIsFocused] = useState(false)
+  const confirmTimerRef = useRef(null)
 
   const handleContentChange = useCallback(
     (newContent) => onUpdateBlock(cellIndex, block.id, { content: newContent }),
@@ -425,47 +468,75 @@ function FreeformBlockEditor({
   const textareaRows = Math.min(10, Math.max(3, (block.content || '').split('\n').length + 1))
 
   const handleFocus = useCallback((e) => {
+    setIsFocused(true)
     const el = e.target
     setTimeout(() => {
       el.scrollIntoView({ behavior: 'smooth', block: 'center' })
     }, 100)
   }, [])
 
+  const handleBlur = useCallback(() => {
+    setIsFocused(false)
+  }, [])
+
+  // Requirement: Confirm-delete with timeout fallback for mobile touch reliability.
+  // Approach: onBlur resets immediately, plus a 3-second timeout as safety net.
+  // Alternatives:
+  //   - onBlur only: Rejected — fires unreliably on mobile touch devices.
+  //   - Timeout only: Rejected — desktop users expect blur-to-cancel behavior.
   const handleDelete = () => {
     if (block.content) {
       if (!confirmDelete) {
         setConfirmDelete(true)
+        clearTimeout(confirmTimerRef.current)
+        confirmTimerRef.current = setTimeout(() => setConfirmDelete(false), 3000)
         return
       }
     }
+    clearTimeout(confirmTimerRef.current)
     onRemoveBlock(cellIndex, block.id)
   }
+
+  const handleDeleteBlur = useCallback(() => {
+    clearTimeout(confirmTimerRef.current)
+    setConfirmDelete(false)
+  }, [])
+
+  // Cleanup timer on unmount
+  useEffect(() => {
+    return () => clearTimeout(confirmTimerRef.current)
+  }, [])
+
+  const isMultiBlock = total > 1
 
   return (
     <div className="space-y-2 p-2 bg-ui-surface-inset/30 rounded-lg border border-ui-border-subtle">
       {/* Header: block number + move + style + delete */}
       <div className="flex items-center gap-1">
-        <span className="text-[10px] text-ui-text-subtle font-medium w-6 shrink-0">#{index + 1}</span>
+        {/* Only show block number and move buttons when multiple blocks exist */}
+        {isMultiBlock && (
+          <>
+            <span className="text-[10px] text-ui-text-subtle font-medium w-6 shrink-0">#{index + 1}</span>
 
-        {/* Move up */}
-        <button
-          onClick={() => onMoveBlock(cellIndex, block.id, -1)}
-          disabled={index === 0}
-          className="w-7 h-7 sm:w-6 sm:h-6 rounded flex items-center justify-center text-xs active:scale-90 disabled:opacity-30 bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover disabled:hover:bg-ui-surface-inset"
-          title="Move up"
-        >
-          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" /></svg>
-        </button>
+            <button
+              onClick={() => onMoveBlock(cellIndex, block.id, -1)}
+              disabled={index === 0}
+              className="w-7 h-7 sm:w-6 sm:h-6 rounded flex items-center justify-center text-xs active:scale-90 disabled:opacity-30 bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover disabled:hover:bg-ui-surface-inset"
+              title="Move up"
+            >
+              <ChevronUpIcon />
+            </button>
 
-        {/* Move down */}
-        <button
-          onClick={() => onMoveBlock(cellIndex, block.id, 1)}
-          disabled={index === total - 1}
-          className="w-7 h-7 sm:w-6 sm:h-6 rounded flex items-center justify-center text-xs active:scale-90 disabled:opacity-30 bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover disabled:hover:bg-ui-surface-inset"
-          title="Move down"
-        >
-          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
-        </button>
+            <button
+              onClick={() => onMoveBlock(cellIndex, block.id, 1)}
+              disabled={index === total - 1}
+              className="w-7 h-7 sm:w-6 sm:h-6 rounded flex items-center justify-center text-xs active:scale-90 disabled:opacity-30 bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover disabled:hover:bg-ui-surface-inset"
+              title="Move down"
+            >
+              <ChevronDownIcon />
+            </button>
+          </>
+        )}
 
         <div className="flex-1" />
 
@@ -477,16 +548,13 @@ function FreeformBlockEditor({
           }`}
           title="Block style options"
         >
-          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-          </svg>
+          <GearIcon className="w-3 h-3" />
         </button>
 
         {/* Delete */}
         <button
           onClick={handleDelete}
-          onBlur={() => setConfirmDelete(false)}
+          onBlur={handleDeleteBlur}
           className={`w-7 h-7 sm:w-6 sm:h-6 rounded flex items-center justify-center text-xs active:scale-90 transition-colors ${
             confirmDelete
               ? 'bg-red-500 text-white'
@@ -494,18 +562,18 @@ function FreeformBlockEditor({
           }`}
           title={confirmDelete ? 'Click again to confirm delete' : 'Delete block'}
         >
-          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-          </svg>
+          <CloseIcon className="w-3 h-3" />
         </button>
       </div>
 
-      {/* Markdown toolbar */}
-      <MarkdownToolbar
-        textareaRef={textareaRef}
-        content={block.content}
-        onContentChange={handleContentChange}
-      />
+      {/* Markdown toolbar — only shown when block textarea is focused, to reduce visual noise */}
+      {isFocused && (
+        <MarkdownToolbar
+          textareaRef={textareaRef}
+          content={block.content}
+          onContentChange={handleContentChange}
+        />
+      )}
 
       {/* Textarea */}
       <div className="relative">
@@ -514,164 +582,30 @@ function FreeformBlockEditor({
           value={block.content}
           onChange={(e) => onUpdateBlock(cellIndex, block.id, { content: e.target.value })}
           onFocus={handleFocus}
-          placeholder="Type here or use the toolbar above to format"
+          onBlur={handleBlur}
+          placeholder="Type here — focus to see formatting toolbar"
           rows={textareaRows}
           className="w-full px-3 py-2 text-sm text-ui-text border border-ui-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-white dark:bg-dark-subtle placeholder-zinc-400 dark:placeholder-zinc-500 font-mono"
           style={{ resize: 'vertical', minHeight: '3rem' }}
         />
       </div>
 
-      {/* Collapsible style controls */}
+      {/* Collapsible style controls — uses shared TextStyleControls */}
       {showStyle && (
-        <div className="space-y-2 p-2 bg-ui-surface-inset/50 rounded-lg">
-          {/* Alignment */}
-          <div className="flex items-center gap-2">
-            <span className="text-[10px] text-ui-text-subtle w-10 shrink-0">Align</span>
-            <AlignmentPicker
-              value={block.textAlign}
-              onChange={(id) => onUpdateBlock(cellIndex, block.id, { textAlign: id })}
-            />
-          </div>
-
-          {/* Color */}
-          <div className="flex items-center gap-2">
-            <span className="text-[10px] text-ui-text-subtle w-10 shrink-0">Color</span>
-            <ColorPicker
-              value={block.color}
-              onChange={(id) => onUpdateBlock(cellIndex, block.id, { color: id })}
-              theme={theme}
-            />
-          </div>
-
-          {/* Size + Bold/Italic */}
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-[10px] text-ui-text-subtle w-10 shrink-0">Size</span>
-            <div className="flex items-center gap-1">
-              {sizeOptions.map((size) => (
-                <button
-                  key={size.id}
-                  onClick={() => onUpdateBlock(cellIndex, block.id, { size: size.id })}
-                  title={`Size ${size.name}`}
-                  className={`w-8 h-7 sm:w-7 sm:h-6 text-[11px] sm:text-[10px] active:scale-90 font-medium rounded ${
-                    block.size === size.id
-                      ? 'bg-primary text-white'
-                      : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
-                  }`}
-                >
-                  {size.name}
-                </button>
-              ))}
-            </div>
-            <div className="flex items-center gap-1 ml-auto">
-              <button
-                onClick={() => onUpdateBlock(cellIndex, block.id, { bold: !block.bold })}
-                title="Bold"
-                className={`w-9 h-7 sm:w-7 sm:h-6 text-[11px] sm:text-[10px] active:scale-90 font-bold rounded ${
-                  block.bold
-                    ? 'bg-primary text-white'
-                    : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
-                }`}
-              >
-                B
-              </button>
-              <button
-                onClick={() => onUpdateBlock(cellIndex, block.id, { italic: !block.italic })}
-                title="Italic"
-                className={`w-9 h-7 sm:w-7 sm:h-6 text-[11px] sm:text-[10px] active:scale-90 italic rounded ${
-                  block.italic
-                    ? 'bg-primary text-white'
-                    : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
-                }`}
-              >
-                I
-              </button>
-            </div>
-          </div>
-
-          {/* Letter spacing */}
-          <div className="flex items-center gap-2">
-            <span className="text-[10px] text-ui-text-subtle w-10 shrink-0">Spacing</span>
-            <div className="flex items-center gap-1">
-              {letterSpacingOptions.map((opt) => (
-                <button
-                  key={opt.id}
-                  onClick={() => onUpdateBlock(cellIndex, block.id, { letterSpacing: opt.id })}
-                  title={opt.name}
-                  className={`px-2.5 h-7 sm:px-2 sm:h-6 text-[11px] sm:text-[10px] active:scale-90 rounded ${
-                    block.letterSpacing === opt.id
-                      ? 'bg-primary text-white'
-                      : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
-                  }`}
-                >
-                  {opt.name}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Spacer/line above */}
-          <div className="flex items-center gap-2">
-            <span className="text-[10px] text-ui-text-subtle w-10 shrink-0">Above</span>
-            <div className="flex items-center gap-1">
-              <button
-                onClick={() => onUpdateBlock(cellIndex, block.id, { spacerAbove: ((block.spacerAbove || 0) + 1) % 3 })}
-                title={`Spacer above: ${['None', 'Small', 'Large'][block.spacerAbove || 0]}`}
-                className={`flex items-center gap-1 px-2 h-7 sm:h-6 text-[11px] sm:text-[10px] active:scale-90 rounded ${
-                  (block.spacerAbove || 0) > 0
-                    ? 'bg-primary text-white'
-                    : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
-                }`}
-              >
-                Gap {['Off', 'S', 'L'][block.spacerAbove || 0]}
-              </button>
-              <button
-                onClick={() => onUpdateBlock(cellIndex, block.id, { lineAbove: !block.lineAbove })}
-                title={`Line above: ${block.lineAbove ? 'On' : 'Off'}`}
-                className={`flex items-center gap-1 px-2 h-7 sm:h-6 text-[11px] sm:text-[10px] active:scale-90 rounded ${
-                  block.lineAbove
-                    ? 'bg-primary text-white'
-                    : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
-                }`}
-              >
-                Line
-              </button>
-            </div>
-          </div>
-
-          {/* Spacer/line below */}
-          <div className="flex items-center gap-2">
-            <span className="text-[10px] text-ui-text-subtle w-10 shrink-0">Below</span>
-            <div className="flex items-center gap-1">
-              <button
-                onClick={() => onUpdateBlock(cellIndex, block.id, { spacerBelow: ((block.spacerBelow || 0) + 1) % 3 })}
-                title={`Spacer below: ${['None', 'Small', 'Large'][block.spacerBelow || 0]}`}
-                className={`flex items-center gap-1 px-2 h-7 sm:h-6 text-[11px] sm:text-[10px] active:scale-90 rounded ${
-                  (block.spacerBelow || 0) > 0
-                    ? 'bg-primary text-white'
-                    : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
-                }`}
-              >
-                Gap {['Off', 'S', 'L'][block.spacerBelow || 0]}
-              </button>
-              <button
-                onClick={() => onUpdateBlock(cellIndex, block.id, { lineBelow: !block.lineBelow })}
-                title={`Line below: ${block.lineBelow ? 'On' : 'Off'}`}
-                className={`flex items-center gap-1 px-2 h-7 sm:h-6 text-[11px] sm:text-[10px] active:scale-90 rounded ${
-                  block.lineBelow
-                    ? 'bg-primary text-white'
-                    : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
-                }`}
-              >
-                Line
-              </button>
-            </div>
-          </div>
-        </div>
+        <TextStyleControls
+          value={block}
+          onChange={(updates) => onUpdateBlock(cellIndex, block.id, updates)}
+          theme={theme}
+        />
       )}
     </div>
   )
 }
 
+// Requirement: Auto-create first block so users can type immediately without extra clicks.
+// Approach: useEffect creates a block when cell has none, so the editor is never empty on mount.
+// Alternatives:
+//   - Require user to click "Add": Rejected — adds friction to the most common path.
 function FreeformCellEditor({
   cellIndex,
   cellBlocks,
@@ -683,14 +617,17 @@ function FreeformCellEditor({
 }) {
   const blocks = cellBlocks || []
 
+  useEffect(() => {
+    if (blocks.length === 0) {
+      onAddBlock(cellIndex)
+    }
+  }, [cellIndex, blocks.length, onAddBlock])
+
+  // Don't render until the auto-created block is available
+  if (blocks.length === 0) return null
+
   return (
     <div className="space-y-2">
-      {blocks.length === 0 && (
-        <p className="text-[11px] text-ui-text-faint text-center py-3">
-          No text blocks yet. Add one below.
-        </p>
-      )}
-
       {blocks.map((block, i) => (
         <FreeformBlockEditor
           key={block.id}
@@ -864,7 +801,7 @@ export default memo(function ContentTab({
           <p className="text-[10px] text-ui-text-subtle mt-0.5">
             {textMode === 'structured'
               ? 'Add title, body, CTA and more to this cell'
-              : 'Use the toolbar above to format text'}
+              : 'Add text blocks with independent styling'}
           </p>
         </div>
       </div>
