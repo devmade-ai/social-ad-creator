@@ -88,7 +88,6 @@ export default memo(function LayoutTab({
   // Layout-aware labels for rows vs columns
   const isRows = type === 'rows'
   const sectionLabel = isRows ? 'Row' : 'Column'
-  const cellLabel = isRows ? 'Cell' : 'Cell'
 
   // Change layout type
   const handleTypeChange = (newType) => {
@@ -250,13 +249,9 @@ export default memo(function LayoutTab({
 
     const newSubs = currentSubs + 1
     const evenSize = 100 / newSubs
-    const newSubSizes = [...(section.subSizes || Array(currentSubs).fill(100 / currentSubs))]
-    newSubSizes.splice(subPosition, 0, evenSize)
-    // Redistribute evenly after insert
-    const redistributed = Array(newSubs).fill(evenSize)
 
     const newStructure = [...structure]
-    newStructure[sectionIndex] = { ...section, subdivisions: newSubs, subSizes: redistributed }
+    newStructure[sectionIndex] = { ...section, subdivisions: newSubs, subSizes: Array(newSubs).fill(evenSize) }
 
     // The inserted cell shifts everything at and after its absolute index
     const firstCellOfSection = getFirstCellOfSection(structure, sectionIndex)
@@ -514,7 +509,7 @@ export default memo(function LayoutTab({
                 <span className="text-sm font-medium text-indigo-700 dark:text-indigo-300">
                   {hasSubdivisions
                     ? `${isRows ? 'Column' : 'Row'} ${selectedSubIndex + 1}`
-                    : `${cellLabel}`}
+                    : Cell}
                 </span>
                 <span className="text-xs text-indigo-400 dark:text-indigo-500">
                   {selectedSection.subdivisions || 1} {selectedSection.subdivisions > 1 ? (isRows ? 'columns' : 'rows') : 'cell'} in {sectionLabel.toLowerCase()} {selectedSectionIndex + 1}
