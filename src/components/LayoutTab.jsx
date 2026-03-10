@@ -5,7 +5,7 @@
 // Alternatives:
 //   - Drag-to-resize on canvas: Rejected - complex to implement and hard to be precise on mobile.
 //   - Numeric input only: Rejected - sliders give visual feedback for proportional sizing.
-import { useState, useMemo, memo } from 'react'
+import { useState, useMemo, useEffect, useRef, memo } from 'react'
 import CollapsibleSection from './CollapsibleSection'
 import { countCells } from '../utils/cellUtils'
 import { platforms } from '../config/platforms'
@@ -65,10 +65,10 @@ function CellGrid({
   }
 
   // Requirement: Show which cell is globally selected (from ContextBar) in the Structure grid
-  // Approach: Inset ring indicator, separate from structure editing selection colors
-  // Alternatives:
-  //   - Auto-sync global→structure selection: Rejected — splitting rows hides split controls
-  //   - Colored background: Rejected — conflicts with section/cell selection highlighting
+  // Approach: Inset ring indicator as secondary indicator when structureSelection differs
+  //   from globalSelectedCell. Primary sync now handled via useEffect in LayoutTab.
+  // History: Previously rejected auto-sync, but users expect ContextBar clicks to select
+  //   the cell for editing in Structure tab (see useEffect above).
   // Requirement: Cell content styling without image/text distinction
   // Approach: All cells are equal — styling based on selection state only
   const getCellContent = (cellIndex, isSelected, isSectionSelected, subdivisions, subSize) => {
@@ -239,6 +239,43 @@ export default memo(function LayoutTab({
 }) {
   const { type = 'fullbleed', structure = [] } = layout
   const [structureSelection, setStructureSelection] = useState(null)
+  // Track internal selections so we can distinguish them from external (ContextBar) changes
+  const lastInternalCell = useRef(selectedCell)
+
+  // Requirement: Sync global cell selection (from ContextBar) to structure editing selection
+  // Approach: useEffect detects external selectedCell changes via ref comparison,
+  //   then maps the cell index to the correct structureSelection (section or cell)
+  // Alternatives:
+  //   - Ring indicator only (previous): Rejected — users expect clicking ContextBar to
+  //     select the cell for editing in Structure tab, not just show a subtle ring
+  //   - Always sync (no ref guard): Rejected — would override LayoutTab's toggle-to-deselect
+  useEffect(() => {
+    if (selectedCell === lastInternalCell.current) return
+    lastInternalCell.current = selectedCell
+
+    const normalizedStructure =
+      type === 'fullbleed' || !structure || structure.length === 0
+        ? [{ size: 100, subdivisions: 1, subSizes: [100] }]
+        : structure
+
+    // Reverse-map cellIndex → sectionIndex + subIndex
+    let cellCounter = 0
+    for (let si = 0; si < normalizedStructure.length; si++) {
+      const section = normalizedStructure[si]
+      const subdivisions = section.subdivisions || 1
+      for (let sub = 0; sub < subdivisions; sub++) {
+        if (cellCounter === selectedCell) {
+          if (subdivisions === 1) {
+            setStructureSelection({ type: 'section', index: si })
+          } else {
+            setStructureSelection({ type: 'cell', cellIndex: selectedCell, sectionIndex: si, subIndex: sub })
+          }
+          return
+        }
+        cellCounter++
+      }
+    }
+  }, [selectedCell, type, structure])
 
   const platformAspectRatio = useMemo(() => {
     const p = platforms.find((pl) => pl.id === platform) || platforms[0]
@@ -718,6 +755,7 @@ export default memo(function LayoutTab({
                 }}
                 onSelectCell={(cellIndex, sectionIndex, subIndex) => {
                   // Always sync to global cell selection so ContextBar and other tabs stay in sync
+                  lastInternalCell.current = cellIndex
                   onSelectCell?.(cellIndex)
                   const normalizedStructure =
                     !structure || structure.length === 0
