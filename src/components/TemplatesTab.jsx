@@ -177,13 +177,33 @@ export default memo(function TemplatesTab({
 
   const activeLookPreset = lookPresets.find((p) => p.id === activeStylePreset)
 
-  // Check if a layout preset matches current layout (structure only, no imageCells)
-  const isLayoutPresetActive = (preset) => {
-    return (
-      layout.type === preset.layout.type &&
-      JSON.stringify(layout.structure) === JSON.stringify(preset.layout.structure)
-    )
-  }
+  // Performance: memoize active layout preset ID to avoid JSON.stringify comparison
+  // on every render for every preset button. Compare structure once, store the result.
+  const activeLayoutPresetId = useMemo(() => {
+    for (const preset of layoutPresets) {
+      if (layout.type !== preset.layout.type) continue
+      const a = layout.structure
+      const b = preset.layout.structure
+      if (!a || !b || a.length !== b.length) continue
+      let match = true
+      for (let i = 0; i < a.length; i++) {
+        if (a[i].size !== b[i].size || a[i].subdivisions !== b[i].subdivisions) {
+          match = false
+          break
+        }
+        const subA = a[i].subSizes || [100]
+        const subB = b[i].subSizes || [100]
+        if (subA.length !== subB.length || subA.some((v, j) => v !== subB[j])) {
+          match = false
+          break
+        }
+      }
+      if (match) return preset.id
+    }
+    return null
+  }, [layout.type, layout.structure])
+
+  const isLayoutPresetActive = (preset) => preset.id === activeLayoutPresetId
 
   return (
     <div className="space-y-3">

@@ -3,10 +3,38 @@ import { useState, useCallback, useRef } from 'react'
 const MAX_HISTORY = 50
 
 // Requirement: Fast state comparison that avoids serializing large base64 image data.
-// Approach: Compare top-level keys by reference. For keys that differ, compare
-//   JSON representation — but strip image `src` fields first (since images are
-//   always replaced by reference via .map(), never mutated in-place, so if
-//   the images array reference changed, the content definitely changed).
+// Approach: Recursive deep equality with early exit. Avoids JSON.stringify entirely —
+//   JSON.stringify on complex state trees with nested objects is O(n) per keystroke
+//   and can take 10-100ms. Recursive comparison exits at the first mismatch.
+// Alternatives:
+//   - JSON.stringify: Rejected — serializes entire state tree on every keystroke.
+//   - immer-style structural sharing: Rejected — requires changing state management.
+function deepEqual(a, b) {
+  if (a === b) return true
+  if (a == null || b == null) return a === b
+  if (typeof a !== typeof b) return false
+
+  if (Array.isArray(a)) {
+    if (!Array.isArray(b) || a.length !== b.length) return false
+    for (let i = 0; i < a.length; i++) {
+      if (!deepEqual(a[i], b[i])) return false
+    }
+    return true
+  }
+
+  if (typeof a === 'object') {
+    const keysA = Object.keys(a)
+    const keysB = Object.keys(b)
+    if (keysA.length !== keysB.length) return false
+    for (const key of keysA) {
+      if (!deepEqual(a[key], b[key])) return false
+    }
+    return true
+  }
+
+  return a === b
+}
+
 function shallowEqual(a, b) {
   if (a === b) return true
   if (!a || !b) return false
@@ -19,21 +47,19 @@ function shallowEqual(a, b) {
     if (key === 'images') {
       if (!Array.isArray(a[key]) || !Array.isArray(b[key])) return false
       if (a[key].length !== b[key].length) return false
-      const idsA = a[key].map((img) => img.id).join(',')
-      const idsB = b[key].map((img) => img.id).join(',')
-      if (idsA !== idsB) return false
-      // Compare non-src fields for each image
       for (let i = 0; i < a[key].length; i++) {
+        if (a[key][i].id !== b[key][i].id) return false
+        // Compare non-src fields using recursive deepEqual (no JSON.stringify)
         const { src: _a, ...restA } = a[key][i]
         const { src: _b, ...restB } = b[key][i]
-        if (JSON.stringify(restA) !== JSON.stringify(restB)) return false
+        if (!deepEqual(restA, restB)) return false
       }
       continue
     }
     // Logo: skip base64 comparison (reference change = content change)
     if (key === 'logo') return false
-    // For other keys, fall back to JSON comparison
-    if (JSON.stringify(a[key]) !== JSON.stringify(b[key])) return false
+    // Recursive deep comparison — exits at first mismatch instead of serializing entire subtree
+    if (!deepEqual(a[key], b[key])) return false
   }
   return true
 }

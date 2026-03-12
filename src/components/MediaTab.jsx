@@ -7,6 +7,7 @@
 //     keep related controls together without overwhelming the sidebar.
 import { useCallback, useRef, useState, memo, useMemo, useEffect } from 'react'
 import CollapsibleSection from './CollapsibleSection'
+import { useToast } from './Toast'
 import { platforms } from '../config/platforms'
 import { overlayTypes } from '../config/layouts'
 import { neutralColors } from '../config/themes'
@@ -375,6 +376,10 @@ function AIPromptHelper({ theme }) {
 }
 
 
+// Max image file size: 10 MB. Prevents memory issues from large base64 strings
+// multiplied across undo history and multi-page state snapshots.
+const MAX_IMAGE_SIZE_BYTES = 10 * 1024 * 1024
+
 // Sample Images Section
 const SAMPLES_PER_PAGE = 15
 
@@ -386,6 +391,17 @@ function SampleImagesSection({ images, onAddImage, selectedCell }) {
   const [sampleError, setSampleError] = useState(null)
   const [activeCategory, setActiveCategory] = useState('all')
   const [page, setPage] = useState(0)
+
+  // Race condition fix: use ref for selectedCell so async image load callbacks
+  // always read the latest value instead of a stale closure capture.
+  const selectedCellRef = useRef(selectedCell)
+  selectedCellRef.current = selectedCell
+
+  // Unmount guard: prevent state updates after component unmounts
+  const mountedRef = useRef(true)
+  useEffect(() => {
+    return () => { mountedRef.current = false }
+  }, [])
 
   const loadManifest = useCallback(async () => {
     setManifestLoading(true)
@@ -426,6 +442,9 @@ function SampleImagesSection({ images, onAddImage, selectedCell }) {
     setPage(0)
   }, [])
 
+  // Race condition fix: read selectedCellRef.current at assignment time (not closure time)
+  // so the image goes to whichever cell is selected when loading finishes.
+  // Unmount guard: check mountedRef before calling setState after async operations.
   const loadSampleImage = useCallback(
     async (sample) => {
       setLoadingSample(sample.id)
@@ -441,24 +460,29 @@ function SampleImagesSection({ images, onAddImage, selectedCell }) {
         const blob = await response.blob()
         const reader = new FileReader()
         reader.onload = (event) => {
+          if (!mountedRef.current) return
           const img = new Image()
           img.onload = () => {
-            onAddImage(event.target.result, sample.name, selectedCell, { width: img.naturalWidth, height: img.naturalHeight })
+            if (!mountedRef.current) return
+            onAddImage(event.target.result, sample.name, selectedCellRef.current, { width: img.naturalWidth, height: img.naturalHeight })
             setLoadingSample(null)
           }
           img.onerror = () => {
-            onAddImage(event.target.result, sample.name, selectedCell)
+            if (!mountedRef.current) return
+            onAddImage(event.target.result, sample.name, selectedCellRef.current)
             setLoadingSample(null)
           }
           img.src = event.target.result
         }
         reader.onerror = () => {
+          if (!mountedRef.current) return
           setSampleError('Failed to load image')
           setLoadingSample(null)
         }
         reader.readAsDataURL(blob)
       } catch (err) {
         clearTimeout(timeout)
+        if (!mountedRef.current) return
         setSampleError(
           err.name === 'AbortError'
             ? 'Image loading timed out. Try again.'
@@ -467,7 +491,7 @@ function SampleImagesSection({ images, onAddImage, selectedCell }) {
         setLoadingSample(null)
       }
     },
-    [onAddImage, selectedCell, cdnBase]
+    [onAddImage, cdnBase]
   )
 
   if (manifestLoading) {
@@ -639,6 +663,7 @@ export default memo(function MediaTab({
   selectedCell,
   onSelectCell,
 }) {
+  const { addToast } = useToast()
   const fileInputRef = useRef(null)
   const logoInputRef = useRef(null)
   const [selectedImageId, setSelectedImageId] = useState(null) // Currently selected image for editing
@@ -690,6 +715,10 @@ export default memo(function MediaTab({
       let firstImageId = null
       files.forEach((file) => {
         if (file && file.type.startsWith('image/')) {
+          if (file.size > MAX_IMAGE_SIZE_BYTES) {
+            addToast(`"${file.name}" is too large (max 10 MB). Try a smaller image.`, { type: 'warning', duration: 5000 })
+            return
+          }
           const reader = new FileReader()
           reader.onload = (event) => {
             const img = new Image()
@@ -706,7 +735,7 @@ export default memo(function MediaTab({
         }
       })
     },
-    [onAddImage, selectedCell]
+    [onAddImage, selectedCell, addToast]
   )
 
   const handleDragOver = useCallback((e) => {
@@ -719,6 +748,10 @@ export default memo(function MediaTab({
       let firstImageId = null
       files.forEach((file) => {
         if (file && file.type.startsWith('image/')) {
+          if (file.size > MAX_IMAGE_SIZE_BYTES) {
+            addToast(`"${file.name}" is too large (max 10 MB). Try a smaller image.`, { type: 'warning', duration: 5000 })
+            return
+          }
           const reader = new FileReader()
           reader.onload = (event) => {
             const img = new Image()
@@ -735,7 +768,7 @@ export default memo(function MediaTab({
         }
       })
     },
-    [onAddImage, selectedCell]
+    [onAddImage, selectedCell, addToast]
   )
 
   // Toggle assignment of selected image to a cell

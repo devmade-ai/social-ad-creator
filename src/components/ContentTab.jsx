@@ -263,9 +263,14 @@ function TextElementEditor({
   const textareaRows = Math.min(8, Math.max(2, (layerState.content || '').split('\n').length + 1))
 
   // Scroll into view on mobile keyboard (#12)
+  // Track timeout for cleanup on unmount to prevent stale DOM operations.
+  const scrollTimerRef = useRef(null)
+  useEffect(() => {
+    return () => clearTimeout(scrollTimerRef.current)
+  }, [])
   const handleFocus = useCallback((e) => {
     const el = e.target
-    setTimeout(() => {
+    scrollTimerRef.current = setTimeout(() => {
       el.scrollIntoView({ behavior: 'smooth', block: 'center' })
     }, 100)
   }, [])
@@ -468,11 +473,13 @@ function FreeformBlockEditor({
 
   const textareaRows = Math.min(10, Math.max(3, (block.content || '').split('\n').length + 1))
 
+  // Track scroll timeout for cleanup on unmount
+  const scrollTimerRef = useRef(null)
   const handleFocus = useCallback((e) => {
     clearTimeout(blurTimerRef.current)
     setIsFocused(true)
     const el = e.target
-    setTimeout(() => {
+    scrollTimerRef.current = setTimeout(() => {
       el.scrollIntoView({ behavior: 'smooth', block: 'center' })
     }, 100)
   }, [])
@@ -509,11 +516,12 @@ function FreeformBlockEditor({
     setConfirmDelete(false)
   }, [])
 
-  // Cleanup timers on unmount
+  // Cleanup all timers on unmount
   useEffect(() => {
     return () => {
       clearTimeout(confirmTimerRef.current)
       clearTimeout(blurTimerRef.current)
+      clearTimeout(scrollTimerRef.current)
     }
   }, [])
 

@@ -1,5 +1,6 @@
-import { forwardRef, useMemo } from 'react'
+import { forwardRef, useMemo, memo } from 'react'
 import { marked } from 'marked'
+import DOMPurify from 'dompurify'
 import { overlayTypes, hexToRgb, getOverlayType } from '../config/layouts'
 import { platforms } from '../config/platforms'
 import { fonts } from '../config/fonts'
@@ -115,11 +116,8 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
             pointerEvents: 'none',
           }}
         >
+          {/* Uses stable noise-filter ID defined in SvgFilters component */}
           <svg width="100%" height="100%" style={{ position: 'absolute', inset: 0 }}>
-            <filter id={`noise-${Math.random().toString(36).substr(2, 9)}`}>
-              <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4" />
-              <feColorMatrix type="saturate" values="0" />
-            </filter>
             <rect width="100%" height="100%" filter="url(#noise-filter)" />
           </svg>
         </div>
@@ -546,7 +544,8 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
           alignSelf: getAlignItems(elementAlign),
           ...style.shadow,
         }}
-        dangerouslySetInnerHTML={{ __html: marked.parseInline(layer.content) }}
+        // Security: sanitize marked output to prevent XSS via user-supplied text
+        dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(marked.parseInline(layer.content)) }}
       />
     )
   }
@@ -586,7 +585,8 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
       const textColor = getTextColor(block.color || 'secondary')
       const fontSize = Math.round(platform.width * 0.022 * (block.size || 1))
       const textAlign = block.textAlign || getCellTextAlign(cellIndex)
-      const html = marked.parse(block.content)
+      // Security: sanitize marked output to prevent XSS via user-supplied text
+      const html = DOMPurify.sanitize(marked.parse(block.content))
 
       content.push(
         <div
@@ -866,4 +866,6 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
   )
 })
 
-export default AdCanvas
+// Performance: memo prevents full re-render on every parent state change.
+// forwardRef already wraps the component; memo wraps the outer result.
+export default memo(AdCanvas)
