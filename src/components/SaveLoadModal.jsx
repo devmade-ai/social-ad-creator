@@ -1,11 +1,15 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import ConfirmButton from './ConfirmButton'
 import { useToast } from './Toast'
+import { useFocusTrap } from '../hooks/useFocusTrap'
 
 export default function SaveLoadModal({ isOpen, onClose, onSave, onLoad, onDelete, getSavedDesigns }) {
   const { addToast } = useToast()
+  const modalRef = useRef(null)
+  useFocusTrap(modalRef, isOpen)
   const [designs, setDesigns] = useState([])
   const [saveName, setSaveName] = useState('')
+  const [searchQuery, setSearchQuery] = useState('')
   const [activeTab, setActiveTab] = useState('save')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
@@ -71,7 +75,7 @@ export default function SaveLoadModal({ isOpen, onClose, onSave, onLoad, onDelet
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
-      <div className="bg-ui-surface rounded-xl shadow-2xl w-full max-w-md max-h-[80vh] flex flex-col">
+      <div ref={modalRef} className="bg-ui-surface rounded-xl shadow-2xl w-full max-w-md max-h-[80vh] flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-ui-border">
           <h2 className="text-lg font-semibold text-ui-text">Saved Designs</h2>
@@ -147,12 +151,22 @@ export default function SaveLoadModal({ isOpen, onClose, onSave, onLoad, onDelet
 
           {activeTab === 'load' && (
             <div className="space-y-2">
+              {/* Search filter for saved designs */}
+              {designs.length > 3 && (
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search designs..."
+                  className="w-full px-3 py-2 rounded-lg bg-ui-surface-inset border border-ui-border text-ui-text text-sm placeholder-ui-text-muted focus:outline-none focus:ring-2 focus:ring-primary mb-2"
+                />
+              )}
               {designs.length === 0 ? (
                 <p className="text-center text-ui-text-muted py-8">
                   No saved designs yet.
                 </p>
               ) : (
-                designs.map((design) => (
+                designs.filter((d) => !searchQuery || d.name.toLowerCase().includes(searchQuery.toLowerCase())).map((design) => (
                   <div
                     key={design.id}
                     role="button"

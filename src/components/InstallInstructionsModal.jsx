@@ -1,6 +1,10 @@
-import { memo } from 'react'
+import { memo, useRef } from 'react'
+import { useFocusTrap } from '../hooks/useFocusTrap'
 
 export default memo(function InstallInstructionsModal({ isOpen, onClose, instructions }) {
+  const modalRef = useRef(null)
+  useFocusTrap(modalRef, isOpen)
+
   if (!isOpen || !instructions) return null
 
   return (
@@ -12,7 +16,7 @@ export default memo(function InstallInstructionsModal({ isOpen, onClose, instruc
       />
 
       {/* Modal */}
-      <div className="relative bg-white dark:bg-dark-card rounded-xl shadow-xl max-w-md w-full p-6 border border-zinc-200 dark:border-zinc-700">
+      <div ref={modalRef} className="relative bg-white dark:bg-dark-card rounded-xl shadow-xl max-w-md w-full p-6 border border-zinc-200 dark:border-zinc-700">
         {/* Close button */}
         <button
           onClick={onClose}

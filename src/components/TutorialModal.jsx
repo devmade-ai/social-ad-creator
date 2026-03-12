@@ -1,4 +1,5 @@
-import { useState, memo } from 'react'
+import { useState, memo, useRef } from 'react'
+import { useFocusTrap } from '../hooks/useFocusTrap'
 
 const tutorialSteps = [
   {
@@ -204,6 +205,8 @@ const tutorialSteps = [
 
 export default memo(function TutorialModal({ isOpen, onClose }) {
   const [currentStep, setCurrentStep] = useState(0)
+  const modalRef = useRef(null)
+  useFocusTrap(modalRef, isOpen)
 
   if (!isOpen) return null
 
@@ -220,7 +223,7 @@ export default memo(function TutorialModal({ isOpen, onClose }) {
       />
 
       {/* Modal */}
-      <div className="relative bg-white dark:bg-dark-card rounded-2xl shadow-2xl w-full max-w-lg max-h-[80vh] flex flex-col overflow-hidden">
+      <div ref={modalRef} className="relative bg-white dark:bg-dark-card rounded-2xl shadow-2xl w-full max-w-lg max-h-[80vh] flex flex-col overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-ui-border">
           <div className="flex items-center gap-3">

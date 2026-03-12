@@ -253,7 +253,7 @@ export default memo(function TemplatesTab({
           </div>
 
           {/* Layout preset grid */}
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
             {displayLayoutPresets.map((preset) => {
               const isActive = isLayoutPresetActive(preset)
               return (
@@ -289,7 +289,7 @@ export default memo(function TemplatesTab({
         {/* Preset Themes */}
         <div className="space-y-2">
           <label className="block text-xs font-medium text-ui-text-muted">Presets</label>
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
             {presetThemes.map((preset) => (
               <Tooltip
                 key={preset.id}
@@ -356,7 +356,7 @@ export default memo(function TemplatesTab({
           )}
 
           {/* Look preset grid */}
-          <div className="grid grid-cols-4 gap-2">
+          <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
             {lookPresets.map((preset) => (
               <Tooltip
                 key={preset.id}

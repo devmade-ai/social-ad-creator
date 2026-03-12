@@ -4,7 +4,13 @@
 //   - Inline help text: Rejected — clutters the UI for non-power users.
 //   - Browser-style menu bar: Rejected — doesn't match the app's minimal design.
 
+import { useRef } from 'react'
+import { useFocusTrap } from '../hooks/useFocusTrap'
+
 export default function KeyboardShortcutsOverlay({ onClose }) {
+  const modalRef = useRef(null)
+  useFocusTrap(modalRef, true)
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
@@ -14,6 +20,7 @@ export default function KeyboardShortcutsOverlay({ onClose }) {
       aria-label="Keyboard shortcuts"
     >
       <div
+        ref={modalRef}
         className="bg-ui-surface rounded-xl shadow-2xl w-full max-w-sm p-5"
         onClick={(e) => e.stopPropagation()}
       >

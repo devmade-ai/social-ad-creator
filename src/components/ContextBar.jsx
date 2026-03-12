@@ -149,8 +149,10 @@ export default memo(function ContextBar({
     return structure.reduce((total, section) => total + (section.subdivisions || 1), 0)
   }, [layout.structure])
 
+  // Requirement: Sticky context bar below tab nav. Uses CSS var set by App.jsx via ref measurement.
+  // Fallback 41px if var not set.
   return (
-    <div className="bg-white/90 dark:bg-dark-card/90 backdrop-blur-sm border-b border-zinc-200/60 dark:border-zinc-700/60 px-3 sm:px-4 py-1.5 sticky top-[41px] z-[9]">
+    <div className="bg-white/90 dark:bg-dark-card/90 backdrop-blur-sm border-b border-zinc-200/60 dark:border-zinc-700/60 px-3 sm:px-4 py-1.5 sticky z-[9]" style={{ top: 'var(--tab-nav-height, 41px)' }}>
       {/* Mobile: two rows. Desktop: single row */}
       <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-3">
         {/* Pages row (own row on mobile, inline on desktop) */}
@@ -183,9 +185,9 @@ export default memo(function ContextBar({
                   onClick={() => onMovePage(activePage, activePage - 1)}
                   disabled={activePage === 0}
                   title="Move page left"
-                  className="w-8 h-8 sm:w-7 sm:h-7 rounded flex items-center justify-center text-ui-text-subtle hover:bg-ui-surface-hover active:bg-ui-surface-inset disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                  className="w-10 h-10 sm:w-7 sm:h-7 rounded flex items-center justify-center text-ui-text-subtle hover:bg-ui-surface-hover active:bg-ui-surface-inset disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                 >
-                  <svg className="w-3.5 h-3.5 sm:w-3 sm:h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-4 h-4 sm:w-3 sm:h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                   </svg>
                 </button>
@@ -193,9 +195,9 @@ export default memo(function ContextBar({
                   onClick={() => onMovePage(activePage, activePage + 1)}
                   disabled={activePage === pageCount - 1}
                   title="Move page right"
-                  className="w-8 h-8 sm:w-7 sm:h-7 rounded flex items-center justify-center text-ui-text-subtle hover:bg-ui-surface-hover active:bg-ui-surface-inset disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                  className="w-10 h-10 sm:w-7 sm:h-7 rounded flex items-center justify-center text-ui-text-subtle hover:bg-ui-surface-hover active:bg-ui-surface-inset disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                 >
-                  <svg className="w-3.5 h-3.5 sm:w-3 sm:h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-4 h-4 sm:w-3 sm:h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                   </svg>
                 </button>
@@ -205,9 +207,9 @@ export default memo(function ContextBar({
               <button
                 onClick={onDuplicatePage}
                 title="Duplicate page"
-                className="w-8 h-8 sm:w-7 sm:h-7 rounded flex items-center justify-center text-ui-text-subtle hover:bg-ui-surface-hover active:bg-ui-surface-inset transition-colors"
+                className="w-10 h-10 sm:w-7 sm:h-7 rounded flex items-center justify-center text-ui-text-subtle hover:bg-ui-surface-hover active:bg-ui-surface-inset transition-colors"
               >
-                <svg className="w-3.5 h-3.5 sm:w-3 sm:h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 sm:w-3 sm:h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
                 </svg>
               </button>
@@ -215,7 +217,7 @@ export default memo(function ContextBar({
             <button
               onClick={onAddPage}
               title="Add new page"
-              className="w-8 h-8 sm:w-7 sm:h-7 rounded flex items-center justify-center text-primary hover:bg-primary/10 active:bg-primary/20 transition-colors"
+              className="w-10 h-10 sm:w-7 sm:h-7 rounded flex items-center justify-center text-primary hover:bg-primary/10 active:bg-primary/20 transition-colors"
             >
               <svg className="w-4 h-4 sm:w-3.5 sm:h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -227,9 +229,9 @@ export default memo(function ContextBar({
                 confirmLabel={`Delete p${activePage + 1}?`}
                 disabled={pageCount <= 1}
                 title="Remove current page"
-                className="w-8 h-8 sm:w-7 sm:h-7 rounded flex items-center justify-center text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 active:bg-red-100 dark:active:bg-red-900/30 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                className="w-10 h-10 sm:w-7 sm:h-7 rounded flex items-center justify-center text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 active:bg-red-100 dark:active:bg-red-900/30 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
               >
-                <svg className="w-3.5 h-3.5 sm:w-3 sm:h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 sm:w-3 sm:h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                 </svg>
               </ConfirmButton>
@@ -268,7 +270,8 @@ export default memo(function ContextBar({
               onClick={undo}
               disabled={!canUndo}
               title="Undo (Ctrl+Z)"
-              className={`p-2 sm:p-1.5 rounded-lg transition-all ${
+              aria-label="Undo"
+              className={`p-2.5 sm:p-1.5 rounded-lg transition-all ${
                 canUndo
                   ? 'text-ui-text hover:bg-zinc-100 dark:hover:bg-dark-subtle active:scale-95'
                   : 'text-zinc-300 dark:text-zinc-600 cursor-not-allowed'
@@ -280,7 +283,8 @@ export default memo(function ContextBar({
               onClick={redo}
               disabled={!canRedo}
               title="Redo (Ctrl+Y)"
-              className={`p-2 sm:p-1.5 rounded-lg transition-all ${
+              aria-label="Redo"
+              className={`p-2.5 sm:p-1.5 rounded-lg transition-all ${
                 canRedo
                   ? 'text-ui-text hover:bg-zinc-100 dark:hover:bg-dark-subtle active:scale-95'
                   : 'text-zinc-300 dark:text-zinc-600 cursor-not-allowed'

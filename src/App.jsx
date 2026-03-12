@@ -71,16 +71,24 @@ function CanvasCellOverlay({ layout, selectedCell, onSelectCell }) {
           // Alternatives:
           //   - Persistent outline: Rejected — obscures frames and design content
           //   - Borders on all cells: Rejected — looks like export borders, confuses users
+          // Requirement: Canvas cell overlay must be keyboard-accessible
+          // Approach: role="button", tabIndex, onKeyDown for Enter/Space
+          // Alternatives:
+          //   - <button> element: Rejected — needs extra reset styling, flex layout issues
           sectionCells.push(
             <div
               key={`overlay-cell-${currentCellIndex}`}
+              role="button"
+              tabIndex={0}
+              aria-label={`Select cell ${currentCellIndex + 1}`}
               onClick={() => onSelectCell(currentCellIndex)}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSelectCell(currentCellIndex) } }}
               style={{
                 flex: `1 1 ${subSizes[subIndex]}%`,
                 cursor: 'pointer',
                 boxSizing: 'border-box',
               }}
-              className={`hover:outline hover:outline-2 hover:-outline-offset-2 hover:outline-primary/30 active:bg-primary/5 ${isSelected ? 'cell-select-flash' : ''}`}
+              className={`hover:outline hover:outline-2 hover:-outline-offset-2 hover:outline-primary/30 active:bg-primary/5 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-primary/50 ${isSelected ? 'cell-select-flash' : ''}`}
               title={`Cell ${currentCellIndex + 1}`}
             />
           )
@@ -106,6 +114,7 @@ function CanvasCellOverlay({ layout, selectedCell, onSelectCell }) {
 function App() {
   const canvasRef = useRef(null)
   const previewContainerRef = useRef(null)
+  const tabNavRef = useRef(null)
   const [activeSection, setActiveSection] = useState('templates')
 
   const [containerWidth, setContainerWidth] = useState(600)
@@ -250,6 +259,23 @@ function App() {
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [undo, redo, isReaderMode, state.activePage, pageCount, setActivePage, showShortcuts])
 
+  // Requirement: ContextBar sticky position must adapt to actual tab nav height
+  // Approach: Measure tab nav via ResizeObserver, set CSS custom property
+  // Alternatives:
+  //   - Hardcoded pixel value: Rejected — breaks if font size or padding changes
+  useEffect(() => {
+    const nav = tabNavRef.current
+    if (!nav) return
+    const observer = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const height = entry.borderBoxSize?.[0]?.blockSize ?? entry.target.offsetHeight
+        document.documentElement.style.setProperty('--tab-nav-height', `${height}px`)
+      }
+    })
+    observer.observe(nav)
+    return () => observer.disconnect()
+  }, [])
+
   // Track window height for reader mode scaling
   useEffect(() => {
     const handleResize = () => setWindowHeight(window.innerHeight)
@@ -291,7 +317,11 @@ function App() {
       : Math.max(containerWidth - 32, 200)
     const maxHeight = isReaderMode
       ? windowHeight - (hasMultiplePages ? 100 : 64)
-      : Math.min(windowHeight * 0.6, 600)
+      // Requirement: Remove artificial 600px height cap — let canvas use available space
+      // Approach: Use 70% of viewport height instead of capped 60%
+      // Alternatives:
+      //   - Keep 600px cap: Rejected — wastes space on tall screens, cuts off large canvases
+      : windowHeight * 0.7
     const scaleX = maxWidth / platform.width
     const scaleY = maxHeight / platform.height
     return Math.min(scaleX, scaleY, 1)
@@ -313,6 +343,20 @@ function App() {
     )
     return !hasImages && !hasText && !hasFreeform
   }, [state.images, state.text, state.freeformText])
+
+  // Requirement: Warn users before leaving with unsaved changes
+  // Approach: beforeunload event when canvas has content
+  // Alternatives:
+  //   - No warning: Rejected — users lose work accidentally
+  useEffect(() => {
+    const handleBeforeUnload = (e) => {
+      if (!isCanvasEmpty) {
+        e.preventDefault()
+      }
+    }
+    window.addEventListener('beforeunload', handleBeforeUnload)
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload)
+  }, [isCanvasEmpty])
 
   // New workflow-based tabs
   const sections = [
@@ -475,7 +519,7 @@ function App() {
             <button
               onClick={() => setShowShortcuts(true)}
               title="Keyboard shortcuts"
-              className="px-3 py-1.5 text-sm rounded-lg flex items-center gap-1.5 font-medium bg-zinc-100 dark:bg-dark-subtle text-ui-text hover:bg-zinc-200 dark:hover:bg-dark-elevated active:scale-95 transition-all hidden sm:flex"
+              className="px-3 py-1.5 text-sm rounded-lg flex items-center gap-1.5 font-medium bg-zinc-100 dark:bg-dark-subtle text-ui-text hover:bg-zinc-200 dark:hover:bg-dark-elevated active:scale-95 transition-all"
             >
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 8a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8zm4 2h2m2 0h2m2 0h2M5 14h14" />
@@ -546,7 +590,7 @@ function App() {
       )}
 
       {/* Tab Navigation Bar - full width, website header style */}
-      <nav className="bg-white/90 dark:bg-dark-card/90 backdrop-blur-sm border-b border-zinc-200/60 dark:border-zinc-700/60 sticky top-0 z-10">
+      <nav ref={tabNavRef} className="bg-white/90 dark:bg-dark-card/90 backdrop-blur-sm border-b border-zinc-200/60 dark:border-zinc-700/60 sticky top-0 z-10">
         <div className="flex items-center">
           <div className="flex overflow-x-auto scrollbar-thin">
             {sections.map((section) => (
@@ -587,7 +631,11 @@ function App() {
         getPageState={getPageState}
       />
 
-      <div className="flex flex-col lg:flex-row lg:items-stretch">
+      {/* Requirement: On mobile, show canvas first so users see their design immediately
+          Approach: flex-col-reverse on mobile, normal order on desktop
+          Alternatives:
+            - Sidebar first always: Rejected — on mobile, users scroll past controls to see canvas */}
+      <div className="flex flex-col-reverse lg:flex-row lg:items-stretch">
         {/* Sidebar Controls */}
         <aside className="w-full lg:w-96 p-4 lg:p-5 lg:pr-0">
           <div className="bg-white dark:bg-dark-card rounded-xl border border-zinc-200/80 dark:border-zinc-700/50 shadow-card p-4 lg:p-5">
@@ -747,12 +795,18 @@ function App() {
                 <ZoomControls zoomLevel={zoomLevel} autoScale={autoScale} onZoomChange={setZoomLevel} />
               )}
 
-              {/* Export overlay */}
+              {/* Export overlay with cancel option */}
               {isExporting && (
                 <div className="absolute inset-0 bg-dark-page/80 flex items-center justify-center rounded-xl backdrop-blur-sm">
                   <div className="text-center">
                     <div className="inline-block w-8 h-8 border-2 border-primary/30 border-t-primary rounded-full animate-spin mb-3" />
                     <p className="text-white font-medium">Exporting...</p>
+                    <button
+                      onClick={() => setIsExporting(false)}
+                      className="mt-3 px-4 py-1.5 text-sm text-white/70 hover:text-white rounded-lg hover:bg-white/10 transition-colors"
+                    >
+                      Cancel
+                    </button>
                   </div>
                 </div>
               )}

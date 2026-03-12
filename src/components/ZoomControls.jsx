@@ -8,7 +8,7 @@ export default function ZoomControls({ zoomLevel, autoScale, onZoomChange }) {
   const previewScale = zoomLevel !== null ? zoomLevel : autoScale
 
   return (
-    <div className="absolute bottom-2 right-2 flex items-center gap-1 bg-white/80 dark:bg-dark-card/80 backdrop-blur-sm rounded-lg border border-zinc-200/60 dark:border-zinc-700/60 shadow-sm px-1 py-0.5">
+    <div className="absolute right-2 flex items-center gap-1 bg-white/80 dark:bg-dark-card/80 backdrop-blur-sm rounded-lg border border-zinc-200/60 dark:border-zinc-700/60 shadow-sm px-1 py-0.5" style={{ bottom: 'max(0.5rem, env(safe-area-inset-bottom, 0.5rem))' }}>
       <button
         onClick={() => onZoomChange(Math.round(Math.max((zoomLevel || autoScale) - 0.1, 0.25) * 100) / 100)}
         className="w-6 h-6 flex items-center justify-center text-ui-text-muted hover:text-ui-text rounded transition-colors text-xs font-bold"
