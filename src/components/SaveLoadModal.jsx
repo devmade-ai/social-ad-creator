@@ -23,6 +23,7 @@ export default function SaveLoadModal({ isOpen, onClose, onSave, onLoad, onDelet
     if (isOpen) {
       refreshDesigns()
       setSaveName('')
+      setSearchQuery('')
       setError(null)
     }
   }, [isOpen, refreshDesigns])
