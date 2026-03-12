@@ -305,8 +305,8 @@ function App() {
     const hasText = state.text && Object.values(state.text).some((cellText) =>
       Object.values(cellText).some((el) => el?.content && el.content.trim() !== '')
     )
-    const hasFreeform = state.freeformText && Object.values(state.freeformText).some((ft) =>
-      ft?.content && ft.content.trim() !== ''
+    const hasFreeform = state.freeformText && Object.values(state.freeformText).some((blocks) =>
+      Array.isArray(blocks) && blocks.some((b) => b?.content && b.content.trim() !== '')
     )
     return !hasImages && !hasText && !hasFreeform
   }, [state.images, state.text, state.freeformText])
