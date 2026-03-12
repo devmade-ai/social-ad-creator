@@ -369,6 +369,11 @@ Core features working:
   - Explicit manifest `id` for stable install identity
   - Dedicated 1024px maskable icon with separated icon purposes
 - **Debug system (dev only)**: In-memory event log with floating DebugPill (separate React root)
+- **Toast notifications**: Non-blocking feedback for exports, saves, deletes, warnings
+- **Inline confirmations**: ConfirmButton replaces browser confirm() for destructive actions
+- **Export progressive disclosure**: Secondary options collapse into "More export options"
+- **Canvas controls**: Zoom (−/%/+), empty state guidance, contextual quick-actions for selected cell
+- **Keyboard shortcuts**: 1-5 for tab switching, shortcut overlay panel (header button)
 
 ## Current Tab Structure
 
@@ -430,6 +435,8 @@ src/
 │   ├── ErrorBoundary.jsx      # Error handling wrapper
 │   ├── AlignmentPicker.jsx    # Reusable alignment button group
 │   ├── MiniCellGrid.jsx       # Compact cell grid for ContextBar
+│   ├── Toast.jsx              # Toast notification system (ToastProvider + useToast hook)
+│   ├── ConfirmButton.jsx      # Inline confirmation replacing browser confirm()
 │   └── DebugPill.jsx          # Floating debug panel (separate React root, dev only)
 ├── config/         # Configuration
 │   ├── layouts.js        # 34 overlay types (solid, gradients, radial, effects, blends, textures)

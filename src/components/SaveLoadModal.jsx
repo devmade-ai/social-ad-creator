@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
+import ConfirmButton from './ConfirmButton'
 
-export default function SaveLoadModal({ isOpen, onClose, onSave, onLoad, onDelete, getSavedDesigns }) {
+export default function SaveLoadModal({ isOpen, onClose, onSave, onLoad, onDelete, getSavedDesigns, addToast }) {
   const [designs, setDesigns] = useState([])
   const [saveName, setSaveName] = useState('')
   const [activeTab, setActiveTab] = useState('save')
@@ -30,6 +31,7 @@ export default function SaveLoadModal({ isOpen, onClose, onSave, onLoad, onDelet
       await refreshDesigns()
       setSaveName('')
       setActiveTab('load')
+      addToast?.(`Saved "${name}"`, { type: 'success' })
     } else {
       setError(result.error || 'Failed to save design')
     }
@@ -47,16 +49,14 @@ export default function SaveLoadModal({ isOpen, onClose, onSave, onLoad, onDelet
     }
   }
 
-  const handleDelete = async (designId, e) => {
-    e.stopPropagation()
-    if (confirm('Delete this design?')) {
-      setError(null)
-      const result = await onDelete(designId)
-      if (result.success) {
-        await refreshDesigns()
-      } else {
-        setError(result.error || 'Failed to delete design')
-      }
+  const handleDelete = async (designId) => {
+    setError(null)
+    const result = await onDelete(designId)
+    if (result.success) {
+      await refreshDesigns()
+      addToast?.('Design deleted', { type: 'info' })
+    } else {
+      setError(result.error || 'Failed to delete design')
     }
   }
 
@@ -162,15 +162,16 @@ export default function SaveLoadModal({ isOpen, onClose, onSave, onLoad, onDelet
                         <div className="font-medium text-ui-text">{design.name}</div>
                         <div className="text-xs text-ui-text-muted">{formatDate(design.savedAt)}</div>
                       </div>
-                      <button
-                        onClick={(e) => handleDelete(design.id, e)}
+                      <ConfirmButton
+                        onConfirm={() => handleDelete(design.id)}
+                        confirmLabel="Delete?"
                         className="p-2 rounded-lg opacity-50 sm:opacity-0 group-hover:opacity-100 hover:bg-red-100 dark:hover:bg-red-900/30 active:bg-red-200 dark:active:bg-red-900/50 text-red-500 transition-all"
                         title="Delete design"
                       >
                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                         </svg>
-                      </button>
+                      </ConfirmButton>
                     </div>
                   </button>
                 ))

@@ -112,6 +112,37 @@ function LayoutPresetIcon({ presetId, isActive }) {
   )
 }
 
+// Requirement: Hover preview for theme presets — shows enlarged color swatches before applying.
+// Approach: Tooltip-style popover on hover showing the three colors with labels.
+// Why: Users (non-technical) can't tell what "Ocean" or "Sunset" means from tiny swatches.
+//   Canva shows hover previews for templates; we adapt this for color themes.
+// Alternatives:
+//   - Live preview on canvas: Rejected — too expensive, causes flickering.
+//   - Name-only tooltip: Rejected — colors are visual, text names aren't enough.
+function ThemePreviewTooltip({ preset }) {
+  return (
+    <div className="absolute -top-20 left-1/2 -translate-x-1/2 z-20 bg-ui-surface border border-ui-border rounded-lg shadow-lg p-2.5 pointer-events-none min-w-[120px]">
+      <div className="flex gap-2 mb-1.5 justify-center">
+        <div className="flex flex-col items-center gap-0.5">
+          <div className="w-7 h-7 rounded-full shadow-sm border border-black/10" style={{ backgroundColor: preset.primary }} />
+          <span className="text-[8px] text-ui-text-faint">Primary</span>
+        </div>
+        <div className="flex flex-col items-center gap-0.5">
+          <div className="w-7 h-7 rounded-full shadow-sm border border-black/10" style={{ backgroundColor: preset.secondary }} />
+          <span className="text-[8px] text-ui-text-faint">Secondary</span>
+        </div>
+        <div className="flex flex-col items-center gap-0.5">
+          <div className="w-7 h-7 rounded-full shadow-sm border border-black/10" style={{ backgroundColor: preset.accent }} />
+          <span className="text-[8px] text-ui-text-faint">Accent</span>
+        </div>
+      </div>
+      <p className="text-[10px] text-ui-text text-center font-medium">{preset.name}</p>
+      {/* Arrow */}
+      <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 rotate-45 bg-ui-surface border-r border-b border-ui-border" />
+    </div>
+  )
+}
+
 export default memo(function TemplatesTab({
   activeStylePreset,
   onSelectStylePreset,
@@ -125,6 +156,8 @@ export default memo(function TemplatesTab({
   const isCustomTheme = theme?.preset === 'custom'
   const [layoutCategory, setLayoutCategory] = useState('all')
   const [aspectRatioFilter, setAspectRatioFilter] = useState('all')
+  const [hoveredTheme, setHoveredTheme] = useState(null)
+  const [hoveredLook, setHoveredLook] = useState(null)
 
   const displayLayoutPresets = useMemo(() => {
     // First filter by aspect ratio
@@ -259,22 +292,29 @@ export default memo(function TemplatesTab({
           <label className="block text-xs font-medium text-ui-text-muted">Presets</label>
           <div className="grid grid-cols-3 gap-2">
             {presetThemes.map((preset) => (
-              <button
+              <div
                 key={preset.id}
-                onClick={() => onThemePresetChange?.(preset.id)}
-                className={`p-2 rounded-lg border-2 transition-all ${
-                  theme?.preset === preset.id
-                    ? 'border-primary bg-violet-50 dark:bg-violet-900/20 ring-2 ring-primary/20'
-                    : 'border-ui-border hover:border-ui-border-strong hover:bg-ui-surface-elevated'
-                }`}
+                className="relative"
+                onMouseEnter={() => setHoveredTheme(preset.id)}
+                onMouseLeave={() => setHoveredTheme(null)}
               >
-                <div className="flex gap-1 mb-1.5 justify-center">
-                  <div className="w-4 h-4 rounded-full shadow-sm" style={{ backgroundColor: preset.primary }} />
-                  <div className="w-4 h-4 rounded-full shadow-sm" style={{ backgroundColor: preset.secondary }} />
-                  <div className="w-4 h-4 rounded-full shadow-sm" style={{ backgroundColor: preset.accent }} />
-                </div>
-                <span className="text-[10px] text-ui-text font-medium">{preset.name}</span>
-              </button>
+                {hoveredTheme === preset.id && <ThemePreviewTooltip preset={preset} />}
+                <button
+                  onClick={() => onThemePresetChange?.(preset.id)}
+                  className={`w-full p-2 rounded-lg border-2 transition-all ${
+                    theme?.preset === preset.id
+                      ? 'border-primary bg-violet-50 dark:bg-violet-900/20 ring-2 ring-primary/20'
+                      : 'border-ui-border hover:border-ui-border-strong hover:bg-ui-surface-elevated'
+                  }`}
+                >
+                  <div className="flex gap-1 mb-1.5 justify-center">
+                    <div className="w-4 h-4 rounded-full shadow-sm" style={{ backgroundColor: preset.primary }} />
+                    <div className="w-4 h-4 rounded-full shadow-sm" style={{ backgroundColor: preset.secondary }} />
+                    <div className="w-4 h-4 rounded-full shadow-sm" style={{ backgroundColor: preset.accent }} />
+                  </div>
+                  <span className="text-[10px] text-ui-text font-medium">{preset.name}</span>
+                </button>
+              </div>
             ))}
           </div>
         </div>
@@ -322,27 +362,38 @@ export default memo(function TemplatesTab({
           {/* Look preset grid */}
           <div className="grid grid-cols-4 gap-2">
             {lookPresets.map((preset) => (
-              <button
+              <div
                 key={preset.id}
-                onClick={() => onSelectStylePreset(preset)}
-                title={`${preset.name}: ${preset.description}`}
-                className={`flex flex-col items-center gap-1.5 p-2 rounded-lg transition-all ${
-                  activeStylePreset === preset.id
-                    ? 'bg-violet-50 dark:bg-violet-900/20 ring-2 ring-primary'
-                    : 'hover:bg-zinc-50 dark:hover:bg-dark-subtle'
-                }`}
+                className="relative"
+                onMouseEnter={() => setHoveredLook(preset.id)}
+                onMouseLeave={() => setHoveredLook(null)}
               >
-                <LookSwatch preset={preset} isActive={activeStylePreset === preset.id} theme={theme} />
-                <span
-                  className={`text-[10px] leading-tight text-center line-clamp-1 ${
+                {hoveredLook === preset.id && (
+                  <div className="absolute -top-10 left-1/2 -translate-x-1/2 z-20 bg-ui-surface border border-ui-border rounded-lg shadow-lg px-2.5 py-1.5 pointer-events-none whitespace-nowrap">
+                    <p className="text-[10px] text-ui-text text-center">{preset.description}</p>
+                    <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 rotate-45 bg-ui-surface border-r border-b border-ui-border" />
+                  </div>
+                )}
+                <button
+                  onClick={() => onSelectStylePreset(preset)}
+                  className={`w-full flex flex-col items-center gap-1.5 p-2 rounded-lg transition-all ${
                     activeStylePreset === preset.id
-                      ? 'text-violet-700 dark:text-violet-300 font-medium'
-                      : 'text-ui-text-subtle'
+                      ? 'bg-violet-50 dark:bg-violet-900/20 ring-2 ring-primary'
+                      : 'hover:bg-zinc-50 dark:hover:bg-dark-subtle'
                   }`}
                 >
-                  {preset.name}
-                </span>
-              </button>
+                  <LookSwatch preset={preset} isActive={activeStylePreset === preset.id} theme={theme} />
+                  <span
+                    className={`text-[10px] leading-tight text-center line-clamp-1 ${
+                      activeStylePreset === preset.id
+                        ? 'text-violet-700 dark:text-violet-300 font-medium'
+                        : 'text-ui-text-subtle'
+                    }`}
+                  >
+                    {preset.name}
+                  </span>
+                </button>
+              </div>
             ))}
           </div>
 

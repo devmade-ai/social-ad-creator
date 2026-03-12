@@ -1,5 +1,21 @@
 # Changelog
 
+## 2026-03-12
+
+### UX/UI improvements — 8 features inspired by design editor analysis
+
+- **Toast notifications** — `Toast.jsx` with `ToastProvider` + `useToast` hook. Replaces all `alert()` calls. Auto-dismiss, severity levels, stacking at bottom-center.
+- **Inline confirmations** — `ConfirmButton.jsx` replaces browser `confirm()` in page delete and design delete. Two-state button with auto-reset.
+- **Export progressive disclosure** — Secondary export options (PDF, All Pages, Multi-Platform) now collapse into "More export options" toggle. Reduces visual noise.
+- **Contextual quick-actions** — Below canvas shows Image/Text/Style shortcuts for selected cell. Reduces tab-hopping.
+- **Theme hover previews** — Enlarged color swatches with labels appear on hover over theme presets.
+- **Look hover previews** — Description tooltips appear on hover over look presets.
+- **Empty state guidance** — Canvas shows "Browse Presets" / "Upload Images" buttons when empty.
+- **Zoom controls** — Floating −/% /+ controls on canvas. Click percentage to reset to auto-fit.
+- **Keyboard shortcuts** — 1-5 for tab switching. Shortcut overlay panel accessible from header.
+
+---
+
 ## 2026-03-09
 
 ### PDF mobile quality fix — page dimensions no longer scale with pixelRatio

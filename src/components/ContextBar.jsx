@@ -1,5 +1,6 @@
 import { memo, useRef, useMemo } from 'react'
 import { platforms } from '../config/platforms'
+import ConfirmButton from './ConfirmButton'
 
 const FULLBLEED_STRUCTURE = [{ size: 100, subdivisions: 1, subSizes: [100] }]
 
@@ -221,12 +222,9 @@ export default memo(function ContextBar({
               </svg>
             </button>
             {hasMultiplePages && (
-              <button
-                onClick={() => {
-                  if (window.confirm(`Delete page ${activePage + 1}?`)) {
-                    onRemovePage(activePage)
-                  }
-                }}
+              <ConfirmButton
+                onConfirm={() => onRemovePage(activePage)}
+                confirmLabel={`Delete p${activePage + 1}?`}
                 disabled={pageCount <= 1}
                 title="Remove current page"
                 className="w-8 h-8 sm:w-7 sm:h-7 rounded flex items-center justify-center text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 active:bg-red-100 dark:active:bg-red-900/30 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
@@ -234,7 +232,7 @@ export default memo(function ContextBar({
                 <svg className="w-3.5 h-3.5 sm:w-3 sm:h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                 </svg>
-              </button>
+              </ConfirmButton>
             )}
           </div>
         </div>

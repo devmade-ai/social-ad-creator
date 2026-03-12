@@ -127,7 +127,7 @@ function downloadDiagnosticImage(imageResult, platformId) {
   saveAs(blob, `pdf-diagnostic-${platformId}.png`)
 }
 
-export default memo(function ExportButtons({ canvasRef, state, onPlatformChange, onExportFormatChange, onExportingChange, pageCount = 1, onSetActivePage }) {
+export default memo(function ExportButtons({ canvasRef, state, onPlatformChange, onExportFormatChange, onExportingChange, pageCount = 1, onSetActivePage, addToast }) {
   const [isExporting, setIsExporting] = useState(false)
   const [exportProgress, setExportProgress] = useState(null)
   // Requirement: Track which export operation is active so each button shows its own progress.
@@ -217,9 +217,10 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
       const pageSuffix = pageCount > 1 ? `-p${String(state.activePage + 1).padStart(2, '0')}` : ''
       saveAs(blob, `${ts}-${platform.id}-${platform.width}x${platform.height}${pageSuffix}.${ext}`)
       debugLog('export', 'single-success', { platform: platform.id, sizeKB: Math.round(blob.size / 1024) })
+      addToast?.('Download complete', { type: 'success' })
     } catch (error) {
       debugLog('export', 'single-error', { platform: platform.id, error: error.message }, 'error')
-      alert('Export failed. Please try again.')
+      addToast?.('Export failed. Please try again.', { type: 'error', duration: 5000 })
     } finally {
       restoreOpacity()
       updateExporting(false)
@@ -263,11 +264,12 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
       const ts = getTimestamp()
       saveAs(content, `${ts}-pages.zip`)
       debugLog('export', 'all-pages-success', { pageCount, sizeKB: Math.round(content.size / 1024) })
+      addToast?.(`${pageCount} pages exported`, { type: 'success' })
 
       onSetActivePage(originalActivePage)
     } catch (error) {
       debugLog('export', 'all-pages-error', { error: error.message }, 'error')
-      alert('Export failed. Please try again.')
+      addToast?.('Export failed. Please try again.', { type: 'error', duration: 5000 })
       onSetActivePage(originalActivePage)
     } finally {
       restoreOpacity()
@@ -373,9 +375,10 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
         `${ts}-${platform.id}-${platform.width}x${platform.height}.pdf`
       )
       debugLog('export', 'pdf-success', { platform: platform.id, pagePt: `${widthPt}x${heightPt}`, pixelRatio: pdfPixelRatio, sizeKB: Math.round(pdfBytes.length / 1024), totalPages })
+      addToast?.('PDF saved', { type: 'success' })
     } catch (error) {
       debugLog('export', 'pdf-error', { platform: platform.id, error: error.message }, 'error')
-      alert('PDF export failed. Please try again.')
+      addToast?.('PDF export failed. Please try again.', { type: 'error', duration: 5000 })
       if (totalPages > 1) {
         onSetActivePage(originalActivePage)
       }
@@ -390,7 +393,7 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
   const handleExportMultiple = useCallback(async () => {
     if (!canvasRef.current) return
     if (selectedPlatforms.size === 0) {
-      alert('Please select at least one platform to export.')
+      addToast?.('Select at least one platform to export.', { type: 'warning' })
       return
     }
 
@@ -424,12 +427,13 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
       const ts = getTimestamp()
       saveAs(content, `${ts}-multi.zip`)
       debugLog('export', 'multi-success', { platformCount: platformsToExport.length, sizeKB: Math.round(content.size / 1024) })
+      addToast?.(`${platformsToExport.length} platforms exported`, { type: 'success' })
 
       onPlatformChange(originalPlatform)
       setShowMultiSelect(false)
     } catch (error) {
       debugLog('export', 'multi-error', { error: error.message }, 'error')
-      alert('Export failed. Please try again.')
+      addToast?.('Export failed. Please try again.', { type: 'error', duration: 5000 })
       onPlatformChange(originalPlatform)
     } finally {
       restoreOpacity()
@@ -438,6 +442,16 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
       setExportOp(null)
     }
   }, [canvasRef, state.platform, exportFormat, ext, onPlatformChange, updateExporting, selectedPlatforms])
+
+  // Requirement: Progressive disclosure for export options.
+  // Approach: Primary download button always visible. Secondary options (PDF, all pages,
+  //   multi-platform) collapsed into "More export options" expandable section.
+  // Why: 4-5 buttons at once is visually overwhelming for non-technical users.
+  //   The article confirms Canva uses a clean Share → Download → format → quality flow.
+  // Alternatives:
+  //   - All buttons visible: Current state — too much visual noise.
+  //   - Dropdown menu: Rejected — harder to scan, hides format selector.
+  const [showMoreOptions, setShowMoreOptions] = useState(false)
 
   return (
     <div className="space-y-3">
@@ -472,158 +486,169 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
         </div>
       </div>
 
+      {/* Primary action: Download current */}
       <button
         onClick={handleExportSingle}
         disabled={isExporting}
         className="w-full px-4 py-3 text-sm font-semibold text-white bg-primary rounded-xl hover:bg-primary-hover disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm hover:shadow-glow active:scale-[0.98] btn-scale"
       >
-        {exportOp === 'single' ? 'Exporting...' : `Download Current (.${ext})`}
+        {exportOp === 'single' ? 'Exporting...' : `Download (.${ext})`}
       </button>
 
-      {/* Download all pages as ZIP */}
-      {pageCount > 1 && (
-        <button
-          onClick={handleExportAllPages}
-          disabled={isExporting}
-          className="w-full px-4 py-3 text-sm font-semibold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl hover:bg-emerald-100 dark:hover:bg-emerald-900/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-[0.98]"
-        >
-          {exportOp === 'allPages' && exportProgress
-            ? `Exporting Page ${exportProgress.current}/${exportProgress.total}...`
-            : `Download All ${pageCount} Pages (ZIP)`}
-        </button>
-      )}
-
-      {/* Split button: PDF download + quality dropdown */}
-      <div className="relative">
-        <div className="flex w-full rounded-xl overflow-hidden">
-          <button
-            onClick={handleExportPDF}
-            disabled={isExporting}
-            className="flex-1 px-4 py-3 text-sm font-semibold text-orange-700 dark:text-orange-400 bg-orange-50 dark:bg-orange-900/20 hover:bg-orange-100 dark:hover:bg-orange-900/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-[0.98]"
-          >
-            {exportOp === 'pdf' && exportProgress
-              ? `Preparing Page ${exportProgress.current}/${exportProgress.total}...`
-              : pageCount > 1
-                ? `Download ${pageCount} Pages as PDF`
-                : 'Download as PDF'}
-          </button>
-          <button
-            onClick={() => setShowPdfQuality(!showPdfQuality)}
-            disabled={isExporting}
-            className="px-3 py-3 text-orange-700 dark:text-orange-400 bg-orange-50 dark:bg-orange-900/20 hover:bg-orange-100 dark:hover:bg-orange-900/30 border-l border-orange-200 dark:border-orange-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-          >
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" className={`transition-transform ${showPdfQuality ? 'rotate-180' : ''}`}>
-              <path d="M3 5L6 8L9 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </button>
-        </div>
-        {showPdfQuality && (
-          <div className="mt-1 p-2 bg-ui-surface-elevated rounded-lg border border-ui-border shadow-lg">
-            <span className="text-xs text-ui-text-muted block mb-1.5">PDF Quality</span>
-            <div className="flex gap-1">
-              {[
-                { id: 'low', label: 'Low', desc: '1x' },
-                { id: 'standard', label: 'Standard', desc: '2x' },
-                { id: 'high', label: 'High', desc: '3x' },
-              ].map((q) => (
-                <button
-                  key={q.id}
-                  onClick={() => { setPdfQuality(q.id); setShowPdfQuality(false) }}
-                  className={`flex-1 px-2 py-1.5 text-xs rounded-md transition-colors ${
-                    pdfQuality === q.id
-                      ? 'bg-orange-200 dark:bg-orange-800 text-orange-800 dark:text-orange-200 font-semibold'
-                      : 'bg-ui-surface text-ui-text-muted hover:bg-ui-surface-elevated'
-                  }`}
-                >
-                  {q.label}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
-
+      {/* More export options toggle */}
       <button
-        onClick={() => setShowMultiSelect(!showMultiSelect)}
-        disabled={isExporting}
-        className="w-full px-4 py-3 text-sm font-semibold text-primary dark:text-violet-400 bg-violet-50 dark:bg-violet-900/20 rounded-xl hover:bg-violet-100 dark:hover:bg-violet-900/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-[0.98]"
+        onClick={() => setShowMoreOptions(!showMoreOptions)}
+        className="w-full flex items-center justify-center gap-1.5 py-1.5 text-xs font-medium text-ui-text-muted hover:text-ui-text transition-colors"
       >
-        {showMultiSelect ? 'Hide Selection' : 'Download Multiple Platforms (ZIP)'}
+        <span>{showMoreOptions ? 'Fewer options' : 'More export options'}</span>
+        <svg
+          className={`w-3 h-3 transition-transform ${showMoreOptions ? 'rotate-180' : ''}`}
+          fill="none" viewBox="0 0 24 24" stroke="currentColor"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        </svg>
       </button>
 
-      {/* Multi-select platform UI */}
-      {showMultiSelect && (
-        <div className="space-y-3 p-3 bg-ui-surface-elevated rounded-lg border border-ui-border">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-ui-text-muted">
-              {selectedPlatforms.size} of {platforms.length} selected
-            </span>
-            <div className="flex gap-2">
+      {/* Collapsible secondary export options */}
+      {showMoreOptions && (
+        <div className="space-y-2 pt-1 border-t border-ui-border-subtle">
+          {/* Download all pages as ZIP */}
+          {pageCount > 1 && (
+            <button
+              onClick={handleExportAllPages}
+              disabled={isExporting}
+              className="w-full px-4 py-2.5 text-sm font-medium text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg hover:bg-emerald-100 dark:hover:bg-emerald-900/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-[0.98]"
+            >
+              {exportOp === 'allPages' && exportProgress
+                ? `Exporting Page ${exportProgress.current}/${exportProgress.total}...`
+                : `All ${pageCount} Pages (ZIP)`}
+            </button>
+          )}
+
+          {/* PDF export with inline quality selector */}
+          <div className="space-y-1.5">
+            <div className="flex w-full rounded-lg overflow-hidden">
               <button
-                onClick={selectAll}
-                className="text-xs text-primary hover:underline"
+                onClick={handleExportPDF}
+                disabled={isExporting}
+                className="flex-1 px-4 py-2.5 text-sm font-medium text-orange-700 dark:text-orange-400 bg-orange-50 dark:bg-orange-900/20 hover:bg-orange-100 dark:hover:bg-orange-900/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-[0.98]"
               >
-                Select All
+                {exportOp === 'pdf' && exportProgress
+                  ? `Preparing Page ${exportProgress.current}/${exportProgress.total}...`
+                  : pageCount > 1
+                    ? `${pageCount} Pages as PDF`
+                    : 'Save as PDF'}
               </button>
               <button
-                onClick={selectNone}
-                className="text-xs text-ui-text-subtle hover:underline"
+                onClick={() => setShowPdfQuality(!showPdfQuality)}
+                disabled={isExporting}
+                className="px-2.5 py-2.5 text-orange-700 dark:text-orange-400 bg-orange-50 dark:bg-orange-900/20 hover:bg-orange-100 dark:hover:bg-orange-900/30 border-l border-orange-200 dark:border-orange-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
               >
-                Clear
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" className={`transition-transform ${showPdfQuality ? 'rotate-180' : ''}`}>
+                  <path d="M3 5L6 8L9 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
               </button>
             </div>
-          </div>
-
-          <div className="space-y-2 max-h-48 overflow-y-auto">
-            {categoryOrder.map((category) => {
-              const catPlatforms = platformsByCategory[category]
-              if (!catPlatforms || catPlatforms.length === 0) return null
-
-              const allSelected = catPlatforms.every((p) => selectedPlatforms.has(p.id))
-              const someSelected = catPlatforms.some((p) => selectedPlatforms.has(p.id))
-
-              return (
-                <div key={category} className="space-y-1">
-                  <button
-                    onClick={() => selectCategory(category)}
-                    className="text-[10px] text-ui-text-faint uppercase tracking-wide font-medium hover:text-primary transition-colors"
-                  >
-                    {categoryLabels[category] || category}
-                    {someSelected && !allSelected && <span className="ml-1 text-primary">+</span>}
-                  </button>
-                  <div className="flex flex-wrap gap-1">
-                    {catPlatforms.map((p) => (
-                      <button
-                        key={p.id}
-                        onClick={() => togglePlatform(p.id)}
-                        title={`${p.width} × ${p.height}`}
-                        className={`px-2 py-0.5 text-xs rounded font-medium transition-all ${
-                          selectedPlatforms.has(p.id)
-                            ? 'bg-primary text-white'
-                            : 'bg-ui-surface text-ui-text-muted hover:bg-ui-surface-inset border border-ui-border'
-                        }`}
-                      >
-                        {p.name}
-                      </button>
-                    ))}
-                  </div>
+            {showPdfQuality && (
+              <div className="p-2 bg-ui-surface-elevated rounded-lg border border-ui-border">
+                <span className="text-xs text-ui-text-muted block mb-1.5">PDF Quality</span>
+                <div className="flex gap-1">
+                  {[
+                    { id: 'low', label: 'Low', desc: '1x' },
+                    { id: 'standard', label: 'Standard', desc: '2x' },
+                    { id: 'high', label: 'High', desc: '3x' },
+                  ].map((q) => (
+                    <button
+                      key={q.id}
+                      onClick={() => { setPdfQuality(q.id); setShowPdfQuality(false) }}
+                      className={`flex-1 px-2 py-1.5 text-xs rounded-md transition-colors ${
+                        pdfQuality === q.id
+                          ? 'bg-orange-200 dark:bg-orange-800 text-orange-800 dark:text-orange-200 font-semibold'
+                          : 'bg-ui-surface text-ui-text-muted hover:bg-ui-surface-elevated'
+                      }`}
+                    >
+                      {q.label}
+                    </button>
+                  ))}
                 </div>
-              )
-            })}
+              </div>
+            )}
           </div>
 
+          {/* Multi-platform export */}
           <button
-            onClick={handleExportMultiple}
-            disabled={isExporting || selectedPlatforms.size === 0}
-            className="w-full px-4 py-2.5 text-sm font-semibold text-white bg-primary rounded-lg hover:bg-primary-hover disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+            onClick={() => setShowMultiSelect(!showMultiSelect)}
+            disabled={isExporting}
+            className="w-full px-4 py-2.5 text-sm font-medium text-primary dark:text-violet-400 bg-violet-50 dark:bg-violet-900/20 rounded-lg hover:bg-violet-100 dark:hover:bg-violet-900/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-[0.98]"
           >
-            {exportOp === 'multi' && exportProgress
-              ? `Exporting ${exportProgress.current}/${exportProgress.total}...`
-              : `Export ${selectedPlatforms.size} Platform${selectedPlatforms.size !== 1 ? 's' : ''}`}
+            {showMultiSelect ? 'Hide Platforms' : 'Multiple Platforms (ZIP)'}
           </button>
+
+          {/* Multi-select platform UI */}
+          {showMultiSelect && (
+            <div className="space-y-3 p-3 bg-ui-surface-elevated rounded-lg border border-ui-border">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-medium text-ui-text-muted">
+                  {selectedPlatforms.size} of {platforms.length} selected
+                </span>
+                <div className="flex gap-2">
+                  <button onClick={selectAll} className="text-xs text-primary hover:underline">Select All</button>
+                  <button onClick={selectNone} className="text-xs text-ui-text-subtle hover:underline">Clear</button>
+                </div>
+              </div>
+
+              <div className="space-y-2 max-h-48 overflow-y-auto">
+                {categoryOrder.map((category) => {
+                  const catPlatforms = platformsByCategory[category]
+                  if (!catPlatforms || catPlatforms.length === 0) return null
+                  const allSelected = catPlatforms.every((p) => selectedPlatforms.has(p.id))
+                  const someSelected = catPlatforms.some((p) => selectedPlatforms.has(p.id))
+
+                  return (
+                    <div key={category} className="space-y-1">
+                      <button
+                        onClick={() => selectCategory(category)}
+                        className="text-[10px] text-ui-text-faint uppercase tracking-wide font-medium hover:text-primary transition-colors"
+                      >
+                        {categoryLabels[category] || category}
+                        {someSelected && !allSelected && <span className="ml-1 text-primary">+</span>}
+                      </button>
+                      <div className="flex flex-wrap gap-1">
+                        {catPlatforms.map((p) => (
+                          <button
+                            key={p.id}
+                            onClick={() => togglePlatform(p.id)}
+                            title={`${p.width} × ${p.height}`}
+                            className={`px-2 py-0.5 text-xs rounded font-medium transition-all ${
+                              selectedPlatforms.has(p.id)
+                                ? 'bg-primary text-white'
+                                : 'bg-ui-surface text-ui-text-muted hover:bg-ui-surface-inset border border-ui-border'
+                            }`}
+                          >
+                            {p.name}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+
+              <button
+                onClick={handleExportMultiple}
+                disabled={isExporting || selectedPlatforms.size === 0}
+                className="w-full px-4 py-2.5 text-sm font-semibold text-white bg-primary rounded-lg hover:bg-primary-hover disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              >
+                {exportOp === 'multi' && exportProgress
+                  ? `Exporting ${exportProgress.current}/${exportProgress.total}...`
+                  : `Export ${selectedPlatforms.size} Platform${selectedPlatforms.size !== 1 ? 's' : ''}`}
+              </button>
+            </div>
+          )}
         </div>
       )}
 
+      {/* Progress bar - always visible when active */}
       {exportProgress && (
         <div className="space-y-2">
           <div className="w-full bg-ui-surface-hover rounded-full h-1.5 overflow-hidden">
