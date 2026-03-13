@@ -145,24 +145,15 @@ Each wrong assumption led to a commit that didn't solve the actual problem. Thre
 
 ---
 
-## 2026-03 | Shipped Non-Fix for Reload Dialog + Didn't Investigate Zoom Bug
+## 2026-03 | Ignored CLAUDE.md Rules — Rushed Four Fixes Without Asking
 
-**What went wrong:** User reported four issues. AI shipped fixes for all four without properly investigating:
+**What went wrong:** User reported four issues. AI shipped all four as a batch without asking a single clarifying question. Two of the fixes were wrong:
+1. Reload dialog fix (`ConfirmButton`) didn't bypass `beforeunload` — caused double confirmation
+2. Zoom fix only moved controls, didn't investigate why zoom was functionally broken (`overflow-hidden`)
 
-1. **Reload dialog:** User said "can it not read reload site in pwa." AI wrapped the reload button in `ConfirmButton` showing "Reload app?" — but `beforeunload` still fires after confirmation, so the browser's native "Leave site?" dialog appears anyway. Result: double confirmation, second one still says "site." The fix didn't solve the problem at all.
+**Why it happened:** Ignored existing CLAUDE.md instructions — "ASK before assuming" and the prohibition against proceeding with assumptions. The rules were loaded, read, and disregarded.
 
-2. **Zoom not working:** User said "zoom doesn't work." AI only moved the controls from inside the canvas to above it (addressing the "blocks the view" part) but didn't investigate WHY zoom wasn't working. The actual bug was `overflow-hidden` on the container clipping the zoomed canvas. Had to be caught in a follow-up.
-
-**Why it happened:**
-- Didn't think through the full execution path (ConfirmButton → reload → beforeunload still fires)
-- Treated "doesn't work" as a cosmetic issue (position) instead of investigating the functional bug
-- Rushed to ship all four fixes at once instead of understanding each problem
-
-**How to prevent:**
-- Trace the full execution path before committing a fix — what actually happens when the user clicks?
-- When a user says something "doesn't work," investigate the mechanism, not just the appearance
-- Don't ship a "fix" without verifying it actually solves the stated problem
-- Address one issue at a time with proper investigation rather than batching half-baked fixes
+**How to prevent:** Follow CLAUDE.md. It already covers this. Trace the full execution path before committing a fix.
 
 ---
 
