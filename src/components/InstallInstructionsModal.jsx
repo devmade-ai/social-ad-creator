@@ -16,7 +16,7 @@ export default memo(function InstallInstructionsModal({ isOpen, onClose, instruc
       />
 
       {/* Modal */}
-      <div ref={modalRef} className="relative bg-white dark:bg-dark-card rounded-xl shadow-xl max-w-md w-full p-6 border border-zinc-200 dark:border-zinc-700">
+      <div ref={modalRef} className="relative bg-white dark:bg-dark-card rounded-xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto p-6 border border-zinc-200 dark:border-zinc-700">
         {/* Close button */}
         <button
           onClick={onClose}

@@ -383,8 +383,8 @@ function App() {
           <link key={font.id} rel="stylesheet" href={font.url} />
         ))}
 
-        {/* Reader header - compact */}
-        <header className="bg-white/80 dark:bg-dark-card/80 backdrop-blur-sm border-b border-zinc-200/60 dark:border-zinc-700/60 px-3 py-2 shrink-0">
+        {/* Reader header - compact, with safe area for notched devices */}
+        <header className="bg-white/80 dark:bg-dark-card/80 backdrop-blur-sm border-b border-zinc-200/60 dark:border-zinc-700/60 px-3 py-2 shrink-0" style={{ paddingTop: 'max(0.5rem, env(safe-area-inset-top, 0.5rem))' }}>
           <div className="flex items-center justify-between">
             <button
               onClick={() => setIsReaderMode(false)}
@@ -430,36 +430,38 @@ function App() {
             </div>
           </div>
 
-          {/* Reader page navigation - compact */}
+          {/* Reader page navigation — safe area bottom for notched devices */}
           {hasMultiplePages && (
-            <div className="flex items-center gap-3 mt-2 shrink-0">
+            <div className="flex items-center gap-3 mt-2 shrink-0" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
               <button
                 onClick={() => setActivePage(state.activePage - 1)}
                 disabled={state.activePage === 0}
-                className="px-3 py-1.5 text-sm font-medium rounded-lg bg-white dark:bg-dark-card border border-ui-border text-ui-text hover:bg-zinc-50 dark:hover:bg-dark-elevated disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                className="px-3 py-2 sm:py-1.5 text-sm font-medium rounded-lg bg-white dark:bg-dark-card border border-ui-border text-ui-text hover:bg-zinc-50 dark:hover:bg-dark-elevated disabled:opacity-30 disabled:cursor-not-allowed transition-all"
               >
                 Prev
               </button>
 
-              <div className="flex gap-1.5">
+              <div className="flex gap-1">
                 {pages.map((_, index) => (
                   <button
                     key={index}
                     onClick={() => setActivePage(index)}
-                    className={`w-2 h-2 rounded-full transition-all ${
+                    className={`w-8 h-8 sm:w-6 sm:h-6 rounded-full flex items-center justify-center text-[10px] font-bold transition-all ${
                       index === state.activePage
-                        ? 'bg-primary scale-125'
-                        : 'bg-zinc-300 dark:bg-zinc-600 hover:bg-zinc-400'
+                        ? 'bg-primary text-white scale-110'
+                        : 'bg-zinc-200 dark:bg-zinc-600 text-zinc-500 dark:text-zinc-300 hover:bg-zinc-300 dark:hover:bg-zinc-500'
                     }`}
                     title={`Page ${index + 1}`}
-                  />
+                  >
+                    {index + 1}
+                  </button>
                 ))}
               </div>
 
               <button
                 onClick={() => setActivePage(state.activePage + 1)}
                 disabled={state.activePage === pageCount - 1}
-                className="px-3 py-1.5 text-sm font-medium rounded-lg bg-white dark:bg-dark-card border border-ui-border text-ui-text hover:bg-zinc-50 dark:hover:bg-dark-elevated disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                className="px-3 py-2 sm:py-1.5 text-sm font-medium rounded-lg bg-white dark:bg-dark-card border border-ui-border text-ui-text hover:bg-zinc-50 dark:hover:bg-dark-elevated disabled:opacity-30 disabled:cursor-not-allowed transition-all"
               >
                 Next
               </button>
