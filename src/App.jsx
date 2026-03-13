@@ -795,9 +795,9 @@ function App() {
 
             <div
               ref={previewContainerRef}
-              className="relative bg-gradient-to-br from-zinc-50 to-zinc-100 dark:from-dark-subtle dark:to-dark-page rounded-xl overflow-hidden flex items-center justify-center border border-zinc-200/50 dark:border-zinc-700/50"
+              className="relative bg-gradient-to-br from-zinc-50 to-zinc-100 dark:from-dark-subtle dark:to-dark-page rounded-xl overflow-auto flex items-center justify-center border border-zinc-200/50 dark:border-zinc-700/50"
               style={{
-                minHeight: platform.height * previewScale + 40,
+                minHeight: platform.height * autoScale + 40,
               }}
             >
               <ErrorBoundary title="Preview error" message="Failed to render the ad preview." className="w-full h-full min-h-[200px]">
