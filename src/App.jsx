@@ -26,7 +26,6 @@ import ContextBar from './components/ContextBar'
 import { ToastProvider } from './components/Toast'
 import KeyboardShortcutsOverlay from './components/KeyboardShortcutsOverlay'
 import EmptyStateGuide from './components/EmptyStateGuide'
-import ConfirmButton from './components/ConfirmButton'
 import ZoomControls from './components/ZoomControls'
 import QuickActionsBar from './components/QuickActionsBar'
 import { useOnlineStatus } from './hooks/useOnlineStatus'
@@ -557,19 +556,16 @@ function App() {
             >
               {isDark ? '☀️' : '🌙'}
             </button>
-            {/* Requirement: Custom reload confirmation — browser's native dialog says "reload site"
-                which is confusing in PWA context. Use ConfirmButton for "Reload app?" wording. */}
-            <ConfirmButton
-              onConfirm={() => window.location.reload()}
-              confirmLabel="Reload app?"
+            <button
+              onClick={() => window.location.reload()}
+              title="Refresh page"
               className="px-3 py-1.5 text-sm rounded-lg flex items-center gap-1.5 font-medium bg-zinc-100 dark:bg-dark-subtle text-ui-text hover:bg-zinc-200 dark:hover:bg-dark-elevated active:scale-95 transition-all"
-              title="Reload app"
             >
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
               </svg>
-              <span className="hidden sm:inline">Reload</span>
-            </ConfirmButton>
+              <span className="hidden sm:inline">Refresh</span>
+            </button>
             {canInstall && (
               <button
                 onClick={install}
