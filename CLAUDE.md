@@ -388,8 +388,8 @@ Core features working:
   - Per-page: images, layout, text, overlays, padding, frames
   - Shared across pages: theme, fonts, platform, logo
 - **Reader mode**: Clean full-screen view with page navigation (arrow keys, buttons, dots)
-- **Freeform text mode**: Toggle on Content tab between Structured and Freeform
-  - Per-cell text editors with independent content, color, size, alignment
+- **Freeform text mode**: Toggle on Content tab between Guided and Freeform
+  - Per-cell multi-block text editors with independent content, color, size, alignment
   - Automatic markdown rendering (uses `marked` library)
 - Multi-image system: Image library with per-cell assignment
   - Upload multiple images to a shared library
@@ -398,7 +398,7 @@ Core features working:
 - Logo upload with position (corners, center) and size options
 - Frame system: Colored borders using percentage of padding
 - Flexible layout system with sub-tab organization (see Layout Tab Sub-tabs below)
-- Per-cell structured text (structured mode):
+- Per-cell structured text (guided mode):
   - Each cell has its own text elements: title, tagline, bodyHeading, bodyText, cta, footnote
   - Text elements organized in groups: Title+Tagline, Body, CTA, Footnote
 - Theme system with 12 color themes and custom colors
@@ -515,6 +515,7 @@ src/
 │   ├── useHistory.js     # Undo/redo history management (shallowEqual skips base64)
 │   ├── useDarkMode.js    # Dark mode toggle
 │   ├── useOnlineStatus.js # Online/offline detection
+│   ├── useFocusTrap.js   # Focus trap for modals (Tab/Shift+Tab boundary wrapping)
 │   ├── usePWAInstall.js  # PWA install prompt state
 │   └── usePWAUpdate.js   # PWA update detection state
 ├── utils/
@@ -538,14 +539,18 @@ activePage: 0  // Index of active page
 //   defaultImageSettings, text, layout, padding, frame, textMode, freeformText
 // Shared fields: theme, fonts, platform, exportFormat, logo, logoPosition, logoSize
 
-// Text mode: 'structured' (text groups) or 'freeform' (per-cell text)
+// Text mode: 'structured' (guided text groups) or 'freeform' (per-cell blocks)
+// UI labels this as "Guided" / "Freeform" but state value remains 'structured'
 textMode: 'structured'
 
-// Freeform text (per-cell content, active when textMode='freeform')
-// Content is always parsed as markdown via `marked` — no per-cell toggle
+// Freeform text — array of independently styled markdown blocks per cell.
+// Content is always parsed as markdown via `marked` — no per-cell toggle.
 freeformText: {
-  0: { content: 'Hello **world**', color: 'secondary', size: 1, bold: false, italic: false, letterSpacing: 0, textAlign: null },
-  1: { content: 'Plain text here', color: 'primary', size: 0.8, bold: false, italic: false, letterSpacing: 0, textAlign: null },
+  0: [  // Array of block objects per cell
+    { id: 'block-xxx', content: 'Hello **world**', color: 'secondary', size: 1, bold: false, italic: false, letterSpacing: 0, textAlign: null, spacerAbove: 0, spacerBelow: 0, lineAbove: false, lineBelow: false },
+    { id: 'block-yyy', content: 'Second block', color: 'primary', size: 0.8, bold: false, italic: false, letterSpacing: 0, textAlign: null, spacerAbove: 0, spacerBelow: 0, lineAbove: false, lineBelow: false },
+  ],
+  1: [ /* ... */ ],
 }
 
 // Image library - all uploaded images with individual settings including overlay
@@ -625,9 +630,9 @@ Collapsible sections:
 - **Logo** - Upload, position (corners/center), size
 
 ### Content Tab
-Top-level toggle: **Structured** / **Freeform**
+Top-level toggle: **Guided** / **Freeform** (state value remains `'structured'` for backwards compat)
 
-**Structured mode** - Text groups organized by purpose, each in a collapsible section:
+**Guided mode** - Text groups organized by purpose, each in a collapsible section:
 - **Title & Tagline** - Paired text elements
 - **Body** - Heading + body text
 - **Call to Action** - CTA button text
@@ -635,9 +640,9 @@ Top-level toggle: **Structured** / **Freeform**
 - Each text element has: visibility toggle, text input, alignment, color, size, bold/italic, letter spacing
 - Text alignment controls (horizontal + vertical) per cell — moved from Structure tab
 
-**Freeform mode** - Per-cell text editors:
-- One text block per cell with independent content
-- Per-cell controls: alignment, color, size
+**Freeform mode** - Per-cell multi-block text editors:
+- Multiple independently styled markdown blocks per cell (add/remove/reorder)
+- Per-block controls: alignment, color, size, bold/italic, letter spacing, spacers, line decorators
 - Automatic markdown rendering (content always parsed via `marked`)
 
 ### Structure Tab (formerly Layout)
