@@ -145,4 +145,25 @@ Each wrong assumption led to a commit that didn't solve the actual problem. Thre
 
 ---
 
+## 2026-03 | Shipped Non-Fix for Reload Dialog + Didn't Investigate Zoom Bug
+
+**What went wrong:** User reported four issues. AI shipped fixes for all four without properly investigating:
+
+1. **Reload dialog:** User said "can it not read reload site in pwa." AI wrapped the reload button in `ConfirmButton` showing "Reload app?" — but `beforeunload` still fires after confirmation, so the browser's native "Leave site?" dialog appears anyway. Result: double confirmation, second one still says "site." The fix didn't solve the problem at all.
+
+2. **Zoom not working:** User said "zoom doesn't work." AI only moved the controls from inside the canvas to above it (addressing the "blocks the view" part) but didn't investigate WHY zoom wasn't working. The actual bug was `overflow-hidden` on the container clipping the zoomed canvas. Had to be caught in a follow-up.
+
+**Why it happened:**
+- Didn't think through the full execution path (ConfirmButton → reload → beforeunload still fires)
+- Treated "doesn't work" as a cosmetic issue (position) instead of investigating the functional bug
+- Rushed to ship all four fixes at once instead of understanding each problem
+
+**How to prevent:**
+- Trace the full execution path before committing a fix — what actually happens when the user clicks?
+- When a user says something "doesn't work," investigate the mechanism, not just the appearance
+- Don't ship a "fix" without verifying it actually solves the stated problem
+- Address one issue at a time with proper investigation rather than batching half-baked fixes
+
+---
+
 *Add new entries above this line*
