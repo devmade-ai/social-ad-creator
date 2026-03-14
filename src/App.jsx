@@ -26,7 +26,6 @@ import ContextBar from './components/ContextBar'
 import { ToastProvider } from './components/Toast'
 import KeyboardShortcutsOverlay from './components/KeyboardShortcutsOverlay'
 import EmptyStateGuide from './components/EmptyStateGuide'
-import ZoomControls from './components/ZoomControls'
 import QuickActionsBar from './components/QuickActionsBar'
 import { useOnlineStatus } from './hooks/useOnlineStatus'
 import { platforms } from './config/platforms'
@@ -132,7 +131,6 @@ function App() {
   const { hasUpdate, update } = usePWAUpdate()
   const isOnline = useOnlineStatus()
   const [showShortcuts, setShowShortcuts] = useState(false)
-  const [zoomLevel, setZoomLevel] = useState(null) // null = auto-fit
 
   const {
     state,
@@ -318,13 +316,8 @@ function App() {
     return () => resizeObserver.disconnect()
   }, [isReaderMode])
 
-  // Calculate scale to fit preview in container
-  // Requirement: Zoom controls on canvas for user-controlled zoom.
-  // Approach: zoomLevel state (null = auto-fit). When set, overrides auto-scale.
-  // Alternatives:
-  //   - Always auto-fit: Current behavior — no user control for detail inspection.
-  //   - Pinch-to-zoom: Complex on desktop, and doesn't give precise control.
-  const autoScale = useMemo(() => {
+  // Calculate scale to auto-fit preview in container
+  const previewScale = useMemo(() => {
     const maxWidth = isReaderMode
       ? Math.max(containerWidth - 16, 200)
       : Math.max(containerWidth - 32, 200)
@@ -332,19 +325,12 @@ function App() {
       ? windowHeight - (hasMultiplePages ? 100 : 64)
       // Requirement: Remove artificial 600px height cap — let canvas use available space
       // Approach: Use 70% of viewport height instead of capped 60%
-      // Alternatives:
-      //   - Keep 600px cap: Rejected — wastes space on tall screens, cuts off large canvases
       : windowHeight * 0.7
     if (!platform.width || !platform.height) return 1
     const scaleX = maxWidth / platform.width
     const scaleY = maxHeight / platform.height
     return Math.min(scaleX, scaleY, 1)
   }, [platform, containerWidth, isReaderMode, windowHeight, hasMultiplePages])
-
-  const previewScale = zoomLevel !== null ? zoomLevel : autoScale
-
-  // Reset zoom when platform changes
-  useEffect(() => { setZoomLevel(null) }, [state.platform])
 
   // Detect empty state (no images, no meaningful text)
   const isCanvasEmpty = useMemo(() => {
@@ -481,7 +467,7 @@ function App() {
 
   // Normal editor mode
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
       {/* Load fonts */}
       {fonts.map((font) => (
         <link key={font.id} rel="stylesheet" href={font.url} />
@@ -653,7 +639,12 @@ function App() {
             - Sidebar first always: Rejected — on mobile, users scroll past controls to see canvas */}
       <div className="flex flex-col-reverse lg:flex-row lg:items-stretch">
         {/* Sidebar Controls */}
-        <aside className="w-full lg:w-96 p-4 lg:p-5 lg:pr-0">
+        {/* Requirement: Extra bottom spacing on mobile so sidebar content isn't flush with screen edge
+            Approach: pb-24 on mobile for comfortable scroll end, normal pb on desktop
+            Alternatives:
+              - Small padding (pb-4): Rejected — content feels cramped at bottom on phones
+              - Inline style with safe-area-inset: Rejected — overrides desktop padding too */}
+        <aside className="w-full lg:w-96 p-4 pb-24 lg:p-5 lg:pr-0 lg:pb-5">
           <div className="bg-white dark:bg-dark-card rounded-xl border border-zinc-200/80 dark:border-zinc-700/50 shadow-card p-4 lg:p-5">
             {/* Section Content */}
             <div className="space-y-5">
@@ -804,11 +795,6 @@ function App() {
               {/* Empty state guidance — helps new users get started */}
               {isCanvasEmpty && !isExporting && (
                 <EmptyStateGuide onNavigate={setActiveSection} />
-              )}
-
-              {/* Zoom controls — floating bottom-right of canvas */}
-              {!isExporting && (
-                <ZoomControls zoomLevel={zoomLevel} autoScale={autoScale} onZoomChange={setZoomLevel} />
               )}
 
               {/* Export overlay with cancel option */}

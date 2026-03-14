@@ -429,7 +429,7 @@ Core features working:
 - **Toast notifications**: Non-blocking feedback for exports, saves, deletes, warnings
 - **Inline confirmations**: ConfirmButton replaces browser confirm() for destructive actions
 - **Export progressive disclosure**: Secondary options collapse into "More export options"
-- **Canvas controls**: Zoom (−/%/+), empty state guidance, contextual quick-actions for selected cell
+- **Canvas controls**: Empty state guidance, contextual quick-actions for selected cell
 - **Keyboard shortcuts**: 1-5 for tab switching, shortcut overlay panel (header button)
 
 ## Current Tab Structure
@@ -497,7 +497,6 @@ src/
 │   ├── Tooltip.jsx            # Portal-based tooltip (prevents clipping at container edges)
 │   ├── KeyboardShortcutsOverlay.jsx # Keyboard shortcuts modal
 │   ├── EmptyStateGuide.jsx    # Empty canvas guidance overlay
-│   ├── ZoomControls.jsx       # Canvas zoom controls (−, %, +)
 │   ├── QuickActionsBar.jsx    # Cell quick-action shortcuts (Image, Text, Style)
 │   └── DebugPill.jsx          # Floating debug panel (separate React root, dev only)
 ├── config/         # Configuration
