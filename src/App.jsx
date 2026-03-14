@@ -779,6 +779,10 @@ function App() {
 
           {/* Canvas Preview */}
           <div className="bg-white dark:bg-dark-card rounded-xl border border-zinc-200/80 dark:border-zinc-700/50 shadow-card p-4 lg:p-6">
+            {/* Zoom controls — above canvas for easier access on mobile */}
+            {!isExporting && (
+              <ZoomControls zoomLevel={zoomLevel} autoScale={autoScale} onZoomChange={setZoomLevel} />
+            )}
             <div
               ref={previewContainerRef}
               className="relative bg-gradient-to-br from-zinc-50 to-zinc-100 dark:from-dark-subtle dark:to-dark-page rounded-xl overflow-hidden flex items-center justify-center border border-zinc-200/50 dark:border-zinc-700/50"
@@ -809,11 +813,6 @@ function App() {
               {/* Empty state guidance — helps new users get started */}
               {isCanvasEmpty && !isExporting && (
                 <EmptyStateGuide onNavigate={setActiveSection} />
-              )}
-
-              {/* Zoom controls — floating bottom-right of canvas */}
-              {!isExporting && (
-                <ZoomControls zoomLevel={zoomLevel} autoScale={autoScale} onZoomChange={setZoomLevel} />
               )}
 
               {/* Export overlay with cancel option */}

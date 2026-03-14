@@ -1,14 +1,14 @@
 // Requirement: User-controlled zoom on canvas preview.
-// Approach: Floating controls (−, %, +) bottom-right of canvas. Null zoom = auto-fit.
+// Approach: Inline controls (−, %, +) above canvas, right-aligned. Null zoom = auto-fit.
 // Alternatives:
-//   - Always auto-fit: Rejected — no way to inspect detail at higher zoom.
+//   - Floating overlay on canvas: Rejected — obscures content on mobile, harder to tap.
 //   - Pinch-to-zoom: Rejected — complex on desktop, imprecise.
 
 export default function ZoomControls({ zoomLevel, autoScale, onZoomChange }) {
   const previewScale = zoomLevel !== null ? zoomLevel : autoScale
 
   return (
-    <div className="absolute right-2 flex items-center gap-0.5 sm:gap-1 bg-white/80 dark:bg-dark-card/80 backdrop-blur-sm rounded-lg border border-zinc-200/60 dark:border-zinc-700/60 shadow-sm px-0.5 sm:px-1 py-0.5" style={{ bottom: 'max(0.5rem, env(safe-area-inset-bottom, 0.5rem))' }}>
+    <div className="flex items-center justify-end gap-0.5 sm:gap-1 mb-2">
       <button
         onClick={() => onZoomChange(Math.round(Math.max((zoomLevel || autoScale) - 0.1, 0.25) * 100) / 100)}
         className="w-10 h-10 sm:w-6 sm:h-6 flex items-center justify-center text-ui-text-muted hover:text-ui-text rounded transition-colors text-sm sm:text-xs font-bold"
