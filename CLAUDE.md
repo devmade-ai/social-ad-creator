@@ -290,6 +290,8 @@ These footers are required on every commit. No exceptions.
   - Use `GITHUB_ALL_REPO_TOKEN` with the GitHub API (`api.github.com/repos/devmade-ai/{repo}/contents/{path}`) to read files from other devmade-ai repos
   - Use `$(printenv GITHUB_ALL_REPO_TOKEN)` not `$GITHUB_ALL_REPO_TOKEN` to avoid shell expansion issues
   - Never clone sibling repos — use the API instead
+- **Mobile breakpoint:** `useIsMobile` hook uses `matchMedia('(max-width: 1023px)')` — matches Tailwind `lg` breakpoint. App.jsx conditionally renders entirely different layouts for mobile vs desktop. When modifying layout/UI in App.jsx, always check both code paths.
+- **BottomSheet snap points:** closed (64px visible), half (50vh), full (90vh). Uses touch events for drag gestures. Spring animation via CSS transitions. Sheet state resets when switching tabs.
 - **Sister project reference:** `devmade-ai/glow-props` shares the same CLAUDE.md scaffolding (process, principles, standards). Its `Suggested Implementations` section documents PWA patterns, debug system, and icon generation that were adopted here. Check it for future cross-pollination: `https://github.com/devmade-ai/glow-props/blob/main/CLAUDE.md`
 
 ### REMINDER: READ AND FOLLOW THE FUCKING AI NOTES EVERY TIME
@@ -431,20 +433,37 @@ Core features working:
 - **Export progressive disclosure**: Secondary options collapse into "More export options"
 - **Canvas controls**: Empty state guidance, contextual quick-actions for selected cell
 - **Keyboard shortcuts**: 1-5 for tab switching, shortcut overlay panel (header button)
+- **Mobile-first layout** (viewport < 1024px): Bottom nav bar (MobileNav), touch-draggable bottom sheet (BottomSheet) for tab content, edge-to-edge canvas, swipe-between-pages gesture, compact header with overflow menu, platform info strip
 
 ## Current Tab Structure
 
-**Top-level tabs (horizontal nav bar):** Presets, Media, Content, Structure, Style
+**Top-level tabs:** Presets, Media, Content, Structure, Style (+ Export on mobile)
+
+### Desktop layout (>= 1024px)
 
 Tabs render as a full-width horizontal nav bar below the header (website header pattern), with underline-style active indicator. Below the tabs is a unified ContextBar containing: cell selector | page management | undo/redo.
 
-Layout:
 ```
 Header (scrolls away)
 Tab Nav Bar (sticky, full-width, underline active indicator)
 Context Bar: [Cell grid] | [Page thumbnails + actions] | [Undo/Redo]
 Sidebar (tab content) | Main (platform selector + canvas + export)
 ```
+
+### Mobile layout (< 1024px, detected by `useIsMobile` hook)
+
+Fixed viewport with edge-to-edge canvas. Tab content lives in a touch-draggable BottomSheet with three snap points (closed/half/full). Navigation via fixed MobileNav bar at bottom.
+
+```
+Compact Header (hamburger overflow menu: Save, View, Install, Dark Mode, Help, Shortcuts)
+Platform Info Strip (current format name + dimensions)
+Canvas (edge-to-edge, swipe left/right for page navigation)
+ContextBar (cell grid + page thumbnails + undo/redo)
+BottomSheet (active tab content, drag to resize)
+MobileNav (fixed bottom: Presets, Media, Content, Structure, Style, Export)
+```
+
+Export is a dedicated tab on mobile (vs. sidebar section on desktop). Tapping the active tab toggles the bottom sheet open/closed.
 
 Tab descriptions (workflow-based organization):
 - **Presets** - Start here: Layout presets (with aspect ratio filtering), color themes, and visual looks
@@ -496,8 +515,10 @@ src/
 │   ├── ConfirmButton.jsx      # Inline confirmation replacing browser confirm()
 │   ├── Tooltip.jsx            # Portal-based tooltip (prevents clipping at container edges)
 │   ├── KeyboardShortcutsOverlay.jsx # Keyboard shortcuts modal
-│   ├── EmptyStateGuide.jsx    # Empty canvas guidance overlay
+│   ├── EmptyStateGuide.jsx    # Empty canvas guidance (below canvas on mobile, overlay on desktop)
 │   ├── QuickActionsBar.jsx    # Cell quick-action shortcuts (Image, Text, Style)
+│   ├── BottomSheet.jsx        # Touch-draggable bottom sheet for mobile tab content (3 snap points)
+│   ├── MobileNav.jsx          # Fixed bottom navigation bar for mobile (6 tabs incl. Export)
 │   └── DebugPill.jsx          # Floating debug panel (separate React root, dev only)
 ├── config/         # Configuration
 │   ├── layouts.js        # 34 overlay types (solid, gradients, radial, effects, blends, textures)
@@ -515,6 +536,7 @@ src/
 │   ├── useDarkMode.js    # Dark mode toggle
 │   ├── useOnlineStatus.js # Online/offline detection
 │   ├── useFocusTrap.js   # Focus trap for modals (Tab/Shift+Tab boundary wrapping)
+│   ├── useIsMobile.js    # matchMedia hook: viewport < 1024px (Tailwind lg breakpoint)
 │   ├── usePWAInstall.js  # PWA install prompt state
 │   └── usePWAUpdate.js   # PWA update detection state
 ├── utils/

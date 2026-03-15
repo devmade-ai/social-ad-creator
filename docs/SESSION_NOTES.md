@@ -5,32 +5,29 @@ Compact context summary for session continuity. Rewrite at session end.
 ---
 
 ## Worked on
-UX/UI improvements + code quality pass (tooltip clipping, prop drilling, component extraction).
+Major mobile redesign — dedicated mobile layout with bottom sheet, bottom nav, and touch-optimized UI.
 
 ## Accomplished
 
-### UX/UI features (previous commit)
-1. Toast notifications, inline confirmations, export progressive disclosure
-2. Quick-actions bar, hover previews, empty state guidance, zoom controls, keyboard shortcuts
-
-### Code quality fixes (this session)
-1. **Portal-based tooltips** — New `Tooltip.jsx` using `createPortal` to document.body. Prevents clipping at sidebar overflow edges. Replaced inline absolute tooltips in TemplatesTab for both themes and looks.
-2. **Removed addToast prop drilling** — ExportButtons and SaveLoadModal now use `useToast()` directly instead of receiving addToast as a prop from App.jsx. Removed optional chaining (`addToast?.()` → `addToast()`).
-3. **App.jsx component extraction** — Extracted 4 components to reduce App.jsx from 950+ to ~820 lines:
-   - `KeyboardShortcutsOverlay.jsx` — Shortcuts modal
-   - `EmptyStateGuide.jsx` — Empty canvas overlay with action buttons
-   - `ZoomControls.jsx` — Floating zoom controls (−, %, +)
-   - `QuickActionsBar.jsx` — Cell quick-action shortcuts
-4. **Freeform text empty state fix** — `isCanvasEmpty` now correctly handles freeform text stored as arrays of block objects.
+1. **`useIsMobile` hook** — matchMedia-based viewport detection (< 1024px / Tailwind lg breakpoint)
+2. **`BottomSheet.jsx`** — Touch-draggable bottom sheet with 3 snap points (closed 64px / half 50vh / full 90vh) for mobile tab content
+3. **`MobileNav.jsx`** — Fixed bottom nav bar with 6 tabs (Presets, Media, Content, Structure, Style, Export). Tapping active tab toggles bottom sheet
+4. **`App.jsx` refactor** — Conditional mobile/desktop rendering via `useIsMobile`. Mobile gets: fixed viewport, edge-to-edge canvas, bottom sheet for controls, compact header with hamburger overflow menu, swipe-between-pages gesture, platform info strip
+5. **`CollapsibleSection.jsx`** — Larger touch targets on mobile (py-3 vs py-2.5)
+6. **`index.css`** — Larger range input thumbs on mobile (24px), removed body safe-area padding on mobile (now per-component)
+7. **`EmptyStateGuide.jsx`** — Moved from canvas overlay to below canvas (normal document flow)
 
 ## Current state
 
-- **Working** — All features building successfully (288 modules).
-- App.jsx at 822 lines — still slightly over 800 but remaining bulk is reader mode + header (tightly coupled to App state).
+- **Working** — Mobile and desktop layouts both functional
+- App.jsx is larger due to dual layout paths — may need further extraction in future sessions
+- Export is a dedicated mobile tab (vs sidebar section on desktop)
 
 ## Key context
 
-- `Tooltip.jsx` — Portal-based, auto-positions above trigger, flips below if clipped at top, clamps horizontally to viewport. Used in TemplatesTab for theme/look hover previews.
-- `Toast.jsx` exports `ToastProvider` (wraps App) and `useToast` hook. Components that need toasts call `useToast()` directly.
-- `zoomLevel` state in App — `null` means auto-fit, number overrides previewScale. Resets on platform change.
-- Tab switching shortcuts: 1=Presets, 2=Media, 3=Content, 4=Structure, 5=Style.
+- `useIsMobile` returns boolean, uses `matchMedia('(max-width: 1023px)')` with resize listener
+- BottomSheet uses touch events for drag, CSS transitions for spring animation, resets on tab switch
+- MobileNav is fixed at bottom with safe-area padding for notched devices
+- Mobile header uses hamburger menu containing: Save, View, Install, Dark Mode, Help, Shortcuts
+- Swipe gesture on canvas navigates between pages (touchstart/touchend with 50px threshold)
+- Platform info strip shows current format name + dimensions above canvas on mobile
