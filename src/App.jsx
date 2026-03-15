@@ -792,11 +792,6 @@ function App() {
                 </div>
               </ErrorBoundary>
 
-              {/* Empty state guidance — helps new users get started */}
-              {isCanvasEmpty && !isExporting && (
-                <EmptyStateGuide onNavigate={setActiveSection} />
-              )}
-
               {/* Export overlay with cancel option */}
               {isExporting && (
                 <div className="absolute inset-0 bg-dark-page/80 flex items-center justify-center rounded-xl backdrop-blur-sm">
@@ -813,6 +808,11 @@ function App() {
                 </div>
               )}
             </div>
+
+            {/* Empty state guidance — rendered below canvas, not as an overlay on it */}
+            {isCanvasEmpty && !isExporting && (
+              <EmptyStateGuide onNavigate={setActiveSection} />
+            )}
 
             {/* Quick actions bar for selected cell — shortcuts to common per-cell actions */}
             {totalCells > 1 && (
