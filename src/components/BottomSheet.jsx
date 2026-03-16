@@ -3,6 +3,7 @@ import { useRef, useEffect, useCallback } from 'react'
 // Requirement: Touch-draggable bottom sheet for mobile tab content.
 // Approach: CSS transform-based height with touch drag on handle.
 //   Three snap points: closed (0), half (50vh), full (85vh).
+//   Height tracked via ref during drag to avoid stale closure values.
 // Alternatives:
 //   - CSS-only slide-up: Rejected — no drag-to-resize capability.
 //   - Third-party library (react-spring, framer-motion): Rejected — adds bundle for simple gesture.
@@ -14,6 +15,9 @@ export const SNAP_FULL = 85
 export default function BottomSheet({ isOpen, onClose, children, height, onHeightChange }) {
   const sheetRef = useRef(null)
   const dragRef = useRef({ startY: 0, startHeight: 0, isDragging: false })
+  // Ref tracks current height during drag to avoid stale closure in touch handlers
+  const heightRef = useRef(height)
+  heightRef.current = height
 
   // Auto-set to half when opening from closed
   useEffect(() => {
@@ -23,9 +27,9 @@ export default function BottomSheet({ isOpen, onClose, children, height, onHeigh
   }, [isOpen, height, onHeightChange])
 
   const handleTouchStart = useCallback((e) => {
-    dragRef.current = { startY: e.touches[0].clientY, startHeight: height, isDragging: true }
+    dragRef.current = { startY: e.touches[0].clientY, startHeight: heightRef.current, isDragging: true }
     if (sheetRef.current) sheetRef.current.style.transition = 'none'
-  }, [height])
+  }, [])
 
   const handleTouchMove = useCallback((e) => {
     if (!dragRef.current.isDragging) return
@@ -38,15 +42,16 @@ export default function BottomSheet({ isOpen, onClose, children, height, onHeigh
   const handleTouchEnd = useCallback(() => {
     dragRef.current.isDragging = false
     if (sheetRef.current) sheetRef.current.style.transition = ''
-    // Snap to closest position
-    if (height < 20) {
+    // Snap to closest position using ref for current height (avoids stale closure)
+    const h = heightRef.current
+    if (h < 20) {
       onClose()
-    } else if (height < 65) {
+    } else if (h < 65) {
       onHeightChange(SNAP_HALF)
     } else {
       onHeightChange(SNAP_FULL)
     }
-  }, [height, onClose, onHeightChange])
+  }, [onClose, onHeightChange])
 
   if (!isOpen) return null
 

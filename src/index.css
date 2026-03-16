@@ -245,7 +245,7 @@ input[type="checkbox"] {
   animation: cell-select-flash 0.6s ease-out forwards;
 }
 
-/* Mobile: larger range input thumb for touch (44px minimum target) */
+/* Mobile: larger range input thumb for easier touch interaction (24px visual, meets 44px target with track area) */
 @media (max-width: 1023px) {
   input[type="range"]::-webkit-slider-thumb {
     width: 24px;

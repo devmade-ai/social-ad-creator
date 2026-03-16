@@ -36,6 +36,9 @@ import { useOnlineStatus } from './hooks/useOnlineStatus'
 import { platforms, findPlatformGroup } from './config/platforms'
 import { fonts } from './config/fonts'
 
+// Swipe threshold for page navigation on mobile (px)
+const SWIPE_THRESHOLD = 50
+
 // Transparent overlay on canvas for click-to-select cell
 function CanvasCellOverlay({ layout, selectedCell, onSelectCell }) {
   const { type, structure } = layout
@@ -166,6 +169,15 @@ function App() {
   const pageCount = pages.length
   const hasMultiplePages = pageCount > 1
 
+  // Clear stale mobile state when transitioning to desktop
+  useEffect(() => {
+    if (!isMobile) {
+      setMobileSheetOpen(false)
+      setSheetHeight(0)
+      setShowMobileMenu(false)
+    }
+  }, [isMobile])
+
   // Mobile helpers
   const closeMobileSheet = useCallback(() => {
     setMobileSheetOpen(false)
@@ -183,7 +195,6 @@ function App() {
   }, [activeSection, mobileSheetOpen, sheetHeight, closeMobileSheet])
 
   // Swipe between pages on mobile canvas
-  const SWIPE_THRESHOLD = 50
   const handleCanvasTouchStart = useCallback((e) => {
     swipeRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY }
   }, [])
@@ -192,6 +203,8 @@ function App() {
     const dx = e.changedTouches[0].clientX - swipeRef.current.x
     const dy = e.changedTouches[0].clientY - swipeRef.current.y
     if (Math.abs(dx) > SWIPE_THRESHOLD && Math.abs(dx) > Math.abs(dy) * 1.5) {
+      // Prevent synthesized click from triggering cell selection during swipe
+      e.preventDefault()
       if (dx > 0 && state.activePage > 0) setActivePage(state.activePage - 1)
       else if (dx < 0 && state.activePage < pageCount - 1) setActivePage(state.activePage + 1)
     }
@@ -320,8 +333,9 @@ function App() {
     { id: 'style', label: 'Style' },
   ]
 
-  // Shared tab content — rendered in sidebar (desktop) or bottom sheet (mobile)
-  const tabContent = (
+  // Shared tab content — rendered in sidebar (desktop) or bottom sheet (mobile).
+  // Memoized to avoid recreating unused ErrorBoundary wrappers on every render.
+  const tabContent = useMemo(() => (
     <div className="space-y-5">
       <ErrorBoundary title="Templates error" message="Failed to load templates.">
         {activeSection === 'templates' && (
@@ -418,7 +432,10 @@ function App() {
         )}
       </ErrorBoundary>
     </div>
-  )
+  ), [activeSection, state, safeSelectedCell, applyStylePreset, applyLayoutPreset, setTheme, setThemePreset,
+      addImage, removeImage, updateImage, updateImageFilters, updateImagePosition, updateImageOverlay, setCellImage,
+      setLogo, setLogoPosition, setLogoSize, setText, setLayout, setFonts, setPadding, setFrame,
+      setTextMode, addFreeformBlock, updateFreeformBlock, removeFreeformBlock, moveFreeformBlock, setSelectedCell])
 
   // Shared modals — rendered in both mobile and desktop layouts
   const modals = (
@@ -507,7 +524,7 @@ function App() {
               <button onClick={toggleDarkMode} title={isDark ? 'Light mode' : 'Dark mode'} className="p-2 rounded-lg text-ui-text hover:bg-zinc-100 dark:hover:bg-dark-subtle transition-colors">
                 <span className="text-sm">{isDark ? '☀️' : '🌙'}</span>
               </button>
-              <button onClick={(e) => { e.stopPropagation(); setShowMobileMenu(!showMobileMenu) }} title="More options" className="p-2 rounded-lg text-ui-text hover:bg-zinc-100 dark:hover:bg-dark-subtle transition-colors">
+              <button onClick={(e) => { e.stopPropagation(); const opening = !showMobileMenu; setShowMobileMenu(opening); if (opening) closeMobileSheet() }} title="More options" className="p-2 rounded-lg text-ui-text hover:bg-zinc-100 dark:hover:bg-dark-subtle transition-colors">
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" /></svg>
               </button>
             </div>
@@ -520,6 +537,7 @@ function App() {
                 {[
                   { label: 'Reader Mode', icon: 'M15 12a3 3 0 11-6 0 3 3 0 016 0z', onClick: () => setIsReaderMode(true) },
                   { label: 'Help & Tutorial', icon: 'M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z', onClick: () => setShowTutorial(true) },
+                  { label: 'Keyboard Shortcuts', icon: 'M3 8a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8zm4 2h2m2 0h2m2 0h2M5 14h14', onClick: () => setShowShortcuts(true) },
                   { label: 'Refresh', icon: 'M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15', onClick: () => window.location.reload() },
                 ].map((item) => (
                   <button key={item.label} onClick={() => { item.onClick(); setShowMobileMenu(false) }} className="w-full flex items-center gap-3 px-4 py-3 text-sm text-ui-text hover:bg-ui-surface-hover transition-colors">
