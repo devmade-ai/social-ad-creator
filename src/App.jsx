@@ -190,9 +190,13 @@ function App() {
     } else {
       setActiveSection(tabId)
       setMobileSheetOpen(true)
-      if (sheetHeight < 20) setSheetHeight(SNAP_HALF)
+      // BottomSheet auto-open effect handles height=0 → SNAP_HALF
     }
-  }, [activeSection, mobileSheetOpen, sheetHeight, closeMobileSheet])
+  }, [activeSection, mobileSheetOpen, closeMobileSheet])
+
+  // Ref for values accessed by stable callbacks (swipe, keyboard) to avoid stale closures
+  const keyboardRef = useRef({ undo, redo, isReaderMode, activePage: state.activePage, pageCount, setActivePage, showShortcuts, setShowShortcuts, setActiveSection, setIsReaderMode, isMobile, setMobileSheetOpen, showMobileMenu, setShowMobileMenu })
+  keyboardRef.current = { undo, redo, isReaderMode, activePage: state.activePage, pageCount, setActivePage, showShortcuts, setShowShortcuts, setActiveSection, setIsReaderMode, isMobile, setMobileSheetOpen, showMobileMenu, setShowMobileMenu }
 
   // Swipe between pages on mobile canvas
   const handleCanvasTouchStart = useCallback((e) => {
@@ -213,14 +217,12 @@ function App() {
   }, [])
 
   // Keyboard shortcuts
-  const keyboardRef = useRef({ undo, redo, isReaderMode, activePage: state.activePage, pageCount, setActivePage, showShortcuts, setShowShortcuts, setActiveSection, setIsReaderMode, isMobile, setMobileSheetOpen })
-  keyboardRef.current = { undo, redo, isReaderMode, activePage: state.activePage, pageCount, setActivePage, showShortcuts, setShowShortcuts, setActiveSection, setIsReaderMode, isMobile, setMobileSheetOpen }
 
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return
 
-      const { undo, redo, isReaderMode, activePage, pageCount, setActivePage, showShortcuts, setShowShortcuts, setActiveSection, setIsReaderMode, isMobile, setMobileSheetOpen } = keyboardRef.current
+      const { undo, redo, isReaderMode, activePage, pageCount, setActivePage, showShortcuts, setShowShortcuts, setActiveSection, setIsReaderMode, isMobile, setMobileSheetOpen, showMobileMenu, setShowMobileMenu } = keyboardRef.current
 
       if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
         if (e.shiftKey) { e.preventDefault(); redo() }
@@ -237,6 +239,7 @@ function App() {
       }
 
       if (e.key === 'Escape' && showShortcuts) { e.preventDefault(); setShowShortcuts(false); return }
+      if (e.key === 'Escape' && showMobileMenu) { e.preventDefault(); setShowMobileMenu(false); return }
 
       if (isReaderMode) {
         if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); if (activePage > 0) setActivePage(activePage - 1) }
@@ -438,7 +441,7 @@ function App() {
       // Specific state slices (not `state` itself, which is a new object every render)
       state.activeStylePreset, state.layout, state.platform, state.theme, state.images, state.cellImages,
       state.logo, state.logoPosition, state.logoSize, state.text, state.fonts, state.padding, state.frame,
-      state.textMode, state.freeformText, state.exportFormat,
+      state.textMode, state.freeformText,
       // Callbacks (stable refs from useAdState)
       applyStylePreset, applyLayoutPreset, setTheme, setThemePreset,
       addImage, removeImage, updateImage, updateImageFilters, updateImagePosition, updateImageOverlay, setCellImage,
@@ -540,7 +543,7 @@ function App() {
           {/* Overflow menu */}
           {showMobileMenu && (
             <>
-              <div className="fixed inset-0 z-40" onClick={() => setShowMobileMenu(false)} aria-label="Close menu" role="presentation" />
+              <div className="fixed inset-0 z-40" onClick={() => setShowMobileMenu(false)} role="presentation" />
               <div className="absolute right-3 top-full mt-1 z-50 bg-white dark:bg-dark-card rounded-xl shadow-lg border border-ui-border py-1 min-w-[180px]" role="menu">
                 {[
                   { label: 'Reader Mode', icon: 'M15 12a3 3 0 11-6 0 3 3 0 016 0z', onClick: () => setIsReaderMode(true) },
