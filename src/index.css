@@ -245,6 +245,26 @@ input[type="checkbox"] {
   animation: cell-select-flash 0.6s ease-out forwards;
 }
 
+/* Mobile: larger range input thumb for easier touch interaction (24px visual, meets 44px target with track area) */
+@media (max-width: 1023px) {
+  input[type="range"]::-webkit-slider-thumb {
+    width: 24px;
+    height: 24px;
+    margin-top: -9px;
+  }
+  input[type="range"]::-moz-range-thumb {
+    width: 22px;
+    height: 22px;
+  }
+}
+
+/* Mobile: remove body safe area padding (handled per-component) */
+@media (max-width: 1023px) {
+  body {
+    padding: 0;
+  }
+}
+
 /* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

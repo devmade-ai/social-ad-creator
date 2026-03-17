@@ -1,15 +1,18 @@
-// Requirement: Single-page app with workflow-based tab UI (Presets → Media → Content → Structure → Style).
-// Approach: Sticky tab nav bar + sidebar/main split. All state via useAdState hook.
-//   Reader mode is a full-screen overlay with keyboard navigation.
-//   Each tab wrapped in ErrorBoundary so a crash in one tab doesn't break the app.
+// Requirement: Mobile-first design tool with bottom sheet + bottom nav on mobile,
+//   sidebar + top tabs on desktop. All state via useAdState hook.
+// Approach: useIsMobile hook for conditional layout rendering.
+//   Mobile: fixed viewport, edge-to-edge canvas, bottom sheet for controls, bottom nav.
+//   Desktop: scrollable page, sidebar + main split, sticky top tab bar.
+//   Reader mode is shared (full-screen overlay with keyboard navigation).
 // Alternatives:
-//   - React Router per tab: Rejected - tabs are panels, not routes; no URL benefit.
-//   - Floating panel UI: Rejected - sidebar is more intuitive for non-technical users.
+//   - CSS-only responsive with one layout: Rejected — fundamentally different component trees needed.
+//   - React Router per tab: Rejected — tabs are panels, not routes.
 import { useRef, useMemo, useState, useEffect, useCallback } from 'react'
 import { useAdState } from './hooks/useAdState'
 import { useDarkMode } from './hooks/useDarkMode'
 import { usePWAInstall } from './hooks/usePWAInstall'
 import { usePWAUpdate } from './hooks/usePWAUpdate'
+import { useIsMobile } from './hooks/useIsMobile'
 import AdCanvas from './components/AdCanvas'
 import TemplatesTab from './components/TemplatesTab'
 import MediaTab from './components/MediaTab'
@@ -27,9 +30,14 @@ import { ToastProvider } from './components/Toast'
 import KeyboardShortcutsOverlay from './components/KeyboardShortcutsOverlay'
 import EmptyStateGuide from './components/EmptyStateGuide'
 import QuickActionsBar from './components/QuickActionsBar'
+import BottomSheet, { SNAP_HALF } from './components/BottomSheet'
+import MobileNav from './components/MobileNav'
 import { useOnlineStatus } from './hooks/useOnlineStatus'
-import { platforms } from './config/platforms'
+import { platforms, findPlatformGroup } from './config/platforms'
 import { fonts } from './config/fonts'
+
+// Swipe threshold for page navigation on mobile (px)
+const SWIPE_THRESHOLD = 50
 
 // Transparent overlay on canvas for click-to-select cell
 function CanvasCellOverlay({ layout, selectedCell, onSelectCell }) {
@@ -65,15 +73,6 @@ function CanvasCellOverlay({ layout, selectedCell, onSelectCell }) {
           const isSelected = selectedCell === currentCellIndex
           cellIndex++
 
-          // Requirement: Click-to-select cells on canvas without persistent visual clutter
-          // Approach: Brief flash animation on selection, then fully transparent
-          // Alternatives:
-          //   - Persistent outline: Rejected — obscures frames and design content
-          //   - Borders on all cells: Rejected — looks like export borders, confuses users
-          // Requirement: Canvas cell overlay must be keyboard-accessible
-          // Approach: role="button", tabIndex, onKeyDown for Enter/Space
-          // Alternatives:
-          //   - <button> element: Rejected — needs extra reset styling, flex layout issues
           sectionCells.push(
             <div
               key={`overlay-cell-${currentCellIndex}`}
@@ -117,9 +116,9 @@ function App() {
   const [activeSection, setActiveSection] = useState('templates')
 
   const [containerWidth, setContainerWidth] = useState(600)
+  const [containerHeight, setContainerHeight] = useState(400)
   const [windowHeight, setWindowHeight] = useState(window.innerHeight)
   const [isExporting, setIsExporting] = useState(false)
-  // Ref shared with ExportButtons so the Cancel button can abort in-flight exports
   const cancelExportRef = useRef(false)
   const [showInstallModal, setShowInstallModal] = useState(false)
   const [showTutorial, setShowTutorial] = useState(false)
@@ -132,62 +131,27 @@ function App() {
   const isOnline = useOnlineStatus()
   const [showShortcuts, setShowShortcuts] = useState(false)
 
+  // Mobile-specific state
+  const isMobile = useIsMobile()
+  const [mobileSheetOpen, setMobileSheetOpen] = useState(false)
+  const [sheetHeight, setSheetHeight] = useState(0)
+  const [showMobileMenu, setShowMobileMenu] = useState(false)
+  const swipeRef = useRef({ x: 0, y: 0 })
+
   const {
     state,
-    // Image pool management
-    addImage,
-    removeImage,
-    updateImage,
-    updateImageFilters,
-    updateImagePosition,
-    updateImageOverlay,
-    setCellImage,
-    // Other state
-    setLogo,
-    setLogoPosition,
-    setLogoSize,
-    setText,
-    setLayout,
-    setTheme,
-    setThemePreset,
-    setFonts,
-    setPadding,
-    setFrame,
-    setOuterFrame,
-    setCellFrame,
-    setPlatform,
-    setExportFormat,
-    applyStylePreset,
-    applyLayoutPreset,
-    undo,
-    redo,
-    canUndo,
-    canRedo,
-    // Save/load
-    saveDesign,
-    loadDesign,
-    getSavedDesigns,
-    deleteDesign,
-    // Multi-page
-    setActivePage,
-    addPage,
-    duplicatePage,
-    removePage,
-    movePage,
-    getPageCount,
-    getPageState,
-    // Text mode
-    setTextMode,
-    addFreeformBlock,
-    updateFreeformBlock,
-    removeFreeformBlock,
-    moveFreeformBlock,
+    addImage, removeImage, updateImage, updateImageFilters, updateImagePosition, updateImageOverlay, setCellImage,
+    setLogo, setLogoPosition, setLogoSize,
+    setText, setLayout, setTheme, setThemePreset, setFonts,
+    setPadding, setFrame, setOuterFrame, setCellFrame,
+    setPlatform, setExportFormat,
+    applyStylePreset, applyLayoutPreset,
+    undo, redo, canUndo, canRedo,
+    saveDesign, loadDesign, getSavedDesigns, deleteDesign,
+    setActivePage, addPage, duplicatePage, removePage, movePage, getPageCount, getPageState,
+    setTextMode, addFreeformBlock, updateFreeformBlock, removeFreeformBlock, moveFreeformBlock,
   } = useAdState()
 
-  // Requirement: Clamp selectedCell synchronously so children never see an out-of-bounds index.
-  // Approach: Derive safeSelectedCell via useMemo instead of useEffect (which runs post-render).
-  // Alternatives:
-  //   - useEffect clamping: Rejected — one render frame shows stale index to children.
   const totalCells = useMemo(() => {
     const structure = state.layout.structure || [{ size: 100, subdivisions: 1, subSizes: [100] }]
     return structure.reduce((total, section) => total + (section.subdivisions || 1), 0)
@@ -196,85 +160,100 @@ function App() {
   const safeSelectedCell = selectedCell >= totalCells ? 0 : selectedCell
 
   useEffect(() => {
-    if (selectedCell >= totalCells) {
-      setSelectedCell(0)
-    }
+    if (selectedCell >= totalCells) setSelectedCell(0)
   }, [totalCells, selectedCell])
 
   const platform = platforms.find((p) => p.id === state.platform) || platforms[0]
+  const platformGroup = findPlatformGroup(state.platform)
   const pages = state.pages || [null]
   const pageCount = pages.length
   const hasMultiplePages = pageCount > 1
 
-  // Keyboard shortcuts for undo/redo and reader mode navigation.
-  // Uses refs for latest values so the listener is registered once (no churn).
-  const keyboardRef = useRef({ undo, redo, isReaderMode, activePage: state.activePage, pageCount, setActivePage, showShortcuts, setShowShortcuts, setActiveSection, setIsReaderMode })
-  keyboardRef.current = { undo, redo, isReaderMode, activePage: state.activePage, pageCount, setActivePage, showShortcuts, setShowShortcuts, setActiveSection, setIsReaderMode }
+  // Clear stale mobile state when transitioning to desktop
+  useEffect(() => {
+    if (!isMobile) {
+      setMobileSheetOpen(false)
+      setSheetHeight(0)
+      setShowMobileMenu(false)
+    }
+  }, [isMobile])
+
+  // Mobile helpers
+  const closeMobileSheet = useCallback(() => {
+    setMobileSheetOpen(false)
+    setSheetHeight(0)
+  }, [])
+
+  const handleMobileTabChange = useCallback((tabId) => {
+    if (tabId === activeSection && mobileSheetOpen) {
+      closeMobileSheet()
+    } else {
+      setActiveSection(tabId)
+      setMobileSheetOpen(true)
+      // BottomSheet auto-open effect handles height=0 → SNAP_HALF
+    }
+  }, [activeSection, mobileSheetOpen, closeMobileSheet])
+
+  // Ref for values accessed by stable callbacks (swipe, keyboard) to avoid stale closures
+  const keyboardRef = useRef({ undo, redo, isReaderMode, activePage: state.activePage, pageCount, setActivePage, showShortcuts, setShowShortcuts, setActiveSection, setIsReaderMode, isMobile, setMobileSheetOpen, showMobileMenu, setShowMobileMenu })
+  keyboardRef.current = { undo, redo, isReaderMode, activePage: state.activePage, pageCount, setActivePage, showShortcuts, setShowShortcuts, setActiveSection, setIsReaderMode, isMobile, setMobileSheetOpen, showMobileMenu, setShowMobileMenu }
+
+  // Swipe between pages on mobile canvas
+  const handleCanvasTouchStart = useCallback((e) => {
+    swipeRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY }
+  }, [])
+
+  const handleCanvasTouchEnd = useCallback((e) => {
+    const dx = e.changedTouches[0].clientX - swipeRef.current.x
+    const dy = e.changedTouches[0].clientY - swipeRef.current.y
+    if (Math.abs(dx) > SWIPE_THRESHOLD && Math.abs(dx) > Math.abs(dy) * 1.5) {
+      // Prevent synthesized click from triggering cell selection during swipe
+      e.preventDefault()
+      // Read from ref to avoid stale closure on rapid successive swipes
+      const { activePage, pageCount: pc, setActivePage: goTo } = keyboardRef.current
+      if (dx > 0 && activePage > 0) goTo(activePage - 1)
+      else if (dx < 0 && activePage < pc - 1) goTo(activePage + 1)
+    }
+  }, [])
+
+  // Keyboard shortcuts
 
   useEffect(() => {
     const handleKeyDown = (e) => {
-      // Skip if user is typing in an input
-      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
-        return
-      }
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return
 
-      const { undo, redo, isReaderMode, activePage, pageCount, setActivePage, showShortcuts, setShowShortcuts, setActiveSection, setIsReaderMode } = keyboardRef.current
+      const { undo, redo, isReaderMode, activePage, pageCount, setActivePage, showShortcuts, setShowShortcuts, setActiveSection, setIsReaderMode, isMobile, setMobileSheetOpen, showMobileMenu, setShowMobileMenu } = keyboardRef.current
 
       if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
-        if (e.shiftKey) {
-          e.preventDefault()
-          redo()
-        } else {
-          e.preventDefault()
-          undo()
-        }
+        if (e.shiftKey) { e.preventDefault(); redo() }
+        else { e.preventDefault(); undo() }
       }
-      if ((e.ctrlKey || e.metaKey) && e.key === 'y') {
-        e.preventDefault()
-        redo()
-      }
+      if ((e.ctrlKey || e.metaKey) && e.key === 'y') { e.preventDefault(); redo() }
 
-      // Tab switching with number keys (1-5)
       if (!e.ctrlKey && !e.metaKey && !e.altKey) {
         const tabMap = { '1': 'templates', '2': 'media', '3': 'content', '4': 'layout', '5': 'style' }
         if (tabMap[e.key]) {
           setActiveSection(tabMap[e.key])
+          if (isMobile) setMobileSheetOpen(true)
         }
       }
 
-      // Escape closes modals/overlays
-      if (e.key === 'Escape' && showShortcuts) {
-        e.preventDefault()
-        setShowShortcuts(false)
-        return
-      }
+      if (e.key === 'Escape' && showShortcuts) { e.preventDefault(); setShowShortcuts(false); return }
+      if (e.key === 'Escape' && showMobileMenu) { e.preventDefault(); setShowMobileMenu(false); return }
 
-      // Reader mode navigation with arrow keys
       if (isReaderMode) {
-        if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
-          e.preventDefault()
-          if (activePage > 0) setActivePage(activePage - 1)
-        }
-        if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
-          e.preventDefault()
-          if (activePage < pageCount - 1) setActivePage(activePage + 1)
-        }
-        if (e.key === 'Escape') {
-          e.preventDefault()
-          setIsReaderMode(false)
-        }
+        if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); if (activePage > 0) setActivePage(activePage - 1) }
+        if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { e.preventDefault(); if (activePage < pageCount - 1) setActivePage(activePage + 1) }
+        if (e.key === 'Escape') { e.preventDefault(); setIsReaderMode(false) }
       }
     }
-
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [])
 
-  // Requirement: ContextBar sticky position must adapt to actual tab nav height
-  // Approach: Measure tab nav via ResizeObserver, set CSS custom property
-  // Alternatives:
-  //   - Hardcoded pixel value: Rejected — breaks if font size or padding changes
+  // Tab nav height measurement (desktop only)
   useEffect(() => {
+    if (isMobile) return
     const nav = tabNavRef.current
     if (!nav) return
     const observer = new ResizeObserver((entries) => {
@@ -285,12 +264,10 @@ function App() {
     })
     observer.observe(nav)
     return () => observer.disconnect()
-  }, [])
+  }, [isMobile])
 
-  // Track window height for reader mode scaling
   useEffect(() => {
     const handleResize = () => setWindowHeight(window.innerHeight)
-    // Delay on orientation change to let the browser update layout
     const handleOrientation = () => setTimeout(handleResize, 100)
     window.addEventListener('resize', handleResize)
     window.addEventListener('orientationchange', handleOrientation)
@@ -300,39 +277,42 @@ function App() {
     }
   }, [])
 
-  // Track container width for responsive preview
+  // Track container dimensions for responsive preview
   useEffect(() => {
     const container = previewContainerRef.current
     if (!container) return
-
     const resizeObserver = new ResizeObserver((entries) => {
       for (const entry of entries) {
         const width = entry.contentBoxSize?.[0]?.inlineSize ?? entry.contentRect.width
+        const height = entry.contentBoxSize?.[0]?.blockSize ?? entry.contentRect.height
         setContainerWidth(width)
+        setContainerHeight(height)
       }
     })
-
     resizeObserver.observe(container)
     return () => resizeObserver.disconnect()
-  }, [isReaderMode])
+  }, [isReaderMode, isMobile])
 
   // Calculate scale to auto-fit preview in container
   const previewScale = useMemo(() => {
-    const maxWidth = isReaderMode
-      ? Math.max(containerWidth - 16, 200)
+    if (isReaderMode) {
+      const maxWidth = Math.max(containerWidth - 16, 200)
+      const maxHeight = windowHeight - (hasMultiplePages ? 100 : 64)
+      if (!platform.width || !platform.height) return 1
+      return Math.min(maxWidth / platform.width, maxHeight / platform.height, 1)
+    }
+    // Mobile: use container dimensions (flex-1 fills available space)
+    // Desktop: use container width + 70% viewport height
+    const maxWidth = isMobile
+      ? Math.max(containerWidth - 8, 200)
       : Math.max(containerWidth - 32, 200)
-    const maxHeight = isReaderMode
-      ? windowHeight - (hasMultiplePages ? 100 : 64)
-      // Requirement: Remove artificial 600px height cap — let canvas use available space
-      // Approach: Use 70% of viewport height instead of capped 60%
+    const maxHeight = isMobile
+      ? Math.max(containerHeight - 8, 200)
       : windowHeight * 0.7
     if (!platform.width || !platform.height) return 1
-    const scaleX = maxWidth / platform.width
-    const scaleY = maxHeight / platform.height
-    return Math.min(scaleX, scaleY, 1)
-  }, [platform, containerWidth, isReaderMode, windowHeight, hasMultiplePages])
+    return Math.min(maxWidth / platform.width, maxHeight / platform.height, 1)
+  }, [platform, containerWidth, containerHeight, isMobile, isReaderMode, windowHeight, hasMultiplePages])
 
-  // Detect empty state (no images, no meaningful text)
   const isCanvasEmpty = useMemo(() => {
     const hasImages = state.images && state.images.length > 0
     const hasText = state.text && Object.values(state.text).some((cellText) =>
@@ -344,21 +324,12 @@ function App() {
     return !hasImages && !hasText && !hasFreeform
   }, [state.images, state.text, state.freeformText])
 
-  // Requirement: Warn users before leaving with unsaved changes
-  // Approach: beforeunload event when canvas has content
-  // Alternatives:
-  //   - No warning: Rejected — users lose work accidentally
   useEffect(() => {
-    const handleBeforeUnload = (e) => {
-      if (!isCanvasEmpty) {
-        e.preventDefault()
-      }
-    }
+    const handleBeforeUnload = (e) => { if (!isCanvasEmpty) e.preventDefault() }
     window.addEventListener('beforeunload', handleBeforeUnload)
     return () => window.removeEventListener('beforeunload', handleBeforeUnload)
   }, [isCanvasEmpty])
 
-  // New workflow-based tabs
   const sections = [
     { id: 'templates', label: 'Presets' },
     { id: 'media', label: 'Media' },
@@ -367,97 +338,171 @@ function App() {
     { id: 'style', label: 'Style' },
   ]
 
-  // Reader mode - minimal UI with page navigation
+  // Shared tab content — rendered in sidebar (desktop) or bottom sheet (mobile).
+  // Memoized to avoid recreating unused ErrorBoundary wrappers on every render.
+  const tabContent = useMemo(() => (
+    <div className="space-y-5">
+      <ErrorBoundary title="Templates error" message="Failed to load templates.">
+        {activeSection === 'templates' && (
+          <TemplatesTab
+            activeStylePreset={state.activeStylePreset}
+            onSelectStylePreset={applyStylePreset}
+            layout={state.layout}
+            onApplyLayoutPreset={applyLayoutPreset}
+            platform={state.platform}
+            theme={state.theme}
+            onThemeChange={setTheme}
+            onThemePresetChange={setThemePreset}
+          />
+        )}
+      </ErrorBoundary>
+      <ErrorBoundary title="Media error" message="Failed to load media controls.">
+        {activeSection === 'media' && (
+          <MediaTab
+            images={state.images}
+            onAddImage={addImage}
+            onRemoveImage={removeImage}
+            onUpdateImage={updateImage}
+            onUpdateImageFilters={updateImageFilters}
+            onUpdateImagePosition={updateImagePosition}
+            onUpdateImageOverlay={updateImageOverlay}
+            cellImages={state.cellImages}
+            onSetCellImage={setCellImage}
+            logo={state.logo}
+            onLogoChange={setLogo}
+            logoPosition={state.logoPosition}
+            onLogoPositionChange={setLogoPosition}
+            logoSize={state.logoSize}
+            onLogoSizeChange={setLogoSize}
+            layout={state.layout}
+            platform={state.platform}
+            theme={state.theme}
+            selectedCell={safeSelectedCell}
+            onSelectCell={setSelectedCell}
+          />
+        )}
+      </ErrorBoundary>
+      <ErrorBoundary title="Content error" message="Failed to load content controls.">
+        {activeSection === 'content' && (
+          <ContentTab
+            text={state.text}
+            onTextChange={setText}
+            layout={state.layout}
+            onLayoutChange={setLayout}
+            theme={state.theme}
+            platform={state.platform}
+            textMode={state.textMode || 'structured'}
+            onTextModeChange={setTextMode}
+            freeformText={state.freeformText || {}}
+            onAddBlock={addFreeformBlock}
+            onUpdateBlock={updateFreeformBlock}
+            onRemoveBlock={removeFreeformBlock}
+            onMoveBlock={moveFreeformBlock}
+            selectedCell={safeSelectedCell}
+            onSelectCell={setSelectedCell}
+          />
+        )}
+      </ErrorBoundary>
+      <ErrorBoundary title="Layout error" message="Failed to load layout controls.">
+        {activeSection === 'layout' && (
+          <LayoutTab
+            layout={state.layout}
+            onLayoutChange={setLayout}
+            platform={state.platform}
+            selectedCell={safeSelectedCell}
+            onSelectCell={setSelectedCell}
+            cellImages={state.cellImages}
+            images={state.images}
+            onUpdateImage={updateImage}
+          />
+        )}
+      </ErrorBoundary>
+      <ErrorBoundary title="Style error" message="Failed to load style controls.">
+        {activeSection === 'style' && (
+          <StyleTab
+            theme={state.theme}
+            selectedFonts={state.fonts}
+            onFontsChange={setFonts}
+            layout={state.layout}
+            onLayoutChange={setLayout}
+            platform={state.platform}
+            padding={state.padding}
+            onPaddingChange={setPadding}
+            frame={state.frame}
+            onFrameChange={setFrame}
+            cellImages={state.cellImages}
+            selectedCell={safeSelectedCell}
+            onSelectCell={setSelectedCell}
+          />
+        )}
+      </ErrorBoundary>
+    </div>
+  ), [activeSection, safeSelectedCell,
+      // Specific state slices (not `state` itself, which is a new object every render)
+      state.activeStylePreset, state.layout, state.platform, state.theme, state.images, state.cellImages,
+      state.logo, state.logoPosition, state.logoSize, state.text, state.fonts, state.padding, state.frame,
+      state.textMode, state.freeformText,
+      // Callbacks (stable refs from useAdState)
+      applyStylePreset, applyLayoutPreset, setTheme, setThemePreset,
+      addImage, removeImage, updateImage, updateImageFilters, updateImagePosition, updateImageOverlay, setCellImage,
+      setLogo, setLogoPosition, setLogoSize, setText, setLayout, setFonts, setPadding, setFrame,
+      setTextMode, addFreeformBlock, updateFreeformBlock, removeFreeformBlock, moveFreeformBlock, setSelectedCell])
+
+  // Shared modals — rendered in both mobile and desktop layouts
+  const modals = (
+    <>
+      {showShortcuts && <KeyboardShortcutsOverlay onClose={() => setShowShortcuts(false)} />}
+      <InstallInstructionsModal isOpen={showInstallModal} onClose={() => setShowInstallModal(false)} instructions={getInstallInstructions()} />
+      <TutorialModal isOpen={showTutorial} onClose={() => setShowTutorial(false)} />
+      <SaveLoadModal isOpen={showSaveLoadModal} onClose={() => setShowSaveLoadModal(false)} onSave={saveDesign} onLoad={loadDesign} onDelete={deleteDesign} getSavedDesigns={getSavedDesigns} />
+    </>
+  )
+
+  // Shared export overlay
+  const exportOverlay = isExporting && (
+    <div className="absolute inset-0 bg-dark-page/80 flex items-center justify-center backdrop-blur-sm z-10">
+      <div className="text-center">
+        <div className="inline-block w-8 h-8 border-2 border-primary/30 border-t-primary rounded-full animate-spin mb-3" />
+        <p className="text-white font-medium">Exporting...</p>
+        <button onClick={() => { cancelExportRef.current = true; setIsExporting(false) }} className="mt-3 px-4 py-1.5 text-sm text-white/70 hover:text-white rounded-lg hover:bg-white/10 transition-colors">Cancel</button>
+      </div>
+    </div>
+  )
+
+  // ─── Reader mode ───
   if (isReaderMode) {
     return (
       <div className="h-[100dvh] flex flex-col bg-zinc-100 dark:bg-dark-page">
-        {/* Load fonts */}
-        {fonts.map((font) => (
-          <link key={font.id} rel="stylesheet" href={font.url} />
-        ))}
-
-        {/* Reader header - compact, with safe area for notched devices */}
+        {fonts.map((font) => <link key={font.id} rel="stylesheet" href={font.url} />)}
         <header className="bg-white/80 dark:bg-dark-card/80 backdrop-blur-sm border-b border-zinc-200/60 dark:border-zinc-700/60 px-3 py-2 shrink-0" style={{ paddingTop: 'max(0.5rem, env(safe-area-inset-top, 0.5rem))' }}>
           <div className="flex items-center justify-between">
-            <button
-              onClick={() => setIsReaderMode(false)}
-              className="px-2 py-1 sm:px-3 sm:py-1.5 text-sm rounded-lg flex items-center gap-1.5 font-medium bg-zinc-100 dark:bg-dark-subtle text-ui-text hover:bg-zinc-200 dark:hover:bg-dark-elevated active:scale-95 transition-all"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-              </svg>
+            <button onClick={() => setIsReaderMode(false)} className="px-2 py-1 sm:px-3 sm:py-1.5 text-sm rounded-lg flex items-center gap-1.5 font-medium bg-zinc-100 dark:bg-dark-subtle text-ui-text hover:bg-zinc-200 dark:hover:bg-dark-elevated active:scale-95 transition-all">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
               <span className="hidden sm:inline">Back to Editor</span>
             </button>
-
-            {hasMultiplePages && (
-              <span className="text-sm font-medium text-ui-text-muted">
-                {state.activePage + 1} / {pageCount}
-              </span>
-            )}
-
-            <button
-              onClick={toggleDarkMode}
-              title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-              className="px-2 py-1 sm:px-3 sm:py-1.5 text-sm rounded-lg font-medium bg-zinc-100 dark:bg-dark-subtle text-ui-text hover:bg-zinc-200 dark:hover:bg-dark-elevated active:scale-95 transition-all"
-            >
+            {hasMultiplePages && <span className="text-sm font-medium text-ui-text-muted">{state.activePage + 1} / {pageCount}</span>}
+            <button onClick={toggleDarkMode} title={isDark ? 'Light mode' : 'Dark mode'} className="px-2 py-1 sm:px-3 sm:py-1.5 text-sm rounded-lg font-medium bg-zinc-100 dark:bg-dark-subtle text-ui-text hover:bg-zinc-200 dark:hover:bg-dark-elevated active:scale-95 transition-all">
               {isDark ? '☀️' : '🌙'}
             </button>
           </div>
         </header>
-
-        {/* Reader canvas - fills remaining space */}
         <main className="flex-1 flex flex-col items-center justify-center px-2 py-1 sm:px-4 sm:py-2 min-h-0">
-          <div
-            ref={previewContainerRef}
-            className="w-full flex justify-center"
-          >
-            <div
-              style={{
-                width: platform.width * previewScale,
-                height: platform.height * previewScale,
-              }}
-            >
+          <div ref={previewContainerRef} className="w-full flex justify-center">
+            <div style={{ width: platform.width * previewScale, height: platform.height * previewScale }}>
               <ErrorBoundary title="Preview error" message="Failed to render page.">
                 <AdCanvas ref={canvasRef} state={state} scale={previewScale} />
               </ErrorBoundary>
             </div>
           </div>
-
-          {/* Reader page navigation — safe area bottom for notched devices */}
           {hasMultiplePages && (
             <div className="flex items-center gap-3 mt-2 shrink-0" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
-              <button
-                onClick={() => setActivePage(state.activePage - 1)}
-                disabled={state.activePage === 0}
-                className="px-3 py-2 sm:py-1.5 text-sm font-medium rounded-lg bg-white dark:bg-dark-card border border-ui-border text-ui-text hover:bg-zinc-50 dark:hover:bg-dark-elevated disabled:opacity-30 disabled:cursor-not-allowed transition-all"
-              >
-                Prev
-              </button>
-
+              <button onClick={() => setActivePage(state.activePage - 1)} disabled={state.activePage === 0} className="px-3 py-2 sm:py-1.5 text-sm font-medium rounded-lg bg-white dark:bg-dark-card border border-ui-border text-ui-text hover:bg-zinc-50 dark:hover:bg-dark-elevated disabled:opacity-30 disabled:cursor-not-allowed transition-all">Prev</button>
               <div className="flex gap-1">
                 {pages.map((_, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setActivePage(index)}
-                    className={`w-8 h-8 sm:w-6 sm:h-6 rounded-full flex items-center justify-center text-[10px] font-bold transition-all ${
-                      index === state.activePage
-                        ? 'bg-primary text-white scale-110'
-                        : 'bg-zinc-200 dark:bg-zinc-600 text-zinc-500 dark:text-zinc-300 hover:bg-zinc-300 dark:hover:bg-zinc-500'
-                    }`}
-                    title={`Page ${index + 1}`}
-                  >
-                    {index + 1}
-                  </button>
+                  <button key={index} onClick={() => setActivePage(index)} className={`w-8 h-8 sm:w-6 sm:h-6 rounded-full flex items-center justify-center text-[10px] font-bold transition-all ${index === state.activePage ? 'bg-primary text-white scale-110' : 'bg-zinc-200 dark:bg-zinc-600 text-zinc-500 dark:text-zinc-300 hover:bg-zinc-300 dark:hover:bg-zinc-500'}`} title={`Page ${index + 1}`}>{index + 1}</button>
                 ))}
               </div>
-
-              <button
-                onClick={() => setActivePage(state.activePage + 1)}
-                disabled={state.activePage === pageCount - 1}
-                className="px-3 py-2 sm:py-1.5 text-sm font-medium rounded-lg bg-white dark:bg-dark-card border border-ui-border text-ui-text hover:bg-zinc-50 dark:hover:bg-dark-elevated disabled:opacity-30 disabled:cursor-not-allowed transition-all"
-              >
-                Next
-              </button>
+              <button onClick={() => setActivePage(state.activePage + 1)} disabled={state.activePage === pageCount - 1} className="px-3 py-2 sm:py-1.5 text-sm font-medium rounded-lg bg-white dark:bg-dark-card border border-ui-border text-ui-text hover:bg-zinc-50 dark:hover:bg-dark-elevated disabled:opacity-30 disabled:cursor-not-allowed transition-all">Next</button>
             </div>
           )}
         </main>
@@ -465,118 +510,188 @@ function App() {
     )
   }
 
-  // Normal editor mode
+  // ─── Mobile layout ───
+  // Requirement: Native app-like experience on mobile with bottom nav + bottom sheet.
+  // Approach: Fixed viewport (100dvh), edge-to-edge canvas, bottom sheet for tab controls.
+  // Alternatives:
+  //   - Responsive sidebar: Rejected — scroll-heavy, canvas hidden by controls.
+  //   - Tab content above canvas: Rejected — canvas should be primary focus.
+  if (isMobile) {
+    return (
+      <div className="h-[100dvh] flex flex-col overflow-hidden bg-zinc-100 dark:bg-dark-page">
+        {fonts.map((font) => <link key={font.id} rel="stylesheet" href={font.url} />)}
+
+        {/* Mobile header — compact with overflow menu */}
+        <header className="bg-white/90 dark:bg-dark-card/90 backdrop-blur-sm border-b border-zinc-200/60 dark:border-zinc-700/60 shrink-0 relative" style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}>
+          <div className="flex items-center justify-between px-3 py-2">
+            <div className="flex items-center gap-1.5">
+              <h1 className="text-base font-display font-bold text-ui-text tracking-tight">CanvaGrid</h1>
+              <span className="px-1 py-0.5 text-[8px] font-semibold uppercase tracking-wide bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300 rounded">Preview</span>
+            </div>
+            <div className="flex items-center gap-0.5">
+              <button onClick={() => setShowSaveLoadModal(true)} title="Save" className="p-2 rounded-lg text-ui-text hover:bg-zinc-100 dark:hover:bg-dark-subtle transition-colors">
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" /></svg>
+              </button>
+              <button onClick={toggleDarkMode} title={isDark ? 'Light mode' : 'Dark mode'} className="p-2 rounded-lg text-ui-text hover:bg-zinc-100 dark:hover:bg-dark-subtle transition-colors">
+                <span className="text-sm">{isDark ? '☀️' : '🌙'}</span>
+              </button>
+              <button onClick={(e) => { e.stopPropagation(); const opening = !showMobileMenu; setShowMobileMenu(opening); if (opening) closeMobileSheet() }} title="More options" className="p-2 rounded-lg text-ui-text hover:bg-zinc-100 dark:hover:bg-dark-subtle transition-colors">
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" /></svg>
+              </button>
+            </div>
+          </div>
+          {/* Overflow menu */}
+          {showMobileMenu && (
+            <>
+              <div className="fixed inset-0 z-40" onClick={() => setShowMobileMenu(false)} role="presentation" />
+              <div className="absolute right-3 top-full mt-1 z-50 bg-white dark:bg-dark-card rounded-xl shadow-lg border border-ui-border py-1 min-w-[180px]" role="menu">
+                {[
+                  { label: 'Reader Mode', icon: 'M15 12a3 3 0 11-6 0 3 3 0 016 0z', onClick: () => setIsReaderMode(true) },
+                  { label: 'Help & Tutorial', icon: 'M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z', onClick: () => setShowTutorial(true) },
+                  { label: 'Keyboard Shortcuts', icon: 'M3 8a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8zm4 2h2m2 0h2m2 0h2M5 14h14', onClick: () => setShowShortcuts(true) },
+                  { label: 'Refresh', icon: 'M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15', onClick: () => window.location.reload() },
+                ].map((item) => (
+                  <button key={item.label} onClick={() => { item.onClick(); setShowMobileMenu(false) }} className="w-full flex items-center gap-3 px-4 py-3 text-sm text-ui-text hover:bg-ui-surface-hover transition-colors">
+                    <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={item.icon} /></svg>
+                    {item.label}
+                  </button>
+                ))}
+                {canInstall && (
+                  <button onClick={() => { install(); setShowMobileMenu(false) }} className="w-full flex items-center gap-3 px-4 py-3 text-sm text-primary hover:bg-primary/5 transition-colors">
+                    <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                    Install App
+                  </button>
+                )}
+                {hasUpdate && (
+                  <button onClick={() => { update(); setShowMobileMenu(false) }} className="w-full flex items-center gap-3 px-4 py-3 text-sm text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors">
+                    <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+                    Update Available
+                  </button>
+                )}
+              </div>
+            </>
+          )}
+        </header>
+
+        {!isOnline && (
+          <div className="bg-amber-50 dark:bg-amber-900/30 border-b border-amber-200 dark:border-amber-800 px-3 py-1.5 text-center text-xs text-amber-700 dark:text-amber-300 shrink-0">
+            Offline — work saved locally
+          </div>
+        )}
+
+        {/* Compact context bar */}
+        <ContextBar
+          layout={state.layout} cellImages={state.cellImages} selectedCell={safeSelectedCell} onSelectCell={setSelectedCell} platform={state.platform}
+          undo={undo} redo={redo} canUndo={canUndo} canRedo={canRedo}
+          pages={pages} activePage={state.activePage} onSetActivePage={setActivePage}
+          onAddPage={addPage} onDuplicatePage={duplicatePage} onRemovePage={removePage} onMovePage={movePage} getPageState={getPageState}
+        />
+
+        {/* Canvas — fills remaining space, edge-to-edge */}
+        <main
+          ref={previewContainerRef}
+          className="flex-1 min-h-0 flex items-center justify-center relative bg-gradient-to-br from-zinc-50 to-zinc-100 dark:from-dark-subtle dark:to-dark-page"
+          onTouchStart={hasMultiplePages ? handleCanvasTouchStart : undefined}
+          onTouchEnd={hasMultiplePages ? handleCanvasTouchEnd : undefined}
+        >
+          <ErrorBoundary title="Preview error" message="Failed to render preview." className="w-full h-full min-h-[200px]">
+            <div className="relative" style={{ width: platform.width * previewScale, height: platform.height * previewScale }}>
+              <AdCanvas ref={canvasRef} state={state} scale={previewScale} />
+              {totalCells > 1 && <CanvasCellOverlay layout={state.layout} selectedCell={safeSelectedCell} onSelectCell={setSelectedCell} />}
+            </div>
+          </ErrorBoundary>
+          {exportOverlay}
+        </main>
+
+        {/* Platform info strip + empty state — below canvas, above nav */}
+        <div className="shrink-0 bg-white/90 dark:bg-dark-card/90 border-t border-zinc-200/30 dark:border-zinc-700/30">
+          <button
+            onClick={() => handleMobileTabChange('export')}
+            className="w-full flex items-center justify-between px-3 py-2 text-xs hover:bg-ui-surface-hover transition-colors"
+          >
+            <span className="font-medium text-ui-text-muted">
+              {platformGroup?.name || 'Platform'} — {platform.name}
+            </span>
+            <span className="text-ui-text-faint">
+              {platform.width} × {platform.height}
+            </span>
+          </button>
+          {isCanvasEmpty && !isExporting && (
+            <EmptyStateGuide onNavigate={(tab) => handleMobileTabChange(tab)} />
+          )}
+        </div>
+
+        {/* Bottom sheet — tab content slides up from bottom */}
+        <BottomSheet isOpen={mobileSheetOpen} onClose={closeMobileSheet} height={sheetHeight} onHeightChange={setSheetHeight}>
+          {activeSection === 'export' ? (
+            <div className="space-y-5">
+              <PlatformPreview selectedPlatform={state.platform} onPlatformChange={setPlatform} />
+              <ExportButtons
+                canvasRef={canvasRef} state={state} onPlatformChange={setPlatform} onExportFormatChange={setExportFormat}
+                onExportingChange={setIsExporting} cancelExportRef={cancelExportRef} pageCount={pageCount} onSetActivePage={setActivePage}
+              />
+            </div>
+          ) : tabContent}
+        </BottomSheet>
+
+        {/* Bottom navigation */}
+        <MobileNav activeTab={activeSection} sheetOpen={mobileSheetOpen} onTabChange={handleMobileTabChange} />
+
+        {modals}
+      </div>
+    )
+  }
+
+  // ─── Desktop layout ───
   return (
     <div className="min-h-screen" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
-      {/* Load fonts */}
-      {fonts.map((font) => (
-        <link key={font.id} rel="stylesheet" href={font.url} />
-      ))}
+      {fonts.map((font) => <link key={font.id} rel="stylesheet" href={font.url} />)}
 
-      {/* Requirement: Deduplicate desktop/mobile header buttons.
-          Approach: Single button set with responsive Tailwind classes.
-          Alternatives:
-            - Separate desktop/mobile JSX: Rejected — 200 lines of duplication. */}
-      {/* Header - scrolls away, ContextBar below is sticky */}
+      {/* Header */}
       <header className="bg-white/80 dark:bg-dark-card/80 backdrop-blur-sm border-b border-zinc-200/60 dark:border-zinc-700/60 px-4 py-3">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
           <div className="flex items-center justify-center sm:justify-start gap-2">
             <h1 className="text-lg font-display font-bold text-ui-text tracking-tight">CanvaGrid</h1>
-            <span className="px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300 rounded">
-              Research Preview
-            </span>
+            <span className="px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300 rounded">Research Preview</span>
           </div>
           <div className="flex flex-wrap justify-center sm:justify-end gap-1.5">
-            <button
-              onClick={() => setIsReaderMode(true)}
-              title="Reader mode - view pages without editing UI"
-              className="px-3 py-1.5 text-sm rounded-lg flex items-center gap-1.5 font-medium bg-zinc-100 dark:bg-dark-subtle text-ui-text hover:bg-zinc-200 dark:hover:bg-dark-elevated active:scale-95 transition-all"
-            >
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-              </svg>
+            <button onClick={() => setIsReaderMode(true)} title="Reader mode" className="px-3 py-1.5 text-sm rounded-lg flex items-center gap-1.5 font-medium bg-zinc-100 dark:bg-dark-subtle text-ui-text hover:bg-zinc-200 dark:hover:bg-dark-elevated active:scale-95 transition-all">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
               <span className="hidden sm:inline">View</span>
             </button>
-            <button
-              onClick={() => setShowSaveLoadModal(true)}
-              title="Save or load designs"
-              className="px-3 py-1.5 text-sm rounded-lg flex items-center gap-1.5 font-medium bg-zinc-100 dark:bg-dark-subtle text-ui-text hover:bg-zinc-200 dark:hover:bg-dark-elevated active:scale-95 transition-all"
-            >
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
-              </svg>
+            <button onClick={() => setShowSaveLoadModal(true)} title="Save or load" className="px-3 py-1.5 text-sm rounded-lg flex items-center gap-1.5 font-medium bg-zinc-100 dark:bg-dark-subtle text-ui-text hover:bg-zinc-200 dark:hover:bg-dark-elevated active:scale-95 transition-all">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" /></svg>
               <span className="hidden sm:inline">Save</span>
             </button>
-            <button
-              onClick={() => setShowTutorial(true)}
-              title="Help & Tutorial"
-              className="px-3 py-1.5 text-sm rounded-lg flex items-center gap-1.5 font-medium bg-zinc-100 dark:bg-dark-subtle text-ui-text hover:bg-zinc-200 dark:hover:bg-dark-elevated active:scale-95 transition-all"
-            >
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
+            <button onClick={() => setShowTutorial(true)} title="Help" className="px-3 py-1.5 text-sm rounded-lg flex items-center gap-1.5 font-medium bg-zinc-100 dark:bg-dark-subtle text-ui-text hover:bg-zinc-200 dark:hover:bg-dark-elevated active:scale-95 transition-all">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
               <span className="hidden sm:inline">Help</span>
             </button>
-            <button
-              onClick={() => setShowShortcuts(true)}
-              title="Keyboard shortcuts"
-              className="px-3 py-1.5 text-sm rounded-lg flex items-center gap-1.5 font-medium bg-zinc-100 dark:bg-dark-subtle text-ui-text hover:bg-zinc-200 dark:hover:bg-dark-elevated active:scale-95 transition-all"
-            >
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 8a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8zm4 2h2m2 0h2m2 0h2M5 14h14" />
-              </svg>
+            <button onClick={() => setShowShortcuts(true)} title="Keyboard shortcuts" className="px-3 py-1.5 text-sm rounded-lg flex items-center gap-1.5 font-medium bg-zinc-100 dark:bg-dark-subtle text-ui-text hover:bg-zinc-200 dark:hover:bg-dark-elevated active:scale-95 transition-all">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 8a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8zm4 2h2m2 0h2m2 0h2M5 14h14" /></svg>
             </button>
-            <button
-              onClick={toggleDarkMode}
-              title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-              className="px-3 py-1.5 text-sm rounded-lg flex items-center gap-1.5 font-medium bg-zinc-100 dark:bg-dark-subtle text-ui-text hover:bg-zinc-200 dark:hover:bg-dark-elevated active:scale-95 transition-all"
-            >
+            <button onClick={toggleDarkMode} title={isDark ? 'Light mode' : 'Dark mode'} className="px-3 py-1.5 text-sm rounded-lg flex items-center gap-1.5 font-medium bg-zinc-100 dark:bg-dark-subtle text-ui-text hover:bg-zinc-200 dark:hover:bg-dark-elevated active:scale-95 transition-all">
               {isDark ? '☀️' : '🌙'}
             </button>
-            <button
-              onClick={() => window.location.reload()}
-              title="Refresh page"
-              className="px-3 py-1.5 text-sm rounded-lg flex items-center gap-1.5 font-medium bg-zinc-100 dark:bg-dark-subtle text-ui-text hover:bg-zinc-200 dark:hover:bg-dark-elevated active:scale-95 transition-all"
-            >
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-              </svg>
+            <button onClick={() => window.location.reload()} title="Refresh" className="px-3 py-1.5 text-sm rounded-lg flex items-center gap-1.5 font-medium bg-zinc-100 dark:bg-dark-subtle text-ui-text hover:bg-zinc-200 dark:hover:bg-dark-elevated active:scale-95 transition-all">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
               <span className="hidden sm:inline">Refresh</span>
             </button>
             {canInstall && (
-              <button
-                onClick={install}
-                title="Install app"
-                className="px-3 py-1.5 text-sm rounded-lg flex items-center gap-1.5 font-medium bg-primary text-white hover:bg-primary-hover active:scale-95 transition-all"
-              >
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                </svg>
+              <button onClick={install} title="Install app" className="px-3 py-1.5 text-sm rounded-lg flex items-center gap-1.5 font-medium bg-primary text-white hover:bg-primary-hover active:scale-95 transition-all">
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
                 <span>Install</span>
               </button>
             )}
             {!canInstall && showManualInstructions && !isInstalled && (
-              <button
-                onClick={() => setShowInstallModal(true)}
-                title="How to install this app"
-                className="px-3 py-1.5 text-sm rounded-lg flex items-center gap-1.5 font-medium bg-zinc-100 dark:bg-dark-subtle text-ui-text hover:bg-zinc-200 dark:hover:bg-dark-elevated active:scale-95 transition-all"
-              >
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                </svg>
+              <button onClick={() => setShowInstallModal(true)} title="Install" className="px-3 py-1.5 text-sm rounded-lg flex items-center gap-1.5 font-medium bg-zinc-100 dark:bg-dark-subtle text-ui-text hover:bg-zinc-200 dark:hover:bg-dark-elevated active:scale-95 transition-all">
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
                 <span>Install</span>
               </button>
             )}
             {hasUpdate && (
-              <button
-                onClick={update}
-                title="Update available - click to refresh"
-                className="px-3 py-1.5 text-sm rounded-lg flex items-center gap-1.5 font-medium bg-emerald-500 text-white hover:bg-emerald-600 active:scale-95 transition-all"
-              >
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                </svg>
+              <button onClick={update} title="Update available" className="px-3 py-1.5 text-sm rounded-lg flex items-center gap-1.5 font-medium bg-emerald-500 text-white hover:bg-emerald-600 active:scale-95 transition-all">
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
                 <span>Update</span>
               </button>
             )}
@@ -584,27 +699,18 @@ function App() {
         </div>
       </header>
 
-      {/* Offline banner */}
       {!isOnline && (
         <div className="bg-amber-50 dark:bg-amber-900/30 border-b border-amber-200 dark:border-amber-800 px-4 py-2 text-center text-sm text-amber-700 dark:text-amber-300">
           You're offline. Your work is saved locally, but sample images and fonts may not load.
         </div>
       )}
 
-      {/* Tab Navigation Bar - full width, website header style */}
+      {/* Tab nav bar — desktop only */}
       <nav ref={tabNavRef} className="bg-white/90 dark:bg-dark-card/90 backdrop-blur-sm border-b border-zinc-200/60 dark:border-zinc-700/60 sticky top-0 z-10">
         <div className="flex items-center">
           <div className="flex overflow-x-auto scrollbar-thin">
             {sections.map((section) => (
-              <button
-                key={section.id}
-                onClick={() => setActiveSection(section.id)}
-                className={`px-4 py-2.5 text-sm font-medium whitespace-nowrap transition-all border-b-2 ${
-                  activeSection === section.id
-                    ? 'border-primary text-primary bg-primary/5 dark:bg-primary/10'
-                    : 'border-transparent text-ui-text-muted hover:text-ui-text hover:border-zinc-300 dark:hover:border-zinc-600 hover:bg-zinc-50 dark:hover:bg-dark-subtle'
-                }`}
-              >
+              <button key={section.id} onClick={() => setActiveSection(section.id)} className={`px-4 py-2.5 text-sm font-medium whitespace-nowrap transition-all border-b-2 ${activeSection === section.id ? 'border-primary text-primary bg-primary/5 dark:bg-primary/10' : 'border-transparent text-ui-text-muted hover:text-ui-text hover:border-zinc-300 dark:hover:border-zinc-600 hover:bg-zinc-50 dark:hover:bg-dark-subtle'}`}>
                 {section.label}
               </button>
             ))}
@@ -612,264 +718,58 @@ function App() {
         </div>
       </nav>
 
-      {/* Context bar: cell selector, pages, undo/redo */}
       <ContextBar
-        layout={state.layout}
-        cellImages={state.cellImages}
-        selectedCell={safeSelectedCell}
-        onSelectCell={setSelectedCell}
-        platform={state.platform}
-        undo={undo}
-        redo={redo}
-        canUndo={canUndo}
-        canRedo={canRedo}
-        pages={pages}
-        activePage={state.activePage}
-        onSetActivePage={setActivePage}
-        onAddPage={addPage}
-        onDuplicatePage={duplicatePage}
-        onRemovePage={removePage}
-        onMovePage={movePage}
-        getPageState={getPageState}
+        layout={state.layout} cellImages={state.cellImages} selectedCell={safeSelectedCell} onSelectCell={setSelectedCell} platform={state.platform}
+        undo={undo} redo={redo} canUndo={canUndo} canRedo={canRedo}
+        pages={pages} activePage={state.activePage} onSetActivePage={setActivePage}
+        onAddPage={addPage} onDuplicatePage={duplicatePage} onRemovePage={removePage} onMovePage={movePage} getPageState={getPageState}
       />
 
-      {/* Requirement: On mobile, show canvas first so users see their design immediately
-          Approach: flex-col-reverse on mobile, normal order on desktop
-          Alternatives:
-            - Sidebar first always: Rejected — on mobile, users scroll past controls to see canvas */}
-      <div className="flex flex-col-reverse lg:flex-row lg:items-stretch">
-        {/* Sidebar Controls */}
-        {/* Requirement: Extra bottom spacing on mobile so sidebar content isn't flush with screen edge
-            Approach: pb-24 on mobile for comfortable scroll end, normal pb on desktop
-            Alternatives:
-              - Small padding (pb-4): Rejected — content feels cramped at bottom on phones
-              - Inline style with safe-area-inset: Rejected — overrides desktop padding too */}
-        <aside className="w-full lg:w-96 p-4 pb-24 lg:p-5 lg:pr-0 lg:pb-5">
-          <div className="bg-white dark:bg-dark-card rounded-xl border border-zinc-200/80 dark:border-zinc-700/50 shadow-card p-4 lg:p-5">
-            {/* Section Content */}
-            <div className="space-y-5">
-              <ErrorBoundary title="Templates error" message="Failed to load templates.">
-                {activeSection === 'templates' && (
-                  <TemplatesTab
-                    activeStylePreset={state.activeStylePreset}
-                    onSelectStylePreset={applyStylePreset}
-                    layout={state.layout}
-                    onApplyLayoutPreset={applyLayoutPreset}
-
-                    platform={state.platform}
-                    theme={state.theme}
-                    onThemeChange={setTheme}
-                    onThemePresetChange={setThemePreset}
-                  />
-                )}
-              </ErrorBoundary>
-
-              <ErrorBoundary title="Media error" message="Failed to load media controls.">
-                {activeSection === 'media' && (
-                  <MediaTab
-                    // Image pool
-                    images={state.images}
-                    onAddImage={addImage}
-                    onRemoveImage={removeImage}
-                    onUpdateImage={updateImage}
-                    onUpdateImageFilters={updateImageFilters}
-                    onUpdateImagePosition={updateImagePosition}
-                    onUpdateImageOverlay={updateImageOverlay}
-                    // Cell assignments
-                    cellImages={state.cellImages}
-                    onSetCellImage={setCellImage}
-                    // Logo
-                    logo={state.logo}
-                    onLogoChange={setLogo}
-                    logoPosition={state.logoPosition}
-                    onLogoPositionChange={setLogoPosition}
-                    logoSize={state.logoSize}
-                    onLogoSizeChange={setLogoSize}
-                    // Layout and other
-                    layout={state.layout}
-                    platform={state.platform}
-                    theme={state.theme}
-                    // Global cell selection
-                    selectedCell={safeSelectedCell}
-                    onSelectCell={setSelectedCell}
-                  />
-                )}
-              </ErrorBoundary>
-
-              <ErrorBoundary title="Content error" message="Failed to load content controls.">
-                {activeSection === 'content' && (
-                  <ContentTab
-                    text={state.text}
-                    onTextChange={setText}
-                    layout={state.layout}
-                    onLayoutChange={setLayout}
-                    theme={state.theme}
-                    platform={state.platform}
-                    textMode={state.textMode || 'structured'}
-                    onTextModeChange={setTextMode}
-                    freeformText={state.freeformText || {}}
-                    onAddBlock={addFreeformBlock}
-                    onUpdateBlock={updateFreeformBlock}
-                    onRemoveBlock={removeFreeformBlock}
-                    onMoveBlock={moveFreeformBlock}
-                    selectedCell={safeSelectedCell}
-                    onSelectCell={setSelectedCell}
-                  />
-                )}
-              </ErrorBoundary>
-
-              <ErrorBoundary title="Layout error" message="Failed to load layout controls.">
-                {activeSection === 'layout' && (
-                  <LayoutTab
-                    layout={state.layout}
-                    onLayoutChange={setLayout}
-                    platform={state.platform}
-                    selectedCell={safeSelectedCell}
-                    onSelectCell={setSelectedCell}
-                    cellImages={state.cellImages}
-                    images={state.images}
-                    onUpdateImage={updateImage}
-                  />
-                )}
-              </ErrorBoundary>
-
-              <ErrorBoundary title="Style error" message="Failed to load style controls.">
-                {activeSection === 'style' && (
-                  <StyleTab
-                    theme={state.theme}
-                    selectedFonts={state.fonts}
-                    onFontsChange={setFonts}
-                    layout={state.layout}
-                    onLayoutChange={setLayout}
-                    platform={state.platform}
-                    padding={state.padding}
-                    onPaddingChange={setPadding}
-                    frame={state.frame}
-                    onFrameChange={setFrame}
-                    cellImages={state.cellImages}
-                    selectedCell={safeSelectedCell}
-                    onSelectCell={setSelectedCell}
-                  />
-                )}
-              </ErrorBoundary>
-            </div>
+      {/* Desktop-only path: always >= 1024px, no responsive prefixes needed */}
+      <div className="flex flex-row items-stretch">
+        <aside className="w-96 p-5 pr-0 pb-5">
+          <div className="bg-white dark:bg-dark-card rounded-xl border border-zinc-200/80 dark:border-zinc-700/50 shadow-card p-5">
+            {tabContent}
           </div>
         </aside>
 
-        {/* Preview Area */}
-        <main className="flex-1 p-4 lg:p-5 space-y-4">
-          {/* Platform Selector */}
-          <div className="bg-white dark:bg-dark-card rounded-xl border border-zinc-200/80 dark:border-zinc-700/50 shadow-card p-4 lg:p-5">
+        <main className="flex-1 p-5 space-y-4">
+          <div className="bg-white dark:bg-dark-card rounded-xl border border-zinc-200/80 dark:border-zinc-700/50 shadow-card p-5">
             <PlatformPreview selectedPlatform={state.platform} onPlatformChange={setPlatform} />
           </div>
 
-          {/* Canvas Preview */}
-          <div className="bg-white dark:bg-dark-card rounded-xl border border-zinc-200/80 dark:border-zinc-700/50 shadow-card p-4 lg:p-6">
+          <div className="bg-white dark:bg-dark-card rounded-xl border border-zinc-200/80 dark:border-zinc-700/50 shadow-card p-6">
             <div
               ref={previewContainerRef}
               className="relative bg-gradient-to-br from-zinc-50 to-zinc-100 dark:from-dark-subtle dark:to-dark-page rounded-xl overflow-hidden flex items-center justify-center border border-zinc-200/50 dark:border-zinc-700/50"
-              style={{
-                minHeight: platform.height * previewScale + 40,
-              }}
+              style={{ minHeight: platform.height * previewScale + 40 }}
             >
               <ErrorBoundary title="Preview error" message="Failed to render the ad preview." className="w-full h-full min-h-[200px]">
-                <div
-                  className="relative"
-                  style={{
-                    width: platform.width * previewScale,
-                    height: platform.height * previewScale,
-                  }}
-                >
+                <div className="relative" style={{ width: platform.width * previewScale, height: platform.height * previewScale }}>
                   <AdCanvas ref={canvasRef} state={state} scale={previewScale} />
-                  {/* Click-to-select cell overlay */}
-                  {totalCells > 1 && (
-                    <CanvasCellOverlay
-                      layout={state.layout}
-                      selectedCell={safeSelectedCell}
-                      onSelectCell={setSelectedCell}
-                    />
-                  )}
+                  {totalCells > 1 && <CanvasCellOverlay layout={state.layout} selectedCell={safeSelectedCell} onSelectCell={setSelectedCell} />}
                 </div>
               </ErrorBoundary>
-
-              {/* Empty state guidance — helps new users get started */}
-              {isCanvasEmpty && !isExporting && (
-                <EmptyStateGuide onNavigate={setActiveSection} />
-              )}
-
-              {/* Export overlay with cancel option */}
-              {isExporting && (
-                <div className="absolute inset-0 bg-dark-page/80 flex items-center justify-center rounded-xl backdrop-blur-sm">
-                  <div className="text-center">
-                    <div className="inline-block w-8 h-8 border-2 border-primary/30 border-t-primary rounded-full animate-spin mb-3" />
-                    <p className="text-white font-medium">Exporting...</p>
-                    <button
-                      onClick={() => { cancelExportRef.current = true; setIsExporting(false) }}
-                      className="mt-3 px-4 py-1.5 text-sm text-white/70 hover:text-white rounded-lg hover:bg-white/10 transition-colors"
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                </div>
-              )}
+              {exportOverlay}
             </div>
 
-            {/* Quick actions bar for selected cell — shortcuts to common per-cell actions */}
-            {totalCells > 1 && (
-              <QuickActionsBar selectedCell={safeSelectedCell} onNavigate={setActiveSection} />
-            )}
+            {isCanvasEmpty && !isExporting && <EmptyStateGuide onNavigate={setActiveSection} />}
+            {totalCells > 1 && <QuickActionsBar selectedCell={safeSelectedCell} onNavigate={setActiveSection} />}
 
-            {/* Export Buttons */}
             <div className="mt-5">
               <ErrorBoundary title="Export error" message="Failed to load export options.">
-                <ExportButtons
-                  canvasRef={canvasRef}
-                  state={state}
-                  onPlatformChange={setPlatform}
-                  onExportFormatChange={setExportFormat}
-                  onExportingChange={setIsExporting}
-                  cancelExportRef={cancelExportRef}
-                  pageCount={pageCount}
-                  onSetActivePage={setActivePage}
-                />
+                <ExportButtons canvasRef={canvasRef} state={state} onPlatformChange={setPlatform} onExportFormatChange={setExportFormat} onExportingChange={setIsExporting} cancelExportRef={cancelExportRef} pageCount={pageCount} onSetActivePage={setActivePage} />
               </ErrorBoundary>
             </div>
           </div>
         </main>
       </div>
 
-      {/* Keyboard shortcuts overlay */}
-      {showShortcuts && (
-        <KeyboardShortcutsOverlay onClose={() => setShowShortcuts(false)} />
-      )}
-
-      {/* Install Instructions Modal */}
-      <InstallInstructionsModal
-        isOpen={showInstallModal}
-        onClose={() => setShowInstallModal(false)}
-        instructions={getInstallInstructions()}
-      />
-
-      {/* Tutorial Modal */}
-      <TutorialModal
-        isOpen={showTutorial}
-        onClose={() => setShowTutorial(false)}
-      />
-
-      {/* Save/Load Modal */}
-      <SaveLoadModal
-        isOpen={showSaveLoadModal}
-        onClose={() => setShowSaveLoadModal(false)}
-        onSave={saveDesign}
-        onLoad={loadDesign}
-        onDelete={deleteDesign}
-        getSavedDesigns={getSavedDesigns}
-      />
+      {modals}
     </div>
   )
 }
 
-// Wrap App with ToastProvider so all components can use useToast
 export default function AppWithProviders() {
   return (
     <ToastProvider>

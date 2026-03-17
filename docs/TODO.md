@@ -19,10 +19,18 @@ Future enhancements and ideas for CanvaGrid.
 | Item | Effort | Description |
 |------|--------|-------------|
 | **Looks define per-element text styling** | Medium | Extend `stylePresets.js` to include text colors and bold/italic per element. Makes presets feel more polished. |
-| **Extract large components** | Medium | `MediaTab.jsx` (1328), `LayoutTab.jsx` (911), `useAdState.js` (852), `AdCanvas.jsx` (818) exceed the 800-line threshold. Extract sub-components when next modifying these files. `App.jsx` reduced to ~820 via extraction of `KeyboardShortcutsOverlay`, `EmptyStateGuide`, `ZoomControls`, `QuickActionsBar`. |
-| ~~**Replace browser confirm() in SaveLoadModal and ContextBar**~~ | ~~Low~~ | Done — `ConfirmButton.jsx` replaces `confirm()` in both components. |
-| ~~**Save feedback**~~ | ~~Low~~ | Done — Toast notifications added for save, delete, and all export operations. |
+| **Extract large components** | Medium | `MediaTab.jsx` (1328), `LayoutTab.jsx` (911), `useAdState.js` (852), `AdCanvas.jsx` (818) exceed the 800-line threshold. Extract sub-components when next modifying these files. `App.jsx` grew again with dual mobile/desktop layout paths — see "Extract App.jsx mobile/desktop paths" in Mobile UX section. |
 | **Unassigned image feedback** | Low | `useAdState.js:224` — `addImage()` auto-assigns to first unoccupied image cell, but if all cells are occupied the image is added to the library with no cell and no feedback to the user about why. |
+
+### Mobile UX
+
+| Item | Effort | Description |
+|------|--------|-------------|
+| **Pinch-to-zoom on canvas** | Medium | Mobile canvas is edge-to-edge but no zoom. Add pinch gesture to zoom in/out on the canvas preview. Needs careful interaction with swipe-to-navigate-pages. |
+| **Long-press cell actions** | Low | Long-press on a cell in the canvas to show a context menu (assign image, edit text, change overlay). Reduces tab-hopping on mobile. |
+| **Platform picker modal redesign** | Medium | Platform selector is a long scrollable list — awkward in a bottom sheet. Consider a dedicated modal or grouped card layout for mobile. |
+| **Lazy font loading** | Low | All 15 Google Fonts load on mount. On mobile with slow connections, defer loading non-active fonts until the font picker is opened. |
+| **Extract App.jsx mobile/desktop paths** | Medium | App.jsx grew with dual layout rendering. Consider extracting `MobileLayout` and `DesktopLayout` wrapper components to keep App.jsx focused on state. |
 
 ### Low Priority (Long-term)
 

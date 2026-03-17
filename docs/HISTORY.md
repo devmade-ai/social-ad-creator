@@ -1,5 +1,27 @@
 # Changelog
 
+## 2026-03-15
+
+### Mobile redesign — dedicated mobile layout with bottom sheet and bottom nav
+
+**New files:**
+- `src/hooks/useIsMobile.js` — matchMedia hook detecting viewport < 1024px (Tailwind lg breakpoint)
+- `src/components/BottomSheet.jsx` — Touch-draggable bottom sheet with 3 snap points (closed/half/full) for mobile tab content
+- `src/components/MobileNav.jsx` — Fixed bottom navigation bar with 6 tabs (Presets, Media, Content, Structure, Style, Export)
+
+**App.jsx refactor:**
+- Conditional mobile/desktop layout rendering via `useIsMobile`
+- Mobile: fixed viewport, edge-to-edge canvas, bottom sheet for controls, compact header with hamburger overflow menu, swipe-between-pages gesture, platform info strip
+- Desktop: unchanged (sidebar + tab nav bar pattern)
+- Export promoted to dedicated tab on mobile (vs sidebar section on desktop)
+
+**Touch optimizations:**
+- `CollapsibleSection.jsx` — Larger touch targets on mobile (py-3 vs py-2.5)
+- `index.css` — Larger range input thumbs on mobile (24px), removed body safe-area padding (now per-component)
+- `EmptyStateGuide.jsx` — Moved from canvas overlay to below canvas (normal document flow)
+
+---
+
 ## 2026-03-12
 
 ### UX/UI improvements — 8 features inspired by design editor analysis

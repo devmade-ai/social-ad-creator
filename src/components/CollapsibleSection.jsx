@@ -23,7 +23,7 @@ export default memo(function CollapsibleSection({
       {/* Header */}
       <button
         onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full flex items-center justify-between px-3 py-2.5 bg-ui-surface-elevated hover:bg-zinc-100 dark:hover:bg-dark-elevated transition-colors"
+        className="w-full flex items-center justify-between px-3 py-3 lg:py-2.5 bg-ui-surface-elevated hover:bg-zinc-100 dark:hover:bg-dark-elevated transition-colors"
       >
         <span className="text-sm font-medium text-ui-text flex items-center gap-2 min-w-0">
           <span className="shrink-0">{title}</span>
