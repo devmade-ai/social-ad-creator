@@ -205,10 +205,12 @@ function App() {
     if (Math.abs(dx) > SWIPE_THRESHOLD && Math.abs(dx) > Math.abs(dy) * 1.5) {
       // Prevent synthesized click from triggering cell selection during swipe
       e.preventDefault()
-      if (dx > 0 && state.activePage > 0) setActivePage(state.activePage - 1)
-      else if (dx < 0 && state.activePage < pageCount - 1) setActivePage(state.activePage + 1)
+      // Read from ref to avoid stale closure on rapid successive swipes
+      const { activePage, pageCount: pc, setActivePage: goTo } = keyboardRef.current
+      if (dx > 0 && activePage > 0) goTo(activePage - 1)
+      else if (dx < 0 && activePage < pc - 1) goTo(activePage + 1)
     }
-  }, [state.activePage, pageCount, setActivePage])
+  }, [])
 
   // Keyboard shortcuts
   const keyboardRef = useRef({ undo, redo, isReaderMode, activePage: state.activePage, pageCount, setActivePage, showShortcuts, setShowShortcuts, setActiveSection, setIsReaderMode, isMobile, setMobileSheetOpen })
@@ -432,7 +434,13 @@ function App() {
         )}
       </ErrorBoundary>
     </div>
-  ), [activeSection, state, safeSelectedCell, applyStylePreset, applyLayoutPreset, setTheme, setThemePreset,
+  ), [activeSection, safeSelectedCell,
+      // Specific state slices (not `state` itself, which is a new object every render)
+      state.activeStylePreset, state.layout, state.platform, state.theme, state.images, state.cellImages,
+      state.logo, state.logoPosition, state.logoSize, state.text, state.fonts, state.padding, state.frame,
+      state.textMode, state.freeformText, state.exportFormat,
+      // Callbacks (stable refs from useAdState)
+      applyStylePreset, applyLayoutPreset, setTheme, setThemePreset,
       addImage, removeImage, updateImage, updateImageFilters, updateImagePosition, updateImageOverlay, setCellImage,
       setLogo, setLogoPosition, setLogoSize, setText, setLayout, setFonts, setPadding, setFrame,
       setTextMode, addFreeformBlock, updateFreeformBlock, removeFreeformBlock, moveFreeformBlock, setSelectedCell])
@@ -532,8 +540,8 @@ function App() {
           {/* Overflow menu */}
           {showMobileMenu && (
             <>
-              <div className="fixed inset-0 z-20" onClick={() => setShowMobileMenu(false)} />
-              <div className="absolute right-3 top-full mt-1 z-30 bg-white dark:bg-dark-card rounded-xl shadow-lg border border-ui-border py-1 min-w-[180px]">
+              <div className="fixed inset-0 z-40" onClick={() => setShowMobileMenu(false)} aria-label="Close menu" role="presentation" />
+              <div className="absolute right-3 top-full mt-1 z-50 bg-white dark:bg-dark-card rounded-xl shadow-lg border border-ui-border py-1 min-w-[180px]" role="menu">
                 {[
                   { label: 'Reader Mode', icon: 'M15 12a3 3 0 11-6 0 3 3 0 016 0z', onClick: () => setIsReaderMode(true) },
                   { label: 'Help & Tutorial', icon: 'M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z', onClick: () => setShowTutorial(true) },
@@ -714,19 +722,20 @@ function App() {
         onAddPage={addPage} onDuplicatePage={duplicatePage} onRemovePage={removePage} onMovePage={movePage} getPageState={getPageState}
       />
 
-      <div className="flex flex-col-reverse lg:flex-row lg:items-stretch">
-        <aside className="w-full lg:w-96 p-4 pb-24 lg:p-5 lg:pr-0 lg:pb-5">
-          <div className="bg-white dark:bg-dark-card rounded-xl border border-zinc-200/80 dark:border-zinc-700/50 shadow-card p-4 lg:p-5">
+      {/* Desktop-only path: always >= 1024px, no responsive prefixes needed */}
+      <div className="flex flex-row items-stretch">
+        <aside className="w-96 p-5 pr-0 pb-5">
+          <div className="bg-white dark:bg-dark-card rounded-xl border border-zinc-200/80 dark:border-zinc-700/50 shadow-card p-5">
             {tabContent}
           </div>
         </aside>
 
-        <main className="flex-1 p-4 lg:p-5 space-y-4">
-          <div className="bg-white dark:bg-dark-card rounded-xl border border-zinc-200/80 dark:border-zinc-700/50 shadow-card p-4 lg:p-5">
+        <main className="flex-1 p-5 space-y-4">
+          <div className="bg-white dark:bg-dark-card rounded-xl border border-zinc-200/80 dark:border-zinc-700/50 shadow-card p-5">
             <PlatformPreview selectedPlatform={state.platform} onPlatformChange={setPlatform} />
           </div>
 
-          <div className="bg-white dark:bg-dark-card rounded-xl border border-zinc-200/80 dark:border-zinc-700/50 shadow-card p-4 lg:p-6">
+          <div className="bg-white dark:bg-dark-card rounded-xl border border-zinc-200/80 dark:border-zinc-700/50 shadow-card p-6">
             <div
               ref={previewContainerRef}
               className="relative bg-gradient-to-br from-zinc-50 to-zinc-100 dark:from-dark-subtle dark:to-dark-page rounded-xl overflow-hidden flex items-center justify-center border border-zinc-200/50 dark:border-zinc-700/50"

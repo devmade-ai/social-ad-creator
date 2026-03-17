@@ -68,6 +68,8 @@ export default function BottomSheet({ isOpen, onClose, children, height, onHeigh
         className="fixed bottom-0 left-0 right-0 z-40 bg-white dark:bg-dark-card rounded-t-2xl shadow-lg flex flex-col transition-[height] duration-300 ease-out"
         style={{
           height: `${height}vh`,
+          // Cap height so sheet never overlaps header/ContextBar area
+          maxHeight: 'calc(100dvh - 6rem)',
           // Leave space for the mobile nav bar at the bottom
           paddingBottom: 'calc(3.5rem + env(safe-area-inset-bottom, 0px))',
         }}
