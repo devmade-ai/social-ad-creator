@@ -522,7 +522,8 @@ function App() {
         {fonts.map((font) => <link key={font.id} rel="stylesheet" href={font.url} />)}
 
         {/* Mobile header — compact with overflow menu */}
-        <header className="bg-white/90 dark:bg-dark-card/90 backdrop-blur-sm border-b border-zinc-200/60 dark:border-zinc-700/60 shrink-0 relative" style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}>
+        {/* z-[60] when menu open to layer above BottomSheet (z-40) and MobileNav (z-50) */}
+        <header className={`bg-white/90 dark:bg-dark-card/90 backdrop-blur-sm border-b border-zinc-200/60 dark:border-zinc-700/60 shrink-0 relative ${showMobileMenu ? 'z-[60]' : ''}`} style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}>
           <div className="flex items-center justify-between px-3 py-2">
             <div className="flex items-center gap-1.5">
               <h1 className="text-base font-display font-bold text-ui-text tracking-tight">CanvaGrid</h1>
@@ -577,6 +578,14 @@ function App() {
           <div className="bg-amber-50 dark:bg-amber-900/30 border-b border-amber-200 dark:border-amber-800 px-3 py-1.5 text-center text-xs text-amber-700 dark:text-amber-300 shrink-0">
             Offline — work saved locally
           </div>
+        )}
+
+        {/* Update banner — always visible so users can update even if menu is unreachable */}
+        {hasUpdate && (
+          <button onClick={update} className="w-full bg-emerald-50 dark:bg-emerald-900/30 border-b border-emerald-200 dark:border-emerald-800 px-3 py-2 flex items-center justify-center gap-2 text-xs font-medium text-emerald-700 dark:text-emerald-300 shrink-0 active:bg-emerald-100 dark:active:bg-emerald-900/50 transition-colors">
+            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+            Update available — tap to refresh
+          </button>
         )}
 
         {/* Compact context bar */}
