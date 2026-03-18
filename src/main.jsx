@@ -11,5 +11,7 @@ createRoot(document.getElementById('root')).render(
 )
 
 // Mount debug pill in a separate React root so it survives App crashes.
-// TEMP: Always mounted for testing PDF quality fix. Revert to DEV-only after.
-mountDebugPill()
+// Only in development mode.
+if (import.meta.env.DEV) {
+  mountDebugPill()
+}
