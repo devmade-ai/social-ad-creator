@@ -522,7 +522,8 @@ function App() {
         {fonts.map((font) => <link key={font.id} rel="stylesheet" href={font.url} />)}
 
         {/* Mobile header — compact with overflow menu */}
-        <header className="bg-white/90 dark:bg-dark-card/90 backdrop-blur-sm border-b border-zinc-200/60 dark:border-zinc-700/60 shrink-0 relative" style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}>
+        {/* z-[60] when menu open to layer above BottomSheet (z-40) and MobileNav (z-50) */}
+        <header className={`bg-white/90 dark:bg-dark-card/90 backdrop-blur-sm border-b border-zinc-200/60 dark:border-zinc-700/60 shrink-0 relative ${showMobileMenu ? 'z-[60]' : ''}`} style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}>
           <div className="flex items-center justify-between px-3 py-2">
             <div className="flex items-center gap-1.5">
               <h1 className="text-base font-display font-bold text-ui-text tracking-tight">CanvaGrid</h1>
