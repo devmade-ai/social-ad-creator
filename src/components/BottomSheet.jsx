@@ -5,9 +5,13 @@ import { useRef, useEffect, useCallback } from 'react'
 //   transform: translateY() for GPU-composited animation (no layout reflow).
 //   During drag, DOM is updated directly via ref — no React state updates
 //   until snap on touchend, eliminating re-renders of the entire App tree.
+//   No backdrop — canvas stays visible and interactive above the sheet
+//   (Maps/Uber pattern). Close via drag-down or MobileNav tab toggle.
 // Alternatives:
 //   - Animating CSS height: Rejected — triggers layout recalculation every
-//     frame, causing visible lag on mobile (the original bug).
+//     frame, causing visible lag on mobile.
+//   - Blocking backdrop: Rejected — prevents canvas interaction (cell
+//     selection, page swipe) while sheet is open.
 //   - Third-party library (react-spring, framer-motion): Rejected — adds
 //     bundle weight for a simple gesture.
 
@@ -24,7 +28,6 @@ function snapToTranslateY(snap) {
 
 export default function BottomSheet({ isOpen, onClose, children, snapPoint, onSnapChange }) {
   const sheetRef = useRef(null)
-  const backdropRef = useRef(null)
   const dragRef = useRef({ startY: 0, startTranslateVh: 0, isDragging: false })
   // Current translateY in vh units during drag (avoids stale closures)
   const currentTranslateRef = useRef(snapToTranslateY(SNAP_CLOSED))
@@ -35,13 +38,6 @@ export default function BottomSheet({ isOpen, onClose, children, snapPoint, onSn
     currentTranslateRef.current = translateVh
     sheetRef.current.style.transition = animate ? 'transform 300ms cubic-bezier(0.32, 0.72, 0, 1)' : 'none'
     sheetRef.current.style.transform = `translateY(${translateVh}vh)`
-    // Update backdrop opacity proportionally
-    if (backdropRef.current) {
-      const visibleVh = SNAP_FULL - translateVh
-      const opacity = Math.max(0, Math.min(0.2, (visibleVh / SNAP_FULL) * 0.2))
-      backdropRef.current.style.opacity = opacity
-      backdropRef.current.style.transition = animate ? 'opacity 300ms ease-out' : 'none'
-    }
   }, [])
 
   // Animate to snap point when it changes or sheet opens
@@ -79,7 +75,6 @@ export default function BottomSheet({ isOpen, onClose, children, snapPoint, onSn
     }
     // Disable transition during drag for instant response
     if (sheetRef.current) sheetRef.current.style.transition = 'none'
-    if (backdropRef.current) backdropRef.current.style.transition = 'none'
   }, [])
 
   const handleTouchMove = useCallback((e) => {
@@ -109,40 +104,30 @@ export default function BottomSheet({ isOpen, onClose, children, snapPoint, onSn
   if (!isOpen) return null
 
   return (
-    <>
-      {/* Backdrop */}
+    <div
+      ref={sheetRef}
+      className="fixed bottom-0 left-0 right-0 z-40 bg-white dark:bg-dark-card rounded-t-2xl shadow-[0_-4px_20px_rgba(0,0,0,0.12)] flex flex-col will-change-transform"
+      style={{
+        height: `${SNAP_FULL}vh`,
+        maxHeight: 'calc(100dvh - 6rem)',
+        paddingBottom: 'calc(3.5rem + env(safe-area-inset-bottom, 0px))',
+        // Start off-screen; useEffect will animate in
+        transform: `translateY(${SNAP_FULL}vh)`,
+      }}
+    >
+      {/* Drag handle */}
       <div
-        ref={backdropRef}
-        className="fixed inset-0 bg-black z-30"
-        style={{ opacity: 0 }}
-        onClick={onClose}
-      />
-      {/* Sheet — fixed at SNAP_FULL height, positioned via transform */}
-      <div
-        ref={sheetRef}
-        className="fixed bottom-0 left-0 right-0 z-40 bg-white dark:bg-dark-card rounded-t-2xl shadow-lg flex flex-col will-change-transform"
-        style={{
-          height: `${SNAP_FULL}vh`,
-          maxHeight: 'calc(100dvh - 6rem)',
-          paddingBottom: 'calc(3.5rem + env(safe-area-inset-bottom, 0px))',
-          // Start off-screen; useEffect will animate in
-          transform: `translateY(${SNAP_FULL}vh)`,
-        }}
+        className="flex justify-center py-3 cursor-grab active:cursor-grabbing shrink-0 touch-none"
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
       >
-        {/* Drag handle */}
-        <div
-          className="flex justify-center py-3 cursor-grab active:cursor-grabbing shrink-0 touch-none"
-          onTouchStart={handleTouchStart}
-          onTouchMove={handleTouchMove}
-          onTouchEnd={handleTouchEnd}
-        >
-          <div className="w-10 h-1 bg-zinc-300 dark:bg-zinc-600 rounded-full" />
-        </div>
-        {/* Scrollable content */}
-        <div className="flex-1 overflow-y-auto overscroll-contain px-4 pb-4">
-          {children}
-        </div>
+        <div className="w-10 h-1 bg-zinc-300 dark:bg-zinc-600 rounded-full" />
       </div>
-    </>
+      {/* Scrollable content */}
+      <div className="flex-1 overflow-y-auto overscroll-contain px-4 pb-4">
+        {children}
+      </div>
+    </div>
   )
 }
