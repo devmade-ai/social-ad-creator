@@ -521,9 +521,9 @@ function App() {
       <div className="h-[100dvh] flex flex-col overflow-hidden bg-zinc-100 dark:bg-dark-page">
         {fonts.map((font) => <link key={font.id} rel="stylesheet" href={font.url} />)}
 
-        {/* Mobile header — hidden when bottom sheet is open to maximize canvas space */}
+        {/* Mobile header — compact with overflow menu */}
         {/* z-[60] when menu open to layer above BottomSheet (z-40) and MobileNav (z-50) */}
-        <header className={`bg-white/90 dark:bg-dark-card/90 backdrop-blur-sm border-b border-zinc-200/60 dark:border-zinc-700/60 shrink-0 relative ${showMobileMenu ? 'z-[60]' : ''} ${mobileSheetOpen ? 'hidden' : ''}`} style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}>
+        <header className={`bg-white/90 dark:bg-dark-card/90 backdrop-blur-sm border-b border-zinc-200/60 dark:border-zinc-700/60 shrink-0 relative ${showMobileMenu ? 'z-[60]' : ''}`} style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}>
           <div className="flex items-center justify-between px-3 py-2">
             <div className="flex items-center gap-1.5">
               <h1 className="text-base font-display font-bold text-ui-text tracking-tight">CanvaGrid</h1>
@@ -588,13 +588,12 @@ function App() {
           </button>
         )}
 
-        {/* Compact context bar — hides page management when bottom sheet is open */}
+        {/* Compact context bar */}
         <ContextBar
           layout={state.layout} cellImages={state.cellImages} selectedCell={safeSelectedCell} onSelectCell={setSelectedCell} platform={state.platform}
           undo={undo} redo={redo} canUndo={canUndo} canRedo={canRedo}
           pages={pages} activePage={state.activePage} onSetActivePage={setActivePage}
           onAddPage={addPage} onDuplicatePage={duplicatePage} onRemovePage={removePage} onMovePage={movePage} getPageState={getPageState}
-          compact={mobileSheetOpen}
         />
 
         {/* Canvas — fills remaining space, edge-to-edge */}
@@ -613,8 +612,8 @@ function App() {
           {exportOverlay}
         </main>
 
-        {/* Platform info strip + empty state — hidden when bottom sheet is open */}
-        <div className={`shrink-0 bg-white/90 dark:bg-dark-card/90 border-t border-zinc-200/30 dark:border-zinc-700/30 ${mobileSheetOpen ? 'hidden' : ''}`}>
+        {/* Platform info strip + empty state — below canvas, above nav */}
+        <div className="shrink-0 bg-white/90 dark:bg-dark-card/90 border-t border-zinc-200/30 dark:border-zinc-700/30">
           <button
             onClick={() => handleMobileTabChange('export')}
             className="w-full flex items-center justify-between px-3 py-2 text-xs hover:bg-ui-surface-hover transition-colors"
