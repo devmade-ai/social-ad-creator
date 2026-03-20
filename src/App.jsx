@@ -601,7 +601,7 @@ function App() {
         {/* Canvas — fills remaining space, edge-to-edge */}
         <main
           ref={previewContainerRef}
-          className="flex-1 min-h-0 flex items-center justify-center relative bg-gradient-to-br from-zinc-50 to-zinc-100 dark:from-dark-subtle dark:to-dark-page"
+          className="flex-1 min-h-0 flex items-start justify-center relative bg-gradient-to-br from-zinc-50 to-zinc-100 dark:from-dark-subtle dark:to-dark-page"
           onTouchStart={hasMultiplePages ? handleCanvasTouchStart : undefined}
           onTouchEnd={hasMultiplePages ? handleCanvasTouchEnd : undefined}
         >
