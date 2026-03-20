@@ -164,6 +164,13 @@ export default memo(function ContextBar({
   onRemovePage,
   onMovePage,
   getPageState,
+  // Requirement: Hide page management row on mobile when bottom sheet is open
+  //   so the canvas gets maximum vertical space while editing.
+  // Approach: compact prop hides the pages row entirely.
+  // Alternatives:
+  //   - Collapse to smaller thumbnails: Rejected — still wastes space for controls
+  //     the user doesn't need mid-edit.
+  compact = false,
 }) {
   const scrollRef = useRef(null)
   const pageCount = pages.length
@@ -178,10 +185,10 @@ export default memo(function ContextBar({
   // Fallback 41px if var not set.
   return (
     <div className="bg-white/90 dark:bg-dark-card/90 backdrop-blur-sm border-b border-zinc-200/60 dark:border-zinc-700/60 px-3 sm:px-4 py-1.5 sticky z-[9]" style={{ top: 'var(--tab-nav-height, 41px)' }}>
-      {/* Mobile: two rows. Desktop: single row */}
+      {/* Mobile: two rows (pages + cells). Desktop: single row. Compact: cells only. */}
       <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-3">
-        {/* Pages row (own row on mobile, inline on desktop) */}
-        <div className="flex items-center gap-1.5 sm:flex-1 min-w-0">
+        {/* Pages row (own row on mobile, inline on desktop). Hidden in compact mode. */}
+        <div className={`flex items-center gap-1.5 sm:flex-1 min-w-0${compact ? ' hidden sm:flex' : ''}`}>
           <span className="text-[10px] text-ui-text-faint uppercase tracking-wide hidden sm:inline shrink-0">Pages</span>
 
           {/* Page thumbnails - scrollable */}
@@ -257,7 +264,7 @@ export default memo(function ContextBar({
         </div>
 
         {/* Divider - only on desktop (rows are visually separated on mobile) */}
-        <div className="w-px h-6 bg-ui-border shrink-0 hidden sm:block" />
+        <div className={`w-px h-6 bg-ui-border shrink-0 hidden sm:block`} />
 
         {/* Bottom row on mobile: cell selector + undo/redo */}
         <div className="flex items-center gap-2 sm:contents">

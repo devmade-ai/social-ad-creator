@@ -588,12 +588,13 @@ function App() {
           </button>
         )}
 
-        {/* Compact context bar */}
+        {/* Compact context bar — hides page management when bottom sheet is open */}
         <ContextBar
           layout={state.layout} cellImages={state.cellImages} selectedCell={safeSelectedCell} onSelectCell={setSelectedCell} platform={state.platform}
           undo={undo} redo={redo} canUndo={canUndo} canRedo={canRedo}
           pages={pages} activePage={state.activePage} onSetActivePage={setActivePage}
           onAddPage={addPage} onDuplicatePage={duplicatePage} onRemovePage={removePage} onMovePage={movePage} getPageState={getPageState}
+          compact={mobileSheetOpen}
         />
 
         {/* Canvas — fills remaining space, edge-to-edge */}
