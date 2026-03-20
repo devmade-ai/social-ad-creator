@@ -588,13 +588,15 @@ function App() {
           </button>
         )}
 
-        {/* Compact context bar */}
-        <ContextBar
-          layout={state.layout} cellImages={state.cellImages} selectedCell={safeSelectedCell} onSelectCell={setSelectedCell} platform={state.platform}
-          undo={undo} redo={redo} canUndo={canUndo} canRedo={canRedo}
-          pages={pages} activePage={state.activePage} onSetActivePage={setActivePage}
-          onAddPage={addPage} onDuplicatePage={duplicatePage} onRemovePage={removePage} onMovePage={movePage} getPageState={getPageState}
-        />
+        {/* Compact context bar — hidden when bottom sheet is open to maximize canvas space */}
+        {!mobileSheetOpen && (
+          <ContextBar
+            layout={state.layout} cellImages={state.cellImages} selectedCell={safeSelectedCell} onSelectCell={setSelectedCell} platform={state.platform}
+            undo={undo} redo={redo} canUndo={canUndo} canRedo={canRedo}
+            pages={pages} activePage={state.activePage} onSetActivePage={setActivePage}
+            onAddPage={addPage} onDuplicatePage={duplicatePage} onRemovePage={removePage} onMovePage={movePage} getPageState={getPageState}
+          />
+        )}
 
         {/* Canvas — fills remaining space, edge-to-edge */}
         <main
@@ -612,23 +614,25 @@ function App() {
           {exportOverlay}
         </main>
 
-        {/* Platform info strip + empty state — below canvas, above nav */}
-        <div className="shrink-0 bg-white/90 dark:bg-dark-card/90 border-t border-zinc-200/30 dark:border-zinc-700/30">
-          <button
-            onClick={() => handleMobileTabChange('export')}
-            className="w-full flex items-center justify-between px-3 py-2 text-xs hover:bg-ui-surface-hover transition-colors"
-          >
-            <span className="font-medium text-ui-text-muted">
-              {platformGroup?.name || 'Platform'} — {platform.name}
-            </span>
-            <span className="text-ui-text-faint">
-              {platform.width} × {platform.height}
-            </span>
-          </button>
-          {isCanvasEmpty && !isExporting && (
-            <EmptyStateGuide onNavigate={(tab) => handleMobileTabChange(tab)} />
-          )}
-        </div>
+        {/* Platform info strip + empty state — hidden when bottom sheet is open to maximize canvas space */}
+        {!mobileSheetOpen && (
+          <div className="shrink-0 bg-white/90 dark:bg-dark-card/90 border-t border-zinc-200/30 dark:border-zinc-700/30">
+            <button
+              onClick={() => handleMobileTabChange('export')}
+              className="w-full flex items-center justify-between px-3 py-2 text-xs hover:bg-ui-surface-hover transition-colors"
+            >
+              <span className="font-medium text-ui-text-muted">
+                {platformGroup?.name || 'Platform'} — {platform.name}
+              </span>
+              <span className="text-ui-text-faint">
+                {platform.width} × {platform.height}
+              </span>
+            </button>
+            {isCanvasEmpty && !isExporting && (
+              <EmptyStateGuide onNavigate={(tab) => handleMobileTabChange(tab)} />
+            )}
+          </div>
+        )}
 
         {/* Bottom sheet — tab content slides up from bottom */}
         <BottomSheet isOpen={mobileSheetOpen} onClose={closeMobileSheet} snapPoint={sheetSnap} onSnapChange={setSheetSnap}>
