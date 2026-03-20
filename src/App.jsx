@@ -30,7 +30,7 @@ import { ToastProvider } from './components/Toast'
 import KeyboardShortcutsOverlay from './components/KeyboardShortcutsOverlay'
 import EmptyStateGuide from './components/EmptyStateGuide'
 import QuickActionsBar from './components/QuickActionsBar'
-import BottomSheet, { SNAP_HALF } from './components/BottomSheet'
+import BottomSheet from './components/BottomSheet'
 import MobileNav from './components/MobileNav'
 import { useOnlineStatus } from './hooks/useOnlineStatus'
 import { platforms, findPlatformGroup } from './config/platforms'
@@ -134,7 +134,7 @@ function App() {
   // Mobile-specific state
   const isMobile = useIsMobile()
   const [mobileSheetOpen, setMobileSheetOpen] = useState(false)
-  const [sheetHeight, setSheetHeight] = useState(0)
+  const [sheetSnap, setSheetSnap] = useState(0)
   const [showMobileMenu, setShowMobileMenu] = useState(false)
   const swipeRef = useRef({ x: 0, y: 0 })
 
@@ -173,7 +173,7 @@ function App() {
   useEffect(() => {
     if (!isMobile) {
       setMobileSheetOpen(false)
-      setSheetHeight(0)
+      setSheetSnap(0)
       setShowMobileMenu(false)
     }
   }, [isMobile])
@@ -181,7 +181,7 @@ function App() {
   // Mobile helpers
   const closeMobileSheet = useCallback(() => {
     setMobileSheetOpen(false)
-    setSheetHeight(0)
+    setSheetSnap(0)
   }, [])
 
   const handleMobileTabChange = useCallback((tabId) => {
@@ -190,7 +190,7 @@ function App() {
     } else {
       setActiveSection(tabId)
       setMobileSheetOpen(true)
-      // BottomSheet auto-open effect handles height=0 → SNAP_HALF
+      // BottomSheet auto-open effect handles snap=0 → SNAP_HALF
     }
   }, [activeSection, mobileSheetOpen, closeMobileSheet])
 
@@ -631,7 +631,7 @@ function App() {
         </div>
 
         {/* Bottom sheet — tab content slides up from bottom */}
-        <BottomSheet isOpen={mobileSheetOpen} onClose={closeMobileSheet} height={sheetHeight} onHeightChange={setSheetHeight}>
+        <BottomSheet isOpen={mobileSheetOpen} onClose={closeMobileSheet} snapPoint={sheetSnap} onSnapChange={setSheetSnap}>
           {activeSection === 'export' ? (
             <div className="space-y-5">
               <PlatformPreview selectedPlatform={state.platform} onPlatformChange={setPlatform} />
