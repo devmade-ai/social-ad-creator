@@ -24,6 +24,10 @@ const tutorialSteps = [
         <ul className="space-y-2 text-sm">
           <li className="flex gap-2">
             <span className="text-violet-500">•</span>
+            <span><strong>Platform:</strong> Pick a size for your design — Instagram, TikTok, LinkedIn, print, and more. This sets the canvas dimensions.</span>
+          </li>
+          <li className="flex gap-2">
+            <span className="text-violet-500">•</span>
             <span><strong>Layout:</strong> Choose how to arrange your cells — single image, side-by-side, stacked, and more. Filter by shape (square, tall, wide).</span>
           </li>
           <li className="flex gap-2">
@@ -148,10 +152,6 @@ const tutorialSteps = [
         <ul className="space-y-2 text-sm">
           <li className="flex gap-2">
             <span className="text-violet-500">•</span>
-            <span><strong>Pick a size:</strong> Choose from 28 formats for Instagram, TikTok, LinkedIn, print, and more.</span>
-          </li>
-          <li className="flex gap-2">
-            <span className="text-violet-500">•</span>
             <span><strong>File format:</strong> Choose PNG, JPG, or WebP. Each platform shows a recommended format.</span>
           </li>
           <li className="flex gap-2">
@@ -159,7 +159,7 @@ const tutorialSteps = [
             <span><strong>Download:</strong> Single image, batch ZIP (multiple sizes), all pages ZIP, or PDF.</span>
           </li>
         </ul>
-        <p className="text-ui-text-muted text-sm">The preview on the right updates live as you make changes.</p>
+        <p className="text-ui-text-muted text-sm">Pick your target size in the Presets tab first — the preview updates live as you make changes.</p>
       </div>
     ),
   },

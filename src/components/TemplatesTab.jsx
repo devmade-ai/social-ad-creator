@@ -1,6 +1,7 @@
 import { useState, useMemo, memo } from 'react'
 import CollapsibleSection from './CollapsibleSection'
 import Tooltip from './Tooltip'
+import PlatformPreview from './PlatformPreview'
 import { lookPresets } from '../config/stylePresets'
 import {
   layoutPresets,
@@ -150,6 +151,7 @@ export default memo(function TemplatesTab({
   layout,
   onApplyLayoutPreset,
   platform,
+  onPlatformChange,
   theme,
   onThemeChange,
   onThemePresetChange,
@@ -208,6 +210,19 @@ export default memo(function TemplatesTab({
   return (
     <div className="space-y-3">
       <h3 className="text-sm font-semibold text-ui-text">Presets</h3>
+
+      {/* Requirement: Platform selection as first section in Presets tab
+          Why: Platform defines canvas dimensions — a foundational design decision,
+            not an export-time action. Users should pick platform before layout/theme.
+          Alternatives:
+            - Export tab (previous): Rejected — buries a design-time decision in export flow
+            - Structure tab: Rejected — Structure is for fine-tuning, not initial setup
+            - Always-visible strip: Rejected — wastes permanent screen space on mobile */}
+      {onPlatformChange && (
+        <CollapsibleSection title="Platform" defaultExpanded={false}>
+          <PlatformPreview selectedPlatform={platform} onPlatformChange={onPlatformChange} />
+        </CollapsibleSection>
+      )}
 
       {/* Layout Presets - Structure only (shown first) */}
       <CollapsibleSection title="Layout" defaultExpanded={false}>
