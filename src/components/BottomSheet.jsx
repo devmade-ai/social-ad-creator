@@ -26,11 +26,21 @@ function snapToTranslateY(snap) {
   return SNAP_FULL - snap
 }
 
+// Requirement: Bottom sheet content must always be scrollable within the visible area.
+// Approach: Constrain content max-height to current snapPoint so scroll region
+//   matches the visible portion of the sheet, not the full 85vh.
+// Alternatives:
+//   - Clip via overflow:hidden on outer div: Rejected — clips to container bounds (85vh), not viewport.
+//   - Dynamically resize sheet height: Rejected — changing height triggers layout reflow, defeats translateY perf.
+const HANDLE_AND_NAV_REM = 6 // ~2.5rem drag handle + 3.5rem nav padding
+
 export default function BottomSheet({ isOpen, onClose, children, snapPoint, onSnapChange }) {
   const sheetRef = useRef(null)
   const dragRef = useRef({ startY: 0, startTranslateVh: 0, isDragging: false })
   // Current translateY in vh units during drag (avoids stale closures)
   const currentTranslateRef = useRef(snapToTranslateY(SNAP_CLOSED))
+  // Default to SNAP_HALF when snap point hasn't been set yet (e.g., during open animation)
+  const effectiveSnap = snapPoint || SNAP_HALF
 
   // Apply transform directly to DOM (no React re-render)
   const applyTransform = useCallback((translateVh, animate) => {
@@ -124,8 +134,13 @@ export default function BottomSheet({ isOpen, onClose, children, snapPoint, onSn
       >
         <div className="w-10 h-1 bg-zinc-300 dark:bg-zinc-600 rounded-full" />
       </div>
-      {/* Scrollable content */}
-      <div className="flex-1 overflow-y-auto overscroll-contain px-4 pb-4">
+      {/* Scrollable content — max-height constrained to visible snap area */}
+      <div
+        className="overflow-y-auto overscroll-contain px-4 pb-4"
+        style={{
+          maxHeight: `calc(${effectiveSnap}vh - ${HANDLE_AND_NAV_REM}rem)`,
+        }}
+      >
         {children}
       </div>
     </div>
