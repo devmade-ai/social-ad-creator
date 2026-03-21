@@ -5,25 +5,23 @@ Compact context summary for session continuity. Rewrite at session end.
 ---
 
 ## Worked on
-Fixed bottom sheet expansion lag on mobile.
+Moved platform selection from Export tab to Presets tab on mobile.
 
 ## Accomplished
 
-1. **BottomSheet performance fix** — Replaced CSS `height` animation (causes layout reflow every frame) with `transform: translateY()` (GPU-composited, no reflow)
-2. **Eliminated mid-drag re-renders** — During touch drag, DOM is updated directly via refs instead of calling React setState. React state only updates on snap (touchend)
-3. **Updated API** — Changed props from `height`/`onHeightChange` to `snapPoint`/`onSnapChange` to reflect that App.jsx only tracks discrete snap positions, not continuous height
-4. **Removed backdrop** — Canvas stays visible and interactive above the sheet. Cell selection and page swipe work without closing the sheet
+1. **Platform selector relocated** — Moved PlatformPreview from mobile Export tab's BottomSheet into TemplatesTab (Presets) as the first collapsible section
+2. **Export tab simplified** — Mobile Export tab now contains only ExportButtons (download controls)
+3. **Tutorial updated** — Presets step mentions Platform section; Export step no longer references "Pick a size"
+4. **CLAUDE.md updated** — Tab descriptions and mobile layout docs reflect new structure
 
 ## Current state
 
-- **Working** — Mobile and desktop layouts both functional, bottom sheet opens smoothly
-- Build passes clean
+- **Working** — Build passes clean, all changes on `claude/move-platform-selection-0eY7M`
+- Desktop unchanged (platform selector already above canvas)
+- Mobile: Presets tab has 4 sections (Platform, Layout, Themes, Looks), Export tab has only download controls
 
 ## Key context
 
-- BottomSheet has fixed height (`SNAP_FULL` vh) and uses `translateY` to show/hide
-- `will-change-transform` hint on sheet element for GPU layer promotion
-- No backdrop — canvas stays visible and interactive above the sheet (Maps/Uber pattern)
-- Close sheet via drag-down or tap active MobileNav tab
-- `snapToTranslateY()` converts snap values (0/50/85 vh) to translateY offsets
-- App.jsx stores `sheetSnap` state (discrete snap point), not continuous height
+- Platform section in TemplatesTab is conditional: only renders when `onPlatformChange` prop is passed (mobile only, desktop keeps its own above-canvas card)
+- MobileNav unchanged — Export tab still exists with 6 tabs total
+- PlatformPreview component interface unchanged: `selectedPlatform` + `onPlatformChange` props
