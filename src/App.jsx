@@ -350,6 +350,7 @@ function App() {
             layout={state.layout}
             onApplyLayoutPreset={applyLayoutPreset}
             platform={state.platform}
+            onPlatformChange={isMobile ? setPlatform : undefined}
             theme={state.theme}
             onThemeChange={setTheme}
             onThemePresetChange={setThemePreset}
@@ -637,13 +638,10 @@ function App() {
         {/* Bottom sheet — tab content slides up from bottom */}
         <BottomSheet isOpen={mobileSheetOpen} onClose={closeMobileSheet} snapPoint={sheetSnap} onSnapChange={setSheetSnap}>
           {activeSection === 'export' ? (
-            <div className="space-y-5">
-              <PlatformPreview selectedPlatform={state.platform} onPlatformChange={setPlatform} />
-              <ExportButtons
-                canvasRef={canvasRef} state={state} onPlatformChange={setPlatform} onExportFormatChange={setExportFormat}
-                onExportingChange={setIsExporting} cancelExportRef={cancelExportRef} pageCount={pageCount} onSetActivePage={setActivePage}
-              />
-            </div>
+            <ExportButtons
+              canvasRef={canvasRef} state={state} onPlatformChange={setPlatform} onExportFormatChange={setExportFormat}
+              onExportingChange={setIsExporting} cancelExportRef={cancelExportRef} pageCount={pageCount} onSetActivePage={setActivePage}
+            />
           ) : tabContent}
         </BottomSheet>
 

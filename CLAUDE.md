@@ -463,10 +463,10 @@ BottomSheet (active tab content, drag to resize)
 MobileNav (fixed bottom: Presets, Media, Content, Structure, Style, Export)
 ```
 
-Export is a dedicated tab on mobile (vs. sidebar section on desktop). Tapping the active tab toggles the bottom sheet open/closed.
+Export is a dedicated tab on mobile (vs. sidebar section on desktop) containing only download controls — platform selection lives in the Presets tab. Tapping the active tab toggles the bottom sheet open/closed.
 
 Tab descriptions (workflow-based organization):
-- **Presets** - Start here: Layout presets (with aspect ratio filtering), color themes, and visual looks
+- **Presets** - Start here: Platform selection (canvas size), layout presets (with aspect ratio filtering), color themes, and visual looks
 - **Media** - Sample images, upload images to library, assign to cells, per-image overlay & filters, logo
 - **Content** - Write text, set visibility, cell assignment, alignment, color, size
 - **Structure** - Fine-tune grid structure (section sizes, subdivisions, reorder)
@@ -636,7 +636,8 @@ text: {
 ## Tab Details (New Workflow-Based UI)
 
 ### Presets Tab (formerly Templates)
-Entry point for users. Three sections:
+Entry point for users. Four sections:
+- **Platform** - Target size selector (Instagram, TikTok, LinkedIn, print, etc.) — sets canvas dimensions. Shown on mobile only (desktop has platform selector always visible above canvas).
 - **Layout** - Grid structure presets with aspect ratio filtering (All, Square, Portrait, Landscape) and category filtering
 - **Themes** - 12 preset color themes + custom color inputs
 - **Looks** - Visual effect presets that apply overlay, fonts, and filters without changing layout or colors
