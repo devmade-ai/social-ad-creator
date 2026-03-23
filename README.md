@@ -39,7 +39,7 @@ Each text element supports: visibility toggle, cell placement, alignment, color,
 
 ### Style
 - **Typography** - 15 Google Fonts (sans-serif, serif, display categories) with separate title and body font selection
-- **Overlay** - Per-cell overlay with 34 effects (solid, 8 gradient directions, radial variants, blend modes, textures) with adjustable opacity
+- **Overlay** - Per-cell overlay with 26 effects (solid, 8 gradient directions, radial variants, blend modes, textures) with adjustable opacity
 - **Spacing** - Global padding plus per-cell custom padding, outer frame and cell frames
 
 ### Multi-Page
@@ -50,7 +50,7 @@ Each text element supports: visibility toggle, cell placement, alignment, color,
 - **Reader mode** - Clean full-screen view with page navigation
 
 ### Export
-- **28 formats** across 12 platform groups in 6 categories:
+- **27 formats** across 12 platform groups in 6 categories:
   - **Social** - Instagram (Feed Portrait/Square/Feed Landscape/Story), Facebook (Feed/Square/Story/Cover), TikTok, LinkedIn (Square/Portrait/Landscape), Twitter/X
   - **Website** - Hero (Standard/Tall/Full HD), OG Image
   - **Banners** - LinkedIn Banner, YouTube Banner
@@ -62,7 +62,7 @@ Each text element supports: visibility toggle, cell placement, alignment, color,
 - **Single download** - Export current platform in selected format
 - **Multi-page ZIP** - Export all pages as a ZIP archive
 - **Multi-platform ZIP** - Select multiple platforms and export as ZIP
-- **PDF export** - Save as PDF via jsPDF (for LinkedIn carousels, works on mobile)
+- **PDF export** - Save as PDF via pdf-lib (for LinkedIn carousels, works on mobile)
 - **Progress indicator** - Visual feedback during batch exports
 
 ## Quick Start
@@ -101,7 +101,7 @@ npm run preview  # Preview production build
 - Tailwind CSS
 - html-to-image for rendering
 - JSZip + file-saver for batch export
-- jsPDF for PDF export
+- pdf-lib for PDF export
 - marked for markdown parsing (freeform text mode)
 - Vercel deployment
 - PWA support (installable, offline capable)
