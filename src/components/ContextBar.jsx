@@ -1,4 +1,4 @@
-import { memo, useRef, useMemo } from 'react'
+import { memo, useMemo } from 'react'
 import { getAspectRatio } from '../config/platforms'
 import ConfirmButton from './ConfirmButton'
 
@@ -165,7 +165,6 @@ export default memo(function ContextBar({
   onMovePage,
   getPageState,
 }) {
-  const scrollRef = useRef(null)
   const pageCount = pages.length
   const hasMultiplePages = pageCount > 1
 
@@ -190,7 +189,7 @@ export default memo(function ContextBar({
         {hasMultiplePages && (
           <div className="flex items-center gap-1.5 sm:hidden min-w-0">
             {/* Page thumbnails - scrollable */}
-            <div className="flex-1 min-w-0 overflow-x-auto scrollbar-thin" ref={scrollRef}>
+            <div className="flex-1 min-w-0 overflow-x-auto scrollbar-thin">
               <PageDots
                 pages={pages}
                 activePage={activePage}
@@ -258,7 +257,7 @@ export default memo(function ContextBar({
         <div className="hidden sm:flex items-center gap-1.5 sm:flex-1 min-w-0">
           <span className="text-[10px] text-ui-text-faint uppercase tracking-wide shrink-0">Pages</span>
 
-          <div className="flex-1 min-w-0 overflow-x-auto scrollbar-thin" ref={scrollRef}>
+          <div className="flex-1 min-w-0 overflow-x-auto scrollbar-thin">
             <PageDots
               pages={pages}
               activePage={activePage}
