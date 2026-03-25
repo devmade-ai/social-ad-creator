@@ -1,4 +1,4 @@
-import { memo, useRef, useMemo } from 'react'
+import { memo, useMemo } from 'react'
 import { getAspectRatio } from '../config/platforms'
 import ConfirmButton from './ConfirmButton'
 
@@ -165,7 +165,6 @@ export default memo(function ContextBar({
   onMovePage,
   getPageState,
 }) {
-  const scrollRef = useRef(null)
   const pageCount = pages.length
   const hasMultiplePages = pageCount > 1
 
@@ -174,18 +173,91 @@ export default memo(function ContextBar({
     return structure.reduce((total, section) => total + (section.subdivisions || 1), 0)
   }, [layout.structure])
 
-  // Requirement: Sticky context bar below tab nav. Uses CSS var set by App.jsx via ref measurement.
-  // Fallback 41px if var not set.
+  const hasUndoRedo = canUndo || canRedo
+
+  // Requirement: Collapse to single row on mobile when only 1 page to save vertical space.
+  // Approach: Pages row only renders on mobile when hasMultiplePages; single-page shows
+  //   cell grid + add page + undo/redo in one row. Undo/redo hidden when both disabled.
+  // Alternatives:
+  //   - Always show two rows: Rejected — wastes ~40px on mobile for the most common case (1 page)
+  //   - Hide undo/redo entirely: Rejected — they should appear once user makes changes
   return (
     <div className="bg-white/90 dark:bg-dark-card/90 backdrop-blur-sm border-b border-zinc-200/60 dark:border-zinc-700/60 px-3 sm:px-4 py-1.5 sticky z-[9]" style={{ top: 'var(--tab-nav-height, 41px)' }}>
-      {/* Mobile: two rows. Desktop: single row */}
+      {/* Desktop: single row always. Mobile: one row (1 page) or two rows (multi-page) */}
       <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-3">
-        {/* Pages row (own row on mobile, inline on desktop) */}
-        <div className="flex items-center gap-1.5 sm:flex-1 min-w-0">
-          <span className="text-[10px] text-ui-text-faint uppercase tracking-wide hidden sm:inline shrink-0">Pages</span>
+        {/* Pages row — hidden on mobile when single page, always shown on desktop */}
+        {hasMultiplePages && (
+          <div className="flex items-center gap-1.5 sm:hidden min-w-0">
+            {/* Page thumbnails - scrollable */}
+            <div className="flex-1 min-w-0 overflow-x-auto scrollbar-thin">
+              <PageDots
+                pages={pages}
+                activePage={activePage}
+                getPageState={getPageState}
+                onSetActivePage={onSetActivePage}
+              />
+            </div>
 
-          {/* Page thumbnails - scrollable */}
-          <div className="flex-1 min-w-0 overflow-x-auto scrollbar-thin" ref={scrollRef}>
+            {/* Page actions - compact */}
+            <div className="flex items-center gap-0.5 shrink-0">
+              <button
+                onClick={() => onMovePage(activePage, activePage - 1)}
+                disabled={activePage === 0}
+                title="Move page left"
+                className="w-10 h-10 rounded flex items-center justify-center text-ui-text-subtle hover:bg-ui-surface-hover active:bg-ui-surface-inset disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+              <button
+                onClick={() => onMovePage(activePage, activePage + 1)}
+                disabled={activePage === pageCount - 1}
+                title="Move page right"
+                className="w-10 h-10 rounded flex items-center justify-center text-ui-text-subtle hover:bg-ui-surface-hover active:bg-ui-surface-inset disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+              <button
+                onClick={onDuplicatePage}
+                title="Duplicate page"
+                className="w-10 h-10 rounded flex items-center justify-center text-ui-text-subtle hover:bg-ui-surface-hover active:bg-ui-surface-inset transition-colors"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                </svg>
+              </button>
+              <button
+                onClick={onAddPage}
+                title="Add new page"
+                className="w-10 h-10 rounded flex items-center justify-center text-primary hover:bg-primary/10 active:bg-primary/20 transition-colors"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+              </button>
+              <ConfirmButton
+                onConfirm={() => onRemovePage(activePage)}
+                confirmLabel={`Delete p${activePage + 1}?`}
+                disabled={pageCount <= 1}
+                title="Remove current page"
+                className="w-10 h-10 rounded flex items-center justify-center text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 active:bg-red-100 dark:active:bg-red-900/30 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+              </ConfirmButton>
+            </div>
+          </div>
+        )}
+
+        {/* Desktop pages row (always visible on desktop) */}
+        <div className="hidden sm:flex items-center gap-1.5 sm:flex-1 min-w-0">
+          <span className="text-[10px] text-ui-text-faint uppercase tracking-wide shrink-0">Pages</span>
+
+          <div className="flex-1 min-w-0 overflow-x-auto scrollbar-thin">
             <PageDots
               pages={pages}
               activePage={activePage}
@@ -194,7 +266,6 @@ export default memo(function ContextBar({
             />
           </div>
 
-          {/* Page actions - compact */}
           <div className="flex items-center gap-0.5 shrink-0">
             {hasMultiplePages && (
               <>
@@ -202,9 +273,9 @@ export default memo(function ContextBar({
                   onClick={() => onMovePage(activePage, activePage - 1)}
                   disabled={activePage === 0}
                   title="Move page left"
-                  className="w-10 h-10 sm:w-7 sm:h-7 rounded flex items-center justify-center text-ui-text-subtle hover:bg-ui-surface-hover active:bg-ui-surface-inset disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                  className="w-7 h-7 rounded flex items-center justify-center text-ui-text-subtle hover:bg-ui-surface-hover active:bg-ui-surface-inset disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                 >
-                  <svg className="w-4 h-4 sm:w-3 sm:h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                   </svg>
                 </button>
@@ -212,9 +283,9 @@ export default memo(function ContextBar({
                   onClick={() => onMovePage(activePage, activePage + 1)}
                   disabled={activePage === pageCount - 1}
                   title="Move page right"
-                  className="w-10 h-10 sm:w-7 sm:h-7 rounded flex items-center justify-center text-ui-text-subtle hover:bg-ui-surface-hover active:bg-ui-surface-inset disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                  className="w-7 h-7 rounded flex items-center justify-center text-ui-text-subtle hover:bg-ui-surface-hover active:bg-ui-surface-inset disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                 >
-                  <svg className="w-4 h-4 sm:w-3 sm:h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                   </svg>
                 </button>
@@ -224,9 +295,9 @@ export default memo(function ContextBar({
               <button
                 onClick={onDuplicatePage}
                 title="Duplicate page"
-                className="w-10 h-10 sm:w-7 sm:h-7 rounded flex items-center justify-center text-ui-text-subtle hover:bg-ui-surface-hover active:bg-ui-surface-inset transition-colors"
+                className="w-7 h-7 rounded flex items-center justify-center text-ui-text-subtle hover:bg-ui-surface-hover active:bg-ui-surface-inset transition-colors"
               >
-                <svg className="w-4 h-4 sm:w-3 sm:h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
                 </svg>
               </button>
@@ -234,9 +305,9 @@ export default memo(function ContextBar({
             <button
               onClick={onAddPage}
               title="Add new page"
-              className="w-10 h-10 sm:w-7 sm:h-7 rounded flex items-center justify-center text-primary hover:bg-primary/10 active:bg-primary/20 transition-colors"
+              className="w-7 h-7 rounded flex items-center justify-center text-primary hover:bg-primary/10 active:bg-primary/20 transition-colors"
             >
-              <svg className="w-4 h-4 sm:w-3.5 sm:h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
               </svg>
             </button>
@@ -246,9 +317,9 @@ export default memo(function ContextBar({
                 confirmLabel={`Delete p${activePage + 1}?`}
                 disabled={pageCount <= 1}
                 title="Remove current page"
-                className="w-10 h-10 sm:w-7 sm:h-7 rounded flex items-center justify-center text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 active:bg-red-100 dark:active:bg-red-900/30 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                className="w-7 h-7 rounded flex items-center justify-center text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 active:bg-red-100 dark:active:bg-red-900/30 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
               >
-                <svg className="w-4 h-4 sm:w-3 sm:h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                 </svg>
               </ConfirmButton>
@@ -256,10 +327,10 @@ export default memo(function ContextBar({
           </div>
         </div>
 
-        {/* Divider - only on desktop (rows are visually separated on mobile) */}
+        {/* Divider - only on desktop */}
         <div className="w-px h-6 bg-ui-border shrink-0 hidden sm:block" />
 
-        {/* Bottom row on mobile: cell selector + undo/redo */}
+        {/* Cell selector + add page (single page mobile) + undo/redo */}
         <div className="flex items-center gap-2 sm:contents">
           {/* Cell selector - miniature layout grid */}
           <div className="flex items-center gap-1.5 flex-1 min-w-0 sm:justify-center">
@@ -278,11 +349,24 @@ export default memo(function ContextBar({
             )}
           </div>
 
-          {/* Divider */}
-          <div className="w-px h-6 bg-ui-border shrink-0" />
+          {/* Add page button — only on mobile single-page (multi-page has it in the pages row above) */}
+          {!hasMultiplePages && (
+            <button
+              onClick={onAddPage}
+              title="Add new page"
+              className="w-10 h-10 sm:hidden rounded flex items-center justify-center text-primary hover:bg-primary/10 active:bg-primary/20 transition-colors shrink-0"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+            </button>
+          )}
 
-          {/* Undo/Redo - bigger on mobile */}
-          <div className="flex items-center gap-1 sm:gap-0.5 sm:flex-1 sm:min-w-0 sm:justify-end shrink-0">
+          {/* Divider — hidden on mobile when undo/redo is hidden */}
+          <div className={`w-px h-6 bg-ui-border shrink-0 ${!hasUndoRedo ? 'hidden sm:block' : ''}`} />
+
+          {/* Undo/Redo — hidden on mobile when both disabled, always shown on desktop */}
+          <div className={`flex items-center gap-1 sm:gap-0.5 sm:flex-1 sm:min-w-0 sm:justify-end shrink-0 ${!hasUndoRedo ? 'hidden sm:flex' : ''}`}>
             <button
               onClick={undo}
               disabled={!canUndo}

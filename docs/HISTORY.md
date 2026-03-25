@@ -137,7 +137,7 @@
 - Three-button toggle above export buttons, persists in state as `exportFormat`
 - "Use recommended" link when platform suggests a different format
 - All export paths updated: single, multi-platform ZIP, all-pages ZIP
-- PDF export uses JPEG at 2x internally — jsPDF embeds directly for sharp, small files
+- PDF export uses PNG at 2x internally — pdf-lib embeds directly via FlateDecode for sharp, small files
 - Uses html-to-image's `toCanvas` + `canvas.toBlob` for all formats
 
 **Format additions:**

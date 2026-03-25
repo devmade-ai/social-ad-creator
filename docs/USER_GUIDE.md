@@ -272,7 +272,7 @@ Fine-tune typography, overlays, and spacing.
 Controls per-cell overlays that help text stand out. Select a cell to configure:
 - **Enable/Disable:** Toggle overlay for each cell (defaults to on for image cells)
 - **Custom Settings:** Enable to override with your own type, color, and opacity
-- **Type:** Choose from 34 overlay effects:
+- **Type:** Choose from 26 overlay effects:
   - Basic & Gradients: Solid, 8 gradient directions
   - Radial: Vignette, Spotlight, Radial Soft, Radial Ring, 4 corner radials
   - Effects: Blur Edges, Frame, Duotone
@@ -328,7 +328,7 @@ Located below the preview area.
 ### Platform Selection
 A two-level selector organized by category → platform → format. Click categories to expand, then select a format. Platforms with a single format select directly; platforms with multiple formats expand to show options. Tips and file size limits are shown for each platform.
 
-28 formats across 12 platform groups:
+27 formats across 12 platform groups:
 
 **Social Media:**
 - Instagram: Feed Portrait (1080×1350), Square (1080×1080), Feed Landscape (1080×566), Story/Reels (1080×1920)

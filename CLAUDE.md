@@ -404,7 +404,7 @@ Core features working:
   - Each cell has its own text elements: title, tagline, bodyHeading, bodyText, cta, footnote
   - Text elements organized in groups: Title+Tagline, Body, CTA, Footnote
 - Theme system with 12 color themes and custom colors
-- Overlay system with 34 effects:
+- Overlay system with 26 effects:
   - Basic: Solid color
   - Linear gradients: 8 directions (↑↓←→ and diagonals)
   - Radial: Vignette, Spotlight, Radial Soft, Radial Ring, 4 corner radials (↖↗↙↘)
@@ -412,7 +412,7 @@ Core features working:
   - Blend modes: Multiply, Screen, Overlay, Color Burn
   - Textures: Noise, Film Grain
 - 15 Google Fonts (sans-serif, serif, display categories)
-- Export to 28 formats across 12 platform groups:
+- Export to 27 formats across 12 platform groups:
   - Social: Instagram (Feed Portrait/Square/Feed Landscape/Story), Facebook (Feed/Square/Story/Cover), TikTok, LinkedIn (Square/Portrait/Landscape), Twitter/X
   - Website: Hero (Standard/Tall/Full HD), OG Image
   - Banners: LinkedIn Banner, YouTube Banner
@@ -521,10 +521,10 @@ src/
 │   ├── MobileNav.jsx          # Fixed bottom navigation bar for mobile (6 tabs incl. Export)
 │   └── DebugPill.jsx          # Floating debug panel (separate React root, dev only)
 ├── config/         # Configuration
-│   ├── layouts.js        # 34 overlay types (solid, gradients, radial, effects, blends, textures)
-│   ├── layoutPresets.js  # 35 layouts with SVG icons and categories
+│   ├── layouts.js        # 26 overlay types (solid, gradients, radial, effects, blends, textures)
+│   ├── layoutPresets.js  # 27 layouts with SVG icons and categories
 │   ├── stylePresets.js   # Look presets (fonts + filters + overlay effects per layout)
-│   ├── platforms.js      # 28 formats across 12 platform groups (nested: platformGroups + flat: platforms)
+│   ├── platforms.js      # 27 formats across 12 platform groups (nested: platformGroups + flat: platforms)
 │   ├── sampleImages.js   # CDN manifest URL for sample images (fetched at runtime)
 │   ├── themes.js         # 12 color themes
 │   ├── fonts.js          # 15 Google Fonts
