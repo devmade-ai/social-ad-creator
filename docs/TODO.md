@@ -11,8 +11,6 @@ Future enhancements and ideas for CanvaGrid.
 | Item | Effort | Description |
 |------|--------|-------------|
 | **Phase 4: Add remaining platform format data** | Medium | `platforms.js` — Add format specs for: Pinterest (Pin, Story), Snapchat (Snap Ad, Story), YouTube (Thumbnail, End Screen), WhatsApp (Status), Threads (Post, Story). Add e-commerce category: Takealot, Amazon (Product, Storefront), Shopify, Etsy. Each needs formats array with dimensions, tips, recommendedFormat, maxFileSize. |
-| **Validate loaded design state** | Low | `useAdState.js:901` — `loadDesign()` doesn't bounds-check `activePage` against `pages.length`. Corrupted or outdated saves could crash the app. Add field validation and fallbacks. |
-| **Multi-page export uses arbitrary timeout** | Low | `ExportButtons.jsx:290` — `setTimeout(resolve, 300)` to wait for React re-render before capturing page. If state update is slow, captures stale canvas. Use a callback or ref-based signal instead of timing. |
 
 ### Medium Priority
 
@@ -39,7 +37,6 @@ Future enhancements and ideas for CanvaGrid.
 | **TypeScript migration** | High | Incremental approach: start with config files and hooks, then components. Do when there's dedicated time. |
 | **Unit tests for config utilities** | Low-Medium | Test helpers in `stylePresets.js`, `layoutPresets.js`. Do alongside TS migration or when configs change. |
 | **Calculate imageAspectRatio from first image** | Low | `App.jsx:94` has `useState(null)`. Wire up calculation from first image in pool so `getSuggestedLayouts` returns filtered results. |
-| **Sanitize markdown HTML output** | Low | `AdCanvas.jsx` uses `dangerouslySetInnerHTML` with `marked` output (lines 515, 567). Safe for single-user local tool, but add DOMPurify if app ever accepts shared/imported content. |
 | **Accessibility pass** | Medium | Multiple gaps: cell overlay divs lack `aria-label` (`App.jsx`), sample image error fallbacks lack roles (`MediaTab.jsx`), platform select buttons lack labels (`ExportButtons.jsx`). Address during next UX pass. |
 
 ---

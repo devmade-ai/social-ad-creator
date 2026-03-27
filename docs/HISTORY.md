@@ -1,5 +1,36 @@
 # Changelog
 
+## 2026-03-27
+
+### Code review and audit sweep — 17 fixes across 13 files
+
+**Review fixes (10 components):**
+- MediaTab CellGrid: Replaced mutable `let cellIndex` render var with useMemo+Map pattern
+- BottomSheet: Added onTouchCancel handler via shared snapToNearest callback
+- ExportButtons: Replaced setTimeout(300) in PDF multi-page with double waitForPaint()
+- ContextBar: Improved delete confirmation label ("Delete page X?" not "Delete p X?")
+- LogoUploader: Added 10MB file size validation with toast feedback
+- SaveLoadModal: Time-inclusive default name + aria-label on search input
+- MobileNav: Active tab indicator persists when sheet is closed
+- PlatformPreview: Reset showTips on platform change
+- StyleTab: Extracted OverlayTypeButton component (reduced ~50 lines duplication)
+- TemplatesTab: Actionable empty state message
+
+**Audit fixes (4 files):**
+- ExportButtons: exportLockRef mutex prevents concurrent exports
+- useAdState loadDesign: Filters page data to PAGE_FIELDS only (prevents orphaned field pollution)
+- useAdState extractPageData: structuredClone try/catch with JSON round-trip fallback
+- cellUtils: pruneOrphanedKeys helper with NaN guard replaces 5 duplicate loops
+- debugLog: HMR-safe guard for global listeners
+
+**Documentation fixes:**
+- TODO.md: Removed 3 completed items (state validation, export timeout, DOMPurify sanitization)
+- CLAUDE.md: Corrected pxToPt value (1, not 0.5), added ColorPicker + ThemeColorPicker to Architecture
+- TutorialModal: Fixed section names to match actual UI (Images, Image Overlay & Filters, Frames, Background)
+- SESSION_NOTES.md: Refreshed with current context
+
+---
+
 ## 2026-03-15
 
 ### Mobile redesign — dedicated mobile layout with bottom sheet and bottom nav

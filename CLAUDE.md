@@ -284,7 +284,7 @@ These footers are required on every commit. No exceptions.
 - **PWA install prompt race condition:** `beforeinstallprompt` is captured by an inline script in `index.html` before React mounts. The `usePWAInstall` hook checks `window.__pwaInstallPrompt` on mount. Never remove that inline script.
 - **PWA icon purposes:** Never combine `"any maskable"` in a single icon entry. Use separate entries with individual `purpose` values. Dedicated 1024px maskable icon at `pwa-maskable-1024.png`.
 - **Debug system (dev only):** `src/utils/debugLog.js` is an in-memory 200-entry circular buffer with pub/sub. `src/components/DebugPill.jsx` renders in a separate React root (survives App crashes). Only mounted in `import.meta.env.DEV`. Use `debugLog(source, event, details, severity)` to add entries.
-- **pdf-lib image handling:** pdf-lib embeds PNG directly (FlateDecode — no re-encoding). Digital PDF uses pxToPt=0.5 (144 DPI) for reasonable page sizes (~7.5" for 1080px platforms). Captures at user-selected pixelRatio (1x/2x/3x), giving integer px/pt ratios (2/4/6). Print formats use pixelRatio:1 with 72/150 conversion. History: (1) pixelRatio:2 + 72/96 → 2.667:1 ratio → gradient banding. (2) 1:1 mapping + page scaled with pixelRatio → identical quality. (3) pxToPt=1 fixed page → 15" pages too large for mobile viewers. (4) pxToPt=0.5 → reasonable page size + sharp rendering. Diagnostic image download enabled in dev mode.
+- **pdf-lib image handling:** pdf-lib embeds PNG directly (FlateDecode — no re-encoding). Digital PDF uses pxToPt=1 (1:1 pixel-to-point mapping). Captures at user-selected pixelRatio (1x/2x/3x), giving integer px/pt ratios (1:1/2:1/3:1). Print formats use pixelRatio:1 with 72/150 DPI conversion for correct physical page size. History: (1) pixelRatio:2 + 72/96 → 2.667:1 ratio → gradient banding. (2) 1:1 mapping + page scaled with pixelRatio → identical quality. (3) pxToPt=1 fixed page + variable pixelRatio → current approach. Diagnostic image download enabled in dev mode.
 - **Design storage is IndexedDB:** `utils/designStorage.js` wraps IndexedDB with async save/load/list/delete. One-time migration from localStorage runs on first mount via `migrateFromLocalStorage()`. Never use localStorage for designs.
 - **Claude Code mobile/web — accessing sibling repos:**
   - Use `GITHUB_ALL_REPO_TOKEN` with the GitHub API (`api.github.com/repos/devmade-ai/{repo}/contents/{path}`) to read files from other devmade-ai repos
@@ -510,6 +510,8 @@ src/
 │   ├── InstallInstructionsModal.jsx # Manual PWA install instructions
 │   ├── ErrorBoundary.jsx      # Error handling wrapper
 │   ├── AlignmentPicker.jsx    # Reusable alignment button group
+│   ├── ColorPicker.jsx        # Theme-aware color picker for text elements
+│   ├── ThemeColorPicker.jsx   # Theme color swatch picker (primary/secondary/accent/neutrals)
 │   ├── MiniCellGrid.jsx       # Compact cell grid for ContextBar
 │   ├── Toast.jsx              # Toast notification system (ToastProvider + useToast hook)
 │   ├── ConfirmButton.jsx      # Inline confirmation replacing browser confirm()
