@@ -149,6 +149,11 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
   // The external cancelExportRef (from App) lets the overlay Cancel button abort exports too.
   const internalCancelRef = useRef(false)
   const cancelledRef = cancelExportRef || internalCancelRef
+  // Requirement: Prevent concurrent exports that corrupt canvas state.
+  // Approach: Ref-based mutex checked synchronously at handler entry, before any async work.
+  // State-based `isExporting` is too slow (React batching delays the update), allowing
+  // rapid clicks to fire two handlers before the disabled prop takes effect.
+  const exportLockRef = useRef(false)
 
   const exportFormat = state.exportFormat || 'png'
   const ext = FILE_EXTENSIONS[exportFormat] || 'png'
@@ -203,11 +208,12 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
   //   - Set transform before waiting: Rejected - React re-render from updateExporting()
   //     overwrites the manual transform back to scale(previewScale) during the wait
   const handleExportSingle = useCallback(async () => {
-    if (!canvasRef.current) return
+    if (!canvasRef.current || exportLockRef.current) return
 
     const platform = platforms.find((p) => p.id === state.platform)
     if (!platform) return
 
+    exportLockRef.current = true
     updateExporting(true)
     setExportOp('single')
     debugLog('export', 'single-start', { platform: platform.id, format: exportFormat, width: platform.width, height: platform.height })
@@ -234,12 +240,14 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
       restoreOpacity()
       updateExporting(false)
       setExportOp(null)
+      exportLockRef.current = false
     }
   }, [canvasRef, state.platform, state.activePage, exportFormat, ext, pageCount, updateExporting, addToast])
 
   const handleExportAllPages = useCallback(async () => {
-    if (!canvasRef.current || pageCount <= 1) return
+    if (!canvasRef.current || pageCount <= 1 || exportLockRef.current) return
 
+    exportLockRef.current = true
     updateExporting(true)
     setExportOp('allPages')
     cancelledRef.current = false
@@ -289,6 +297,7 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
       updateExporting(false)
       setExportProgress(null)
       setExportOp(null)
+      exportLockRef.current = false
     }
   }, [canvasRef, state.platform, state.activePage, exportFormat, ext, pageCount, onSetActivePage, updateExporting, addToast])
 
@@ -305,11 +314,12 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
   //   - window.open + window.print: Rejected - broken on mobile (about:blank, wrong sizes)
   //   - Direct window.print() on app: Rejected - prints entire UI, not just canvas
   const handleExportPDF = useCallback(async () => {
-    if (!canvasRef.current) return
+    if (!canvasRef.current || exportLockRef.current) return
 
     const platform = platforms.find((p) => p.id === state.platform)
     if (!platform) return
 
+    exportLockRef.current = true
     updateExporting(true)
     setExportOp('pdf')
     cancelledRef.current = false
@@ -404,16 +414,18 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
       updateExporting(false)
       setExportProgress(null)
       setExportOp(null)
+      exportLockRef.current = false
     }
   }, [canvasRef, state.platform, state.activePage, pageCount, onSetActivePage, updateExporting, pdfQuality, addToast])
 
   const handleExportMultiple = useCallback(async () => {
-    if (!canvasRef.current) return
+    if (!canvasRef.current || exportLockRef.current) return
     if (selectedPlatforms.size === 0) {
       addToast('Select at least one platform to export.', { type: 'warning' })
       return
     }
 
+    exportLockRef.current = true
     updateExporting(true)
     setExportOp('multi')
     const zip = new JSZip()
@@ -471,6 +483,7 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
       updateExporting(false)
       setExportProgress(null)
       setExportOp(null)
+      exportLockRef.current = false
     }
   }, [canvasRef, state.platform, exportFormat, ext, onPlatformChange, updateExporting, selectedPlatforms, addToast])
 

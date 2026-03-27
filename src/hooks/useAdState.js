@@ -71,7 +71,19 @@ const PAGE_FIELDS = [
 function extractPageData(state) {
   const data = {}
   PAGE_FIELDS.forEach(field => {
-    if (state[field] !== undefined) data[field] = structuredClone(state[field])
+    if (state[field] !== undefined) {
+      try {
+        data[field] = structuredClone(state[field])
+      } catch {
+        // Fallback to JSON round-trip if structuredClone fails on non-cloneable data
+        // (e.g., DOM refs, Blobs that leaked into state). Preserves page swap stability.
+        try {
+          data[field] = JSON.parse(JSON.stringify(state[field]))
+        } catch {
+          data[field] = state[field]
+        }
+      }
+    }
   })
   return data
 }
@@ -851,7 +863,11 @@ export function useAdState() {
         loadedState.activePage = activePage
         if (loadedState.pages[activePage] !== null) {
           const pageData = loadedState.pages[activePage]
-          Object.assign(loadedState, pageData)
+          // Only spread known PAGE_FIELDS to prevent orphaned fields from older versions
+          // polluting the current state. Saved designs may contain fields that no longer exist.
+          PAGE_FIELDS.forEach(field => {
+            if (field in pageData) loadedState[field] = pageData[field]
+          })
           loadedState.pages[activePage] = null
         }
         resetHistory(loadedState)
