@@ -299,7 +299,7 @@ function TextElementEditor({
         {layerState.content && (
           <button
             onClick={() => onTextChange(cellIndex, element.id, { content: '' })}
-            className="w-7 h-7 rounded flex items-center justify-center text-ui-text-faint hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 active:bg-red-100 dark:active:bg-red-900/30 transition-colors"
+            className="w-8 h-8 sm:w-7 sm:h-7 rounded flex items-center justify-center text-ui-text-faint hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 active:bg-red-100 dark:active:bg-red-900/30 transition-colors"
             title="Clear text"
           >
             <CloseIcon />

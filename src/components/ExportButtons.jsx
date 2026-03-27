@@ -508,7 +508,7 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
               key={opt.id}
               onClick={() => onExportFormatChange(opt.id)}
               title={opt.description}
-              className={`flex-1 px-2 py-1.5 text-xs font-semibold rounded-lg transition-all ${
+              className={`flex-1 px-2 py-2.5 sm:py-1.5 text-xs font-semibold rounded-lg transition-all ${
                 exportFormat === opt.id
                   ? 'bg-primary text-white shadow-sm'
                   : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
