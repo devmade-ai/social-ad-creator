@@ -53,7 +53,13 @@ const orientationOptions = [
   { id: 'square', name: 'Square', description: 'square orientation (1:1 aspect ratio)' },
 ]
 
-// Cell grid for image assignment
+const FULLBLEED_STRUCTURE = [{ size: 100, subdivisions: 1, subSizes: [100] }]
+
+// Requirement: Pre-compute cell mapping to avoid mutable cellIndex during render.
+// Approach: useMemo builds a Map of sectionIndex → cells[], used during render.
+// Alternatives:
+//   - Mutable let cellIndex = 0 in render: Rejected — side effect during render,
+//     breaks under React strict mode double-rendering or concurrent features.
 function CellGrid({ layout, cellImages, selectedCell, onSelectCell, platform, highlightImageId }) {
   const { type, structure } = layout
   const isFullbleed = type === 'fullbleed'
@@ -61,12 +67,28 @@ function CellGrid({ layout, cellImages, selectedCell, onSelectCell, platform, hi
 
   const normalizedStructure =
     isFullbleed || !structure || structure.length === 0
-      ? [{ size: 100, subdivisions: 1, subSizes: [100] }]
+      ? FULLBLEED_STRUCTURE
       : structure
 
   const aspectRatio = getAspectRatio(platform)
 
-  let cellIndex = 0
+  // Pre-compute cell indices per section to avoid mutable counter during render
+  const sectionCellMap = useMemo(() => {
+    const grouped = new Map()
+    let idx = 0
+    const src = isFullbleed || !structure || structure.length === 0 ? FULLBLEED_STRUCTURE : structure
+    src.forEach((section, sectionIndex) => {
+      const subdivisions = section.subdivisions || 1
+      const subSizes = section.subSizes || Array(subdivisions).fill(100 / subdivisions)
+      const cells = []
+      for (let subIndex = 0; subIndex < subdivisions; subIndex++) {
+        cells.push({ cellIndex: idx, subSize: subSizes[subIndex] })
+        idx++
+      }
+      grouped.set(sectionIndex, cells)
+    })
+    return grouped
+  }, [type, structure])
 
   return (
     <div
@@ -80,38 +102,7 @@ function CellGrid({ layout, cellImages, selectedCell, onSelectCell, platform, hi
     >
       {normalizedStructure.map((section, sectionIndex) => {
         const sectionSize = section.size || 100 / normalizedStructure.length
-        const subdivisions = section.subdivisions || 1
-        const subSizes = section.subSizes || Array(subdivisions).fill(100 / subdivisions)
-
-        const sectionCells = []
-        for (let subIndex = 0; subIndex < subdivisions; subIndex++) {
-          const currentCellIndex = cellIndex
-          const cellImageId = cellImages && cellImages[currentCellIndex]
-          const hasImage = !!cellImageId
-          const isSelected = selectedCell === currentCellIndex
-          // When highlightImageId is provided, highlight cells with that image
-          const isHighlighted = highlightImageId && cellImageId === highlightImageId
-          cellIndex++
-
-          sectionCells.push(
-            <button
-              key={`cell-${currentCellIndex}`}
-              onClick={() => onSelectCell(currentCellIndex)}
-              className={`flex items-center justify-center text-xs font-medium transition-colors ${
-                isHighlighted
-                  ? 'bg-primary hover:bg-primary-hover text-white ring-2 ring-primary ring-offset-1'
-                  : isSelected
-                  ? 'bg-primary hover:bg-primary-hover text-white ring-2 ring-primary ring-offset-1'
-                  : hasImage
-                  ? 'bg-violet-200 dark:bg-violet-800 hover:bg-violet-300 dark:hover:bg-violet-700 text-violet-700 dark:text-violet-200'
-                  : 'bg-ui-surface-inset hover:bg-ui-surface-hover text-ui-text-subtle'
-              }`}
-              style={{ flex: `0 0 ${subSizes[subIndex]}%` }}
-            >
-              {hasImage ? '📷' : currentCellIndex + 1}
-            </button>
-          )
-        }
+        const sectionCells = sectionCellMap.get(sectionIndex) || []
 
         return (
           <div
@@ -122,7 +113,31 @@ function CellGrid({ layout, cellImages, selectedCell, onSelectCell, platform, hi
               flexDirection: isRows ? 'row' : 'column',
             }}
           >
-            {sectionCells}
+            {sectionCells.map(({ cellIndex: currentCellIndex, subSize }) => {
+              const cellImageId = cellImages && cellImages[currentCellIndex]
+              const hasImage = !!cellImageId
+              const isSelected = selectedCell === currentCellIndex
+              const isHighlighted = highlightImageId && cellImageId === highlightImageId
+
+              return (
+                <button
+                  key={`cell-${currentCellIndex}`}
+                  onClick={() => onSelectCell(currentCellIndex)}
+                  className={`flex items-center justify-center text-xs font-medium transition-colors ${
+                    isHighlighted
+                      ? 'bg-primary hover:bg-primary-hover text-white ring-2 ring-primary ring-offset-1'
+                      : isSelected
+                      ? 'bg-primary hover:bg-primary-hover text-white ring-2 ring-primary ring-offset-1'
+                      : hasImage
+                      ? 'bg-violet-200 dark:bg-violet-800 hover:bg-violet-300 dark:hover:bg-violet-700 text-violet-700 dark:text-violet-200'
+                      : 'bg-ui-surface-inset hover:bg-ui-surface-hover text-ui-text-subtle'
+                  }`}
+                  style={{ flex: `0 0 ${subSize}%` }}
+                >
+                  {hasImage ? '\uD83D\uDCF7' : currentCellIndex + 1}
+                </button>
+              )
+            })}
           </div>
         )
       })}

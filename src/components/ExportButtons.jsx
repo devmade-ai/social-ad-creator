@@ -333,7 +333,9 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
         if (totalPages > 1) {
           setExportProgress({ current: i + 1, total: totalPages, name: `Page ${i + 1}` })
           onSetActivePage(i)
-          await new Promise((resolve) => setTimeout(resolve, 300))
+          // Wait for React state update + re-render + paint to settle.
+          // Double waitForPaint replaces fixed 300ms timeout for reliability on slow devices.
+          await waitForPaint()
           await waitForPaint()
         } else {
           await waitForPaint()

@@ -240,7 +240,7 @@ export default memo(function ContextBar({
               </button>
               <ConfirmButton
                 onConfirm={() => onRemovePage(activePage)}
-                confirmLabel={`Delete p${activePage + 1}?`}
+                confirmLabel={`Delete page ${activePage + 1}?`}
                 disabled={pageCount <= 1}
                 title="Remove current page"
                 className="w-10 h-10 rounded flex items-center justify-center text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 active:bg-red-100 dark:active:bg-red-900/30 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
@@ -314,7 +314,7 @@ export default memo(function ContextBar({
             {hasMultiplePages && (
               <ConfirmButton
                 onConfirm={() => onRemovePage(activePage)}
-                confirmLabel={`Delete p${activePage + 1}?`}
+                confirmLabel={`Delete page ${activePage + 1}?`}
                 disabled={pageCount <= 1}
                 title="Remove current page"
                 className="w-7 h-7 rounded flex items-center justify-center text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 active:bg-red-100 dark:active:bg-red-900/30 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"

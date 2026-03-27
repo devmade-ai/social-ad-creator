@@ -1,4 +1,4 @@
-import { memo, useState } from 'react'
+import { memo, useState, useEffect } from 'react'
 import { categoryLabels, categoryOrder, platformGroupsByCategory, findFormat, findPlatformGroup } from '../config/platforms'
 import CollapsibleSection from './CollapsibleSection'
 
@@ -30,6 +30,11 @@ export default memo(function PlatformPreview({ selectedPlatform, onPlatformChang
   const [expandedCategories, setExpandedCategories] = useState({})
   const [expandedPlatforms, setExpandedPlatforms] = useState({})
   const [showTips, setShowTips] = useState(false)
+
+  // Reset tips panel when switching platforms — prevents showing stale tips
+  useEffect(() => {
+    setShowTips(false)
+  }, [selectedPlatform])
 
   const toggleCategory = (category) => {
     setExpandedCategories((prev) => ({

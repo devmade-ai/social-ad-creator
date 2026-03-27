@@ -310,7 +310,7 @@ export default memo(function TemplatesTab({
           </div>
 
           {displayLayoutPresets.length === 0 && (
-            <p className="text-sm text-ui-text-subtle text-center py-4">No layouts match the current filter</p>
+            <p className="text-sm text-ui-text-subtle text-center py-4">No layouts match — try a different shape or category</p>
           )}
 
           <p className="text-[10px] text-ui-text-subtle text-center">

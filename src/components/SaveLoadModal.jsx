@@ -36,7 +36,8 @@ export default function SaveLoadModal({ isOpen, onClose, onSave, onLoad, onDelet
   const handleSave = async () => {
     setLoading(true)
     setError(null)
-    const name = saveName.trim() || `Design ${new Date().toLocaleDateString()}`
+    // Include time for uniqueness when saving multiple designs on the same day
+    const name = saveName.trim() || `Design ${new Date().toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}`
     const result = await onSave(name)
     setLoading(false)
     if (result.success) {
@@ -178,6 +179,7 @@ export default function SaveLoadModal({ isOpen, onClose, onSave, onLoad, onDelet
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search designs..."
+                  aria-label="Search saved designs"
                   className="w-full px-3 py-2 rounded-lg bg-ui-surface-inset border border-ui-border text-ui-text text-sm placeholder-ui-text-muted focus:outline-none focus:ring-2 focus:ring-primary mb-2"
                 />
               )}
