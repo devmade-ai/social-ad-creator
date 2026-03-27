@@ -1,8 +1,7 @@
 import { memo, useMemo } from 'react'
 import { getAspectRatio } from '../config/platforms'
+import { FULLBLEED_STRUCTURE, normalizeStructure } from '../utils/cellUtils'
 import ConfirmButton from './ConfirmButton'
-
-const FULLBLEED_STRUCTURE = [{ size: 100, subdivisions: 1, subSizes: [100] }]
 
 // Compact cell grid for global cell selection.
 // Requirement: Pre-compute cell mapping to avoid mutable cellIndex during render.
@@ -15,17 +14,14 @@ function CellGrid({ layout, cellImages = {}, selectedCell, onSelectCell, platfor
   const isFullbleed = type === 'fullbleed'
   const isRows = type === 'rows'
 
-  const normalizedStructure =
-    isFullbleed || !structure || structure.length === 0
-      ? FULLBLEED_STRUCTURE
-      : structure
+  const normalizedStructure = normalizeStructure(type, structure)
 
   const aspectRatio = getAspectRatio(platform)
 
   const sectionCellMap = useMemo(() => {
     const grouped = new Map()
     let idx = 0
-    const src = isFullbleed || !structure || structure.length === 0 ? FULLBLEED_STRUCTURE : structure
+    const src = normalizeStructure(type, structure)
     src.forEach((section, sectionIndex) => {
       const subdivisions = section.subdivisions || 1
       const subSizes = section.subSizes || Array(subdivisions).fill(100 / subdivisions)

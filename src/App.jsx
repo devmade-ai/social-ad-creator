@@ -35,6 +35,7 @@ import MobileNav from './components/MobileNav'
 import { useOnlineStatus } from './hooks/useOnlineStatus'
 import { platforms, findPlatformGroup } from './config/platforms'
 import { fonts } from './config/fonts'
+import { normalizeStructure } from './utils/cellUtils'
 
 // Swipe threshold for page navigation on mobile (px)
 const SWIPE_THRESHOLD = 50
@@ -45,10 +46,7 @@ function CanvasCellOverlay({ layout, selectedCell, onSelectCell }) {
   const isFullbleed = type === 'fullbleed'
   const isRows = type === 'rows'
 
-  const normalizedStructure =
-    isFullbleed || !structure || structure.length === 0
-      ? [{ size: 100, subdivisions: 1, subSizes: [100] }]
-      : structure
+  const normalizedStructure = normalizeStructure(type, structure)
 
   let cellIndex = 0
 

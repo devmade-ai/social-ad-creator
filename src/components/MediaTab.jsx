@@ -13,6 +13,7 @@ import { overlayTypes } from '../config/layouts'
 import { neutralColors } from '../config/themes'
 import { SAMPLE_MANIFEST_URL } from '../config/sampleImages'
 import { debugLog } from '../utils/debugLog'
+import { FULLBLEED_STRUCTURE, normalizeStructure } from '../utils/cellUtils'
 
 // Theme color options for overlay
 const themeColorOptions = [
@@ -53,8 +54,6 @@ const orientationOptions = [
   { id: 'square', name: 'Square', description: 'square orientation (1:1 aspect ratio)' },
 ]
 
-const FULLBLEED_STRUCTURE = [{ size: 100, subdivisions: 1, subSizes: [100] }]
-
 // Requirement: Pre-compute cell mapping to avoid mutable cellIndex during render.
 // Approach: useMemo builds a Map of sectionIndex → cells[], used during render.
 // Alternatives:
@@ -65,10 +64,7 @@ function CellGrid({ layout, cellImages, selectedCell, onSelectCell, platform, hi
   const isFullbleed = type === 'fullbleed'
   const isRows = type === 'rows'
 
-  const normalizedStructure =
-    isFullbleed || !structure || structure.length === 0
-      ? FULLBLEED_STRUCTURE
-      : structure
+  const normalizedStructure = normalizeStructure(type, structure)
 
   const aspectRatio = getAspectRatio(platform)
 
@@ -76,7 +72,7 @@ function CellGrid({ layout, cellImages, selectedCell, onSelectCell, platform, hi
   const sectionCellMap = useMemo(() => {
     const grouped = new Map()
     let idx = 0
-    const src = isFullbleed || !structure || structure.length === 0 ? FULLBLEED_STRUCTURE : structure
+    const src = normalizeStructure(type, structure)
     src.forEach((section, sectionIndex) => {
       const subdivisions = section.subdivisions || 1
       const subSizes = section.subSizes || Array(subdivisions).fill(100 / subdivisions)

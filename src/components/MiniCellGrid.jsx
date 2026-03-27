@@ -6,8 +6,7 @@
 //   - Render prop for cell content: Rejected — mode-based is simpler for 2 known consumers.
 import { useMemo, memo } from 'react'
 import { getAspectRatio } from '../config/platforms'
-
-const FULLBLEED_STRUCTURE = [{ size: 100, subdivisions: 1, subSizes: [100] }]
+import { normalizeStructure } from '../utils/cellUtils'
 
 export default memo(function MiniCellGrid({
   layout,
@@ -26,10 +25,7 @@ export default memo(function MiniCellGrid({
   const isFullbleed = type === 'fullbleed'
   const isRows = type === 'rows'
 
-  const normalizedStructure =
-    isFullbleed || !structure || structure.length === 0
-      ? FULLBLEED_STRUCTURE
-      : structure
+  const normalizedStructure = normalizeStructure(type, structure)
 
   const aspectRatio = getAspectRatio(platform)
 
@@ -41,7 +37,7 @@ export default memo(function MiniCellGrid({
   const sectionCellMap = useMemo(() => {
     const grouped = new Map()
     let idx = 0
-    const src = isFullbleed || !structure || structure.length === 0 ? FULLBLEED_STRUCTURE : structure
+    const src = normalizeStructure(type, structure)
     src.forEach((section, sectionIndex) => {
       const subdivisions = section.subdivisions || 1
       const subSizes = section.subSizes || Array(subdivisions).fill(100 / subdivisions)

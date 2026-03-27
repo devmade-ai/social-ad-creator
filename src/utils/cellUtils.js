@@ -3,6 +3,21 @@
 // Alternatives:
 //   - Keep per-file copies: Rejected — 3x duplication, divergent bugs.
 
+// Canonical fullbleed structure — single cell at 100%.
+// Requirement: Deduplicate the fallback structure constant defined in 4 separate files.
+// Approach: Single export here, imported wherever layout normalization is needed.
+export const FULLBLEED_STRUCTURE = [{ size: 100, subdivisions: 1, subSizes: [100] }]
+
+// Normalize layout structure for rendering: returns FULLBLEED_STRUCTURE for fullbleed
+// layouts or missing/empty structure, otherwise returns the structure as-is.
+// Requirement: Deduplicate the normalization pattern repeated 7 times across 4 files.
+export function normalizeStructure(type, structure) {
+  if (type === 'fullbleed' || !structure || structure.length === 0) {
+    return FULLBLEED_STRUCTURE
+  }
+  return structure
+}
+
 /**
  * Get cell info array from a layout structure.
  * Returns [{index, label, sectionIndex, subIndex}] for each cell.
