@@ -1761,6 +1761,121 @@ const duotoneLayouts = {
 }
 
 // ============================================================================
+// TEXT STYLES PER LOOK CATEGORY
+// Defined before lookPresets to avoid TDZ (Temporal Dead Zone) with const.
+// ============================================================================
+
+// Clean/Minimal — neutral, let content speak
+const cleanTextStyles = {
+  title: { color: 'secondary', bold: true },
+  tagline: { color: 'secondary', bold: false },
+  bodyHeading: { color: 'secondary', bold: true },
+  bodyText: { color: 'secondary', bold: false },
+  cta: { color: 'accent', bold: true },
+  footnote: { color: 'light-gray', bold: false },
+}
+
+// Soft — same palette as clean but slightly lighter feel
+const softTextStyles = {
+  title: { color: 'secondary', bold: true },
+  tagline: { color: 'accent', bold: false },
+  bodyHeading: { color: 'secondary', bold: true },
+  bodyText: { color: 'secondary', bold: false },
+  cta: { color: 'accent', bold: true },
+  footnote: { color: 'light-gray', bold: false },
+}
+
+// Bold — strong contrast, heavy titles
+const boldTextStyles = {
+  title: { color: 'white', bold: true },
+  tagline: { color: 'off-white', bold: false },
+  bodyHeading: { color: 'white', bold: true },
+  bodyText: { color: 'off-white', bold: false },
+  cta: { color: 'accent', bold: true },
+  footnote: { color: 'light-gray', bold: false },
+}
+
+// Dramatic — cinematic, high-contrast text
+const dramaticTextStyles = {
+  title: { color: 'white', bold: true },
+  tagline: { color: 'light-gray', bold: false },
+  bodyHeading: { color: 'white', bold: true },
+  bodyText: { color: 'off-white', bold: false },
+  cta: { color: 'accent', bold: true },
+  footnote: { color: 'light-gray', bold: false },
+}
+
+// Punch — attention-grabbing, accent-heavy
+const punchTextStyles = {
+  title: { color: 'white', bold: true },
+  tagline: { color: 'accent', bold: true },
+  bodyHeading: { color: 'white', bold: true },
+  bodyText: { color: 'off-white', bold: false },
+  cta: { color: 'accent', bold: true },
+  footnote: { color: 'off-white', bold: false },
+}
+
+// Vintage — warm, classic serif feel
+const vintageTextStyles = {
+  title: { color: 'secondary', bold: true },
+  tagline: { color: 'accent', bold: false },
+  bodyHeading: { color: 'secondary', bold: true },
+  bodyText: { color: 'secondary', bold: false },
+  cta: { color: 'accent', bold: true },
+  footnote: { color: 'light-gray', bold: false },
+}
+
+// Retro — faded, throwback
+const retroTextStyles = {
+  title: { color: 'secondary', bold: true },
+  tagline: { color: 'secondary', bold: false },
+  bodyHeading: { color: 'secondary', bold: true },
+  bodyText: { color: 'secondary', bold: false },
+  cta: { color: 'accent', bold: true },
+  footnote: { color: 'light-gray', bold: false },
+}
+
+// Film — classic film, muted elegance
+const filmTextStyles = {
+  title: { color: 'secondary', bold: true },
+  tagline: { color: 'secondary', bold: false },
+  bodyHeading: { color: 'secondary', bold: true },
+  bodyText: { color: 'secondary', bold: false },
+  cta: { color: 'accent', bold: true },
+  footnote: { color: 'light-gray', bold: false },
+}
+
+// Noir — high-contrast B&W, dramatic
+const noirTextStyles = {
+  title: { color: 'white', bold: true },
+  tagline: { color: 'off-white', bold: false },
+  bodyHeading: { color: 'white', bold: true },
+  bodyText: { color: 'light-gray', bold: false },
+  cta: { color: 'white', bold: true },
+  footnote: { color: 'light-gray', bold: false },
+}
+
+// Monochrome — subtle grayscale, modern
+const monoTextStyles = {
+  title: { color: 'white', bold: true },
+  tagline: { color: 'light-gray', bold: false },
+  bodyHeading: { color: 'white', bold: true },
+  bodyText: { color: 'light-gray', bold: false },
+  cta: { color: 'off-white', bold: true },
+  footnote: { color: 'light-gray', bold: false },
+}
+
+// Duotone — two-color stylized, accent-driven
+const duotoneTextStyles = {
+  title: { color: 'white', bold: true },
+  tagline: { color: 'accent', bold: false },
+  bodyHeading: { color: 'white', bold: true },
+  bodyText: { color: 'off-white', bold: false },
+  cta: { color: 'accent', bold: true },
+  footnote: { color: 'light-gray', bold: false },
+}
+
+// ============================================================================
 // LOOK PRESETS ARRAY
 // ============================================================================
 
@@ -1774,6 +1889,7 @@ export const lookPresets = [
     preview: { style: 'clean' },
     fonts: { title: 'inter', body: 'inter' },
     imageFilters: { ...defaultFilters },
+    textStyles: cleanTextStyles,
     layouts: cleanLayouts,
   },
   {
@@ -1784,6 +1900,7 @@ export const lookPresets = [
     preview: { style: 'minimal' },
     fonts: { title: 'dm-sans', body: 'dm-sans' },
     imageFilters: { ...defaultFilters, contrast: 95, brightness: 105 },
+    textStyles: cleanTextStyles,
     layouts: minimalLayouts,
   },
   {
@@ -1794,6 +1911,7 @@ export const lookPresets = [
     preview: { style: 'soft' },
     fonts: { title: 'raleway', body: 'open-sans' },
     imageFilters: { ...defaultFilters, contrast: 95, brightness: 102 },
+    textStyles: softTextStyles,
     layouts: softLayouts,
   },
 
@@ -1806,6 +1924,7 @@ export const lookPresets = [
     preview: { style: 'bold' },
     fonts: { title: 'bebas-neue', body: 'inter' },
     imageFilters: { ...defaultFilters, contrast: 110, brightness: 95 },
+    textStyles: boldTextStyles,
     layouts: boldLayouts,
   },
   {
@@ -1816,6 +1935,7 @@ export const lookPresets = [
     preview: { style: 'dramatic' },
     fonts: { title: 'oswald', body: 'lato' },
     imageFilters: { ...defaultFilters, contrast: 115, brightness: 92 },
+    textStyles: dramaticTextStyles,
     layouts: dramaticLayouts,
   },
   {
@@ -1826,6 +1946,7 @@ export const lookPresets = [
     preview: { style: 'punch' },
     fonts: { title: 'archivo-black', body: 'dm-sans' },
     imageFilters: { ...defaultFilters, contrast: 108, brightness: 98 },
+    textStyles: punchTextStyles,
     layouts: punchLayouts,
   },
 
@@ -1838,6 +1959,7 @@ export const lookPresets = [
     preview: { style: 'vintage' },
     fonts: { title: 'playfair', body: 'lora' },
     imageFilters: { ...defaultFilters, sepia: 30, brightness: 98 },
+    textStyles: vintageTextStyles,
     layouts: vintageLayouts,
   },
   {
@@ -1848,6 +1970,7 @@ export const lookPresets = [
     preview: { style: 'retro' },
     fonts: { title: 'oswald', body: 'lato' },
     imageFilters: { ...defaultFilters, sepia: 25, contrast: 105, brightness: 95 },
+    textStyles: retroTextStyles,
     layouts: retroLayouts,
   },
   {
@@ -1858,6 +1981,7 @@ export const lookPresets = [
     preview: { style: 'film' },
     fonts: { title: 'merriweather', body: 'merriweather' },
     imageFilters: { ...defaultFilters, sepia: 15, contrast: 108, brightness: 96 },
+    textStyles: filmTextStyles,
     layouts: filmLayouts,
   },
 
@@ -1870,6 +1994,7 @@ export const lookPresets = [
     preview: { style: 'noir' },
     fonts: { title: 'bebas-neue', body: 'inter' },
     imageFilters: { ...defaultFilters, grayscale: 100, contrast: 120, brightness: 90 },
+    textStyles: noirTextStyles,
     layouts: noirLayouts,
   },
   {
@@ -1880,6 +2005,7 @@ export const lookPresets = [
     preview: { style: 'mono' },
     fonts: { title: 'space-grotesk', body: 'dm-sans' },
     imageFilters: { ...defaultFilters, grayscale: 100, contrast: 105 },
+    textStyles: monoTextStyles,
     layouts: monoLayouts,
   },
   {
@@ -1890,10 +2016,22 @@ export const lookPresets = [
     preview: { style: 'duotone' },
     fonts: { title: 'montserrat', body: 'inter' },
     imageFilters: { ...defaultFilters, contrast: 110, brightness: 95 },
+    textStyles: duotoneTextStyles,
     layouts: duotoneLayouts,
   },
 ]
 
+// ============================================================================
+// TEXT STYLE PRESETS
+// Requirement: Looks define per-element text styling (color, bold) so presets
+//   feel complete instead of half-finished.
+// Approach: Top-level textStyles per look (not per-layout) since text styling
+//   is aesthetically consistent regardless of grid structure.
+// Alternatives:
+//   - Per-layout textStyles: Rejected — adds massive duplication for no
+//     user-visible benefit; text aesthetics are about the look, not the grid.
+//   - Override all text fields: Rejected — only color/bold are visual identity;
+//     content, size, visibility, alignment are user choices to preserve.
 // ============================================================================
 // HELPER FUNCTIONS
 // ============================================================================
@@ -1916,6 +2054,7 @@ export const getLookSettingsForLayout = (lookId, layoutId) => {
     return {
       fonts: look.fonts,
       imageFilters: look.imageFilters,
+      textStyles: look.textStyles,
       ...layoutSettings,
     }
   }
@@ -1930,6 +2069,7 @@ export const getLookSettingsForLayout = (lookId, layoutId) => {
   return {
     fonts: look.fonts,
     imageFilters: look.imageFilters,
+    textStyles: look.textStyles,
     ...fallbackSettings,
   }
 }

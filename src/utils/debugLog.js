@@ -46,18 +46,24 @@ export function subscribe(fn) {
   return () => subscribers.delete(fn)
 }
 
-// Capture global errors at load time
-window.addEventListener('error', (e) => {
-  debugLog('window', 'error', {
-    message: e.message,
-    filename: e.filename,
-    lineno: e.lineno,
-    colno: e.colno,
-  }, 'error')
-})
+// Capture global errors at load time.
+// Guard prevents duplicate listeners from accumulating during Vite HMR reloads,
+// where this module re-executes but listeners from previous loads persist.
+if (!window.__debugLogListenersAttached) {
+  window.__debugLogListenersAttached = true
 
-window.addEventListener('unhandledrejection', (e) => {
-  debugLog('window', 'unhandledrejection', {
-    reason: String(e.reason),
-  }, 'error')
-})
+  window.addEventListener('error', (e) => {
+    debugLog('window', 'error', {
+      message: e.message,
+      filename: e.filename,
+      lineno: e.lineno,
+      colno: e.colno,
+    }, 'error')
+  })
+
+  window.addEventListener('unhandledrejection', (e) => {
+    debugLog('window', 'unhandledrejection', {
+      reason: String(e.reason),
+    }, 'error')
+  })
+}

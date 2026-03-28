@@ -24,7 +24,7 @@ const tutorialSteps = [
         <ul className="space-y-2 text-sm">
           <li className="flex gap-2">
             <span className="text-violet-500">•</span>
-            <span><strong>Platform:</strong> Pick a size for your design — Instagram, TikTok, LinkedIn, print, and more. This sets the canvas dimensions.</span>
+            <span><strong>Platform:</strong> Pick a size for your design — Instagram, TikTok, LinkedIn, print, and more. This sets the canvas dimensions. Use the search box to find platforms by name.</span>
           </li>
           <li className="flex gap-2">
             <span className="text-violet-500">•</span>
@@ -56,11 +56,11 @@ const tutorialSteps = [
           </li>
           <li className="flex gap-2">
             <span className="text-violet-500">•</span>
-            <span><strong>Upload:</strong> Add your own images, then drag them into the cell you want.</span>
+            <span><strong>Images:</strong> Upload your own images, then assign them to cells. Adjust zoom and position per image.</span>
           </li>
           <li className="flex gap-2">
             <span className="text-violet-500">•</span>
-            <span><strong>Adjust:</strong> For each image, you can change the zoom, position, color tint, and filters like black & white or blur.</span>
+            <span><strong>Image Overlay & Filters:</strong> Add a color tint to any image, or apply filters like black & white, sepia, or blur.</span>
           </li>
           <li className="flex gap-2">
             <span className="text-violet-500">•</span>
@@ -128,15 +128,19 @@ const tutorialSteps = [
           </li>
           <li className="flex gap-2">
             <span className="text-violet-500">•</span>
-            <span><strong>Color tints:</strong> Add a color layer over individual cells — great for making text more readable over images.</span>
+            <span><strong>Background:</strong> Override the theme color for individual cells.</span>
+          </li>
+          <li className="flex gap-2">
+            <span className="text-violet-500">•</span>
+            <span><strong>Color Tint:</strong> Add a color layer over individual cells — great for making text more readable over images.</span>
+          </li>
+          <li className="flex gap-2">
+            <span className="text-violet-500">•</span>
+            <span><strong>Frames:</strong> Add colored borders around the whole design or individual cells.</span>
           </li>
           <li className="flex gap-2">
             <span className="text-violet-500">•</span>
             <span><strong>Spacing:</strong> Add breathing room around the edges or between cells.</span>
-          </li>
-          <li className="flex gap-2">
-            <span className="text-violet-500">•</span>
-            <span><strong>Borders:</strong> Add colored borders around the whole design or individual cells.</span>
           </li>
         </ul>
         <p className="text-ui-text-muted text-sm">Looking for color themes? Those are in the Presets tab.</p>
@@ -196,6 +200,10 @@ const tutorialSteps = [
           <li className="flex gap-2">
             <span className="text-violet-500">•</span>
             <span><strong>Install as app:</strong> Click "Install" to add CanvaGrid to your device for quick access.</span>
+          </li>
+          <li className="flex gap-2">
+            <span className="text-violet-500">•</span>
+            <span><strong>Mobile long-press:</strong> On mobile, long-press any cell on the canvas to quickly jump to Media, Content, or Style for that cell.</span>
           </li>
         </ul>
       </div>

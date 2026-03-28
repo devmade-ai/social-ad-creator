@@ -3,6 +3,21 @@
 // Alternatives:
 //   - Keep per-file copies: Rejected — 3x duplication, divergent bugs.
 
+// Canonical fullbleed structure — single cell at 100%.
+// Requirement: Deduplicate the fallback structure constant defined in 4 separate files.
+// Approach: Single export here, imported wherever layout normalization is needed.
+export const FULLBLEED_STRUCTURE = [{ size: 100, subdivisions: 1, subSizes: [100] }]
+
+// Normalize layout structure for rendering: returns FULLBLEED_STRUCTURE for fullbleed
+// layouts or missing/empty structure, otherwise returns the structure as-is.
+// Requirement: Deduplicate the normalization pattern repeated 7 times across 4 files.
+export function normalizeStructure(type, structure) {
+  if (type === 'fullbleed' || !structure || structure.length === 0) {
+    return FULLBLEED_STRUCTURE
+  }
+  return structure
+}
+
 /**
  * Get cell info array from a layout structure.
  * Returns [{index, label, sectionIndex, subIndex}] for each cell.
@@ -82,46 +97,29 @@ export function countCells(structure) {
   return structure.reduce((total, section) => total + (section.subdivisions || 1), 0)
 }
 
+// Remove entries from a cell-indexed object where the key >= newCellCount.
+// Guards against NaN from non-numeric keys (corrupted state) by treating them as invalid.
+function pruneOrphanedKeys(obj, newCellCount) {
+  const clean = { ...obj }
+  Object.keys(clean).forEach((key) => {
+    const idx = parseInt(key, 10)
+    if (isNaN(idx) || idx >= newCellCount) {
+      delete clean[key]
+    }
+  })
+  return clean
+}
+
 /**
  * Clean up cell-indexed data that references cells beyond newCellCount.
  * Used when layout changes reduce the number of cells.
  */
 export function cleanupOrphanedCells(prevState, newCellCount) {
-  const cleanCellImages = { ...prevState.cellImages }
-  Object.keys(cleanCellImages).forEach((cellIndex) => {
-    if (parseInt(cellIndex, 10) >= newCellCount) {
-      delete cleanCellImages[cellIndex]
-    }
-  })
-
-  const cleanPaddingOverrides = { ...(prevState.padding?.cellOverrides || {}) }
-  Object.keys(cleanPaddingOverrides).forEach((cellIndex) => {
-    if (parseInt(cellIndex, 10) >= newCellCount) {
-      delete cleanPaddingOverrides[cellIndex]
-    }
-  })
-
-  const cleanCellFrames = { ...(prevState.frame?.cellFrames || {}) }
-  Object.keys(cleanCellFrames).forEach((cellIndex) => {
-    if (parseInt(cellIndex, 10) >= newCellCount) {
-      delete cleanCellFrames[cellIndex]
-    }
-  })
-
-  const cleanFreeformText = { ...(prevState.freeformText || {}) }
-  Object.keys(cleanFreeformText).forEach((cellIndex) => {
-    if (parseInt(cellIndex, 10) >= newCellCount) {
-      delete cleanFreeformText[cellIndex]
-    }
-  })
-
-  // Clean per-cell structured text
-  const cleanText = { ...(prevState.text || {}) }
-  Object.keys(cleanText).forEach((cellIndex) => {
-    if (parseInt(cellIndex, 10) >= newCellCount) {
-      delete cleanText[cellIndex]
-    }
-  })
+  const cleanCellImages = pruneOrphanedKeys(prevState.cellImages || {}, newCellCount)
+  const cleanPaddingOverrides = pruneOrphanedKeys(prevState.padding?.cellOverrides || {}, newCellCount)
+  const cleanCellFrames = pruneOrphanedKeys(prevState.frame?.cellFrames || {}, newCellCount)
+  const cleanFreeformText = pruneOrphanedKeys(prevState.freeformText || {}, newCellCount)
+  const cleanText = pruneOrphanedKeys(prevState.text || {}, newCellCount)
 
   // Note: cellAlignments and cellOverlays live inside layout and are cleaned
   // by setLayout/applyLayoutPreset separately (they need to clean from the

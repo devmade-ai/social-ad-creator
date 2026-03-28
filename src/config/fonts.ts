@@ -1,4 +1,11 @@
-export const fonts = [
+export interface FontEntry {
+  id: string
+  name: string
+  family: string
+  url: string
+}
+
+export const fonts: FontEntry[] = [
   // Sans-serif fonts
   {
     id: 'inter',

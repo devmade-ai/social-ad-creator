@@ -9,6 +9,7 @@ const SANITIZE_CONFIG = {
   ALLOWED_ATTR: ['href', 'target', 'rel'],
 }
 import { overlayTypes, hexToRgb, getOverlayType } from '../config/layouts'
+import { buildFilterStyle, getAlignItems, getJustifyContent, getFrameDimensions, isDuotoneOverlay } from '../utils/canvasRenderers'
 import { platforms } from '../config/platforms'
 import { fonts } from '../config/fonts'
 import { getNeutralColor } from '../config/themes'
@@ -70,12 +71,6 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
 
   const getCellFrame = (cellIndex) => {
     return frameConfig.cellFrames?.[cellIndex] || null
-  }
-
-  const getFrameDimensions = (totalPadding, framePercent) => {
-    const frameWidth = Math.round(totalPadding * (framePercent / 100))
-    const innerPadding = totalPadding - frameWidth
-    return { frameWidth, innerPadding }
   }
 
   const themeColors = useMemo(() => ({
@@ -268,17 +263,6 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
     )
   }
 
-  const buildFilterStyle = (filters) => {
-    if (!filters) return 'none'
-    const parts = []
-    if (filters.grayscale > 0) parts.push(`grayscale(${filters.grayscale}%)`)
-    if (filters.sepia > 0) parts.push(`sepia(${filters.sepia}%)`)
-    if (filters.blur > 0) parts.push(`blur(${filters.blur}px)`)
-    if (filters.contrast && filters.contrast !== 100) parts.push(`contrast(${filters.contrast}%)`)
-    if (filters.brightness && filters.brightness !== 100) parts.push(`brightness(${filters.brightness}%)`)
-    return parts.length > 0 ? parts.join(' ') : 'none'
-  }
-
   const renderOverlayLayer = (overlayConfig, key = 'overlay') => {
     if (!overlayConfig || overlayConfig.opacity <= 0) return null
 
@@ -300,12 +284,6 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
         }}
       />
     )
-  }
-
-  const isDuotoneOverlay = (overlayConfig) => {
-    if (!overlayConfig) return false
-    const type = getOverlayType(overlayConfig.type)
-    return type.special === 'duotone'
   }
 
   // Supports stacking: per-image overlay (Media tab) + cell overlay (Style > Overlay)
@@ -347,22 +325,6 @@ const AdCanvas = forwardRef(function AdCanvas({ state, scale = 1 }, ref) {
         {hasCellOverlay && renderOverlayLayer(cellOverlayConfig, 'cell-overlay')}
       </div>
     )
-  }
-
-  const getAlignItems = (align) => {
-    switch (align) {
-      case 'left': return 'flex-start'
-      case 'right': return 'flex-end'
-      default: return 'center'
-    }
-  }
-
-  const getJustifyContent = (align) => {
-    switch (align) {
-      case 'start': return 'flex-start'
-      case 'end': return 'flex-end'
-      default: return 'center'
-    }
   }
 
   const getCellTextAlign = (cellIndex) => {

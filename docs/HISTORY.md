@@ -1,5 +1,89 @@
 # Changelog
 
+## 2026-03-28
+
+### Remaining TODO items completed
+
+**Extract large components:**
+- ExportButtons.jsx (701→579): Extracted captureAsBlob, captureForPdf, waitForPaint, etc. to utils/exportHelpers.js
+- AdCanvas.jsx (878→840): Extracted buildFilterStyle, getAlignItems, etc. to utils/canvasRenderers.js
+- LayoutTab.jsx (952→912): Extracted cellToSection, getFirstCellOfSection to utils/layoutHelpers.js
+- MediaTab.jsx (1397→882): Extracted SampleImagesSection.jsx and AIPromptHelper.jsx
+- ContentTab.jsx (915→419): Extracted TextStyleControls.jsx and FreeformEditor.jsx
+
+**Extract App.jsx paths:**
+- Created ReaderMode.jsx, MobileLayout.jsx, DesktopLayout.jsx
+- App.jsx render branches now use extracted components (wired via linter)
+
+**Platform picker search:**
+- Added text search/filter input to PlatformPreview.jsx platform selector
+- Auto-expands matching categories when searching
+
+**Long-press cell actions:**
+- CellContextMenu component with 3 actions (Media, Content, Style tabs)
+- 500ms touch timeout on cell overlay divs, cancelled on move
+
+**Unit tests:**
+- Added Jest with ESM support, 27 tests across 2 test files
+- cellUtils: normalizeStructure, getCellInfo, countCells, cleanupOrphanedCells
+- layoutPresets: getSuggestedLayouts, getPresetsByAspectRatio
+
+**TypeScript migration (Phases 1-2):**
+- tsconfig.json added
+- Migrated config: textDefaults.ts, fonts.ts, sampleImages.ts (with interfaces)
+- Migrated utils: layoutHelpers.ts (with Section interface)
+
+### 6 TODO items implemented
+
+**High Priority (3 items):**
+- **Unassigned image feedback** — `addImage()` now returns `{ id, assigned }`. MediaTab shows toast "Image added to library — all cells already have images" when no cell available. 4 call sites updated.
+- **Accessibility pass** — ~20 elements across 5 files: `aria-label` on platform chevrons/format buttons (PlatformPreview), `role="menuitem"` on mobile menu items (App), `aria-label` on overlay type buttons (StyleTab), `aria-label` on color picker (TemplatesTab), `aria-hidden="true"` on decorative SVGs (MobileNav, App), `aria-label="Main navigation"` on nav element (MobileNav).
+- **Phase 4: Platform format data** — Added 15 new formats across 7 platform groups: Pinterest (Pin, Story Pin), Snapchat (Snap Ad, Story), YouTube (Thumbnail, End Screen), WhatsApp (Status), Threads (Post, Story), Product Images (Square, Portrait), Store Banners (Hero, Category). New 'ecommerce' category. Total: 18 groups, 42 formats.
+
+**Medium Priority (3 items):**
+- **Lazy font loading** — Only 2 active fonts (title + body) load on mount. Remaining 13 load when StyleTab Fonts section expands via `onExpand` callback. Reduces initial HTTP requests from 15 to 2.
+- **Looks per-element text styling** — Added `textStyles` to all 20 look presets with per-element color and bold overrides. `applyStylePreset` in useAdState merges styles into text elements (preserving content/visible/size). 5 style palettes: clean, bold, dark, warm, artistic.
+- **Calculate imageAspectRatio** — Derived from first image's `naturalWidth/Height` in App.jsx. Passed as prop to TemplatesTab. "Suggested" layouts now adapt to image orientation (landscape → horizontal layouts, portrait → vertical).
+
+### Lazy font loading
+
+- Connected `onLoadAllFonts` callback in StyleTab to CollapsibleSection's `onExpand` prop on the Fonts section
+- App.jsx already had the full implementation (state, useMemo filter, useCallback, prop passing) — only the StyleTab wiring was missing
+- Result: Only 2 active fonts load on mount instead of 15, reducing initial HTTP requests by 13
+
+---
+
+## 2026-03-27
+
+### Code review and audit sweep — 17 fixes across 13 files
+
+**Review fixes (10 components):**
+- MediaTab CellGrid: Replaced mutable `let cellIndex` render var with useMemo+Map pattern
+- BottomSheet: Added onTouchCancel handler via shared snapToNearest callback
+- ExportButtons: Replaced setTimeout(300) in PDF multi-page with double waitForPaint()
+- ContextBar: Improved delete confirmation label ("Delete page X?" not "Delete p X?")
+- LogoUploader: Added 10MB file size validation with toast feedback
+- SaveLoadModal: Time-inclusive default name + aria-label on search input
+- MobileNav: Active tab indicator persists when sheet is closed
+- PlatformPreview: Reset showTips on platform change
+- StyleTab: Extracted OverlayTypeButton component (reduced ~50 lines duplication)
+- TemplatesTab: Actionable empty state message
+
+**Audit fixes (4 files):**
+- ExportButtons: exportLockRef mutex prevents concurrent exports
+- useAdState loadDesign: Filters page data to PAGE_FIELDS only (prevents orphaned field pollution)
+- useAdState extractPageData: structuredClone try/catch with JSON round-trip fallback
+- cellUtils: pruneOrphanedKeys helper with NaN guard replaces 5 duplicate loops
+- debugLog: HMR-safe guard for global listeners
+
+**Documentation fixes:**
+- TODO.md: Removed 3 completed items (state validation, export timeout, DOMPurify sanitization)
+- CLAUDE.md: Corrected pxToPt value (1, not 0.5), added ColorPicker + ThemeColorPicker to Architecture
+- TutorialModal: Fixed section names to match actual UI (Images, Image Overlay & Filters, Frames, Background)
+- SESSION_NOTES.md: Refreshed with current context
+
+---
+
 ## 2026-03-15
 
 ### Mobile redesign — dedicated mobile layout with bottom sheet and bottom nav

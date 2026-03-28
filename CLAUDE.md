@@ -284,7 +284,7 @@ These footers are required on every commit. No exceptions.
 - **PWA install prompt race condition:** `beforeinstallprompt` is captured by an inline script in `index.html` before React mounts. The `usePWAInstall` hook checks `window.__pwaInstallPrompt` on mount. Never remove that inline script.
 - **PWA icon purposes:** Never combine `"any maskable"` in a single icon entry. Use separate entries with individual `purpose` values. Dedicated 1024px maskable icon at `pwa-maskable-1024.png`.
 - **Debug system (dev only):** `src/utils/debugLog.js` is an in-memory 200-entry circular buffer with pub/sub. `src/components/DebugPill.jsx` renders in a separate React root (survives App crashes). Only mounted in `import.meta.env.DEV`. Use `debugLog(source, event, details, severity)` to add entries.
-- **pdf-lib image handling:** pdf-lib embeds PNG directly (FlateDecode — no re-encoding). Digital PDF uses pxToPt=0.5 (144 DPI) for reasonable page sizes (~7.5" for 1080px platforms). Captures at user-selected pixelRatio (1x/2x/3x), giving integer px/pt ratios (2/4/6). Print formats use pixelRatio:1 with 72/150 conversion. History: (1) pixelRatio:2 + 72/96 → 2.667:1 ratio → gradient banding. (2) 1:1 mapping + page scaled with pixelRatio → identical quality. (3) pxToPt=1 fixed page → 15" pages too large for mobile viewers. (4) pxToPt=0.5 → reasonable page size + sharp rendering. Diagnostic image download enabled in dev mode.
+- **pdf-lib image handling:** pdf-lib embeds PNG directly (FlateDecode — no re-encoding). Digital PDF uses pxToPt=1 (1:1 pixel-to-point mapping). Captures at user-selected pixelRatio (1x/2x/3x), giving integer px/pt ratios (1:1/2:1/3:1). Print formats use pixelRatio:1 with 72/150 DPI conversion for correct physical page size. History: (1) pixelRatio:2 + 72/96 → 2.667:1 ratio → gradient banding. (2) 1:1 mapping + page scaled with pixelRatio → identical quality. (3) pxToPt=1 fixed page + variable pixelRatio → current approach. Diagnostic image download enabled in dev mode.
 - **Design storage is IndexedDB:** `utils/designStorage.js` wraps IndexedDB with async save/load/list/delete. One-time migration from localStorage runs on first mount via `migrateFromLocalStorage()`. Never use localStorage for designs.
 - **Claude Code mobile/web — accessing sibling repos:**
   - Use `GITHUB_ALL_REPO_TOKEN` with the GitHub API (`api.github.com/repos/devmade-ai/{repo}/contents/{path}`) to read files from other devmade-ai repos
@@ -412,11 +412,12 @@ Core features working:
   - Blend modes: Multiply, Screen, Overlay, Color Burn
   - Textures: Noise, Film Grain
 - 15 Google Fonts (sans-serif, serif, display categories)
-- Export to 27 formats across 12 platform groups:
-  - Social: Instagram (Feed Portrait/Square/Feed Landscape/Story), Facebook (Feed/Square/Story/Cover), TikTok, LinkedIn (Square/Portrait/Landscape), Twitter/X
+- Export to 42 formats across 18 platform groups:
+  - Social: Instagram (Feed Portrait/Square/Feed Landscape/Story), Facebook (Feed/Square/Story/Cover), TikTok, LinkedIn (Square/Portrait/Landscape), Twitter/X, Pinterest (Pin/Story), Snapchat (Ad/Story), WhatsApp (Status), Threads (Post/Story)
   - Website: Hero (Standard/Tall/Full HD), OG Image
-  - Banners: LinkedIn Banner, YouTube Banner
+  - Banners: LinkedIn Banner, YouTube (Banner/Thumbnail/End Screen)
   - Print: A3, A4, A5 (Portrait & Landscape at 150 DPI)
+  - E-commerce: Product Images (Square/Portrait), Store Banners (Hero/Category)
   - Other: Email Header, Zoom Background
 - **Export format selection**: PNG, JPG, or WebP with per-platform recommendations
 - Single download, ZIP batch download, multi-page ZIP export, and PDF export
@@ -487,6 +488,7 @@ Tab descriptions (workflow-based organization):
 npm run dev              # Start dev server
 npm run build            # Production build
 npm run preview          # Preview production build
+npm test                 # Run unit tests (Jest)
 ```
 
 ## Architecture
@@ -497,12 +499,16 @@ src/
 │   ├── AdCanvas.jsx           # Core rendering (cell-based layout)
 │   ├── CollapsibleSection.jsx # Reusable collapsible section for tab content
 │   ├── TemplatesTab.jsx       # Layout presets, themes, and looks
-│   ├── MediaTab.jsx           # Sample images, image + logo upload, fit, position, filters
+│   ├── MediaTab.jsx           # Image management hub (upload, assign, overlay, filters, logo)
+│   ├── SampleImagesSection.jsx # CDN sample images gallery with category filtering
+│   ├── AIPromptHelper.jsx     # AI image prompt builder
 │   ├── ContentTab.jsx         # Text editing with cell assignment
+│   ├── FreeformEditor.jsx     # Per-cell freeform text block editors (FreeformBlockEditor + FreeformCellEditor)
+│   ├── TextStyleControls.jsx  # Shared text styling toolbar (size, bold, italic, color, alignment, spacing)
 │   ├── LayoutTab.jsx          # Grid structure + cell alignment
 │   ├── StyleTab.jsx           # Typography, overlay, spacing (themes in Presets tab)
 │   ├── ContextBar.jsx         # Sticky bar: cell selector + page management + undo/redo
-│   ├── PlatformPreview.jsx    # Platform selector
+│   ├── PlatformPreview.jsx    # Platform selector with search filter
 │   ├── ExportButtons.jsx      # Export controls (single, multi-platform, multi-page)
 │   ├── TutorialModal.jsx      # In-app help walkthrough (8 steps covering all tabs)
 │   ├── SaveLoadModal.jsx      # Save/load/delete designs (IndexedDB)
@@ -510,6 +516,8 @@ src/
 │   ├── InstallInstructionsModal.jsx # Manual PWA install instructions
 │   ├── ErrorBoundary.jsx      # Error handling wrapper
 │   ├── AlignmentPicker.jsx    # Reusable alignment button group
+│   ├── ColorPicker.jsx        # Theme-aware color picker for text elements
+│   ├── ThemeColorPicker.jsx   # Theme color swatch picker (primary/secondary/accent/neutrals)
 │   ├── MiniCellGrid.jsx       # Compact cell grid for ContextBar
 │   ├── Toast.jsx              # Toast notification system (ToastProvider + useToast hook)
 │   ├── ConfirmButton.jsx      # Inline confirmation replacing browser confirm()
@@ -519,16 +527,19 @@ src/
 │   ├── QuickActionsBar.jsx    # Cell quick-action shortcuts (Image, Text, Style)
 │   ├── BottomSheet.jsx        # Touch-draggable bottom sheet for mobile tab content (3 snap points)
 │   ├── MobileNav.jsx          # Fixed bottom navigation bar for mobile (6 tabs incl. Export)
+│   ├── ReaderMode.jsx         # Full-screen reader view with page navigation
+│   ├── MobileLayout.jsx       # Mobile-specific layout container (header, canvas, sheet, nav)
+│   ├── DesktopLayout.jsx      # Desktop-specific layout container (header, sidebar, main)
 │   └── DebugPill.jsx          # Floating debug panel (separate React root, dev only)
 ├── config/         # Configuration
 │   ├── layouts.js        # 26 overlay types (solid, gradients, radial, effects, blends, textures)
 │   ├── layoutPresets.js  # 27 layouts with SVG icons and categories
-│   ├── stylePresets.js   # Look presets (fonts + filters + overlay effects per layout)
-│   ├── platforms.js      # 27 formats across 12 platform groups (nested: platformGroups + flat: platforms)
-│   ├── sampleImages.js   # CDN manifest URL for sample images (fetched at runtime)
+│   ├── stylePresets.js   # Look presets (fonts + filters + overlay effects per layout + text styles)
+│   ├── platforms.js      # 42 formats across 18 platform groups (nested: platformGroups + flat: platforms)
+│   ├── sampleImages.ts   # CDN manifest URL for sample images (fetched at runtime)
 │   ├── themes.js         # 12 color themes
-│   ├── fonts.js          # 15 Google Fonts
-│   ├── textDefaults.js   # Default text layer state (shared by AdCanvas + ContentTab)
+│   ├── fonts.ts          # 15 Google Fonts (FontEntry interface)
+│   ├── textDefaults.ts   # Default text layer state (TextLayer, FreeformBlock interfaces)
 │   └── alignment.jsx     # Alignment icon components and option arrays
 ├── hooks/
 │   ├── useAdState.js     # Central state (multi-page, per-cell text, freeformText, layout)
@@ -542,8 +553,11 @@ src/
 ├── utils/
 │   ├── cellUtils.js      # Cell counting, shifting, swapping, cleanup utilities
 │   ├── designStorage.js  # IndexedDB wrapper for design persistence
-│   └── debugLog.js       # In-memory debug event store (200-entry circular buffer)
-├── App.jsx
+│   ├── debugLog.js       # In-memory debug event store (200-entry circular buffer)
+│   ├── exportHelpers.js  # Export capture utilities (captureAsBlob, captureForPdf, waitForPaint)
+│   ├── canvasRenderers.js # Canvas rendering helpers (buildFilterStyle, getAlignItems, isDuotoneOverlay)
+│   └── layoutHelpers.ts  # Layout-structure geometry (cellToSection, getFirstCellOfSection, Section interface)
+├── App.jsx               # State orchestrator, delegates rendering to ReaderMode/MobileLayout/DesktopLayout
 └── main.jsx
 ```
 

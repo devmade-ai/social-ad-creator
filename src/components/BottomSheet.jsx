@@ -96,9 +96,11 @@ export default function BottomSheet({ isOpen, onClose, children, snapPoint, onSn
     applyTransform(newTranslate, false)
   }, [applyTransform])
 
-  const handleTouchEnd = useCallback(() => {
+  // Snap to nearest point based on current drag position.
+  // Shared by touchend and touchcancel to prevent sheet freezing mid-drag
+  // if touch is interrupted (e.g., system notification, incoming call).
+  const snapToNearest = useCallback(() => {
     dragRef.current.isDragging = false
-    // Determine which snap point to land on based on current position
     const currentVh = SNAP_FULL - currentTranslateRef.current // visible height in vh
     if (currentVh < 20) {
       onClose()
@@ -110,6 +112,14 @@ export default function BottomSheet({ isOpen, onClose, children, snapPoint, onSn
       applyTransform(snapToTranslateY(SNAP_FULL), true)
     }
   }, [onClose, onSnapChange, applyTransform])
+
+  const handleTouchEnd = useCallback(() => {
+    snapToNearest()
+  }, [snapToNearest])
+
+  const handleTouchCancel = useCallback(() => {
+    snapToNearest()
+  }, [snapToNearest])
 
   if (!isOpen) return null
 
@@ -131,6 +141,7 @@ export default function BottomSheet({ isOpen, onClose, children, snapPoint, onSn
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
+        onTouchCancel={handleTouchCancel}
       >
         <div className="w-10 h-1 bg-zinc-300 dark:bg-zinc-600 rounded-full" />
       </div>

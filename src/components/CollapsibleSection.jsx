@@ -15,6 +15,7 @@ export default memo(function CollapsibleSection({
   defaultExpanded = true,
   children,
   className = '',
+  onExpand,
 }) {
   const [isExpanded, setIsExpanded] = useState(defaultExpanded)
 
@@ -22,7 +23,11 @@ export default memo(function CollapsibleSection({
     <div className={`border border-ui-border rounded-lg overflow-hidden ${className}`}>
       {/* Header */}
       <button
-        onClick={() => setIsExpanded(!isExpanded)}
+        onClick={() => {
+          const next = !isExpanded
+          setIsExpanded(next)
+          if (next) onExpand?.()
+        }}
         className="w-full flex items-center justify-between px-3 py-3 lg:py-2.5 bg-ui-surface-elevated hover:bg-zinc-100 dark:hover:bg-dark-elevated transition-colors"
       >
         <span className="text-sm font-medium text-ui-text flex items-center gap-2 min-w-0">

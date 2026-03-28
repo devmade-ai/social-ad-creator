@@ -1,4 +1,4 @@
-import { memo, useState } from 'react'
+import { memo, useState, useEffect } from 'react'
 import { categoryLabels, categoryOrder, platformGroupsByCategory, findFormat, findPlatformGroup } from '../config/platforms'
 import CollapsibleSection from './CollapsibleSection'
 
@@ -30,6 +30,18 @@ export default memo(function PlatformPreview({ selectedPlatform, onPlatformChang
   const [expandedCategories, setExpandedCategories] = useState({})
   const [expandedPlatforms, setExpandedPlatforms] = useState({})
   const [showTips, setShowTips] = useState(false)
+  // Requirement: Quick-find for 42+ platform formats in a scrollable list.
+  // Approach: Text filter that matches platform group names and format names.
+  //   Auto-expands matching categories so results are immediately visible.
+  // Alternatives:
+  //   - Full-screen modal picker: Rejected for now — search filter is simpler
+  //     and may be sufficient. Revisit if users still find it awkward.
+  const [searchQuery, setSearchQuery] = useState('')
+
+  // Reset tips panel when switching platforms — prevents showing stale tips
+  useEffect(() => {
+    setShowTips(false)
+  }, [selectedPlatform])
 
   const toggleCategory = (category) => {
     setExpandedCategories((prev) => ({
@@ -82,6 +94,7 @@ export default memo(function PlatformPreview({ selectedPlatform, onPlatformChang
           <div>
             <button
               onClick={() => setShowTips(!showTips)}
+              aria-label="Toggle platform tips"
               className="flex items-center gap-1 text-[10px] text-primary hover:text-primary-hover transition-colors"
             >
               <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -105,13 +118,36 @@ export default memo(function PlatformPreview({ selectedPlatform, onPlatformChang
 
       {/* Platform selector */}
       <CollapsibleSection title="Select Platform" defaultExpanded={false}>
+        {/* Search filter for quick platform finding */}
+        <div className="mb-2">
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search platforms..."
+            aria-label="Search platforms"
+            className="w-full px-3 py-2 text-xs rounded-lg bg-ui-surface-inset border border-ui-border text-ui-text placeholder-ui-text-muted focus:outline-none focus:ring-2 focus:ring-primary"
+          />
+        </div>
         <div className="space-y-1">
           {categoryOrder.map((category) => {
             const categoryPlatformGroups = platformGroupsByCategory[category]
             if (!categoryPlatformGroups || categoryPlatformGroups.length === 0) return null
 
-            const isCatExpanded = expandedCategories[category] || false
-            const hasSelectedFormat = categoryPlatformGroups.some((g) =>
+            // Filter groups by search query (match group name or any format name)
+            const query = searchQuery.toLowerCase().trim()
+            const filteredGroups = query
+              ? categoryPlatformGroups.filter((g) =>
+                  g.name.toLowerCase().includes(query) ||
+                  g.formats.some((f) => f.name.toLowerCase().includes(query))
+                )
+              : categoryPlatformGroups
+            if (query && filteredGroups.length === 0) return null
+
+            // Auto-expand categories when searching so results are visible
+            const isCatExpanded = query ? true : (expandedCategories[category] || false)
+            // Use filteredGroups when searching to avoid showing indicator for hidden platforms
+            const hasSelectedFormat = (query ? filteredGroups : categoryPlatformGroups).some((g) =>
               g.formats.some((f) => f.id === selectedPlatform)
             )
 
@@ -120,6 +156,7 @@ export default memo(function PlatformPreview({ selectedPlatform, onPlatformChang
                 {/* Category header */}
                 <button
                   onClick={() => toggleCategory(category)}
+                  aria-label={`${isCatExpanded ? 'Collapse' : 'Expand'} ${categoryLabels[category] || category}`}
                   className="w-full flex items-center justify-between py-1 hover:bg-ui-surface-elevated rounded transition-colors"
                 >
                   <span className="text-[10px] text-ui-text-faint uppercase tracking-wide font-medium flex items-center gap-1">
@@ -136,7 +173,7 @@ export default memo(function PlatformPreview({ selectedPlatform, onPlatformChang
                 {/* Platform list within category */}
                 {isCatExpanded && (
                   <div className="pl-4 space-y-1">
-                    {categoryPlatformGroups.map((group) => {
+                    {filteredGroups.map((group) => {
                       const hasOneFormat = group.formats.length === 1
                       const isSelected = group.formats.some((f) => f.id === selectedPlatform)
                       const isGroupExpanded = expandedPlatforms[group.id] || false
@@ -146,6 +183,7 @@ export default memo(function PlatformPreview({ selectedPlatform, onPlatformChang
                           {/* Platform row */}
                           <button
                             onClick={() => handlePlatformClick(group)}
+                            aria-label={hasOneFormat ? `Select ${group.name}` : `${isGroupExpanded ? 'Collapse' : 'Expand'} ${group.name}`}
                             className={`w-full flex items-center justify-between py-1 px-2 rounded-lg text-xs font-medium transition-all ${
                               isSelected
                                 ? 'bg-primary/10 text-primary'
@@ -176,6 +214,7 @@ export default memo(function PlatformPreview({ selectedPlatform, onPlatformChang
                                   key={f.id}
                                   onClick={() => onPlatformChange(f.id)}
                                   title={`${f.width} × ${f.height}`}
+                                  aria-label={`Select ${f.name} format`}
                                   className={`px-2.5 py-1 text-xs rounded-lg font-medium transition-all ${
                                     selectedPlatform === f.id
                                       ? 'bg-primary text-white shadow-sm'

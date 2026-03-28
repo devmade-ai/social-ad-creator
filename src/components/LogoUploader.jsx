@@ -1,4 +1,8 @@
 import { useCallback, useRef } from 'react'
+import { useToast } from './Toast'
+
+// Max logo file size: 10MB. DataURL conversion of larger files can freeze the browser.
+const MAX_LOGO_SIZE_BYTES = 10 * 1024 * 1024
 
 const positionOptions = [
   { id: 'top-left', name: 'Top Left' },
@@ -24,34 +28,37 @@ export default function LogoUploader({
   size,
   onSizeChange,
 }) {
+  const { addToast } = useToast()
   const fileInputRef = useRef(null)
+
+  // Validate and read a logo image file.
+  // Rejects non-image files and files exceeding MAX_LOGO_SIZE_BYTES to prevent
+  // browser freezes from DataURL conversion of very large images.
+  const processLogoFile = useCallback((file) => {
+    if (!file || !file.type.startsWith('image/')) return
+    if (file.size > MAX_LOGO_SIZE_BYTES) {
+      addToast('Logo must be under 10 MB', { type: 'warning', duration: 4000 })
+      return
+    }
+    const reader = new FileReader()
+    reader.onload = (event) => {
+      onLogoChange(event.target.result)
+    }
+    reader.readAsDataURL(file)
+  }, [onLogoChange, addToast])
 
   const handleDrop = useCallback((e) => {
     e.preventDefault()
-    const file = e.dataTransfer.files[0]
-    if (file && file.type.startsWith('image/')) {
-      const reader = new FileReader()
-      reader.onload = (event) => {
-        onLogoChange(event.target.result)
-      }
-      reader.readAsDataURL(file)
-    }
-  }, [onLogoChange])
+    processLogoFile(e.dataTransfer.files[0])
+  }, [processLogoFile])
 
   const handleDragOver = useCallback((e) => {
     e.preventDefault()
   }, [])
 
   const handleFileChange = useCallback((e) => {
-    const file = e.target.files?.[0]
-    if (file && file.type.startsWith('image/')) {
-      const reader = new FileReader()
-      reader.onload = (event) => {
-        onLogoChange(event.target.result)
-      }
-      reader.readAsDataURL(file)
-    }
-  }, [onLogoChange])
+    processLogoFile(e.target.files?.[0])
+  }, [processLogoFile])
 
   const handleRemove = useCallback(() => {
     onLogoChange(null)

@@ -1,8 +1,7 @@
 import { memo, useMemo } from 'react'
 import { getAspectRatio } from '../config/platforms'
+import { normalizeStructure } from '../utils/cellUtils'
 import ConfirmButton from './ConfirmButton'
-
-const FULLBLEED_STRUCTURE = [{ size: 100, subdivisions: 1, subSizes: [100] }]
 
 // Compact cell grid for global cell selection.
 // Requirement: Pre-compute cell mapping to avoid mutable cellIndex during render.
@@ -15,17 +14,14 @@ function CellGrid({ layout, cellImages = {}, selectedCell, onSelectCell, platfor
   const isFullbleed = type === 'fullbleed'
   const isRows = type === 'rows'
 
-  const normalizedStructure =
-    isFullbleed || !structure || structure.length === 0
-      ? FULLBLEED_STRUCTURE
-      : structure
+  const normalizedStructure = normalizeStructure(type, structure)
 
   const aspectRatio = getAspectRatio(platform)
 
   const sectionCellMap = useMemo(() => {
     const grouped = new Map()
     let idx = 0
-    const src = isFullbleed || !structure || structure.length === 0 ? FULLBLEED_STRUCTURE : structure
+    const src = normalizeStructure(type, structure)
     src.forEach((section, sectionIndex) => {
       const subdivisions = section.subdivisions || 1
       const subSizes = section.subSizes || Array(subdivisions).fill(100 / subdivisions)
@@ -102,7 +98,7 @@ function PageDot({ pageState, isActive, onClick, index }) {
   return (
     <button
       onClick={onClick}
-      className={`relative shrink-0 w-8 h-8 rounded-md overflow-hidden border-2 transition-all hover:scale-110 active:scale-95 ${
+      className={`relative shrink-0 w-10 h-10 sm:w-8 sm:h-8 rounded-md overflow-hidden border-2 transition-all hover:scale-110 active:scale-95 ${
         isActive
           ? 'border-primary ring-1 ring-primary/30'
           : 'border-ui-border hover:border-ui-border-strong'
@@ -198,13 +194,13 @@ export default memo(function ContextBar({
               />
             </div>
 
-            {/* Page actions - compact */}
+            {/* Page actions — 44px touch targets for mobile (this block is sm:hidden) */}
             <div className="flex items-center gap-0.5 shrink-0">
               <button
                 onClick={() => onMovePage(activePage, activePage - 1)}
                 disabled={activePage === 0}
                 title="Move page left"
-                className="w-10 h-10 rounded flex items-center justify-center text-ui-text-subtle hover:bg-ui-surface-hover active:bg-ui-surface-inset disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                className="w-11 h-11 rounded flex items-center justify-center text-ui-text-subtle hover:bg-ui-surface-hover active:bg-ui-surface-inset disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -214,7 +210,7 @@ export default memo(function ContextBar({
                 onClick={() => onMovePage(activePage, activePage + 1)}
                 disabled={activePage === pageCount - 1}
                 title="Move page right"
-                className="w-10 h-10 rounded flex items-center justify-center text-ui-text-subtle hover:bg-ui-surface-hover active:bg-ui-surface-inset disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                className="w-11 h-11 rounded flex items-center justify-center text-ui-text-subtle hover:bg-ui-surface-hover active:bg-ui-surface-inset disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -223,7 +219,7 @@ export default memo(function ContextBar({
               <button
                 onClick={onDuplicatePage}
                 title="Duplicate page"
-                className="w-10 h-10 rounded flex items-center justify-center text-ui-text-subtle hover:bg-ui-surface-hover active:bg-ui-surface-inset transition-colors"
+                className="w-11 h-11 rounded flex items-center justify-center text-ui-text-subtle hover:bg-ui-surface-hover active:bg-ui-surface-inset transition-colors"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
@@ -232,7 +228,7 @@ export default memo(function ContextBar({
               <button
                 onClick={onAddPage}
                 title="Add new page"
-                className="w-10 h-10 rounded flex items-center justify-center text-primary hover:bg-primary/10 active:bg-primary/20 transition-colors"
+                className="w-11 h-11 rounded flex items-center justify-center text-primary hover:bg-primary/10 active:bg-primary/20 transition-colors"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -240,10 +236,10 @@ export default memo(function ContextBar({
               </button>
               <ConfirmButton
                 onConfirm={() => onRemovePage(activePage)}
-                confirmLabel={`Delete p${activePage + 1}?`}
+                confirmLabel={`Delete page ${activePage + 1}?`}
                 disabled={pageCount <= 1}
                 title="Remove current page"
-                className="w-10 h-10 rounded flex items-center justify-center text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 active:bg-red-100 dark:active:bg-red-900/30 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                className="w-11 h-11 rounded flex items-center justify-center text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 active:bg-red-100 dark:active:bg-red-900/30 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -314,7 +310,7 @@ export default memo(function ContextBar({
             {hasMultiplePages && (
               <ConfirmButton
                 onConfirm={() => onRemovePage(activePage)}
-                confirmLabel={`Delete p${activePage + 1}?`}
+                confirmLabel={`Delete page ${activePage + 1}?`}
                 disabled={pageCount <= 1}
                 title="Remove current page"
                 className="w-7 h-7 rounded flex items-center justify-center text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 active:bg-red-100 dark:active:bg-red-900/30 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
@@ -354,7 +350,7 @@ export default memo(function ContextBar({
             <button
               onClick={onAddPage}
               title="Add new page"
-              className="w-10 h-10 sm:hidden rounded flex items-center justify-center text-primary hover:bg-primary/10 active:bg-primary/20 transition-colors shrink-0"
+              className="w-11 h-11 sm:hidden rounded flex items-center justify-center text-primary hover:bg-primary/10 active:bg-primary/20 transition-colors shrink-0"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />

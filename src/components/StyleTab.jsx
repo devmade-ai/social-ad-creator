@@ -12,6 +12,24 @@ import { countCells } from '../utils/cellUtils'
 import { fonts } from '../config/fonts'
 import { overlayTypesByCategory } from '../config/layouts'
 
+// Reusable overlay type button — extracted from 4 repeated instances
+function OverlayTypeButton({ type, isActive, onClick }) {
+  return (
+    <button
+      onClick={onClick}
+      className={`px-1.5 py-1 text-[9px] rounded truncate ${
+        isActive
+          ? 'bg-primary text-white'
+          : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
+      }`}
+      title={type.name}
+      aria-label={`Overlay type: ${type.name}`}
+    >
+      {type.name}
+    </button>
+  )
+}
+
 export default memo(function StyleTab({
   theme,
   selectedFonts,
@@ -26,6 +44,7 @@ export default memo(function StyleTab({
   cellImages = {},
   selectedCell: selectedCellProp = 0,
   onSelectCell,
+  onLoadAllFonts,
 }) {
   const { cellOverlays = {} } = layout
 
@@ -205,86 +224,27 @@ export default memo(function StyleTab({
                       {/* Type - organized by category */}
                       <div className="space-y-2">
                         <label className="block text-xs font-medium text-ui-text-muted">Type</label>
-                        {/* Basic & Linear */}
-                        <div className="space-y-1">
-                          <span className="text-[9px] text-ui-text-faint uppercase tracking-wide">Basic & Gradients</span>
-                          <div className="grid grid-cols-3 gap-1">
-                            {overlayTypesByCategory.basicAndLinear.map((t) => (
-                              <button
-                                key={t.id}
-                                onClick={() => updateCellOverlay(clampedCell, { type: t.id })}
-                                className={`px-1.5 py-1 text-[9px] rounded truncate ${
-                                  getCellOverlayConfig(clampedCell)?.type === t.id
-                                    ? 'bg-primary text-white'
-                                    : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
-                                }`}
-                                title={t.name}
-                              >
-                                {t.name}
-                              </button>
-                            ))}
+                        {/* Overlay type categories */}
+                        {[
+                          { key: 'basicAndLinear', label: 'Basic & Gradients' },
+                          { key: 'radial', label: 'Circular' },
+                          { key: 'effectAndTexture', label: 'Effects' },
+                          { key: 'blend', label: 'Blending' },
+                        ].map(({ key, label }) => (
+                          <div key={key} className="space-y-1">
+                            <span className="text-[9px] text-ui-text-faint uppercase tracking-wide">{label}</span>
+                            <div className="grid grid-cols-3 gap-1">
+                              {overlayTypesByCategory[key].map((t) => (
+                                <OverlayTypeButton
+                                  key={t.id}
+                                  type={t}
+                                  isActive={getCellOverlayConfig(clampedCell)?.type === t.id}
+                                  onClick={() => updateCellOverlay(clampedCell, { type: t.id })}
+                                />
+                              ))}
+                            </div>
                           </div>
-                        </div>
-                        {/* Radial */}
-                        <div className="space-y-1">
-                          <span className="text-[9px] text-ui-text-faint uppercase tracking-wide">Circular</span>
-                          <div className="grid grid-cols-3 gap-1">
-                            {overlayTypesByCategory.radial.map((t) => (
-                              <button
-                                key={t.id}
-                                onClick={() => updateCellOverlay(clampedCell, { type: t.id })}
-                                className={`px-1.5 py-1 text-[9px] rounded truncate ${
-                                  getCellOverlayConfig(clampedCell)?.type === t.id
-                                    ? 'bg-primary text-white'
-                                    : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
-                                }`}
-                                title={t.name}
-                              >
-                                {t.name}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                        {/* Effects */}
-                        <div className="space-y-1">
-                          <span className="text-[9px] text-ui-text-faint uppercase tracking-wide">Effects</span>
-                          <div className="grid grid-cols-3 gap-1">
-                            {overlayTypesByCategory.effectAndTexture.map((t) => (
-                              <button
-                                key={t.id}
-                                onClick={() => updateCellOverlay(clampedCell, { type: t.id })}
-                                className={`px-1.5 py-1 text-[9px] rounded truncate ${
-                                  getCellOverlayConfig(clampedCell)?.type === t.id
-                                    ? 'bg-primary text-white'
-                                    : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
-                                }`}
-                                title={t.name}
-                              >
-                                {t.name}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                        {/* Blend Modes */}
-                        <div className="space-y-1">
-                          <span className="text-[9px] text-ui-text-faint uppercase tracking-wide">Blending</span>
-                          <div className="grid grid-cols-3 gap-1">
-                            {overlayTypesByCategory.blend.map((t) => (
-                              <button
-                                key={t.id}
-                                onClick={() => updateCellOverlay(clampedCell, { type: t.id })}
-                                className={`px-1.5 py-1 text-[9px] rounded truncate ${
-                                  getCellOverlayConfig(clampedCell)?.type === t.id
-                                    ? 'bg-primary text-white'
-                                    : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
-                                }`}
-                                title={t.name}
-                              >
-                                {t.name}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
+                        ))}
                       </div>
 
                       {/* Color */}
@@ -538,7 +498,7 @@ export default memo(function StyleTab({
       </CollapsibleSection>
 
       {/* Fonts Section */}
-      <CollapsibleSection title="Fonts" defaultExpanded={false}>
+      <CollapsibleSection title="Fonts" defaultExpanded={false} onExpand={onLoadAllFonts}>
         <div className="space-y-3">
           <div className="space-y-2">
             <label className="block text-xs font-medium text-ui-text-muted">Title Font</label>

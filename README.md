@@ -9,7 +9,7 @@ A browser-based visual design tool. Upload images, add text overlays, choose lay
 ### Presets
 - **Layout** - Grid structure presets with aspect ratio filtering
 - **Themes** - 12 color schemes plus custom color inputs
-- **Looks** - One-click visual presets that apply fonts, filters, and overlay without changing layout or colors
+- **Looks** - One-click visual presets that apply fonts, filters, overlay, and text styles without changing layout or colors
 
 ### Media
 - **Sample images** - Browse CDN-hosted sample images with category filtering
@@ -50,14 +50,15 @@ Each text element supports: visibility toggle, cell placement, alignment, color,
 - **Reader mode** - Clean full-screen view with page navigation
 
 ### Export
-- **27 formats** across 12 platform groups in 6 categories:
-  - **Social** - Instagram (Feed Portrait/Square/Feed Landscape/Story), Facebook (Feed/Square/Story/Cover), TikTok, LinkedIn (Square/Portrait/Landscape), Twitter/X
+- **42 formats** across 18 platform groups in 6 categories:
+  - **Social** - Instagram (Feed Portrait/Square/Feed Landscape/Story), Facebook (Feed/Square/Story/Cover), TikTok, LinkedIn (Square/Portrait/Landscape), Twitter/X, Pinterest (Pin/Story), Snapchat (Ad/Story), WhatsApp (Status), Threads (Post/Story)
   - **Website** - Hero (Standard/Tall/Full HD), OG Image
-  - **Banners** - LinkedIn Banner, YouTube Banner
-  - **Email** - Email Header
+  - **Banners** - LinkedIn Banner, YouTube (Banner/Thumbnail/End Screen)
+  - **E-commerce** - Product Images (Square/Portrait), Store Banners (Hero/Category)
   - **Print** - A3, A4, A5 (Portrait & Landscape at 150 DPI)
-  - **Other** - Zoom Background
+  - **Other** - Email Header, Zoom Background
 - **Format selection** - PNG, JPG, or WebP with per-platform recommendations
+- **Platform search filter** - Search platforms by name to quickly find the right format
 - **Two-level platform selector** - Browse by category → platform → format, with tips and file size limits
 - **Single download** - Export current platform in selected format
 - **Multi-page ZIP** - Export all pages as a ZIP archive
@@ -79,6 +80,8 @@ Each text element supports: visibility toggle, cell placement, alignment, color,
 - Use **Layout** presets to change structure without losing your color choices
 - **Per-cell overlay** helps text stand out over busy images
 - Preview different platforms before exporting to ensure your design works everywhere
+- On mobile, **long-press a cell** to quickly jump to Media, Content, or Style tabs for that cell
+- Fonts load on demand — only the fonts you use are downloaded, keeping the app fast
 
 ## Getting Started (Development)
 

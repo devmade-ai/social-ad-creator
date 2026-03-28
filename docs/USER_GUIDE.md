@@ -326,9 +326,9 @@ Click **View** in the header to enter a clean full-screen view of your pages.
 Located below the preview area.
 
 ### Platform Selection
-A two-level selector organized by category → platform → format. Click categories to expand, then select a format. Platforms with a single format select directly; platforms with multiple formats expand to show options. Tips and file size limits are shown for each platform.
+A two-level selector organized by category → platform → format. Use the **search filter** to find platforms by name, or click categories to expand and browse. Platforms with a single format select directly; platforms with multiple formats expand to show options. Tips and file size limits are shown for each platform.
 
-27 formats across 12 platform groups:
+42 formats across 18 platform groups:
 
 **Social Media:**
 - Instagram: Feed Portrait (1080×1350), Square (1080×1080), Feed Landscape (1080×566), Story/Reels (1080×1920)
@@ -336,6 +336,10 @@ A two-level selector organized by category → platform → format. Click catego
 - TikTok: Video Cover (1080×1920)
 - LinkedIn: Square (1080×1080), Portrait (1080×1350), Landscape (1920×1080)
 - Twitter/X: Post (1600×900)
+- Pinterest: Pin (1000×1500), Story (1080×1920)
+- Snapchat: Ad (1080×1920), Story (1080×1920)
+- WhatsApp: Status (1080×1920)
+- Threads: Post (1080×1350), Story (1080×1920)
 
 **Website:**
 - Hero Banner: Standard (1920×600), Tall (1920×800), Full HD (1920×1080)
@@ -343,15 +347,17 @@ A two-level selector organized by category → platform → format. Click catego
 
 **Banners:**
 - LinkedIn Banner (1584×396)
-- YouTube Banner (2560×1440)
+- YouTube: Banner (2560×1440), Thumbnail (1280×720), End Screen (1920×1080)
 
-**Email:**
-- Email Header (800×400)
+**E-commerce:**
+- Product Images: Square (1080×1080), Portrait (1080×1350)
+- Store Banners: Hero (1920×600), Category (1200×400)
 
 **Print (150 DPI):**
 - A3 Portrait/Landscape, A4 Portrait/Landscape, A5 Portrait/Landscape
 
 **Other:**
+- Email Header (800×400)
 - Zoom Background (1920×1080)
 
 ### File Format
@@ -398,6 +404,10 @@ Choose PNG, JPG, or WebP before exporting. Each platform shows a recommended for
 5. Optionally set a theme first (Presets → Themes) to include your colors
 6. Click **Copy** and paste into your AI image generator
 7. Upload the generated image back into the tool
+
+### Mobile Tips
+- **Long-press a cell** on the canvas to open a context menu that lets you quickly jump to Media, Content, or Style tabs for that cell.
+- Swipe left/right on the canvas to navigate between pages in multi-page documents.
 
 ### Working with Layouts
 - **Full Bleed:** Best for single-message ads with large text

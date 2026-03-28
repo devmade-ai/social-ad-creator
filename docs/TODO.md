@@ -6,41 +6,18 @@ Future enhancements and ideas for CanvaGrid.
 
 ## Prioritized Improvements
 
-### High Priority
-
-| Item | Effort | Description |
-|------|--------|-------------|
-| **Phase 4: Add remaining platform format data** | Medium | `platforms.js` — Add format specs for: Pinterest (Pin, Story), Snapchat (Snap Ad, Story), YouTube (Thumbnail, End Screen), WhatsApp (Status), Threads (Post, Story). Add e-commerce category: Takealot, Amazon (Product, Storefront), Shopify, Etsy. Each needs formats array with dimensions, tips, recommendedFormat, maxFileSize. |
-| **Validate loaded design state** | Low | `useAdState.js:901` — `loadDesign()` doesn't bounds-check `activePage` against `pages.length`. Corrupted or outdated saves could crash the app. Add field validation and fallbacks. |
-| **Multi-page export uses arbitrary timeout** | Low | `ExportButtons.jsx:290` — `setTimeout(resolve, 300)` to wait for React re-render before capturing page. If state update is slow, captures stale canvas. Use a callback or ref-based signal instead of timing. |
-
 ### Medium Priority
 
 | Item | Effort | Description |
 |------|--------|-------------|
-| **Looks define per-element text styling** | Medium | Extend `stylePresets.js` to include text colors and bold/italic per element. Makes presets feel more polished. |
-| **Extract large components** | Medium | `MediaTab.jsx` (1328), `LayoutTab.jsx` (911), `useAdState.js` (852), `AdCanvas.jsx` (818) exceed the 800-line threshold. Extract sub-components when next modifying these files. `App.jsx` grew again with dual mobile/desktop layout paths — see "Extract App.jsx mobile/desktop paths" in Mobile UX section. |
-| **Unassigned image feedback** | Low | `useAdState.js:224` — `addImage()` auto-assigns to first unoccupied image cell, but if all cells are occupied the image is added to the library with no cell and no feedback to the user about why. |
-
-### Mobile UX
-
-| Item | Effort | Description |
-|------|--------|-------------|
-| **Pinch-to-zoom on canvas** | Medium | Mobile canvas is edge-to-edge but no zoom. Add pinch gesture to zoom in/out on the canvas preview. Needs careful interaction with swipe-to-navigate-pages. |
-| **Long-press cell actions** | Low | Long-press on a cell in the canvas to show a context menu (assign image, edit text, change overlay). Reduces tab-hopping on mobile. |
-| **Platform picker modal redesign** | Medium | Platform selector is a long scrollable list — awkward in a bottom sheet. Consider a dedicated modal or grouped card layout for mobile. |
-| **Lazy font loading** | Low | All 15 Google Fonts load on mount. On mobile with slow connections, defer loading non-active fonts until the font picker is opened. |
-| **Extract App.jsx mobile/desktop paths** | Medium | App.jsx grew with dual layout rendering. Consider extracting `MobileLayout` and `DesktopLayout` wrapper components to keep App.jsx focused on state. |
+| **Wire App.jsx layout components** | Medium | ReaderMode.jsx, MobileLayout.jsx, DesktopLayout.jsx files exist but App.jsx render branches need replacing with component usage. Complex prop threading — needs careful validation. |
+| **TypeScript migration Phase 3-4** | Medium-High | Phases 1-2 done (config + utils). Remaining: hooks (useHistory, useAdState — needs generic types) and components (.jsx → .tsx, starting smallest). |
 
 ### Low Priority (Long-term)
 
 | Item | Effort | Description |
 |------|--------|-------------|
-| **TypeScript migration** | High | Incremental approach: start with config files and hooks, then components. Do when there's dedicated time. |
-| **Unit tests for config utilities** | Low-Medium | Test helpers in `stylePresets.js`, `layoutPresets.js`. Do alongside TS migration or when configs change. |
-| **Calculate imageAspectRatio from first image** | Low | `App.jsx:94` has `useState(null)`. Wire up calculation from first image in pool so `getSuggestedLayouts` returns filtered results. |
-| **Sanitize markdown HTML output** | Low | `AdCanvas.jsx` uses `dangerouslySetInnerHTML` with `marked` output (lines 515, 567). Safe for single-user local tool, but add DOMPurify if app ever accepts shared/imported content. |
-| **Accessibility pass** | Medium | Multiple gaps: cell overlay divs lack `aria-label` (`App.jsx`), sample image error fallbacks lack roles (`MediaTab.jsx`), platform select buttons lack labels (`ExportButtons.jsx`). Address during next UX pass. |
+| **Expand unit test coverage** | Low-Medium | Current: 27 tests for cellUtils + layoutPresets. Add tests for: exportHelpers (waitForPaint, captureAsBlob), canvasRenderers (buildFilterStyle, getAlignItems), designStorage (IDB operations). |
 
 ---
 
@@ -48,6 +25,7 @@ Future enhancements and ideas for CanvaGrid.
 
 | Item | Reason |
 |------|--------|
+| Pinch-to-zoom on canvas | Canvas already fits viewport at full resolution. Zooming into a portion has no clear value for a static design tool. Complex gesture conflicts with page swipe (which is more useful). High complexity, low ROI. |
 | Template gallery with complete designs | Overlaps with save/load. Base64 images make templates heavy. Revisit after save/load is implemented. |
 | Looks define text visibility per layout | Visibility feels like layout's job, not a "look". Could confuse users. |
 | Animation preview for story formats | High complexity, low ROI for a static design tool. Out of scope. |
