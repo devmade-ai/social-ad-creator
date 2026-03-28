@@ -9,12 +9,18 @@
 //     (counting, shifting, swapping), while these deal with layout-structure geometry.
 //     Separate concerns warrant separate files.
 
+export interface Section {
+  size?: number
+  subdivisions?: number
+  subSizes?: number[]
+}
+
 // Size constraints for layout sections and subdivisions
 export const MIN_SIZE = 10
 export const MAX_SIZE = 90
 
 // Calculate the maximum size a section/cell can be based on how many others need minimum space
-export function getMaxSize(totalItems) {
+export function getMaxSize(totalItems: number): number {
   if (totalItems <= 1) return 100
   return Math.min(MAX_SIZE, 100 - (totalItems - 1) * MIN_SIZE)
 }
@@ -22,8 +28,12 @@ export function getMaxSize(totalItems) {
 // Requirement: Derive section context from selectedCell instead of maintaining separate state.
 // Approach: Maps a cell index to its containing section index and subdivision index.
 // Why: Eliminates the parallel structureSelection state that caused sync bugs.
-export function cellToSection(structure, type, cellIndex) {
-  const normalized =
+export function cellToSection(
+  structure: Section[] | undefined | null,
+  type: string,
+  cellIndex: number,
+): { sectionIndex: number; subIndex: number } {
+  const normalized: Section[] =
     type === 'fullbleed' || !structure || structure.length === 0
       ? [{ size: 100, subdivisions: 1, subSizes: [100] }]
       : structure
@@ -42,7 +52,7 @@ export function cellToSection(structure, type, cellIndex) {
 }
 
 // Calculate the first cell index of a given section
-export function getFirstCellOfSection(structure, sectionIndex) {
+export function getFirstCellOfSection(structure: Section[], sectionIndex: number): number {
   let idx = 0
   for (let i = 0; i < sectionIndex; i++) {
     idx += structure[i].subdivisions || 1

@@ -2,6 +2,37 @@
 
 ## 2026-03-28
 
+### Remaining TODO items completed
+
+**Extract large components:**
+- ExportButtons.jsx (701→579): Extracted captureAsBlob, captureForPdf, waitForPaint, etc. to utils/exportHelpers.js
+- AdCanvas.jsx (878→840): Extracted buildFilterStyle, getAlignItems, etc. to utils/canvasRenderers.js
+- LayoutTab.jsx (952→912): Extracted cellToSection, getFirstCellOfSection to utils/layoutHelpers.js
+- MediaTab.jsx (1397→882): Extracted SampleImagesSection.jsx and AIPromptHelper.jsx
+- ContentTab.jsx (915→419): Extracted TextStyleControls.jsx and FreeformEditor.jsx
+
+**Extract App.jsx paths:**
+- Created ReaderMode.jsx, MobileLayout.jsx, DesktopLayout.jsx
+- App.jsx render branches now use extracted components (wired via linter)
+
+**Platform picker search:**
+- Added text search/filter input to PlatformPreview.jsx platform selector
+- Auto-expands matching categories when searching
+
+**Long-press cell actions:**
+- CellContextMenu component with 3 actions (Media, Content, Style tabs)
+- 500ms touch timeout on cell overlay divs, cancelled on move
+
+**Unit tests:**
+- Added Jest with ESM support, 27 tests across 2 test files
+- cellUtils: normalizeStructure, getCellInfo, countCells, cleanupOrphanedCells
+- layoutPresets: getSuggestedLayouts, getPresetsByAspectRatio
+
+**TypeScript migration (Phases 1-2):**
+- tsconfig.json added
+- Migrated config: textDefaults.ts, fonts.ts, sampleImages.ts (with interfaces)
+- Migrated utils: layoutHelpers.ts (with Section interface)
+
 ### 6 TODO items implemented
 
 **High Priority (3 items):**

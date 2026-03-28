@@ -24,10 +24,9 @@ import TutorialModal from './components/TutorialModal'
 import SaveLoadModal from './components/SaveLoadModal'
 import { ToastProvider } from './components/Toast'
 import KeyboardShortcutsOverlay from './components/KeyboardShortcutsOverlay'
-// KEEP: Extracted layout components exist but aren't wired in yet (see TODO: Extract App.jsx paths)
-// import ReaderMode from './components/ReaderMode'
-// import MobileLayout from './components/MobileLayout'
-// import DesktopLayout from './components/DesktopLayout'
+import ReaderMode from './components/ReaderMode'
+import MobileLayout from './components/MobileLayout'
+import DesktopLayout from './components/DesktopLayout'
 import { useOnlineStatus } from './hooks/useOnlineStatus'
 import { platforms, findPlatformGroup } from './config/platforms'
 import { fonts } from './config/fonts'
@@ -578,279 +577,125 @@ function App() {
   }
 
   // ─── Mobile layout ───
-  // Requirement: Native app-like experience on mobile with bottom nav + bottom sheet.
-  // Approach: Fixed viewport (100dvh), edge-to-edge canvas, bottom sheet for tab controls.
-  // Alternatives:
-  //   - Responsive sidebar: Rejected — scroll-heavy, canvas hidden by controls.
-  //   - Tab content above canvas: Rejected — canvas should be primary focus.
   if (isMobile) {
     return (
-      <div className="h-[100dvh] flex flex-col overflow-hidden bg-zinc-100 dark:bg-dark-page">
-        {fontsToLoad.map((font) => <link key={font.id} rel="stylesheet" href={font.url} />)}
-
-        {/* Mobile header — compact with overflow menu */}
-        {/* z-[60] when menu open to layer above BottomSheet (z-40) and MobileNav (z-50) */}
-        <header className={`bg-white/90 dark:bg-dark-card/90 backdrop-blur-sm border-b border-zinc-200/60 dark:border-zinc-700/60 shrink-0 relative ${showMobileMenu ? 'z-[60]' : ''}`} style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}>
-          <div className="flex items-center justify-between px-3 py-2">
-            <div className="flex items-center gap-1.5">
-              <h1 className="text-base font-display font-bold text-ui-text tracking-tight">CanvaGrid</h1>
-              <span className="px-1 py-0.5 text-[8px] font-semibold uppercase tracking-wide bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300 rounded">Preview</span>
-            </div>
-            <div className="flex items-center gap-0.5">
-              <button onClick={() => setShowSaveLoadModal(true)} title="Save" aria-label="Save" className="p-2 rounded-lg text-ui-text hover:bg-zinc-100 dark:hover:bg-dark-subtle transition-colors">
-                <svg className="w-5 h-5" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" /></svg>
-              </button>
-              <button onClick={toggleDarkMode} title={isDark ? 'Light mode' : 'Dark mode'} aria-label={isDark ? 'Light mode' : 'Dark mode'} className="p-2 rounded-lg text-ui-text hover:bg-zinc-100 dark:hover:bg-dark-subtle transition-colors">
-                <span className="text-sm" aria-hidden="true">{isDark ? '☀️' : '🌙'}</span>
-              </button>
-              <button onClick={(e) => { e.stopPropagation(); const opening = !showMobileMenu; setShowMobileMenu(opening); if (opening) closeMobileSheet() }} title="More options" aria-label="More options" aria-expanded={showMobileMenu} className="p-2 rounded-lg text-ui-text hover:bg-zinc-100 dark:hover:bg-dark-subtle transition-colors">
-                <svg className="w-5 h-5" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" /></svg>
-              </button>
-            </div>
-          </div>
-          {/* Overflow menu */}
-          {showMobileMenu && (
-            <>
-              <div className="fixed inset-0 z-40" onClick={() => setShowMobileMenu(false)} role="presentation" />
-              <div className="absolute right-3 top-full mt-1 z-50 bg-white dark:bg-dark-card rounded-xl shadow-lg border border-ui-border py-1 min-w-[180px]" role="menu">
-                {[
-                  { label: 'Reader Mode', icon: 'M15 12a3 3 0 11-6 0 3 3 0 016 0z', onClick: () => setIsReaderMode(true) },
-                  { label: 'Help & Tutorial', icon: 'M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z', onClick: () => setShowTutorial(true) },
-                  { label: 'Keyboard Shortcuts', icon: 'M3 8a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8zm4 2h2m2 0h2m2 0h2M5 14h14', onClick: () => setShowShortcuts(true) },
-                  { label: 'Refresh', icon: 'M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15', onClick: () => window.location.reload() },
-                ].map((item) => (
-                  <button key={item.label} role="menuitem" onClick={() => { item.onClick(); setShowMobileMenu(false) }} className="w-full flex items-center gap-3 px-4 py-3 text-sm text-ui-text hover:bg-ui-surface-hover transition-colors">
-                    <svg className="w-4 h-4 shrink-0" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={item.icon} /></svg>
-                    {item.label}
-                  </button>
-                ))}
-                {canInstall && (
-                  <button role="menuitem" onClick={() => { install(); setShowMobileMenu(false) }} className="w-full flex items-center gap-3 px-4 py-3 text-sm text-primary hover:bg-primary/5 transition-colors">
-                    <svg className="w-4 h-4 shrink-0" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
-                    Install App
-                  </button>
-                )}
-                {hasUpdate && (
-                  <button role="menuitem" onClick={() => { update(); setShowMobileMenu(false) }} className="w-full flex items-center gap-3 px-4 py-3 text-sm text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors">
-                    <svg className="w-4 h-4 shrink-0" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
-                    Update Available
-                  </button>
-                )}
-              </div>
-            </>
-          )}
-        </header>
-
-        {!isOnline && (
-          <div className="bg-amber-50 dark:bg-amber-900/30 border-b border-amber-200 dark:border-amber-800 px-3 py-1.5 text-center text-xs text-amber-700 dark:text-amber-300 shrink-0">
-            Offline — work saved locally
-          </div>
-        )}
-
-        {/* Update banner — always visible so users can update even if menu is unreachable */}
-        {hasUpdate && (
-          <button onClick={update} className="w-full bg-emerald-50 dark:bg-emerald-900/30 border-b border-emerald-200 dark:border-emerald-800 px-3 py-2 flex items-center justify-center gap-2 text-xs font-medium text-emerald-700 dark:text-emerald-300 shrink-0 active:bg-emerald-100 dark:active:bg-emerald-900/50 transition-colors">
-            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
-            Update available — tap to refresh
-          </button>
-        )}
-
-        {/* Compact context bar — hidden when bottom sheet is open to maximize canvas space */}
-        {!mobileSheetOpen && (
-          <ContextBar
-            layout={state.layout} cellImages={state.cellImages} selectedCell={safeSelectedCell} onSelectCell={setSelectedCell} platform={state.platform}
-            undo={undo} redo={redo} canUndo={canUndo} canRedo={canRedo}
-            pages={pages} activePage={state.activePage} onSetActivePage={setActivePage}
-            onAddPage={addPage} onDuplicatePage={duplicatePage} onRemovePage={removePage} onMovePage={movePage} getPageState={getPageState}
-          />
-        )}
-
-        {/* Canvas — fills remaining space, edge-to-edge */}
-        <main
-          ref={previewContainerRef}
-          className="flex-1 min-h-0 flex items-start justify-center relative bg-gradient-to-br from-zinc-50 to-zinc-100 dark:from-dark-subtle dark:to-dark-page"
-          onTouchStart={hasMultiplePages ? handleCanvasTouchStart : undefined}
-          onTouchEnd={hasMultiplePages ? handleCanvasTouchEnd : undefined}
-        >
-          <ErrorBoundary title="Preview error" message="Failed to render preview." className="w-full h-full min-h-[200px]">
-            <div className="relative" style={{ width: platform.width * previewScale, height: platform.height * previewScale }}>
-              <AdCanvas ref={canvasRef} state={state} scale={previewScale} />
-              {totalCells > 1 && <CanvasCellOverlay layout={state.layout} selectedCell={safeSelectedCell} onSelectCell={setSelectedCell} onLongPress={handleCellLongPress} />}
-              {cellContextMenu && (
-                <CellContextMenu
-                  position={cellContextMenu.position}
-                  onAction={handleCellContextAction}
-                  onClose={() => setCellContextMenu(null)}
-                />
-              )}
-            </div>
-          </ErrorBoundary>
-          {exportOverlay}
-        </main>
-
-        {/* Platform info strip + empty state — hidden when bottom sheet is open to maximize canvas space */}
-        {!mobileSheetOpen && (
-          <div className="shrink-0 bg-white/90 dark:bg-dark-card/90 border-t border-zinc-200/30 dark:border-zinc-700/30">
-            <button
-              onClick={() => handleMobileTabChange('export')}
-              className="w-full flex items-center justify-between px-3 py-2 text-xs hover:bg-ui-surface-hover transition-colors"
-            >
-              <span className="font-medium text-ui-text-muted">
-                {platformGroup?.name || 'Platform'} — {platform.name}
-              </span>
-              <span className="text-ui-text-faint">
-                {platform.width} × {platform.height}
-              </span>
-            </button>
-            {isCanvasEmpty && !isExporting && (
-              <EmptyStateGuide onNavigate={(tab) => handleMobileTabChange(tab)} />
-            )}
-          </div>
-        )}
-
-        {/* Bottom sheet — tab content slides up from bottom */}
-        <BottomSheet isOpen={mobileSheetOpen} onClose={closeMobileSheet} snapPoint={sheetSnap} onSnapChange={setSheetSnap}>
-          {activeSection === 'export' ? (
-            <ExportButtons
-              canvasRef={canvasRef} state={state} onPlatformChange={setPlatform} onExportFormatChange={setExportFormat}
-              onExportingChange={setIsExporting} cancelExportRef={cancelExportRef} pageCount={pageCount} onSetActivePage={setActivePage}
-            />
-          ) : tabContent}
-        </BottomSheet>
-
-        {/* Bottom navigation */}
-        <MobileNav activeTab={activeSection} sheetOpen={mobileSheetOpen} onTabChange={handleMobileTabChange} />
-
-        {modals}
-      </div>
+      <MobileLayout
+        canvasRef={canvasRef}
+        previewContainerRef={previewContainerRef}
+        fontsToLoad={fontsToLoad}
+        state={state}
+        platform={platform}
+        platformGroup={platformGroup}
+        previewScale={previewScale}
+        totalCells={totalCells}
+        safeSelectedCell={safeSelectedCell}
+        setSelectedCell={setSelectedCell}
+        isCanvasEmpty={isCanvasEmpty}
+        isExporting={isExporting}
+        cancelExportRef={cancelExportRef}
+        setIsExporting={setIsExporting}
+        pages={pages}
+        pageCount={pageCount}
+        hasMultiplePages={hasMultiplePages}
+        setActivePage={setActivePage}
+        addPage={addPage}
+        duplicatePage={duplicatePage}
+        removePage={removePage}
+        movePage={movePage}
+        getPageState={getPageState}
+        setPlatform={setPlatform}
+        setExportFormat={setExportFormat}
+        undo={undo}
+        redo={redo}
+        canUndo={canUndo}
+        canRedo={canRedo}
+        showMobileMenu={showMobileMenu}
+        setShowMobileMenu={setShowMobileMenu}
+        mobileSheetOpen={mobileSheetOpen}
+        closeMobileSheet={closeMobileSheet}
+        sheetSnap={sheetSnap}
+        setSheetSnap={setSheetSnap}
+        activeSection={activeSection}
+        handleMobileTabChange={handleMobileTabChange}
+        handleCanvasTouchStart={handleCanvasTouchStart}
+        handleCanvasTouchEnd={handleCanvasTouchEnd}
+        setShowSaveLoadModal={setShowSaveLoadModal}
+        setShowTutorial={setShowTutorial}
+        setShowShortcuts={setShowShortcuts}
+        setIsReaderMode={setIsReaderMode}
+        isDark={isDark}
+        toggleDarkMode={toggleDarkMode}
+        canInstall={canInstall}
+        install={install}
+        hasUpdate={hasUpdate}
+        update={update}
+        isOnline={isOnline}
+        tabContent={tabContent}
+        exportOverlay={exportOverlay}
+        modals={modals}
+        CanvasCellOverlay={CanvasCellOverlay}
+        CellContextMenu={CellContextMenu}
+        cellContextMenu={cellContextMenu}
+        setCellContextMenu={setCellContextMenu}
+        handleCellLongPress={handleCellLongPress}
+        handleCellContextAction={handleCellContextAction}
+      />
     )
   }
 
   // ─── Desktop layout ───
   return (
-    <div className="min-h-screen" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
-      {fontsToLoad.map((font) => <link key={font.id} rel="stylesheet" href={font.url} />)}
-
-      {/* Header */}
-      <header className="bg-white/80 dark:bg-dark-card/80 backdrop-blur-sm border-b border-zinc-200/60 dark:border-zinc-700/60 px-4 py-3">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-          <div className="flex items-center justify-center sm:justify-start gap-2">
-            <h1 className="text-lg font-display font-bold text-ui-text tracking-tight">CanvaGrid</h1>
-            <span className="px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300 rounded">Research Preview</span>
-          </div>
-          <div className="flex flex-wrap justify-center sm:justify-end gap-1.5">
-            <button onClick={() => setIsReaderMode(true)} title="Reader mode" className="px-3 py-1.5 text-sm rounded-lg flex items-center gap-1.5 font-medium bg-zinc-100 dark:bg-dark-subtle text-ui-text hover:bg-zinc-200 dark:hover:bg-dark-elevated active:scale-95 transition-all">
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
-              <span className="hidden sm:inline">View</span>
-            </button>
-            <button onClick={() => setShowSaveLoadModal(true)} title="Save or load" className="px-3 py-1.5 text-sm rounded-lg flex items-center gap-1.5 font-medium bg-zinc-100 dark:bg-dark-subtle text-ui-text hover:bg-zinc-200 dark:hover:bg-dark-elevated active:scale-95 transition-all">
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" /></svg>
-              <span className="hidden sm:inline">Save</span>
-            </button>
-            <button onClick={() => setShowTutorial(true)} title="Help" className="px-3 py-1.5 text-sm rounded-lg flex items-center gap-1.5 font-medium bg-zinc-100 dark:bg-dark-subtle text-ui-text hover:bg-zinc-200 dark:hover:bg-dark-elevated active:scale-95 transition-all">
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-              <span className="hidden sm:inline">Help</span>
-            </button>
-            <button onClick={() => setShowShortcuts(true)} title="Keyboard shortcuts" className="px-3 py-1.5 text-sm rounded-lg flex items-center gap-1.5 font-medium bg-zinc-100 dark:bg-dark-subtle text-ui-text hover:bg-zinc-200 dark:hover:bg-dark-elevated active:scale-95 transition-all">
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 8a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8zm4 2h2m2 0h2m2 0h2M5 14h14" /></svg>
-            </button>
-            <button onClick={toggleDarkMode} title={isDark ? 'Light mode' : 'Dark mode'} className="px-3 py-1.5 text-sm rounded-lg flex items-center gap-1.5 font-medium bg-zinc-100 dark:bg-dark-subtle text-ui-text hover:bg-zinc-200 dark:hover:bg-dark-elevated active:scale-95 transition-all">
-              {isDark ? '☀️' : '🌙'}
-            </button>
-            <button onClick={() => window.location.reload()} title="Refresh" className="px-3 py-1.5 text-sm rounded-lg flex items-center gap-1.5 font-medium bg-zinc-100 dark:bg-dark-subtle text-ui-text hover:bg-zinc-200 dark:hover:bg-dark-elevated active:scale-95 transition-all">
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
-              <span className="hidden sm:inline">Refresh</span>
-            </button>
-            {canInstall && (
-              <button onClick={install} title="Install app" className="px-3 py-1.5 text-sm rounded-lg flex items-center gap-1.5 font-medium bg-primary text-white hover:bg-primary-hover active:scale-95 transition-all">
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
-                <span>Install</span>
-              </button>
-            )}
-            {!canInstall && showManualInstructions && !isInstalled && (
-              <button onClick={() => setShowInstallModal(true)} title="Install" className="px-3 py-1.5 text-sm rounded-lg flex items-center gap-1.5 font-medium bg-zinc-100 dark:bg-dark-subtle text-ui-text hover:bg-zinc-200 dark:hover:bg-dark-elevated active:scale-95 transition-all">
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
-                <span>Install</span>
-              </button>
-            )}
-            {hasUpdate && (
-              <button onClick={update} title="Update available" className="px-3 py-1.5 text-sm rounded-lg flex items-center gap-1.5 font-medium bg-emerald-500 text-white hover:bg-emerald-600 active:scale-95 transition-all">
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
-                <span>Update</span>
-              </button>
-            )}
-          </div>
-        </div>
-      </header>
-
-      {!isOnline && (
-        <div className="bg-amber-50 dark:bg-amber-900/30 border-b border-amber-200 dark:border-amber-800 px-4 py-2 text-center text-sm text-amber-700 dark:text-amber-300">
-          You're offline. Your work is saved locally, but sample images and fonts may not load.
-        </div>
-      )}
-
-      {/* Tab nav bar — desktop only */}
-      <nav ref={tabNavRef} className="bg-white/90 dark:bg-dark-card/90 backdrop-blur-sm border-b border-zinc-200/60 dark:border-zinc-700/60 sticky top-0 z-10">
-        <div className="flex items-center">
-          <div className="flex overflow-x-auto scrollbar-thin">
-            {sections.map((section) => (
-              <button key={section.id} onClick={() => setActiveSection(section.id)} className={`px-4 py-2.5 text-sm font-medium whitespace-nowrap transition-all border-b-2 ${activeSection === section.id ? 'border-primary text-primary bg-primary/5 dark:bg-primary/10' : 'border-transparent text-ui-text-muted hover:text-ui-text hover:border-zinc-300 dark:hover:border-zinc-600 hover:bg-zinc-50 dark:hover:bg-dark-subtle'}`}>
-                {section.label}
-              </button>
-            ))}
-          </div>
-        </div>
-      </nav>
-
-      <ContextBar
-        layout={state.layout} cellImages={state.cellImages} selectedCell={safeSelectedCell} onSelectCell={setSelectedCell} platform={state.platform}
-        undo={undo} redo={redo} canUndo={canUndo} canRedo={canRedo}
-        pages={pages} activePage={state.activePage} onSetActivePage={setActivePage}
-        onAddPage={addPage} onDuplicatePage={duplicatePage} onRemovePage={removePage} onMovePage={movePage} getPageState={getPageState}
-      />
-
-      {/* Desktop-only path: always >= 1024px, no responsive prefixes needed */}
-      <div className="flex flex-row items-stretch">
-        <aside className="w-96 p-5 pr-0 pb-5">
-          <div className="bg-white dark:bg-dark-card rounded-xl border border-zinc-200/80 dark:border-zinc-700/50 shadow-card p-5">
-            {tabContent}
-          </div>
-        </aside>
-
-        <main className="flex-1 p-5 space-y-4">
-          <div className="bg-white dark:bg-dark-card rounded-xl border border-zinc-200/80 dark:border-zinc-700/50 shadow-card p-5">
-            <PlatformPreview selectedPlatform={state.platform} onPlatformChange={setPlatform} />
-          </div>
-
-          <div className="bg-white dark:bg-dark-card rounded-xl border border-zinc-200/80 dark:border-zinc-700/50 shadow-card p-6">
-            <div
-              ref={previewContainerRef}
-              className="relative bg-gradient-to-br from-zinc-50 to-zinc-100 dark:from-dark-subtle dark:to-dark-page rounded-xl overflow-hidden flex items-center justify-center border border-zinc-200/50 dark:border-zinc-700/50"
-              style={{ minHeight: platform.height * previewScale + 40 }}
-            >
-              <ErrorBoundary title="Preview error" message="Failed to render the ad preview." className="w-full h-full min-h-[200px]">
-                <div className="relative" style={{ width: platform.width * previewScale, height: platform.height * previewScale }}>
-                  <AdCanvas ref={canvasRef} state={state} scale={previewScale} />
-                  {totalCells > 1 && <CanvasCellOverlay layout={state.layout} selectedCell={safeSelectedCell} onSelectCell={setSelectedCell} />}
-                </div>
-              </ErrorBoundary>
-              {exportOverlay}
-            </div>
-
-            {isCanvasEmpty && !isExporting && <EmptyStateGuide onNavigate={setActiveSection} />}
-            {totalCells > 1 && <QuickActionsBar selectedCell={safeSelectedCell} onNavigate={setActiveSection} />}
-
-            <div className="mt-5">
-              <ErrorBoundary title="Export error" message="Failed to load export options.">
-                <ExportButtons canvasRef={canvasRef} state={state} onPlatformChange={setPlatform} onExportFormatChange={setExportFormat} onExportingChange={setIsExporting} cancelExportRef={cancelExportRef} pageCount={pageCount} onSetActivePage={setActivePage} />
-              </ErrorBoundary>
-            </div>
-          </div>
-        </main>
-      </div>
-
-      {modals}
-    </div>
+    <DesktopLayout
+      canvasRef={canvasRef}
+      previewContainerRef={previewContainerRef}
+      tabNavRef={tabNavRef}
+      fontsToLoad={fontsToLoad}
+      state={state}
+      platform={platform}
+      previewScale={previewScale}
+      totalCells={totalCells}
+      safeSelectedCell={safeSelectedCell}
+      setSelectedCell={setSelectedCell}
+      isCanvasEmpty={isCanvasEmpty}
+      isExporting={isExporting}
+      cancelExportRef={cancelExportRef}
+      setIsExporting={setIsExporting}
+      pages={pages}
+      pageCount={pageCount}
+      setActivePage={setActivePage}
+      addPage={addPage}
+      duplicatePage={duplicatePage}
+      removePage={removePage}
+      movePage={movePage}
+      getPageState={getPageState}
+      setPlatform={setPlatform}
+      setExportFormat={setExportFormat}
+      undo={undo}
+      redo={redo}
+      canUndo={canUndo}
+      canRedo={canRedo}
+      sections={sections}
+      activeSection={activeSection}
+      setActiveSection={setActiveSection}
+      setShowSaveLoadModal={setShowSaveLoadModal}
+      setShowTutorial={setShowTutorial}
+      setShowShortcuts={setShowShortcuts}
+      setShowInstallModal={setShowInstallModal}
+      setIsReaderMode={setIsReaderMode}
+      isDark={isDark}
+      toggleDarkMode={toggleDarkMode}
+      canInstall={canInstall}
+      install={install}
+      showManualInstructions={showManualInstructions}
+      isInstalled={isInstalled}
+      hasUpdate={hasUpdate}
+      update={update}
+      isOnline={isOnline}
+      tabContent={tabContent}
+      exportOverlay={exportOverlay}
+      modals={modals}
+      CanvasCellOverlay={CanvasCellOverlay}
+    />
   )
 }
 

@@ -10,22 +10,14 @@ Future enhancements and ideas for CanvaGrid.
 
 | Item | Effort | Description |
 |------|--------|-------------|
-| **Extract large components** | Medium | `MediaTab.jsx` (1397), `LayoutTab.jsx` (952), `ContentTab.jsx` (915), `AdCanvas.jsx` (878), `ExportButtons.jsx` (701) exceed the 800-line threshold. Extract sub-components when next modifying these files. |
-
-### Mobile UX
-
-| Item | Effort | Description |
-|------|--------|-------------|
-| **Long-press cell actions** | Low | Long-press on a cell in the canvas to show a context menu (assign image, edit text, change overlay). Reduces tab-hopping on mobile. Needs design decision on menu contents. |
-| **Platform picker modal redesign** | Medium | Platform selector is a long scrollable list — awkward in a bottom sheet. Consider a dedicated modal or grouped card layout for mobile. Needs design direction. |
-| **Extract App.jsx mobile/desktop paths** | Medium | App.jsx (788 lines) has 3 render branches (reader/mobile/desktop). Extract `ReaderMode.jsx`, `MobileLayout.jsx`, `DesktopLayout.jsx` to keep App.jsx focused on state. |
+| **Wire App.jsx layout components** | Medium | ReaderMode.jsx, MobileLayout.jsx, DesktopLayout.jsx files exist but App.jsx render branches need replacing with component usage. Complex prop threading — needs careful validation. |
+| **TypeScript migration Phase 3-4** | Medium-High | Phases 1-2 done (config + utils). Remaining: hooks (useHistory, useAdState — needs generic types) and components (.jsx → .tsx, starting smallest). |
 
 ### Low Priority (Long-term)
 
 | Item | Effort | Description |
 |------|--------|-------------|
-| **Unit tests for config utilities** | Low-Medium | Test pure functions: `getSuggestedLayouts`, `getPresetsByAspectRatio` (layoutPresets.js), `normalizeStructure`, `getCellInfo`, `cleanupOrphanedCells` (cellUtils.js). ~15 test cases. Add Jest. |
-| **TypeScript migration** | High | Incremental: start with config files (textDefaults.js, fonts.js — 5 min each), then utils (cellUtils.js), then hooks (useHistory.js). Define core types: Layout, Structure, TextLayer, FreeformBlock, ImageEntry. |
+| **Expand unit test coverage** | Low-Medium | Current: 27 tests for cellUtils + layoutPresets. Add tests for: exportHelpers (waitForPaint, captureAsBlob), canvasRenderers (buildFilterStyle, getAlignItems), designStorage (IDB operations). |
 
 ---
 
