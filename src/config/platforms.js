@@ -198,7 +198,7 @@ export const platformGroups = [
     formats: [
       { id: 'youtube-banner', name: 'Channel Art', width: 2560, height: 1440, recommendedFormat: 'jpg', maxFileSize: '6MB' },
       { id: 'youtube-thumbnail', name: 'Thumbnail', width: 1280, height: 720, recommendedFormat: 'jpg', maxFileSize: '2MB' },
-      { id: 'youtube-end-screen', name: 'End Screen', width: 1280, height: 720, recommendedFormat: 'png', maxFileSize: null },
+      { id: 'youtube-end-screen', name: 'End Screen', width: 1920, height: 1080, recommendedFormat: 'png', maxFileSize: null },
     ],
   },
 
@@ -248,8 +248,8 @@ export const platformGroups = [
       'Square format is universal across platforms',
     ],
     formats: [
-      { id: 'product-square', name: 'Product Square', width: 1000, height: 1000, recommendedFormat: 'jpg', maxFileSize: null },
-      { id: 'product-portrait', name: 'Product Portrait', width: 800, height: 1200, recommendedFormat: 'jpg', maxFileSize: null },
+      { id: 'product-square', name: 'Product Square', width: 2000, height: 2000, recommendedFormat: 'jpg', maxFileSize: null },
+      { id: 'product-portrait', name: 'Product Portrait', width: 1200, height: 1800, recommendedFormat: 'jpg', maxFileSize: null },
     ],
   },
   {
