@@ -378,10 +378,10 @@ Run these tests after making changes to ensure nothing is broken.
 | Step | Action | Where | Expected |
 |------|--------|-------|----------|
 | 1 | Click "Download Multiple Platforms (ZIP)" | Export buttons | Platform selection UI appears |
-| 2 | Click "Select All" | Multi-select panel | All 28 platforms selected |
-| 3 | Click "Export 28 Platforms" | Multi-select panel | Progress indicator appears |
+| 2 | Click "Select All" | Multi-select panel | All 42 platforms selected |
+| 3 | Click "Export 42 Platforms" | Multi-select panel | Progress indicator appears |
 | 4 | Wait for completion | Progress indicator | ZIP file downloads |
-| 5 | Extract ZIP | File system | Contains 28 image files, one per format |
+| 5 | Extract ZIP | File system | Contains 42 image files, one per format |
 | 6 | Check dimensions | Each file | Correct dimensions for each platform |
 
 ### E4: Format Selection
@@ -410,7 +410,19 @@ Run these tests after making changes to ensure nothing is broken.
 | 5 | Add a second page | Context Bar → Pages | 2 pages exist |
 | 6 | Click "Download as PDF" | Export buttons | PDF has 2 pages |
 
-### E6: Save and Load Designs
+### E6: Platform Search Filter
+
+**Scenario:** Users can search platforms by name to quickly find the right format.
+
+| Step | Action | Where | Expected |
+|------|--------|-------|----------|
+| 1 | Find the platform selector | Below preview (desktop) or Presets tab (mobile) | Platform categories visible |
+| 2 | Type "linked" in the search field | Platform search input | Only LinkedIn-related platforms shown (LinkedIn Square/Portrait/Landscape, LinkedIn Banner) |
+| 3 | Type "story" in the search field | Platform search input | All platforms with "Story" formats shown (Instagram, Facebook, Pinterest, Snapchat, WhatsApp, Threads) |
+| 4 | Clear the search field | Platform search input | All platform categories visible again |
+| 5 | Type "xyz123" (no match) | Platform search input | Empty state or "no results" message |
+
+### E7: Save and Load Designs
 
 **Scenario:** Designs can be saved, loaded, and deleted.
 
@@ -446,6 +458,23 @@ Run these tests after making changes to ensure nothing is broken.
 | 1 | Clear/don't upload any image | Media tab | No background image |
 | 2 | Add some text | Content tab | Text visible on solid background |
 | 3 | Click Download | Export buttons | PNG exports successfully |
+
+---
+
+## Mobile-Specific Tests
+
+### MOB1: Long-Press Cell Context Menu
+
+**Scenario:** Long-pressing a cell on mobile opens a context menu for quick tab access.
+
+| Step | Action | Where | Expected |
+|------|--------|-------|----------|
+| 1 | Open DevTools and enable mobile view | Browser | Mobile layout active (< 1024px) |
+| 2 | Long-press (touch and hold) on a cell | Canvas | Context menu appears with options: Media, Content, Style |
+| 3 | Tap "Media" in the context menu | Context menu | Bottom sheet opens to Media tab with that cell selected |
+| 4 | Long-press a different cell | Canvas | Context menu appears for the new cell |
+| 5 | Tap "Content" | Context menu | Bottom sheet opens to Content tab with that cell selected |
+| 6 | Tap outside the context menu | Canvas area | Context menu dismisses without navigating |
 
 ---
 
@@ -488,4 +517,7 @@ Quick checks to run after any code change:
 - [ ] Format selection (PNG/JPG/WebP) produces correct file type
 - [ ] PDF export produces sharp, reasonably-sized PDF
 - [ ] Save/Load designs works (save, load, delete)
+- [ ] Platform search filter narrows results correctly
+- [ ] Long-press cell context menu works on mobile (opens Media/Content/Style)
+- [ ] `npm test` passes (unit tests)
 - [ ] No React warnings in console

@@ -1761,6 +1761,121 @@ const duotoneLayouts = {
 }
 
 // ============================================================================
+// TEXT STYLES PER LOOK CATEGORY
+// Defined before lookPresets to avoid TDZ (Temporal Dead Zone) with const.
+// ============================================================================
+
+// Clean/Minimal — neutral, let content speak
+const cleanTextStyles = {
+  title: { color: 'secondary', bold: true },
+  tagline: { color: 'secondary', bold: false },
+  bodyHeading: { color: 'secondary', bold: true },
+  bodyText: { color: 'secondary', bold: false },
+  cta: { color: 'accent', bold: true },
+  footnote: { color: 'light-gray', bold: false },
+}
+
+// Soft — same palette as clean but slightly lighter feel
+const softTextStyles = {
+  title: { color: 'secondary', bold: true },
+  tagline: { color: 'accent', bold: false },
+  bodyHeading: { color: 'secondary', bold: true },
+  bodyText: { color: 'secondary', bold: false },
+  cta: { color: 'accent', bold: true },
+  footnote: { color: 'light-gray', bold: false },
+}
+
+// Bold — strong contrast, heavy titles
+const boldTextStyles = {
+  title: { color: 'white', bold: true },
+  tagline: { color: 'off-white', bold: false },
+  bodyHeading: { color: 'white', bold: true },
+  bodyText: { color: 'off-white', bold: false },
+  cta: { color: 'accent', bold: true },
+  footnote: { color: 'light-gray', bold: false },
+}
+
+// Dramatic — cinematic, high-contrast text
+const dramaticTextStyles = {
+  title: { color: 'white', bold: true },
+  tagline: { color: 'light-gray', bold: false },
+  bodyHeading: { color: 'white', bold: true },
+  bodyText: { color: 'off-white', bold: false },
+  cta: { color: 'accent', bold: true },
+  footnote: { color: 'light-gray', bold: false },
+}
+
+// Punch — attention-grabbing, accent-heavy
+const punchTextStyles = {
+  title: { color: 'white', bold: true },
+  tagline: { color: 'accent', bold: true },
+  bodyHeading: { color: 'white', bold: true },
+  bodyText: { color: 'off-white', bold: false },
+  cta: { color: 'accent', bold: true },
+  footnote: { color: 'off-white', bold: false },
+}
+
+// Vintage — warm, classic serif feel
+const vintageTextStyles = {
+  title: { color: 'secondary', bold: true },
+  tagline: { color: 'accent', bold: false },
+  bodyHeading: { color: 'secondary', bold: true },
+  bodyText: { color: 'secondary', bold: false },
+  cta: { color: 'accent', bold: true },
+  footnote: { color: 'light-gray', bold: false },
+}
+
+// Retro — faded, throwback
+const retroTextStyles = {
+  title: { color: 'secondary', bold: true },
+  tagline: { color: 'secondary', bold: false },
+  bodyHeading: { color: 'secondary', bold: true },
+  bodyText: { color: 'secondary', bold: false },
+  cta: { color: 'accent', bold: true },
+  footnote: { color: 'light-gray', bold: false },
+}
+
+// Film — classic film, muted elegance
+const filmTextStyles = {
+  title: { color: 'secondary', bold: true },
+  tagline: { color: 'secondary', bold: false },
+  bodyHeading: { color: 'secondary', bold: true },
+  bodyText: { color: 'secondary', bold: false },
+  cta: { color: 'accent', bold: true },
+  footnote: { color: 'light-gray', bold: false },
+}
+
+// Noir — high-contrast B&W, dramatic
+const noirTextStyles = {
+  title: { color: 'white', bold: true },
+  tagline: { color: 'off-white', bold: false },
+  bodyHeading: { color: 'white', bold: true },
+  bodyText: { color: 'light-gray', bold: false },
+  cta: { color: 'white', bold: true },
+  footnote: { color: 'light-gray', bold: false },
+}
+
+// Monochrome — subtle grayscale, modern
+const monoTextStyles = {
+  title: { color: 'white', bold: true },
+  tagline: { color: 'light-gray', bold: false },
+  bodyHeading: { color: 'white', bold: true },
+  bodyText: { color: 'light-gray', bold: false },
+  cta: { color: 'off-white', bold: true },
+  footnote: { color: 'light-gray', bold: false },
+}
+
+// Duotone — two-color stylized, accent-driven
+const duotoneTextStyles = {
+  title: { color: 'white', bold: true },
+  tagline: { color: 'accent', bold: false },
+  bodyHeading: { color: 'white', bold: true },
+  bodyText: { color: 'off-white', bold: false },
+  cta: { color: 'accent', bold: true },
+  footnote: { color: 'light-gray', bold: false },
+}
+
+// ============================================================================
 // LOOK PRESETS ARRAY
 // ============================================================================
 
@@ -1917,118 +2032,6 @@ export const lookPresets = [
 //     user-visible benefit; text aesthetics are about the look, not the grid.
 //   - Override all text fields: Rejected — only color/bold are visual identity;
 //     content, size, visibility, alignment are user choices to preserve.
-// ============================================================================
-
-// Clean/Minimal — neutral, let content speak
-const cleanTextStyles = {
-  title: { color: 'secondary', bold: true },
-  tagline: { color: 'secondary', bold: false },
-  bodyHeading: { color: 'secondary', bold: true },
-  bodyText: { color: 'secondary', bold: false },
-  cta: { color: 'accent', bold: true },
-  footnote: { color: 'light-gray', bold: false },
-}
-
-// Soft — same palette as clean but slightly lighter feel
-const softTextStyles = {
-  title: { color: 'secondary', bold: true },
-  tagline: { color: 'accent', bold: false },
-  bodyHeading: { color: 'secondary', bold: true },
-  bodyText: { color: 'secondary', bold: false },
-  cta: { color: 'accent', bold: true },
-  footnote: { color: 'light-gray', bold: false },
-}
-
-// Bold — strong contrast, heavy titles
-const boldTextStyles = {
-  title: { color: 'white', bold: true },
-  tagline: { color: 'off-white', bold: false },
-  bodyHeading: { color: 'white', bold: true },
-  bodyText: { color: 'off-white', bold: false },
-  cta: { color: 'accent', bold: true },
-  footnote: { color: 'light-gray', bold: false },
-}
-
-// Dramatic — cinematic, high-contrast text
-const dramaticTextStyles = {
-  title: { color: 'white', bold: true },
-  tagline: { color: 'light-gray', bold: false },
-  bodyHeading: { color: 'white', bold: true },
-  bodyText: { color: 'off-white', bold: false },
-  cta: { color: 'accent', bold: true },
-  footnote: { color: 'light-gray', bold: false },
-}
-
-// Punch — attention-grabbing, accent-heavy
-const punchTextStyles = {
-  title: { color: 'white', bold: true },
-  tagline: { color: 'accent', bold: true },
-  bodyHeading: { color: 'white', bold: true },
-  bodyText: { color: 'off-white', bold: false },
-  cta: { color: 'accent', bold: true },
-  footnote: { color: 'off-white', bold: false },
-}
-
-// Vintage — warm, classic serif feel
-const vintageTextStyles = {
-  title: { color: 'secondary', bold: true },
-  tagline: { color: 'accent', bold: false },
-  bodyHeading: { color: 'secondary', bold: true },
-  bodyText: { color: 'secondary', bold: false },
-  cta: { color: 'accent', bold: true },
-  footnote: { color: 'light-gray', bold: false },
-}
-
-// Retro — faded, throwback
-const retroTextStyles = {
-  title: { color: 'secondary', bold: true },
-  tagline: { color: 'secondary', bold: false },
-  bodyHeading: { color: 'secondary', bold: true },
-  bodyText: { color: 'secondary', bold: false },
-  cta: { color: 'accent', bold: true },
-  footnote: { color: 'light-gray', bold: false },
-}
-
-// Film — classic film, muted elegance
-const filmTextStyles = {
-  title: { color: 'secondary', bold: true },
-  tagline: { color: 'secondary', bold: false },
-  bodyHeading: { color: 'secondary', bold: true },
-  bodyText: { color: 'secondary', bold: false },
-  cta: { color: 'accent', bold: true },
-  footnote: { color: 'light-gray', bold: false },
-}
-
-// Noir — high-contrast B&W, dramatic
-const noirTextStyles = {
-  title: { color: 'white', bold: true },
-  tagline: { color: 'off-white', bold: false },
-  bodyHeading: { color: 'white', bold: true },
-  bodyText: { color: 'light-gray', bold: false },
-  cta: { color: 'white', bold: true },
-  footnote: { color: 'light-gray', bold: false },
-}
-
-// Monochrome — subtle grayscale, modern
-const monoTextStyles = {
-  title: { color: 'white', bold: true },
-  tagline: { color: 'light-gray', bold: false },
-  bodyHeading: { color: 'white', bold: true },
-  bodyText: { color: 'light-gray', bold: false },
-  cta: { color: 'off-white', bold: true },
-  footnote: { color: 'light-gray', bold: false },
-}
-
-// Duotone — two-color stylized, accent-driven
-const duotoneTextStyles = {
-  title: { color: 'white', bold: true },
-  tagline: { color: 'accent', bold: false },
-  bodyHeading: { color: 'white', bold: true },
-  bodyText: { color: 'off-white', bold: false },
-  cta: { color: 'accent', bold: true },
-  footnote: { color: 'light-gray', bold: false },
-}
-
 // ============================================================================
 // HELPER FUNCTIONS
 // ============================================================================

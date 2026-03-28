@@ -24,7 +24,7 @@ const tutorialSteps = [
         <ul className="space-y-2 text-sm">
           <li className="flex gap-2">
             <span className="text-violet-500">•</span>
-            <span><strong>Platform:</strong> Pick a size for your design — Instagram, TikTok, LinkedIn, print, and more. This sets the canvas dimensions.</span>
+            <span><strong>Platform:</strong> Pick a size for your design — Instagram, TikTok, LinkedIn, print, and more. This sets the canvas dimensions. Use the search box to find platforms by name.</span>
           </li>
           <li className="flex gap-2">
             <span className="text-violet-500">•</span>
@@ -200,6 +200,10 @@ const tutorialSteps = [
           <li className="flex gap-2">
             <span className="text-violet-500">•</span>
             <span><strong>Install as app:</strong> Click "Install" to add CanvaGrid to your device for quick access.</span>
+          </li>
+          <li className="flex gap-2">
+            <span className="text-violet-500">•</span>
+            <span><strong>Mobile long-press:</strong> On mobile, long-press any cell on the canvas to quickly jump to Media, Content, or Style for that cell.</span>
           </li>
         </ul>
       </div>

@@ -146,7 +146,8 @@ export default memo(function PlatformPreview({ selectedPlatform, onPlatformChang
 
             // Auto-expand categories when searching so results are visible
             const isCatExpanded = query ? true : (expandedCategories[category] || false)
-            const hasSelectedFormat = categoryPlatformGroups.some((g) =>
+            // Use filteredGroups when searching to avoid showing indicator for hidden platforms
+            const hasSelectedFormat = (query ? filteredGroups : categoryPlatformGroups).some((g) =>
               g.formats.some((f) => f.id === selectedPlatform)
             )
 
