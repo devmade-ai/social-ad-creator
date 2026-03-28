@@ -1,6 +1,6 @@
 import { memo, useMemo } from 'react'
 import { getAspectRatio } from '../config/platforms'
-import { FULLBLEED_STRUCTURE, normalizeStructure } from '../utils/cellUtils'
+import { normalizeStructure } from '../utils/cellUtils'
 import ConfirmButton from './ConfirmButton'
 
 // Compact cell grid for global cell selection.

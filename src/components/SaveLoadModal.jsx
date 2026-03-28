@@ -193,6 +193,7 @@ export default function SaveLoadModal({ isOpen, onClose, onSave, onLoad, onDelet
                     key={design.id}
                     role="button"
                     tabIndex={0}
+                    aria-label={`Load design "${design.name}"`}
                     onClick={() => !loading && handleLoad(design.id)}
                     onKeyDown={(e) => { if (e.key === 'Enter' && !loading) handleLoad(design.id) }}
                     className={`w-full p-3 rounded-lg bg-ui-surface-inset hover:bg-ui-surface-hover active:bg-ui-surface-hover/80 text-left group transition-colors cursor-pointer ${loading ? 'opacity-50 pointer-events-none' : ''}`}

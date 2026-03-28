@@ -17,7 +17,7 @@ import { debugLog } from '../utils/debugLog'
 
 const defaultTheme = presetThemes[0] // Dark theme
 
-// Element IDs for structured text (used only in legacy migration)
+// Element IDs for structured text (used in legacy migration and look preset text style application)
 const TEXT_ELEMENT_IDS = ['title', 'tagline', 'bodyHeading', 'bodyText', 'cta', 'footnote']
 
 // Requirement: Migrate old global text format for the one-time localStorage→IndexedDB transfer.

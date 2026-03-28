@@ -13,7 +13,7 @@ import { useToast } from './Toast'
 import { getAspectRatio } from '../config/platforms'
 import { overlayTypes } from '../config/layouts'
 import { neutralColors } from '../config/themes'
-import { FULLBLEED_STRUCTURE, normalizeStructure } from '../utils/cellUtils'
+import { normalizeStructure } from '../utils/cellUtils'
 
 // Theme color options for overlay
 const themeColorOptions = [
