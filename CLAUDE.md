@@ -412,11 +412,12 @@ Core features working:
   - Blend modes: Multiply, Screen, Overlay, Color Burn
   - Textures: Noise, Film Grain
 - 15 Google Fonts (sans-serif, serif, display categories)
-- Export to 27 formats across 12 platform groups:
-  - Social: Instagram (Feed Portrait/Square/Feed Landscape/Story), Facebook (Feed/Square/Story/Cover), TikTok, LinkedIn (Square/Portrait/Landscape), Twitter/X
+- Export to 42 formats across 18 platform groups:
+  - Social: Instagram (Feed Portrait/Square/Feed Landscape/Story), Facebook (Feed/Square/Story/Cover), TikTok, LinkedIn (Square/Portrait/Landscape), Twitter/X, Pinterest (Pin/Story), Snapchat (Ad/Story), WhatsApp (Status), Threads (Post/Story)
   - Website: Hero (Standard/Tall/Full HD), OG Image
-  - Banners: LinkedIn Banner, YouTube Banner
+  - Banners: LinkedIn Banner, YouTube (Banner/Thumbnail/End Screen)
   - Print: A3, A4, A5 (Portrait & Landscape at 150 DPI)
+  - E-commerce: Product Images (Square/Portrait), Store Banners (Hero/Category)
   - Other: Email Header, Zoom Background
 - **Export format selection**: PNG, JPG, or WebP with per-platform recommendations
 - Single download, ZIP batch download, multi-page ZIP export, and PDF export
@@ -526,7 +527,7 @@ src/
 │   ├── layouts.js        # 26 overlay types (solid, gradients, radial, effects, blends, textures)
 │   ├── layoutPresets.js  # 27 layouts with SVG icons and categories
 │   ├── stylePresets.js   # Look presets (fonts + filters + overlay effects per layout)
-│   ├── platforms.js      # 27 formats across 12 platform groups (nested: platformGroups + flat: platforms)
+│   ├── platforms.js      # 42 formats across 18 platform groups (nested: platformGroups + flat: platforms)
 │   ├── sampleImages.js   # CDN manifest URL for sample images (fetched at runtime)
 │   ├── themes.js         # 12 color themes
 │   ├── fonts.js          # 15 Google Fonts

@@ -87,6 +87,7 @@ export default memo(function PlatformPreview({ selectedPlatform, onPlatformChang
           <div>
             <button
               onClick={() => setShowTips(!showTips)}
+              aria-label="Toggle platform tips"
               className="flex items-center gap-1 text-[10px] text-primary hover:text-primary-hover transition-colors"
             >
               <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -125,6 +126,7 @@ export default memo(function PlatformPreview({ selectedPlatform, onPlatformChang
                 {/* Category header */}
                 <button
                   onClick={() => toggleCategory(category)}
+                  aria-label={`${isCatExpanded ? 'Collapse' : 'Expand'} ${categoryLabels[category] || category}`}
                   className="w-full flex items-center justify-between py-1 hover:bg-ui-surface-elevated rounded transition-colors"
                 >
                   <span className="text-[10px] text-ui-text-faint uppercase tracking-wide font-medium flex items-center gap-1">
@@ -151,6 +153,7 @@ export default memo(function PlatformPreview({ selectedPlatform, onPlatformChang
                           {/* Platform row */}
                           <button
                             onClick={() => handlePlatformClick(group)}
+                            aria-label={hasOneFormat ? `Select ${group.name}` : `${isGroupExpanded ? 'Collapse' : 'Expand'} ${group.name}`}
                             className={`w-full flex items-center justify-between py-1 px-2 rounded-lg text-xs font-medium transition-all ${
                               isSelected
                                 ? 'bg-primary/10 text-primary'
@@ -181,6 +184,7 @@ export default memo(function PlatformPreview({ selectedPlatform, onPlatformChang
                                   key={f.id}
                                   onClick={() => onPlatformChange(f.id)}
                                   title={`${f.width} × ${f.height}`}
+                                  aria-label={`Select ${f.name} format`}
                                   className={`px-2.5 py-1 text-xs rounded-lg font-medium transition-all ${
                                     selectedPlatform === f.id
                                       ? 'bg-primary text-white shadow-sm'

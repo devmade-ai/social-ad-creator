@@ -23,6 +23,7 @@ function OverlayTypeButton({ type, isActive, onClick }) {
           : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
       }`}
       title={type.name}
+      aria-label={`Overlay type: ${type.name}`}
     >
       {type.name}
     </button>
@@ -43,6 +44,7 @@ export default memo(function StyleTab({
   cellImages = {},
   selectedCell: selectedCellProp = 0,
   onSelectCell,
+  onLoadAllFonts,
 }) {
   const { cellOverlays = {} } = layout
 
@@ -496,7 +498,7 @@ export default memo(function StyleTab({
       </CollapsibleSection>
 
       {/* Fonts Section */}
-      <CollapsibleSection title="Fonts" defaultExpanded={false}>
+      <CollapsibleSection title="Fonts" defaultExpanded={false} onExpand={onLoadAllFonts}>
         <div className="space-y-3">
           <div className="space-y-2">
             <label className="block text-xs font-medium text-ui-text-muted">Title Font</label>

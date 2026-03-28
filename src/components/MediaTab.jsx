@@ -393,7 +393,7 @@ const MAX_IMAGE_SIZE_BYTES = 10 * 1024 * 1024
 // Sample Images Section
 const SAMPLES_PER_PAGE = 15
 
-function SampleImagesSection({ images, onAddImage, selectedCell }) {
+function SampleImagesSection({ images, onAddImage, selectedCell, addToast }) {
   const [manifest, setManifest] = useState(null)
   const [manifestLoading, setManifestLoading] = useState(true)
   const [manifestError, setManifestError] = useState(null)
@@ -474,12 +474,14 @@ function SampleImagesSection({ images, onAddImage, selectedCell }) {
           const img = new Image()
           img.onload = () => {
             if (!mountedRef.current) return
-            onAddImage(event.target.result, sample.name, selectedCellRef.current, { width: img.naturalWidth, height: img.naturalHeight })
+            const { assigned } = onAddImage(event.target.result, sample.name, selectedCellRef.current, { width: img.naturalWidth, height: img.naturalHeight })
+            if (!assigned) addToast('Image added to library — all cells already have images', { type: 'info' })
             setLoadingSample(null)
           }
           img.onerror = () => {
             if (!mountedRef.current) return
-            onAddImage(event.target.result, sample.name, selectedCellRef.current)
+            const { assigned } = onAddImage(event.target.result, sample.name, selectedCellRef.current)
+            if (!assigned) addToast('Image added to library — all cells already have images', { type: 'info' })
             setLoadingSample(null)
           }
           img.src = event.target.result
@@ -733,7 +735,8 @@ export default memo(function MediaTab({
           reader.onload = (event) => {
             const img = new Image()
             img.onload = () => {
-              const imageId = onAddImage(event.target.result, file.name, selectedCell, { width: img.naturalWidth, height: img.naturalHeight })
+              const { id: imageId, assigned } = onAddImage(event.target.result, file.name, selectedCell, { width: img.naturalWidth, height: img.naturalHeight })
+              if (!assigned) addToast('Image added to library — all cells already have images', { type: 'info' })
               if (!firstImageId) {
                 firstImageId = imageId
                 setSelectedImageId(imageId)
@@ -766,7 +769,8 @@ export default memo(function MediaTab({
           reader.onload = (event) => {
             const img = new Image()
             img.onload = () => {
-              const imageId = onAddImage(event.target.result, file.name, selectedCell, { width: img.naturalWidth, height: img.naturalHeight })
+              const { id: imageId, assigned } = onAddImage(event.target.result, file.name, selectedCell, { width: img.naturalWidth, height: img.naturalHeight })
+              if (!assigned) addToast('Image added to library — all cells already have images', { type: 'info' })
               if (!firstImageId) {
                 firstImageId = imageId
                 setSelectedImageId(imageId)
@@ -811,7 +815,7 @@ export default memo(function MediaTab({
         <div className="space-y-3">
           {/* Sample Images - collapsed by default, above upload */}
           <CollapsibleSection title="Sample Images" defaultExpanded={false}>
-            <SampleImagesSection images={images} onAddImage={onAddImage} selectedCell={selectedCell} />
+            <SampleImagesSection images={images} onAddImage={onAddImage} selectedCell={selectedCell} addToast={addToast} />
           </CollapsibleSection>
 
           {/* Upload area */}

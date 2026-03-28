@@ -220,6 +220,14 @@ export const defaultState = {
 export function useAdState() {
   const { state, setState, undo, redo, canUndo, canRedo, resetHistory } = useHistory(defaultState)
 
+  // Requirement: Track whether addImage successfully assigned the image to a cell.
+  // Approach: useRef flag set inside setState updater, read synchronously after setState.
+  // Alternatives:
+  //   - Return from setState updater: Rejected — React setState updaters can't return values.
+  //   - Compute outside setState: Rejected — would need to duplicate cell-counting logic
+  //     and risks race conditions with stale state.
+  const wasAssignedRef = useRef(false)
+
   // Requirement: Store natural image dimensions for snap-to-fit feature.
   // Approach: Accept optional dimensions param { width, height } from upload handlers.
   // Alternatives:
@@ -227,6 +235,7 @@ export function useAdState() {
   //   - Lazy load on snap click: Rejected — storing up front is more reliable and enables future uses.
   const addImage = useCallback((src, name = 'Image', targetCell = null, dimensions = null) => {
     const id = `img-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+    wasAssignedRef.current = false
     setState((prev) => {
       // If there's an active look, apply its filters/overlay to the new image
       let filters = { ...prev.defaultImageSettings.filters }
@@ -265,6 +274,7 @@ export function useAdState() {
       if (targetCell !== null) {
         // Assign to the explicitly requested cell
         newCellImages[targetCell] = id
+        wasAssignedRef.current = true
       } else {
         // Requirement: Auto-assign to first cell without an image
         // Approach: Iterate cells 0..n, assign to first unoccupied
@@ -272,6 +282,7 @@ export function useAdState() {
         for (let i = 0; i < totalCells; i++) {
           if (!newCellImages[i]) {
             newCellImages[i] = id
+            wasAssignedRef.current = true
             break
           }
         }
@@ -279,7 +290,7 @@ export function useAdState() {
 
       return { ...prev, images: newImages, cellImages: newCellImages }
     })
-    return id
+    return { id, assigned: wasAssignedRef.current }
   }, [setState])
 
   const removeImage = useCallback((imageId) => {
@@ -555,6 +566,35 @@ export function useAdState() {
         } : img.overlay,
       }))
 
+      // Requirement: Looks define per-element text styling (color, bold) so presets
+      //   feel complete — fonts + filters + overlay + text color/weight in one click.
+      // Approach: Merge textStyles into each cell's text elements, overriding only
+      //   color and bold. Preserves content, visible, size, italic, letterSpacing,
+      //   alignment, spacers, and line decorators — those are user choices.
+      // Alternatives:
+      //   - Override all text fields: Rejected — destroys user's content and sizing
+      //   - Only apply to cell 0: Rejected — inconsistent look across multi-cell layouts
+      //   - Store as separate state: Rejected — text styling belongs on the text elements
+      const updatedText = { ...prev.text }
+      if (settings.textStyles) {
+        for (const cellIndex of Object.keys(updatedText)) {
+          const cellText = updatedText[cellIndex]
+          if (!cellText) continue
+          const updatedCell = { ...cellText }
+          for (const elementId of TEXT_ELEMENT_IDS) {
+            const styleOverride = settings.textStyles[elementId]
+            if (styleOverride && updatedCell[elementId]) {
+              updatedCell[elementId] = {
+                ...updatedCell[elementId],
+                ...(styleOverride.color !== undefined && { color: styleOverride.color }),
+                ...(styleOverride.bold !== undefined && { bold: styleOverride.bold }),
+              }
+            }
+          }
+          updatedText[cellIndex] = updatedCell
+        }
+      }
+
       return {
         ...prev,
         activeStylePreset: preset.id,
@@ -563,6 +603,7 @@ export function useAdState() {
           body: settings.fonts.body,
         } : prev.fonts,
         images: updatedImages,
+        text: updatedText,
       }
     })
   }, [setState])

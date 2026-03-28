@@ -6,21 +6,10 @@ Future enhancements and ideas for CanvaGrid.
 
 ## Prioritized Improvements
 
-### High Priority
-
-| Item | Effort | Description |
-|------|--------|-------------|
-| **Unassigned image feedback** | Low | `useAdState.js:228` — `addImage()` auto-assigns to first unoccupied cell, but if all cells are occupied the image goes to library silently. Violates "Provide feedback for all user actions" (UX Non-Negotiable). Add toast via return value. |
-| **Accessibility pass** | Medium | ~20 elements across 5 files: platform chevron/format buttons lack `aria-label` (PlatformPreview.jsx), mobile menu items missing `role="menuitem"` (App.jsx), overlay type buttons need labels (StyleTab.jsx), decorative SVGs need `aria-hidden="true"`. |
-| **Phase 4: Add remaining platform format data** | Medium | `platforms.js` — Add format specs for: Pinterest (Pin, Story), Snapchat (Snap Ad, Story), YouTube (Thumbnail, End Screen), WhatsApp (Status), Threads (Post, Story). Add e-commerce category: Takealot, Amazon (Product, Storefront), Shopify, Etsy. Each needs formats array with dimensions, tips, recommendedFormat, maxFileSize. |
-
 ### Medium Priority
 
 | Item | Effort | Description |
 |------|--------|-------------|
-| **Lazy font loading** | Low | App.jsx renders all 15 Google Font `<link>` tags on mount (lines 475, 521, 657). On slow mobile connections, 15 HTTP requests delay first paint. Load only 2 active fonts on mount; load remaining 13 when StyleTab Fonts section expands. |
-| **Looks define per-element text styling** | Medium | Extend `stylePresets.js` to include text colors and bold/italic per element. Currently looks change fonts/filters but text stays default white — presets feel half-finished. |
-| **Calculate imageAspectRatio from first image** | Low | `TemplatesTab.jsx:171` passes `null` to `getSuggestedLayouts()`, so "Suggested" layout category always returns same 3 generic results. Derive ratio from `state.images[0].naturalWidth/Height` in App.jsx and pass as prop. |
 | **Extract large components** | Medium | `MediaTab.jsx` (1397), `LayoutTab.jsx` (952), `ContentTab.jsx` (915), `AdCanvas.jsx` (878), `ExportButtons.jsx` (701) exceed the 800-line threshold. Extract sub-components when next modifying these files. |
 
 ### Mobile UX

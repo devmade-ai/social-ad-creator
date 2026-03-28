@@ -68,6 +68,7 @@ const tabs = [
 export default memo(function MobileNav({ activeTab, sheetOpen, onTabChange }) {
   return (
     <nav
+      aria-label="Main navigation"
       className="fixed bottom-0 left-0 right-0 z-50 bg-white/95 dark:bg-dark-card/95 backdrop-blur-sm border-t border-zinc-200/60 dark:border-zinc-700/60"
       style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
     >
@@ -84,7 +85,7 @@ export default memo(function MobileNav({ activeTab, sheetOpen, onTabChange }) {
                 isActive ? 'text-primary' : 'text-ui-text-muted'
               }`}
             >
-              <span className={isActive && sheetOpen ? 'scale-110 transition-transform' : 'transition-transform'}>
+              <span className={isActive && sheetOpen ? 'scale-110 transition-transform' : 'transition-transform'} aria-hidden="true">
                 {tab.icon}
               </span>
               <span className={`text-[10px] mt-0.5 font-medium truncate ${isActive ? 'text-primary' : ''}`}>

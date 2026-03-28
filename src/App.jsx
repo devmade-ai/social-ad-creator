@@ -128,6 +128,7 @@ function App() {
   const { hasUpdate, update } = usePWAUpdate()
   const isOnline = useOnlineStatus()
   const [showShortcuts, setShowShortcuts] = useState(false)
+  const [allFontsLoaded, setAllFontsLoaded] = useState(false)
 
   // Mobile-specific state
   const isMobile = useIsMobile()
@@ -162,6 +163,29 @@ function App() {
   }, [totalCells, selectedCell])
 
   const platform = platforms.find((p) => p.id === state.platform) || platforms[0]
+
+  // Requirement: Lazy-load fonts to reduce initial HTTP requests from 15 to 2.
+  // Approach: Only load the 2 active fonts (title + body) on mount. Load all 15
+  //   when user opens the font picker in StyleTab, so font previews work.
+  // Alternatives:
+  //   - Load on font change only: Rejected — font preview in picker needs all fonts loaded.
+  //   - Intersection Observer: Rejected — overengineered for a simple boolean flag.
+  const fontsToLoad = useMemo(() => {
+    if (allFontsLoaded) return fonts
+    const activeIds = new Set([state.fonts?.title, state.fonts?.body])
+    return fonts.filter((f) => activeIds.has(f.id))
+  }, [allFontsLoaded, state.fonts?.title, state.fonts?.body])
+
+  const loadAllFonts = useCallback(() => setAllFontsLoaded(true), [])
+
+  // Requirement: Derive image aspect ratio for layout suggestions.
+  // Approach: Use first image's natural dimensions (stored by addImage on upload).
+  // Alternatives:
+  //   - Selected cell's image: Rejected — cell selection changes frequently, suggestions would jump.
+  //   - Average of all images: Rejected — overcomplicates for marginal benefit.
+  const imageAspectRatio = state.images.length > 0 && state.images[0].naturalWidth && state.images[0].naturalHeight
+    ? state.images[0].naturalWidth / state.images[0].naturalHeight
+    : null
   const platformGroup = findPlatformGroup(state.platform)
   const pages = state.pages || [null]
   const pageCount = pages.length
@@ -352,6 +376,7 @@ function App() {
             theme={state.theme}
             onThemeChange={setTheme}
             onThemePresetChange={setThemePreset}
+            imageAspectRatio={imageAspectRatio}
           />
         )}
       </ErrorBoundary>
@@ -432,6 +457,7 @@ function App() {
             cellImages={state.cellImages}
             selectedCell={safeSelectedCell}
             onSelectCell={setSelectedCell}
+            onLoadAllFonts={loadAllFonts}
           />
         )}
       </ErrorBoundary>
@@ -445,7 +471,7 @@ function App() {
       applyStylePreset, applyLayoutPreset, setTheme, setThemePreset,
       addImage, removeImage, updateImage, updateImageFilters, updateImagePosition, updateImageOverlay, setCellImage,
       setLogo, setLogoPosition, setLogoSize, setText, setLayout, setFonts, setPadding, setFrame,
-      setTextMode, addFreeformBlock, updateFreeformBlock, removeFreeformBlock, moveFreeformBlock, setSelectedCell])
+      setTextMode, addFreeformBlock, updateFreeformBlock, removeFreeformBlock, moveFreeformBlock, setSelectedCell, loadAllFonts])
 
   // Shared modals — rendered in both mobile and desktop layouts
   const modals = (
@@ -472,7 +498,7 @@ function App() {
   if (isReaderMode) {
     return (
       <div className="h-[100dvh] flex flex-col bg-zinc-100 dark:bg-dark-page">
-        {fonts.map((font) => <link key={font.id} rel="stylesheet" href={font.url} />)}
+        {fontsToLoad.map((font) => <link key={font.id} rel="stylesheet" href={font.url} />)}
         <header className="bg-white/80 dark:bg-dark-card/80 backdrop-blur-sm border-b border-zinc-200/60 dark:border-zinc-700/60 px-3 py-2 shrink-0" style={{ paddingTop: 'max(0.5rem, env(safe-area-inset-top, 0.5rem))' }}>
           <div className="flex items-center justify-between">
             <button onClick={() => setIsReaderMode(false)} className="px-2 py-1 sm:px-3 sm:py-1.5 text-sm rounded-lg flex items-center gap-1.5 font-medium bg-zinc-100 dark:bg-dark-subtle text-ui-text hover:bg-zinc-200 dark:hover:bg-dark-elevated active:scale-95 transition-all">
@@ -518,7 +544,7 @@ function App() {
   if (isMobile) {
     return (
       <div className="h-[100dvh] flex flex-col overflow-hidden bg-zinc-100 dark:bg-dark-page">
-        {fonts.map((font) => <link key={font.id} rel="stylesheet" href={font.url} />)}
+        {fontsToLoad.map((font) => <link key={font.id} rel="stylesheet" href={font.url} />)}
 
         {/* Mobile header — compact with overflow menu */}
         {/* z-[60] when menu open to layer above BottomSheet (z-40) and MobileNav (z-50) */}
@@ -529,14 +555,14 @@ function App() {
               <span className="px-1 py-0.5 text-[8px] font-semibold uppercase tracking-wide bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300 rounded">Preview</span>
             </div>
             <div className="flex items-center gap-0.5">
-              <button onClick={() => setShowSaveLoadModal(true)} title="Save" className="p-2 rounded-lg text-ui-text hover:bg-zinc-100 dark:hover:bg-dark-subtle transition-colors">
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" /></svg>
+              <button onClick={() => setShowSaveLoadModal(true)} title="Save" aria-label="Save" className="p-2 rounded-lg text-ui-text hover:bg-zinc-100 dark:hover:bg-dark-subtle transition-colors">
+                <svg className="w-5 h-5" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" /></svg>
               </button>
-              <button onClick={toggleDarkMode} title={isDark ? 'Light mode' : 'Dark mode'} className="p-2 rounded-lg text-ui-text hover:bg-zinc-100 dark:hover:bg-dark-subtle transition-colors">
-                <span className="text-sm">{isDark ? '☀️' : '🌙'}</span>
+              <button onClick={toggleDarkMode} title={isDark ? 'Light mode' : 'Dark mode'} aria-label={isDark ? 'Light mode' : 'Dark mode'} className="p-2 rounded-lg text-ui-text hover:bg-zinc-100 dark:hover:bg-dark-subtle transition-colors">
+                <span className="text-sm" aria-hidden="true">{isDark ? '☀️' : '🌙'}</span>
               </button>
-              <button onClick={(e) => { e.stopPropagation(); const opening = !showMobileMenu; setShowMobileMenu(opening); if (opening) closeMobileSheet() }} title="More options" className="p-2 rounded-lg text-ui-text hover:bg-zinc-100 dark:hover:bg-dark-subtle transition-colors">
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" /></svg>
+              <button onClick={(e) => { e.stopPropagation(); const opening = !showMobileMenu; setShowMobileMenu(opening); if (opening) closeMobileSheet() }} title="More options" aria-label="More options" aria-expanded={showMobileMenu} className="p-2 rounded-lg text-ui-text hover:bg-zinc-100 dark:hover:bg-dark-subtle transition-colors">
+                <svg className="w-5 h-5" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" /></svg>
               </button>
             </div>
           </div>
@@ -551,20 +577,20 @@ function App() {
                   { label: 'Keyboard Shortcuts', icon: 'M3 8a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8zm4 2h2m2 0h2m2 0h2M5 14h14', onClick: () => setShowShortcuts(true) },
                   { label: 'Refresh', icon: 'M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15', onClick: () => window.location.reload() },
                 ].map((item) => (
-                  <button key={item.label} onClick={() => { item.onClick(); setShowMobileMenu(false) }} className="w-full flex items-center gap-3 px-4 py-3 text-sm text-ui-text hover:bg-ui-surface-hover transition-colors">
-                    <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={item.icon} /></svg>
+                  <button key={item.label} role="menuitem" onClick={() => { item.onClick(); setShowMobileMenu(false) }} className="w-full flex items-center gap-3 px-4 py-3 text-sm text-ui-text hover:bg-ui-surface-hover transition-colors">
+                    <svg className="w-4 h-4 shrink-0" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={item.icon} /></svg>
                     {item.label}
                   </button>
                 ))}
                 {canInstall && (
-                  <button onClick={() => { install(); setShowMobileMenu(false) }} className="w-full flex items-center gap-3 px-4 py-3 text-sm text-primary hover:bg-primary/5 transition-colors">
-                    <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                  <button role="menuitem" onClick={() => { install(); setShowMobileMenu(false) }} className="w-full flex items-center gap-3 px-4 py-3 text-sm text-primary hover:bg-primary/5 transition-colors">
+                    <svg className="w-4 h-4 shrink-0" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
                     Install App
                   </button>
                 )}
                 {hasUpdate && (
-                  <button onClick={() => { update(); setShowMobileMenu(false) }} className="w-full flex items-center gap-3 px-4 py-3 text-sm text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors">
-                    <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+                  <button role="menuitem" onClick={() => { update(); setShowMobileMenu(false) }} className="w-full flex items-center gap-3 px-4 py-3 text-sm text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors">
+                    <svg className="w-4 h-4 shrink-0" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
                     Update Available
                   </button>
                 )}
@@ -654,7 +680,7 @@ function App() {
   // ─── Desktop layout ───
   return (
     <div className="min-h-screen" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
-      {fonts.map((font) => <link key={font.id} rel="stylesheet" href={font.url} />)}
+      {fontsToLoad.map((font) => <link key={font.id} rel="stylesheet" href={font.url} />)}
 
       {/* Header */}
       <header className="bg-white/80 dark:bg-dark-card/80 backdrop-blur-sm border-b border-zinc-200/60 dark:border-zinc-700/60 px-4 py-3">

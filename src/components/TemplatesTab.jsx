@@ -21,6 +21,7 @@ const ColorInput = memo(function ColorInput({ label, value, onChange }) {
         type="color"
         value={value}
         onChange={(e) => onChange(e.target.value)}
+        aria-label={label}
         className="w-10 h-10 rounded-lg cursor-pointer border-2 border-ui-border shadow-sm"
       />
       <div className="flex-1">
@@ -155,6 +156,7 @@ export default memo(function TemplatesTab({
   theme,
   onThemeChange,
   onThemePresetChange,
+  imageAspectRatio,
 }) {
   const isCustomTheme = theme?.preset === 'custom'
   const [layoutCategory, setLayoutCategory] = useState('all')
@@ -168,14 +170,14 @@ export default memo(function TemplatesTab({
 
     // Then filter by category
     if (layoutCategory === 'suggested') {
-      const suggestedIds = getSuggestedLayouts(null, platform)
+      const suggestedIds = getSuggestedLayouts(imageAspectRatio, platform)
       presets = presets.filter((p) => suggestedIds.includes(p.id))
     } else if (layoutCategory !== 'all') {
       presets = presets.filter((p) => p.category === layoutCategory)
     }
 
     return presets
-  }, [layoutCategory, aspectRatioFilter, platform])
+  }, [layoutCategory, aspectRatioFilter, platform, imageAspectRatio])
 
   const activeLookPreset = lookPresets.find((p) => p.id === activeStylePreset)
 

@@ -1,5 +1,27 @@
 # Changelog
 
+## 2026-03-28
+
+### 6 TODO items implemented
+
+**High Priority (3 items):**
+- **Unassigned image feedback** — `addImage()` now returns `{ id, assigned }`. MediaTab shows toast "Image added to library — all cells already have images" when no cell available. 4 call sites updated.
+- **Accessibility pass** — ~20 elements across 5 files: `aria-label` on platform chevrons/format buttons (PlatformPreview), `role="menuitem"` on mobile menu items (App), `aria-label` on overlay type buttons (StyleTab), `aria-label` on color picker (TemplatesTab), `aria-hidden="true"` on decorative SVGs (MobileNav, App), `aria-label="Main navigation"` on nav element (MobileNav).
+- **Phase 4: Platform format data** — Added 15 new formats across 7 platform groups: Pinterest (Pin, Story Pin), Snapchat (Snap Ad, Story), YouTube (Thumbnail, End Screen), WhatsApp (Status), Threads (Post, Story), Product Images (Square, Portrait), Store Banners (Hero, Category). New 'ecommerce' category. Total: 18 groups, 42 formats.
+
+**Medium Priority (3 items):**
+- **Lazy font loading** — Only 2 active fonts (title + body) load on mount. Remaining 13 load when StyleTab Fonts section expands via `onExpand` callback. Reduces initial HTTP requests from 15 to 2.
+- **Looks per-element text styling** — Added `textStyles` to all 20 look presets with per-element color and bold overrides. `applyStylePreset` in useAdState merges styles into text elements (preserving content/visible/size). 5 style palettes: clean, bold, dark, warm, artistic.
+- **Calculate imageAspectRatio** — Derived from first image's `naturalWidth/Height` in App.jsx. Passed as prop to TemplatesTab. "Suggested" layouts now adapt to image orientation (landscape → horizontal layouts, portrait → vertical).
+
+### Lazy font loading
+
+- Connected `onLoadAllFonts` callback in StyleTab to CollapsibleSection's `onExpand` prop on the Fonts section
+- App.jsx already had the full implementation (state, useMemo filter, useCallback, prop passing) — only the StyleTab wiring was missing
+- Result: Only 2 active fonts load on mount instead of 15, reducing initial HTTP requests by 13
+
+---
+
 ## 2026-03-27
 
 ### Code review and audit sweep — 17 fixes across 13 files

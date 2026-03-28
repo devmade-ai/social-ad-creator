@@ -88,6 +88,59 @@ export const platformGroups = [
       { id: 'twitter', name: 'Post', width: 1600, height: 900, recommendedFormat: 'png', maxFileSize: '5MB' },
     ],
   },
+  {
+    id: 'pinterest',
+    name: 'Pinterest',
+    category: 'social',
+    tips: [
+      'Use vertical images — they take up more feed space',
+      'Add text overlay for context — pins without text get fewer saves',
+      'Rich, saturated colors perform best',
+    ],
+    formats: [
+      { id: 'pinterest-pin', name: 'Pin', width: 1000, height: 1500, recommendedFormat: 'jpg', maxFileSize: '20MB' },
+      { id: 'pinterest-story-pin', name: 'Story Pin', width: 1080, height: 1920, recommendedFormat: 'jpg', maxFileSize: '20MB' },
+    ],
+  },
+  {
+    id: 'snapchat',
+    name: 'Snapchat',
+    category: 'social',
+    tips: [
+      'Full-screen vertical format is essential',
+      'Keep text in the center safe zone — edges get clipped',
+      'Bold visuals with minimal text work best',
+    ],
+    formats: [
+      { id: 'snapchat-snap-ad', name: 'Snap Ad', width: 1080, height: 1920, recommendedFormat: 'jpg', maxFileSize: '5MB' },
+      { id: 'snapchat-story', name: 'Story', width: 1080, height: 1920, recommendedFormat: 'jpg', maxFileSize: '5MB' },
+    ],
+  },
+  {
+    id: 'whatsapp',
+    name: 'WhatsApp',
+    category: 'social',
+    tips: [
+      'Vertical format fills the screen on mobile',
+      'Keep it simple — status viewers swipe quickly',
+    ],
+    formats: [
+      { id: 'whatsapp-status', name: 'Status', width: 1080, height: 1920, recommendedFormat: 'jpg', maxFileSize: '16MB' },
+    ],
+  },
+  {
+    id: 'threads',
+    name: 'Threads',
+    category: 'social',
+    tips: [
+      'Square and portrait formats work best',
+      'Clean, minimal designs get more engagement',
+    ],
+    formats: [
+      { id: 'threads-post', name: 'Post', width: 1080, height: 1350, recommendedFormat: 'jpg', maxFileSize: '8MB' },
+      { id: 'threads-story', name: 'Story', width: 1080, height: 1920, recommendedFormat: 'jpg', maxFileSize: '8MB' },
+    ],
+  },
 
   // --- Website ---
   {
@@ -134,14 +187,18 @@ export const platformGroups = [
   },
   {
     id: 'youtube-banner',
-    name: 'YouTube Banner',
+    name: 'YouTube',
     category: 'banner',
     tips: [
       'Safe area for text: 1546×423 centered within 2560×1440',
       'The full image shows on TV; mobile and desktop crop to center',
+      'Use close-up faces and bold text for thumbnails',
+      'Keep important elements in the center 1190×630 safe area',
     ],
     formats: [
       { id: 'youtube-banner', name: 'Channel Art', width: 2560, height: 1440, recommendedFormat: 'jpg', maxFileSize: '6MB' },
+      { id: 'youtube-thumbnail', name: 'Thumbnail', width: 1280, height: 720, recommendedFormat: 'jpg', maxFileSize: '2MB' },
+      { id: 'youtube-end-screen', name: 'End Screen', width: 1280, height: 720, recommendedFormat: 'png', maxFileSize: null },
     ],
   },
 
@@ -180,6 +237,36 @@ export const platformGroups = [
     ],
   },
 
+  // --- E-commerce ---
+  {
+    id: 'product-images',
+    name: 'Product Images',
+    category: 'ecommerce',
+    tips: [
+      'Use white or neutral backgrounds for marketplace listings',
+      'Show the product clearly — no distracting elements',
+      'Square format is universal across platforms',
+    ],
+    formats: [
+      { id: 'product-square', name: 'Product Square', width: 1000, height: 1000, recommendedFormat: 'jpg', maxFileSize: null },
+      { id: 'product-portrait', name: 'Product Portrait', width: 800, height: 1200, recommendedFormat: 'jpg', maxFileSize: null },
+    ],
+  },
+  {
+    id: 'store-banners',
+    name: 'Store Banners',
+    category: 'ecommerce',
+    tips: [
+      'Wide banners work for hero sections and store headers',
+      'Include a clear call-to-action',
+      'Keep text readable at all screen sizes',
+    ],
+    formats: [
+      { id: 'store-hero-banner', name: 'Hero Banner', width: 1920, height: 600, recommendedFormat: 'jpg', maxFileSize: null },
+      { id: 'store-category-banner', name: 'Category Banner', width: 1200, height: 400, recommendedFormat: 'jpg', maxFileSize: null },
+    ],
+  },
+
   // --- Other ---
   {
     id: 'zoom',
@@ -201,12 +288,13 @@ export const categoryLabels = {
   web: 'Website',
   banner: 'Banners',
   email: 'Email',
+  ecommerce: 'E-commerce',
   print: 'Print',
   other: 'Other',
 }
 
 // Category display order
-export const categoryOrder = ['social', 'web', 'banner', 'email', 'print', 'other']
+export const categoryOrder = ['social', 'web', 'banner', 'email', 'ecommerce', 'print', 'other']
 
 // Flat array for consumers that just need { id, name, width, height, category }
 // Derived from platformGroups so there's a single source of truth
