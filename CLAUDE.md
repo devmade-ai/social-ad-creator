@@ -488,6 +488,7 @@ Tab descriptions (workflow-based organization):
 npm run dev              # Start dev server
 npm run build            # Production build
 npm run preview          # Preview production build
+npm test                 # Run unit tests (Jest)
 ```
 
 ## Architecture
@@ -498,12 +499,16 @@ src/
 │   ├── AdCanvas.jsx           # Core rendering (cell-based layout)
 │   ├── CollapsibleSection.jsx # Reusable collapsible section for tab content
 │   ├── TemplatesTab.jsx       # Layout presets, themes, and looks
-│   ├── MediaTab.jsx           # Sample images, image + logo upload, fit, position, filters
+│   ├── MediaTab.jsx           # Image management hub (upload, assign, overlay, filters, logo)
+│   ├── SampleImagesSection.jsx # CDN sample images gallery with category filtering
+│   ├── AIPromptHelper.jsx     # AI image prompt builder
 │   ├── ContentTab.jsx         # Text editing with cell assignment
+│   ├── FreeformEditor.jsx     # Per-cell freeform text block editors (FreeformBlockEditor + FreeformCellEditor)
+│   ├── TextStyleControls.jsx  # Shared text styling toolbar (size, bold, italic, color, alignment, spacing)
 │   ├── LayoutTab.jsx          # Grid structure + cell alignment
 │   ├── StyleTab.jsx           # Typography, overlay, spacing (themes in Presets tab)
 │   ├── ContextBar.jsx         # Sticky bar: cell selector + page management + undo/redo
-│   ├── PlatformPreview.jsx    # Platform selector
+│   ├── PlatformPreview.jsx    # Platform selector with search filter
 │   ├── ExportButtons.jsx      # Export controls (single, multi-platform, multi-page)
 │   ├── TutorialModal.jsx      # In-app help walkthrough (8 steps covering all tabs)
 │   ├── SaveLoadModal.jsx      # Save/load/delete designs (IndexedDB)
@@ -522,16 +527,19 @@ src/
 │   ├── QuickActionsBar.jsx    # Cell quick-action shortcuts (Image, Text, Style)
 │   ├── BottomSheet.jsx        # Touch-draggable bottom sheet for mobile tab content (3 snap points)
 │   ├── MobileNav.jsx          # Fixed bottom navigation bar for mobile (6 tabs incl. Export)
+│   ├── ReaderMode.jsx         # Full-screen reader view with page navigation
+│   ├── MobileLayout.jsx       # Mobile-specific layout container (header, canvas, sheet, nav)
+│   ├── DesktopLayout.jsx      # Desktop-specific layout container (header, sidebar, main)
 │   └── DebugPill.jsx          # Floating debug panel (separate React root, dev only)
 ├── config/         # Configuration
 │   ├── layouts.js        # 26 overlay types (solid, gradients, radial, effects, blends, textures)
 │   ├── layoutPresets.js  # 27 layouts with SVG icons and categories
-│   ├── stylePresets.js   # Look presets (fonts + filters + overlay effects per layout)
+│   ├── stylePresets.js   # Look presets (fonts + filters + overlay effects per layout + text styles)
 │   ├── platforms.js      # 42 formats across 18 platform groups (nested: platformGroups + flat: platforms)
-│   ├── sampleImages.js   # CDN manifest URL for sample images (fetched at runtime)
+│   ├── sampleImages.ts   # CDN manifest URL for sample images (fetched at runtime)
 │   ├── themes.js         # 12 color themes
-│   ├── fonts.js          # 15 Google Fonts
-│   ├── textDefaults.js   # Default text layer state (shared by AdCanvas + ContentTab)
+│   ├── fonts.ts          # 15 Google Fonts (FontEntry interface)
+│   ├── textDefaults.ts   # Default text layer state (TextLayer, FreeformBlock interfaces)
 │   └── alignment.jsx     # Alignment icon components and option arrays
 ├── hooks/
 │   ├── useAdState.js     # Central state (multi-page, per-cell text, freeformText, layout)
@@ -545,8 +553,11 @@ src/
 ├── utils/
 │   ├── cellUtils.js      # Cell counting, shifting, swapping, cleanup utilities
 │   ├── designStorage.js  # IndexedDB wrapper for design persistence
-│   └── debugLog.js       # In-memory debug event store (200-entry circular buffer)
-├── App.jsx
+│   ├── debugLog.js       # In-memory debug event store (200-entry circular buffer)
+│   ├── exportHelpers.js  # Export capture utilities (captureAsBlob, captureForPdf, waitForPaint)
+│   ├── canvasRenderers.js # Canvas rendering helpers (buildFilterStyle, getAlignItems, isDuotoneOverlay)
+│   └── layoutHelpers.ts  # Layout-structure geometry (cellToSection, getFirstCellOfSection, Section interface)
+├── App.jsx               # State orchestrator, delegates rendering to ReaderMode/MobileLayout/DesktopLayout
 └── main.jsx
 ```
 
