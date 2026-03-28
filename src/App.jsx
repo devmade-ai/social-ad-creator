@@ -37,7 +37,45 @@ import { normalizeStructure } from './utils/cellUtils'
 const SWIPE_THRESHOLD = 50
 
 // Transparent overlay on canvas for click-to-select cell
-function CanvasCellOverlay({ layout, selectedCell, onSelectCell }) {
+// Requirement: Long-press context menu on mobile — reduces tab-hopping for common cell actions.
+// Approach: 500ms touch timeout on cell overlay divs. Short press = select cell (existing).
+//   Long press = show floating menu with 3 tab shortcuts (Media, Content, Style).
+//   Menu anchored near touch point, dismissed on selection or outside tap.
+// Alternatives:
+//   - Always-visible quick actions bar: Rejected — already exists (QuickActionsBar) but requires
+//     cell selection first. Long-press is more direct.
+//   - Double-tap: Rejected — conflicts with zoom gestures on some mobile browsers.
+function CellContextMenu({ position, onAction, onClose }) {
+  const actions = [
+    { id: 'media', label: 'Add Image', icon: '🖼️' },
+    { id: 'content', label: 'Edit Text', icon: '✏️' },
+    { id: 'style', label: 'Style Cell', icon: '🎨' },
+  ]
+
+  return (
+    <>
+      {/* Backdrop to catch outside taps */}
+      <div className="fixed inset-0 z-[15]" onClick={onClose} />
+      <div
+        className="absolute z-[16] bg-white dark:bg-dark-card rounded-xl shadow-lg border border-ui-border py-1 min-w-[140px]"
+        style={{ top: position.y, left: position.x }}
+      >
+        {actions.map((action) => (
+          <button
+            key={action.id}
+            onClick={() => onAction(action.id)}
+            className="w-full px-3 py-2.5 text-sm text-left flex items-center gap-2 text-ui-text hover:bg-ui-surface-hover active:bg-ui-surface-inset transition-colors"
+          >
+            <span aria-hidden="true">{action.icon}</span>
+            {action.label}
+          </button>
+        ))}
+      </div>
+    </>
+  )
+}
+
+function CanvasCellOverlay({ layout, selectedCell, onSelectCell, onLongPress }) {
   const { type, structure } = layout
   const isFullbleed = type === 'fullbleed'
   const isRows = type === 'rows'
@@ -75,10 +113,26 @@ function CanvasCellOverlay({ layout, selectedCell, onSelectCell }) {
               aria-label={`Select cell ${currentCellIndex + 1}`}
               onClick={() => onSelectCell(currentCellIndex)}
               onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSelectCell(currentCellIndex) } }}
+              onTouchStart={(e) => {
+                if (!onLongPress) return
+                const touch = e.touches[0]
+                const rect = e.currentTarget.getBoundingClientRect()
+                e.currentTarget._longPressTimer = setTimeout(() => {
+                  onSelectCell(currentCellIndex)
+                  onLongPress(currentCellIndex, {
+                    x: Math.min(touch.clientX - rect.left, rect.width - 150),
+                    y: Math.max(0, touch.clientY - rect.top - 40),
+                  })
+                }, 500)
+              }}
+              onTouchMove={(e) => { clearTimeout(e.currentTarget._longPressTimer) }}
+              onTouchEnd={(e) => { clearTimeout(e.currentTarget._longPressTimer) }}
+              onTouchCancel={(e) => { clearTimeout(e.currentTarget._longPressTimer) }}
               style={{
                 flex: `1 1 ${subSizes[subIndex]}%`,
                 cursor: 'pointer',
                 boxSizing: 'border-box',
+                touchAction: 'manipulation',
               }}
               className={`hover:outline hover:outline-2 hover:-outline-offset-2 hover:outline-primary/30 active:bg-primary/5 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-primary/50 ${isSelected ? 'cell-select-flash' : ''}`}
               title={`Cell ${currentCellIndex + 1}`}
@@ -131,6 +185,7 @@ function App() {
   const [mobileSheetOpen, setMobileSheetOpen] = useState(false)
   const [sheetSnap, setSheetSnap] = useState(0)
   const [showMobileMenu, setShowMobileMenu] = useState(false)
+  const [cellContextMenu, setCellContextMenu] = useState(null) // { cellIndex, position: { x, y } }
   const swipeRef = useRef({ x: 0, y: 0 })
 
   const {
@@ -200,6 +255,17 @@ function App() {
   const closeMobileSheet = useCallback(() => {
     setMobileSheetOpen(false)
     setSheetSnap(0)
+  }, [])
+
+  // Long-press on canvas cell → show context menu (mobile only)
+  const handleCellLongPress = useCallback((cellIndex, position) => {
+    setCellContextMenu({ cellIndex, position })
+  }, [])
+
+  const handleCellContextAction = useCallback((tabId) => {
+    setCellContextMenu(null)
+    setActiveSection(tabId)
+    setMobileSheetOpen(true)
   }, [])
 
   const handleMobileTabChange = useCallback((tabId) => {
@@ -609,7 +675,14 @@ function App() {
           <ErrorBoundary title="Preview error" message="Failed to render preview." className="w-full h-full min-h-[200px]">
             <div className="relative" style={{ width: platform.width * previewScale, height: platform.height * previewScale }}>
               <AdCanvas ref={canvasRef} state={state} scale={previewScale} />
-              {totalCells > 1 && <CanvasCellOverlay layout={state.layout} selectedCell={safeSelectedCell} onSelectCell={setSelectedCell} />}
+              {totalCells > 1 && <CanvasCellOverlay layout={state.layout} selectedCell={safeSelectedCell} onSelectCell={setSelectedCell} onLongPress={handleCellLongPress} />}
+              {cellContextMenu && (
+                <CellContextMenu
+                  position={cellContextMenu.position}
+                  onAction={handleCellContextAction}
+                  onClose={() => setCellContextMenu(null)}
+                />
+              )}
             </div>
           </ErrorBoundary>
           {exportOverlay}

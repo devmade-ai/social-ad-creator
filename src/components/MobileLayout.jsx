@@ -76,8 +76,13 @@ export default function MobileLayout({
   tabContent,
   exportOverlay,
   modals,
-  // Canvas overlay
+  // Canvas overlay + context menu
   CanvasCellOverlay,
+  CellContextMenu,
+  cellContextMenu,
+  setCellContextMenu,
+  handleCellLongPress,
+  handleCellContextAction,
 }) {
   return (
     <div className="h-[100dvh] flex flex-col overflow-hidden bg-zinc-100 dark:bg-dark-page">
@@ -170,7 +175,14 @@ export default function MobileLayout({
         <ErrorBoundary title="Preview error" message="Failed to render preview." className="w-full h-full min-h-[200px]">
           <div className="relative" style={{ width: platform.width * previewScale, height: platform.height * previewScale }}>
             <AdCanvas ref={canvasRef} state={state} scale={previewScale} />
-            {totalCells > 1 && <CanvasCellOverlay layout={state.layout} selectedCell={safeSelectedCell} onSelectCell={setSelectedCell} />}
+            {totalCells > 1 && <CanvasCellOverlay layout={state.layout} selectedCell={safeSelectedCell} onSelectCell={setSelectedCell} onLongPress={handleCellLongPress} />}
+            {cellContextMenu && (
+              <CellContextMenu
+                position={cellContextMenu.position}
+                onAction={handleCellContextAction}
+                onClose={() => setCellContextMenu(null)}
+              />
+            )}
           </div>
         </ErrorBoundary>
         {exportOverlay}
