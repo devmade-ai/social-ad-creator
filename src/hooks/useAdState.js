@@ -93,8 +93,15 @@ function extractPageData(state) {
 // Alternatives:
 //   - quad-grid (4 cells): Rejected — too complex for initial experience, confuses new users
 //   - hero (fullbleed): Rejected — user wanted split-horizontal specifically
+// Requirement: Default to 'clean' look so new users see a polished starting state
+// Approach: 'clean' is the most neutral look (Inter/Inter, minimal overlay) — barely
+//   different from no look, but means switching looks feels like a lateral move
+// Alternatives:
+//   - null (no look): Rejected — blank canvas feels unfinished, switching looks feels
+//     like "turning on a feature" rather than exploring options
+//   - A WP-era look: Rejected — too opinionated as a universal default
 const defaultPageData = {
-  activeStylePreset: null,
+  activeStylePreset: 'clean',
   activeLayoutPreset: 'split-horizontal',
   images: [],
   cellImages: {},
@@ -127,7 +134,7 @@ const defaultPageData = {
 }
 
 export const defaultState = {
-  activeStylePreset: null,
+  activeStylePreset: 'clean',
   activeLayoutPreset: 'split-horizontal',
 
   images: [],
@@ -190,7 +197,7 @@ export const defaultState = {
   },
 
   fonts: {
-    title: 'montserrat',
+    title: 'inter',
     body: 'inter',
   },
 
