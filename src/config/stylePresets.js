@@ -1897,15 +1897,265 @@ const duotoneTextStyles = {
 }
 
 // ============================================================================
-// WORDPRESS-ERA LOOK PRESETS
-// Requirement: Visual looks inspired by WordPress default theme design eras
-// Approach: Font pairings, filter aesthetics, and overlay styles from WP themes
+// WORDPRESS-ERA LOOK PRESETS (one per default theme year, 2010–2025, skip 2018)
+// Requirement: Visual looks inspired by WordPress default theme design tokens
+// Approach: Each year's actual font pairing + era-appropriate overlay/filter style
 // Alternatives:
+//   - 5 era-grouped looks: Rejected — user wants one per year for full coverage
 //   - Exact WP reproduction: Rejected — CanvaGrid overlays differ from WP CSS
-//   - Single "WordPress" look: Rejected — WP spans 15 years of distinct aesthetics
 // ============================================================================
 
-// --- Editorial (TT24 style) — warm, refined, serif headings ---
+// --- Heritage (2010) — first WP theme, traditional serif blog, no overlays ---
+const heritageLayouts = buildLayouts(
+  { imageOverlay: overlay('solid', 'primary', 0), textAlign: 'left', textVerticalAlign: 'center' },
+  {
+    'hero': { imageOverlay: overlay('solid', 'primary', 8), textAlign: 'center', textVerticalAlign: 'center' },
+  }
+)
+const heritageTextStyles = {
+  title: { color: 'secondary', bold: true },
+  tagline: { color: 'secondary', bold: false },
+  bodyHeading: { color: 'secondary', bold: true },
+  bodyText: { color: 'secondary', bold: false },
+  cta: { color: 'accent', bold: true },
+  footnote: { color: 'gray', bold: false },
+}
+
+// --- Neutral (2011) — light/dark scheme era, subtle and clean ---
+const neutralLayouts = buildLayouts(
+  { imageOverlay: overlay('solid', 'primary', 5), textAlign: 'left', textVerticalAlign: 'center' },
+  {
+    'hero': { imageOverlay: overlay('solid', 'primary', 12), textAlign: 'center', textVerticalAlign: 'center' },
+    'wide-feature': { imageOverlay: overlay('solid', 'primary', 10), textAlign: 'center', textVerticalAlign: 'end' },
+  }
+)
+const neutralTextStyles = {
+  title: { color: 'secondary', bold: true },
+  tagline: { color: 'secondary', bold: false },
+  bodyHeading: { color: 'secondary', bold: true },
+  bodyText: { color: 'secondary', bold: false },
+  cta: { color: 'accent', bold: true },
+  footnote: { color: 'gray', bold: false },
+}
+
+// --- Airy (2012) — first responsive theme, Open Sans, ultra-minimal whitespace ---
+const airyLayouts = buildLayouts(
+  { imageOverlay: overlay('solid', 'primary', 0), textAlign: 'center', textVerticalAlign: 'center' },
+  {
+    'hero': { imageOverlay: overlay('solid', 'secondary', 5), textAlign: 'center', textVerticalAlign: 'center' },
+    'split-vertical': { imageOverlay: overlay('solid', 'primary', 0), textAlign: 'left', textVerticalAlign: 'center' },
+    'golden-left': { imageOverlay: overlay('solid', 'primary', 0), textAlign: 'left', textVerticalAlign: 'center' },
+    'golden-right': { imageOverlay: overlay('solid', 'primary', 0), textAlign: 'left', textVerticalAlign: 'center' },
+  }
+)
+const airyTextStyles = {
+  title: { color: 'secondary', bold: false },
+  tagline: { color: 'secondary', bold: false },
+  bodyHeading: { color: 'secondary', bold: true },
+  bodyText: { color: 'secondary', bold: false },
+  cta: { color: 'accent', bold: true },
+  footnote: { color: 'light-gray', bold: false },
+}
+
+// --- Vivid (2013) — Tumblr-era, Bitter+Source Sans, warm bold overlays ---
+const vividLayouts = buildLayouts(
+  { imageOverlay: overlay('solid', 'accent', 18), textAlign: 'center', textVerticalAlign: 'center' },
+  {
+    'hero': { imageOverlay: overlay('gradient-bottom', 'accent', 45), textAlign: 'center', textVerticalAlign: 'end' },
+    'split-horizontal': { imageOverlay: overlay('solid', 'accent', 15), textAlign: 'center', textVerticalAlign: 'center' },
+    'split-vertical': { imageOverlay: overlay('solid', 'accent', 15), textAlign: 'left', textVerticalAlign: 'center' },
+    'golden-left': { imageOverlay: overlay('gradient-right', 'accent', 25), textAlign: 'left', textVerticalAlign: 'center' },
+    'golden-right': { imageOverlay: overlay('gradient-left', 'accent', 25), textAlign: 'left', textVerticalAlign: 'center' },
+    'wide-feature': { imageOverlay: overlay('gradient-bottom', 'accent', 40), textAlign: 'center', textVerticalAlign: 'end' },
+  }
+)
+const vividTextStyles = {
+  title: { color: 'white', bold: true },
+  tagline: { color: 'off-white', bold: false },
+  bodyHeading: { color: 'white', bold: true },
+  bodyText: { color: 'off-white', bold: false },
+  cta: { color: 'accent', bold: true },
+  footnote: { color: 'light-gray', bold: false },
+}
+
+// --- Magazine (2014) — flat design, Lato, strong hero overlays ---
+const magazineLayouts = buildLayouts(
+  { imageOverlay: overlay('solid', 'primary', 12), textAlign: 'center', textVerticalAlign: 'center' },
+  {
+    'hero': { imageOverlay: overlay('gradient-bottom', 'primary', 40), textAlign: 'center', textVerticalAlign: 'end' },
+    'split-horizontal': { imageOverlay: overlay('solid', 'primary', 10), textAlign: 'left', textVerticalAlign: 'center' },
+    'split-vertical': { imageOverlay: overlay('solid', 'primary', 10), textAlign: 'left', textVerticalAlign: 'center' },
+    'golden-left': { imageOverlay: overlay('gradient-right', 'primary', 20), textAlign: 'left', textVerticalAlign: 'center' },
+    'wide-feature': { imageOverlay: overlay('gradient-bottom', 'primary', 35), textAlign: 'center', textVerticalAlign: 'end' },
+    'tall-feature': { imageOverlay: overlay('gradient-bottom', 'primary', 35), textAlign: 'center', textVerticalAlign: 'end' },
+  }
+)
+const magazineTextStyles = {
+  title: { color: 'white', bold: true },
+  tagline: { color: 'off-white', bold: false },
+  bodyHeading: { color: 'white', bold: true },
+  bodyText: { color: 'off-white', bold: false },
+  cta: { color: 'accent', bold: true },
+  footnote: { color: 'light-gray', bold: false },
+}
+
+// --- Readable (2015) — accessibility-first, Noto fonts, gentle focus ---
+const readableLayouts = buildLayouts(
+  { imageOverlay: overlay('solid', 'primary', 8), textAlign: 'left', textVerticalAlign: 'center' },
+  {
+    'hero': { imageOverlay: overlay('radial-soft', 'primary', 18), textAlign: 'center', textVerticalAlign: 'center' },
+    'split-vertical': { imageOverlay: overlay('solid', 'primary', 6), textAlign: 'left', textVerticalAlign: 'center' },
+    'golden-left': { imageOverlay: overlay('solid', 'primary', 6), textAlign: 'left', textVerticalAlign: 'center' },
+    'golden-right': { imageOverlay: overlay('solid', 'primary', 6), textAlign: 'left', textVerticalAlign: 'center' },
+    'wide-feature': { imageOverlay: overlay('radial-soft', 'primary', 15), textAlign: 'center', textVerticalAlign: 'center' },
+  }
+)
+const readableTextStyles = {
+  title: { color: 'secondary', bold: true },
+  tagline: { color: 'secondary', bold: false },
+  bodyHeading: { color: 'secondary', bold: true },
+  bodyText: { color: 'secondary', bold: false },
+  cta: { color: 'accent', bold: true },
+  footnote: { color: 'dark-gray', bold: false },
+}
+
+// --- Typeset (2016) — Merriweather+Montserrat, classic blog pairing ---
+const typesetLayouts = buildLayouts(
+  { imageOverlay: overlay('solid', 'primary', 15), textAlign: 'left', textVerticalAlign: 'center' },
+  {
+    'hero': { imageOverlay: overlay('gradient-bottom', 'primary', 40), textAlign: 'left', textVerticalAlign: 'end' },
+    'split-horizontal': { imageOverlay: overlay('solid', 'primary', 12), textAlign: 'left', textVerticalAlign: 'center' },
+    'split-vertical': { imageOverlay: overlay('solid', 'primary', 12), textAlign: 'left', textVerticalAlign: 'center' },
+    'wide-feature': { imageOverlay: overlay('gradient-bottom', 'primary', 35), textAlign: 'left', textVerticalAlign: 'end' },
+    'quad-grid': { imageOverlay: overlay('solid', 'primary', 10), textAlign: 'center', textVerticalAlign: 'center' },
+  }
+)
+const typesetTextStyles = {
+  title: { color: 'secondary', bold: true },
+  tagline: { color: 'secondary', bold: false },
+  bodyHeading: { color: 'secondary', bold: true },
+  bodyText: { color: 'secondary', bold: false },
+  cta: { color: 'accent', bold: true },
+  footnote: { color: 'gray', bold: false },
+}
+
+// --- Enterprise (2017) — Libre Franklin, business/corporate, video header era ---
+const enterpriseLayouts = buildLayouts(
+  { imageOverlay: overlay('solid', 'primary', 10), textAlign: 'left', textVerticalAlign: 'center' },
+  {
+    'hero': { imageOverlay: overlay('vignette', 'primary', 35), textAlign: 'center', textVerticalAlign: 'center' },
+    'split-horizontal': { imageOverlay: overlay('solid', 'primary', 8), textAlign: 'left', textVerticalAlign: 'center' },
+    'golden-left': { imageOverlay: overlay('gradient-right', 'primary', 18), textAlign: 'left', textVerticalAlign: 'center' },
+    'golden-right': { imageOverlay: overlay('gradient-left', 'primary', 18), textAlign: 'left', textVerticalAlign: 'center' },
+    'wide-feature': { imageOverlay: overlay('vignette', 'primary', 30), textAlign: 'center', textVerticalAlign: 'center' },
+    'tall-feature': { imageOverlay: overlay('gradient-bottom', 'primary', 30), textAlign: 'left', textVerticalAlign: 'end' },
+  }
+)
+const enterpriseTextStyles = {
+  title: { color: 'secondary', bold: true },
+  tagline: { color: 'secondary', bold: false },
+  bodyHeading: { color: 'secondary', bold: true },
+  bodyText: { color: 'secondary', bold: false },
+  cta: { color: 'accent', bold: true },
+  footnote: { color: 'gray', bold: false },
+}
+
+// --- Gutenberg (2019) — block editor debut, radical minimal, content-first ---
+const gutenbergLayouts = buildLayouts(
+  { imageOverlay: overlay('solid', 'primary', 0), textAlign: 'left', textVerticalAlign: 'center' },
+  {
+    'hero': { imageOverlay: overlay('solid', 'primary', 5), textAlign: 'center', textVerticalAlign: 'center' },
+  }
+)
+const gutenbergTextStyles = {
+  title: { color: 'secondary', bold: true },
+  tagline: { color: 'secondary', bold: false },
+  bodyHeading: { color: 'secondary', bold: true },
+  bodyText: { color: 'secondary', bold: false },
+  cta: { color: 'accent', bold: true },
+  footnote: { color: 'gray', bold: false },
+}
+
+// --- Warmth (2020) — Inter variable font, warm cream, pink-red accent ---
+const warmthLayouts = buildLayouts(
+  { imageOverlay: overlay('solid', 'primary', 10), textAlign: 'left', textVerticalAlign: 'center' },
+  {
+    'hero': { imageOverlay: overlay('vignette', 'accent', 25), textAlign: 'center', textVerticalAlign: 'center' },
+    'split-vertical': { imageOverlay: overlay('solid', 'primary', 8), textAlign: 'left', textVerticalAlign: 'center' },
+    'golden-left': { imageOverlay: overlay('solid', 'primary', 8), textAlign: 'left', textVerticalAlign: 'center' },
+    'wide-feature': { imageOverlay: overlay('vignette', 'accent', 20), textAlign: 'center', textVerticalAlign: 'end' },
+  }
+)
+const warmthTextStyles = {
+  title: { color: 'secondary', bold: true },
+  tagline: { color: 'accent', bold: false },
+  bodyHeading: { color: 'secondary', bold: true },
+  bodyText: { color: 'secondary', bold: false },
+  cta: { color: 'accent', bold: true },
+  footnote: { color: 'dark-gray', bold: false },
+}
+
+// --- Pastel (2021) — blank canvas, sage pastels, most minimal classic ---
+const pastelLayouts = buildLayouts(
+  { imageOverlay: overlay('solid', 'primary', 12), textAlign: 'center', textVerticalAlign: 'center' },
+  {
+    'hero': { imageOverlay: overlay('radial-soft', 'primary', 20), textAlign: 'center', textVerticalAlign: 'center' },
+    'split-vertical': { imageOverlay: overlay('solid', 'primary', 10), textAlign: 'left', textVerticalAlign: 'center' },
+    'golden-left': { imageOverlay: overlay('solid', 'primary', 10), textAlign: 'left', textVerticalAlign: 'center' },
+    'golden-right': { imageOverlay: overlay('solid', 'primary', 10), textAlign: 'left', textVerticalAlign: 'center' },
+    'sidebar-stack': { imageOverlay: overlay('solid', 'primary', 8), textAlign: 'left', textVerticalAlign: 'center' },
+  }
+)
+const pastelTextStyles = {
+  title: { color: 'secondary', bold: true },
+  tagline: { color: 'secondary', bold: false },
+  bodyHeading: { color: 'secondary', bold: true },
+  bodyText: { color: 'secondary', bold: false },
+  cta: { color: 'accent', bold: true },
+  footnote: { color: 'dark-gray', bold: false },
+}
+
+// --- Botanical (2022) — first block theme, Source Serif, nature-inspired, sharp ---
+const botanicalLayouts = buildLayouts(
+  { imageOverlay: overlay('solid', 'primary', 8), textAlign: 'left', textVerticalAlign: 'center' },
+  {
+    'hero': { imageOverlay: overlay('spotlight', 'primary', 25), textAlign: 'center', textVerticalAlign: 'center' },
+    'split-vertical': { imageOverlay: overlay('solid', 'primary', 5), textAlign: 'left', textVerticalAlign: 'center' },
+    'golden-left': { imageOverlay: overlay('solid', 'primary', 5), textAlign: 'left', textVerticalAlign: 'center' },
+    'wide-feature': { imageOverlay: overlay('spotlight', 'primary', 20), textAlign: 'center', textVerticalAlign: 'center' },
+    'tall-feature': { imageOverlay: overlay('gradient-bottom', 'primary', 25), textAlign: 'left', textVerticalAlign: 'end' },
+  }
+)
+const botanicalTextStyles = {
+  title: { color: 'secondary', bold: false },
+  tagline: { color: 'secondary', bold: false },
+  bodyHeading: { color: 'secondary', bold: true },
+  bodyText: { color: 'secondary', bold: false },
+  cta: { color: 'accent', bold: true },
+  footnote: { color: 'gray', bold: false },
+}
+
+// --- Fluid (2023) — community variations, DM Sans, neon accent, fluid type ---
+const fluidLayouts = buildLayouts(
+  { imageOverlay: overlay('solid', 'primary', 15), textAlign: 'center', textVerticalAlign: 'center' },
+  {
+    'hero': { imageOverlay: overlay('gradient-bottom', 'primary', 45), textAlign: 'center', textVerticalAlign: 'end' },
+    'split-horizontal': { imageOverlay: overlay('solid', 'primary', 12), textAlign: 'center', textVerticalAlign: 'center' },
+    'split-vertical': { imageOverlay: overlay('solid', 'primary', 12), textAlign: 'left', textVerticalAlign: 'center' },
+    'golden-left': { imageOverlay: overlay('gradient-right', 'primary', 22), textAlign: 'left', textVerticalAlign: 'center' },
+    'wide-feature': { imageOverlay: overlay('gradient-bottom', 'primary', 40), textAlign: 'center', textVerticalAlign: 'end' },
+  }
+)
+const fluidTextStyles = {
+  title: { color: 'white', bold: true },
+  tagline: { color: 'off-white', bold: false },
+  bodyHeading: { color: 'white', bold: true },
+  bodyText: { color: 'off-white', bold: false },
+  cta: { color: 'accent', bold: true },
+  footnote: { color: 'light-gray', bold: false },
+}
+
+// --- Editorial (2024) — Cardo+Inter, warm earth serif, zero-CSS block theme ---
 const editorialLayouts = buildLayouts(
   { imageOverlay: overlay('solid', 'primary', 10), textAlign: 'left', textVerticalAlign: 'center' },
   {
@@ -1926,85 +2176,25 @@ const editorialTextStyles = {
   footnote: { color: 'gray', bold: false },
 }
 
-// --- Pastel (TT21 style) — soft, airy, system sans feel ---
-const pastelLayouts = buildLayouts(
-  { imageOverlay: overlay('solid', 'primary', 12), textAlign: 'center', textVerticalAlign: 'center' },
+// --- Flux (2025) — Manrope+Literata, dynamic, diagonal gradients ---
+const fluxLayouts = buildLayouts(
+  { imageOverlay: overlay('solid', 'primary', 10), textAlign: 'left', textVerticalAlign: 'center' },
   {
-    'hero': { imageOverlay: overlay('radial-soft', 'primary', 20), textAlign: 'center', textVerticalAlign: 'center' },
-    'split-vertical': { imageOverlay: overlay('solid', 'primary', 10), textAlign: 'left', textVerticalAlign: 'center' },
-    'golden-left': { imageOverlay: overlay('solid', 'primary', 10), textAlign: 'left', textVerticalAlign: 'center' },
-    'golden-right': { imageOverlay: overlay('solid', 'primary', 10), textAlign: 'left', textVerticalAlign: 'center' },
-    'sidebar-stack': { imageOverlay: overlay('solid', 'primary', 8), textAlign: 'left', textVerticalAlign: 'center' },
+    'hero': { imageOverlay: overlay('gradient-diagonal-br', 'primary', 30), textAlign: 'left', textVerticalAlign: 'end' },
+    'split-horizontal': { imageOverlay: overlay('gradient-diagonal-br', 'primary', 15), textAlign: 'left', textVerticalAlign: 'center' },
+    'split-vertical': { imageOverlay: overlay('gradient-diagonal-br', 'primary', 15), textAlign: 'left', textVerticalAlign: 'center' },
+    'golden-left': { imageOverlay: overlay('gradient-diagonal-br', 'primary', 12), textAlign: 'left', textVerticalAlign: 'center' },
+    'wide-feature': { imageOverlay: overlay('gradient-diagonal-br', 'primary', 25), textAlign: 'left', textVerticalAlign: 'end' },
+    'tall-feature': { imageOverlay: overlay('gradient-bottom', 'primary', 25), textAlign: 'left', textVerticalAlign: 'end' },
   }
 )
-const pastelTextStyles = {
-  title: { color: 'secondary', bold: true },
-  tagline: { color: 'secondary', bold: false },
-  bodyHeading: { color: 'secondary', bold: true },
-  bodyText: { color: 'secondary', bold: false },
-  cta: { color: 'accent', bold: true },
-  footnote: { color: 'dark-gray', bold: false },
-}
-
-// --- Typeset (TT16 style) — classic blog feel, serif + sans pairing ---
-const typesetLayouts = buildLayouts(
-  { imageOverlay: overlay('solid', 'primary', 15), textAlign: 'left', textVerticalAlign: 'center' },
-  {
-    'hero': { imageOverlay: overlay('gradient-bottom', 'primary', 40), textAlign: 'left', textVerticalAlign: 'end' },
-    'split-horizontal': { imageOverlay: overlay('solid', 'primary', 12), textAlign: 'left', textVerticalAlign: 'center' },
-    'split-vertical': { imageOverlay: overlay('solid', 'primary', 12), textAlign: 'left', textVerticalAlign: 'center' },
-    'wide-feature': { imageOverlay: overlay('gradient-bottom', 'primary', 35), textAlign: 'left', textVerticalAlign: 'end' },
-    'quad-grid': { imageOverlay: overlay('solid', 'primary', 10), textAlign: 'center', textVerticalAlign: 'center' },
-  }
-)
-const typesetTextStyles = {
+const fluxTextStyles = {
   title: { color: 'secondary', bold: true },
   tagline: { color: 'secondary', bold: false },
   bodyHeading: { color: 'secondary', bold: true },
   bodyText: { color: 'secondary', bold: false },
   cta: { color: 'accent', bold: true },
   footnote: { color: 'gray', bold: false },
-}
-
-// --- Brutalist (TT22/23 style) — sharp, high contrast, minimal decoration ---
-const brutalistLayouts = buildLayouts(
-  { imageOverlay: overlay('solid', 'primary', 0), textAlign: 'left', textVerticalAlign: 'end' },
-  {
-    'hero': { imageOverlay: overlay('solid', 'primary', 20), textAlign: 'left', textVerticalAlign: 'end' },
-    'split-horizontal': { imageOverlay: overlay('solid', 'primary', 0), textAlign: 'left', textVerticalAlign: 'end' },
-    'split-vertical': { imageOverlay: overlay('solid', 'primary', 0), textAlign: 'left', textVerticalAlign: 'end' },
-    'wide-feature': { imageOverlay: overlay('solid', 'primary', 15), textAlign: 'left', textVerticalAlign: 'end' },
-    'tall-feature': { imageOverlay: overlay('solid', 'primary', 15), textAlign: 'left', textVerticalAlign: 'end' },
-  }
-)
-const brutalistTextStyles = {
-  title: { color: 'secondary', bold: true },
-  tagline: { color: 'secondary', bold: false },
-  bodyHeading: { color: 'secondary', bold: true },
-  bodyText: { color: 'secondary', bold: false },
-  cta: { color: 'accent', bold: true },
-  footnote: { color: 'gray', bold: false },
-}
-
-// --- Vivid (TT13 style) — warm, bold, colorful, magazine-inspired ---
-const vividLayouts = buildLayouts(
-  { imageOverlay: overlay('solid', 'accent', 18), textAlign: 'center', textVerticalAlign: 'center' },
-  {
-    'hero': { imageOverlay: overlay('gradient-bottom', 'accent', 45), textAlign: 'center', textVerticalAlign: 'end' },
-    'split-horizontal': { imageOverlay: overlay('solid', 'accent', 15), textAlign: 'center', textVerticalAlign: 'center' },
-    'split-vertical': { imageOverlay: overlay('solid', 'accent', 15), textAlign: 'left', textVerticalAlign: 'center' },
-    'golden-left': { imageOverlay: overlay('gradient-right', 'accent', 25), textAlign: 'left', textVerticalAlign: 'center' },
-    'golden-right': { imageOverlay: overlay('gradient-left', 'accent', 25), textAlign: 'left', textVerticalAlign: 'center' },
-    'wide-feature': { imageOverlay: overlay('gradient-bottom', 'accent', 40), textAlign: 'center', textVerticalAlign: 'end' },
-  }
-)
-const vividTextStyles = {
-  title: { color: 'white', bold: true },
-  tagline: { color: 'off-white', bold: false },
-  bodyHeading: { color: 'white', bold: true },
-  bodyText: { color: 'off-white', bold: false },
-  cta: { color: 'accent', bold: true },
-  footnote: { color: 'light-gray', bold: false },
 }
 
 // ============================================================================
@@ -2152,62 +2342,175 @@ export const lookPresets = [
     layouts: duotoneLayouts,
   },
 
-  // ========== WORDPRESS-ERA CATEGORY ==========
-  // Requirement: Look presets inspired by WordPress default theme design eras
+  // ========== WORDPRESS-ERA CATEGORY (one per default theme, 2010–2025) ==========
+  // Era 1: Fixed Layouts and Web-Safe Fonts (2010–2013)
   {
-    id: 'editorial',
-    name: 'Editorial',
+    id: 'heritage',
+    name: 'Heritage',
     category: 'wordpress',
-    description: 'Warm serif elegance, refined and readable',
-    preview: { style: 'editorial' },
-    fonts: { title: 'cardo', body: 'inter' },
-    imageFilters: { ...defaultFilters, contrast: 102, brightness: 100 },
-    textStyles: editorialTextStyles,
-    layouts: editorialLayouts,
+    description: 'Traditional serif blog, the original (WP 2010)',
+    preview: { style: 'heritage' },
+    fonts: { title: 'lora', body: 'lato' },
+    imageFilters: { ...defaultFilters },
+    textStyles: heritageTextStyles,
+    layouts: heritageLayouts,
+  },
+  {
+    id: 'neutral',
+    name: 'Neutral',
+    category: 'wordpress',
+    description: 'Subtle and clean, light/dark aware (WP 2011)',
+    preview: { style: 'neutral' },
+    fonts: { title: 'raleway', body: 'raleway' },
+    imageFilters: { ...defaultFilters, contrast: 105 },
+    textStyles: neutralTextStyles,
+    layouts: neutralLayouts,
+  },
+  {
+    id: 'airy',
+    name: 'Airy',
+    category: 'wordpress',
+    description: 'Ultra-minimal whitespace, first responsive (WP 2012)',
+    preview: { style: 'airy' },
+    fonts: { title: 'open-sans', body: 'open-sans' },
+    imageFilters: { ...defaultFilters, brightness: 103 },
+    textStyles: airyTextStyles,
+    layouts: airyLayouts,
+  },
+  {
+    id: 'vivid',
+    name: 'Vivid',
+    category: 'wordpress',
+    description: 'Bold, warm, Tumblr-era vibrancy (WP 2013)',
+    preview: { style: 'vivid' },
+    fonts: { title: 'bitter', body: 'source-sans' },
+    imageFilters: { ...defaultFilters, sepia: 8, contrast: 108, brightness: 98 },
+    textStyles: vividTextStyles,
+    layouts: vividLayouts,
+  },
+  // Era 2: Mobile-First and Magazine Layouts (2014–2017)
+  {
+    id: 'magazine',
+    name: 'Magazine',
+    category: 'wordpress',
+    description: 'Flat design, magazine-style layout (WP 2014)',
+    preview: { style: 'magazine' },
+    fonts: { title: 'lato', body: 'lato' },
+    imageFilters: { ...defaultFilters, contrast: 106 },
+    textStyles: magazineTextStyles,
+    layouts: magazineLayouts,
+  },
+  {
+    id: 'readable',
+    name: 'Readable',
+    category: 'wordpress',
+    description: 'Accessibility-first, Noto fonts (WP 2015)',
+    preview: { style: 'readable' },
+    fonts: { title: 'noto-sans', body: 'noto-serif' },
+    imageFilters: { ...defaultFilters, brightness: 102 },
+    textStyles: readableTextStyles,
+    layouts: readableLayouts,
+  },
+  {
+    id: 'typeset',
+    name: 'Typeset',
+    category: 'wordpress',
+    description: 'Classic serif + sans blog pairing (WP 2016)',
+    preview: { style: 'typeset' },
+    fonts: { title: 'merriweather', body: 'montserrat' },
+    imageFilters: { ...defaultFilters },
+    textStyles: typesetTextStyles,
+    layouts: typesetLayouts,
+  },
+  {
+    id: 'enterprise',
+    name: 'Enterprise',
+    category: 'wordpress',
+    description: 'Business-oriented, professional feel (WP 2017)',
+    preview: { style: 'enterprise' },
+    fonts: { title: 'libre-franklin', body: 'libre-franklin' },
+    imageFilters: { ...defaultFilters, contrast: 104 },
+    textStyles: enterpriseTextStyles,
+    layouts: enterpriseLayouts,
+  },
+  // Era 3: Block-Aware Classic Themes (2019–2021)
+  {
+    id: 'gutenberg',
+    name: 'Gutenberg',
+    category: 'wordpress',
+    description: 'Radical minimal, content-first (WP 2019)',
+    preview: { style: 'gutenberg' },
+    fonts: { title: 'inter', body: 'lora' },
+    imageFilters: { ...defaultFilters },
+    textStyles: gutenbergTextStyles,
+    layouts: gutenbergLayouts,
+  },
+  {
+    id: 'warmth',
+    name: 'Warmth',
+    category: 'wordpress',
+    description: 'Variable font era, warm cream tones (WP 2020)',
+    preview: { style: 'warmth' },
+    fonts: { title: 'inter', body: 'inter' },
+    imageFilters: { ...defaultFilters, sepia: 5, brightness: 102 },
+    textStyles: warmthTextStyles,
+    layouts: warmthLayouts,
   },
   {
     id: 'pastel',
     name: 'Pastel',
     category: 'wordpress',
-    description: 'Soft colors, airy and minimal',
+    description: 'Blank canvas, soft sage pastels (WP 2021)',
     preview: { style: 'pastel' },
     fonts: { title: 'manrope', body: 'manrope' },
     imageFilters: { ...defaultFilters, contrast: 95, brightness: 105 },
     textStyles: pastelTextStyles,
     layouts: pastelLayouts,
   },
+  // Era 4: Block Theme Revolution (2022–2025)
   {
-    id: 'typeset',
-    name: 'Typeset',
+    id: 'botanical',
+    name: 'Botanical',
     category: 'wordpress',
-    description: 'Classic serif + sans, traditional blog aesthetic',
-    preview: { style: 'typeset' },
-    fonts: { title: 'merriweather', body: 'source-sans' },
-    imageFilters: { ...defaultFilters },
-    textStyles: typesetTextStyles,
-    layouts: typesetLayouts,
+    description: 'Nature-inspired, first block theme (WP 2022)',
+    preview: { style: 'botanical' },
+    fonts: { title: 'source-serif', body: 'inter' },
+    imageFilters: { ...defaultFilters, contrast: 102 },
+    textStyles: botanicalTextStyles,
+    layouts: botanicalLayouts,
   },
   {
-    id: 'brutalist',
-    name: 'Brutalist',
+    id: 'fluid',
+    name: 'Fluid',
     category: 'wordpress',
-    description: 'Sharp, high contrast, no decoration',
-    preview: { style: 'brutalist' },
-    fonts: { title: 'source-serif', body: 'libre-franklin' },
-    imageFilters: { ...defaultFilters, contrast: 112, brightness: 98 },
-    textStyles: brutalistTextStyles,
-    layouts: brutalistLayouts,
+    description: 'Community-designed, fluid typography (WP 2023)',
+    preview: { style: 'fluid' },
+    fonts: { title: 'dm-sans', body: 'dm-sans' },
+    imageFilters: { ...defaultFilters, contrast: 110 },
+    textStyles: fluidTextStyles,
+    layouts: fluidLayouts,
   },
   {
-    id: 'vivid',
-    name: 'Vivid',
+    id: 'editorial',
+    name: 'Editorial',
     category: 'wordpress',
-    description: 'Bold, warm, magazine-inspired color',
-    preview: { style: 'vivid' },
-    fonts: { title: 'bitter', body: 'source-sans' },
-    imageFilters: { ...defaultFilters, contrast: 108, brightness: 98 },
-    textStyles: vividTextStyles,
-    layouts: vividLayouts,
+    description: 'Warm earth serif, zero-CSS elegance (WP 2024)',
+    preview: { style: 'editorial' },
+    fonts: { title: 'cardo', body: 'inter' },
+    imageFilters: { ...defaultFilters, contrast: 102 },
+    textStyles: editorialTextStyles,
+    layouts: editorialLayouts,
+  },
+  {
+    id: 'flux',
+    name: 'Flux',
+    category: 'wordpress',
+    description: 'Dynamic, adaptive, ultimate flexibility (WP 2025)',
+    preview: { style: 'flux' },
+    fonts: { title: 'manrope', body: 'literata' },
+    imageFilters: { ...defaultFilters, contrast: 104 },
+    textStyles: fluxTextStyles,
+    layouts: fluxLayouts,
   },
 ]
 

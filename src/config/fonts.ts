@@ -130,6 +130,12 @@ export const fonts: FontEntry[] = [
     family: "'Noto Serif', serif",
     url: 'https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;600;700&display=swap'
   },
+  {
+    id: 'noto-sans',
+    name: 'Noto Sans',
+    family: "'Noto Sans', sans-serif",
+    url: 'https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;600;700&display=swap'
+  },
   // Display fonts
   {
     id: 'bebas-neue',
