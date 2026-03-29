@@ -2180,11 +2180,11 @@ const editorialTextStyles = {
 const fluxLayouts = buildLayouts(
   { imageOverlay: overlay('solid', 'primary', 10), textAlign: 'left', textVerticalAlign: 'center' },
   {
-    'hero': { imageOverlay: overlay('gradient-diagonal-br', 'primary', 30), textAlign: 'left', textVerticalAlign: 'end' },
-    'split-horizontal': { imageOverlay: overlay('gradient-diagonal-br', 'primary', 15), textAlign: 'left', textVerticalAlign: 'center' },
-    'split-vertical': { imageOverlay: overlay('gradient-diagonal-br', 'primary', 15), textAlign: 'left', textVerticalAlign: 'center' },
-    'golden-left': { imageOverlay: overlay('gradient-diagonal-br', 'primary', 12), textAlign: 'left', textVerticalAlign: 'center' },
-    'wide-feature': { imageOverlay: overlay('gradient-diagonal-br', 'primary', 25), textAlign: 'left', textVerticalAlign: 'end' },
+    'hero': { imageOverlay: overlay('gradient-br', 'primary', 30), textAlign: 'left', textVerticalAlign: 'end' },
+    'split-horizontal': { imageOverlay: overlay('gradient-br', 'primary', 15), textAlign: 'left', textVerticalAlign: 'center' },
+    'split-vertical': { imageOverlay: overlay('gradient-br', 'primary', 15), textAlign: 'left', textVerticalAlign: 'center' },
+    'golden-left': { imageOverlay: overlay('gradient-br', 'primary', 12), textAlign: 'left', textVerticalAlign: 'center' },
+    'wide-feature': { imageOverlay: overlay('gradient-br', 'primary', 25), textAlign: 'left', textVerticalAlign: 'end' },
     'tall-feature': { imageOverlay: overlay('gradient-bottom', 'primary', 25), textAlign: 'left', textVerticalAlign: 'end' },
   }
 )
@@ -2417,7 +2417,7 @@ export const lookPresets = [
     category: 'wordpress',
     description: 'Classic serif + sans blog pairing (WP 2016)',
     preview: { style: 'typeset' },
-    fonts: { title: 'merriweather', body: 'montserrat' },
+    fonts: { title: 'montserrat', body: 'merriweather' },
     imageFilters: { ...defaultFilters },
     textStyles: typesetTextStyles,
     layouts: typesetLayouts,
@@ -2507,7 +2507,7 @@ export const lookPresets = [
     category: 'wordpress',
     description: 'Dynamic, adaptive, ultimate flexibility (WP 2025)',
     preview: { style: 'flux' },
-    fonts: { title: 'manrope', body: 'literata' },
+    fonts: { title: 'manrope', body: 'manrope' },
     imageFilters: { ...defaultFilters, contrast: 104 },
     textStyles: fluxTextStyles,
     layouts: fluxLayouts,

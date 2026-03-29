@@ -115,7 +115,7 @@ Grid templates that change your structure without affecting colors or fonts:
 
 #### Themes
 Color schemes for your ad:
-- **Presets:** 12 pre-built color themes you can apply with one click
+- **Presets:** 20 pre-built color themes you can apply with one click
 - **Custom Colors:** Set your own primary, secondary, and accent colors
 
 **How to use:** Click a theme preset to apply it, or edit the custom color inputs to create your own palette.
@@ -264,7 +264,7 @@ Fine-tune your grid structure.
 Fine-tune typography, overlays, and spacing.
 
 #### Typography
-- **Title Font:** Choose from 15 Google Fonts for headlines
+- **Title Font:** Choose from 24 Google Fonts for headlines
 - **Body Font:** Choose a font for body text and smaller elements
 - **Preview:** See how fonts look before selecting
 

@@ -403,7 +403,7 @@ Core features working:
 - Per-cell structured text (guided mode):
   - Each cell has its own text elements: title, tagline, bodyHeading, bodyText, cta, footnote
   - Text elements organized in groups: Title+Tagline, Body, CTA, Footnote
-- Theme system with 12 color themes and custom colors
+- Theme system with 20 color themes and custom colors
 - Overlay system with 26 effects:
   - Basic: Solid color
   - Linear gradients: 8 directions (↑↓←→ and diagonals)
@@ -411,7 +411,7 @@ Core features working:
   - Effects: Blur Edges, Frame, Duotone
   - Blend modes: Multiply, Screen, Overlay, Color Burn
   - Textures: Noise, Film Grain
-- 15 Google Fonts (sans-serif, serif, display categories)
+- 24 Google Fonts (sans-serif, serif, display categories)
 - Export to 42 formats across 18 platform groups:
   - Social: Instagram (Feed Portrait/Square/Feed Landscape/Story), Facebook (Feed/Square/Story/Cover), TikTok, LinkedIn (Square/Portrait/Landscape), Twitter/X, Pinterest (Pin/Story), Snapchat (Ad/Story), WhatsApp (Status), Threads (Post/Story)
   - Website: Hero (Standard/Tall/Full HD), OG Image
@@ -537,8 +537,8 @@ src/
 │   ├── stylePresets.js   # Look presets (fonts + filters + overlay effects per layout + text styles)
 │   ├── platforms.js      # 42 formats across 18 platform groups (nested: platformGroups + flat: platforms)
 │   ├── sampleImages.ts   # CDN manifest URL for sample images (fetched at runtime)
-│   ├── themes.js         # 12 color themes
-│   ├── fonts.ts          # 15 Google Fonts (FontEntry interface)
+│   ├── themes.js         # 20 color themes
+│   ├── fonts.ts          # 24 Google Fonts (FontEntry interface)
 │   ├── textDefaults.ts   # Default text layer state (TextLayer, FreeformBlock interfaces)
 │   └── alignment.jsx     # Alignment icon components and option arrays
 ├── hooks/
@@ -653,7 +653,7 @@ text: {
 Entry point for users. Four sections:
 - **Platform** - Target size selector (Instagram, TikTok, LinkedIn, print, etc.) — sets canvas dimensions. Shown on mobile only (desktop has platform selector always visible above canvas).
 - **Layout** - Grid structure presets with aspect ratio filtering (All, Square, Portrait, Landscape) and category filtering
-- **Themes** - 12 preset color themes + custom color inputs
+- **Themes** - 20 preset color themes + custom color inputs
 - **Looks** - Visual effect presets that apply overlay, fonts, and filters without changing layout or colors
 
 ### Media Tab
