@@ -36,4 +36,18 @@ export const presetThemes = [
   // Bold
   { id: 'neon', name: 'Neon', primary: '#0f0f0f', secondary: '#00ff88', accent: '#ff00ff' },
   { id: 'candy', name: 'Candy', primary: '#ec4899', secondary: '#fdf2f8', accent: '#a855f7' },
+
+  // WordPress-inspired themes
+  // Requirement: Color palettes derived from WordPress default themes (2010–2025)
+  // Approach: Extracted primary/secondary/accent from each theme era's design tokens
+  // Alternatives: Using exact WP hex values — rejected for some where contrast
+  //   needed adjustment for use as overlay/text colors in CanvaGrid context
+  { id: 'wp-classic', name: 'Classic', primary: '#1a4548', secondary: '#ffffff', accent: '#ffe2c7' },      // TT22 — dark teal + peach
+  { id: 'wp-pastel', name: 'Pastel', primary: '#D1E4DD', secondary: '#28303D', accent: '#D1D1E4' },        // TT21 — sage green + purple pastels
+  { id: 'wp-warm', name: 'Warm', primary: '#e8e5ce', secondary: '#141412', accent: '#ca3c08' },             // TT13 — beige + orange-red
+  { id: 'wp-cream', name: 'Cream', primary: '#f5efe0', secondary: '#000000', accent: '#cd2653' },           // TT20 — warm cream + pink-red
+  { id: 'wp-editorial', name: 'Editorial', primary: '#f9f9f9', secondary: '#111111', accent: '#d8613c' },   // TT24 — clean + rust accent
+  { id: 'wp-midnight', name: 'Midnight', primary: '#111111', secondary: '#ffffff', accent: '#FFEE58' },     // TT25 default — dark + yellow
+  { id: 'wp-dusk', name: 'Dusk', primary: '#503AA8', secondary: '#ffffff', accent: '#F6CFF4' },             // TT25 — purple + lilac
+  { id: 'wp-grove', name: 'Grove', primary: '#345C00', secondary: '#ffffff', accent: '#9DFF20' },           // TT23 — dark green + neon green
 ]

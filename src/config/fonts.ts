@@ -55,6 +55,25 @@ export const fonts: FontEntry[] = [
     family: "'DM Sans', sans-serif",
     url: 'https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap'
   },
+  // WordPress theme fonts (sans-serif)
+  {
+    id: 'manrope',
+    name: 'Manrope',
+    family: "'Manrope', sans-serif",
+    url: 'https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;600;700&display=swap'
+  },
+  {
+    id: 'libre-franklin',
+    name: 'Libre Franklin',
+    family: "'Libre Franklin', sans-serif",
+    url: 'https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@300;400;700;800&display=swap'
+  },
+  {
+    id: 'source-sans',
+    name: 'Source Sans 3',
+    family: "'Source Sans 3', sans-serif",
+    url: 'https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@300;400;600;700&display=swap'
+  },
   // Serif fonts
   {
     id: 'playfair',
@@ -79,6 +98,37 @@ export const fonts: FontEntry[] = [
     name: 'Lora',
     family: "'Lora', serif",
     url: 'https://fonts.googleapis.com/css2?family=Lora:wght@400;600;700&display=swap'
+  },
+  // WordPress theme fonts (serif)
+  {
+    id: 'source-serif',
+    name: 'Source Serif 4',
+    family: "'Source Serif 4', serif",
+    url: 'https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@300;400;600;700&display=swap'
+  },
+  {
+    id: 'bitter',
+    name: 'Bitter',
+    family: "'Bitter', serif",
+    url: 'https://fonts.googleapis.com/css2?family=Bitter:wght@400;600;700&display=swap'
+  },
+  {
+    id: 'cardo',
+    name: 'Cardo',
+    family: "'Cardo', serif",
+    url: 'https://fonts.googleapis.com/css2?family=Cardo:wght@400;700&display=swap'
+  },
+  {
+    id: 'literata',
+    name: 'Literata',
+    family: "'Literata', serif",
+    url: 'https://fonts.googleapis.com/css2?family=Literata:wght@400;600;700&display=swap'
+  },
+  {
+    id: 'noto-serif',
+    name: 'Noto Serif',
+    family: "'Noto Serif', serif",
+    url: 'https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;600;700&display=swap'
   },
   // Display fonts
   {

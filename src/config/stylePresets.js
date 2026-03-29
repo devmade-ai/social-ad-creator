@@ -8,6 +8,27 @@ const defaultFilters = { grayscale: 0, sepia: 0, blur: 0, contrast: 100, brightn
 // Helper to create overlay config
 const overlay = (type, color, opacity) => ({ type, color, opacity })
 
+// All layout keys used in the app
+const ALL_LAYOUTS = [
+  'hero', 'split-horizontal', 'split-vertical',
+  'golden-left', 'golden-right', 'golden-top', 'golden-bottom',
+  'thirds-horizontal', 'thirds-vertical',
+  'quad-grid', 'l-shape-right', 'l-shape-left', 'l-shape-bottom', 'l-shape-top',
+  't-layout', 'inverted-t', 'feature-center', 'feature-middle',
+  'mosaic-left', 'mosaic-right', 'stacked-quad', 'sidebar-stack',
+  'header-quad', 'wide-feature', 'tall-feature', 'columns-four', 'asymmetric-grid',
+]
+
+// Helper to generate layout objects from defaults + overrides
+// Reduces boilerplate: specify a base style, then override specific layouts
+const buildLayouts = (base, overrides = {}) => {
+  const result = {}
+  for (const key of ALL_LAYOUTS) {
+    result[key] = overrides[key] || base
+  }
+  return result
+}
+
 // ============================================================================
 // CLEAN LOOK - Minimal overlay, crisp and clear
 // Philosophy: Let the content speak, subtle enhancements only where needed
@@ -1876,6 +1897,117 @@ const duotoneTextStyles = {
 }
 
 // ============================================================================
+// WORDPRESS-ERA LOOK PRESETS
+// Requirement: Visual looks inspired by WordPress default theme design eras
+// Approach: Font pairings, filter aesthetics, and overlay styles from WP themes
+// Alternatives:
+//   - Exact WP reproduction: Rejected — CanvaGrid overlays differ from WP CSS
+//   - Single "WordPress" look: Rejected — WP spans 15 years of distinct aesthetics
+// ============================================================================
+
+// --- Editorial (TT24 style) — warm, refined, serif headings ---
+const editorialLayouts = buildLayouts(
+  { imageOverlay: overlay('solid', 'primary', 10), textAlign: 'left', textVerticalAlign: 'center' },
+  {
+    'hero': { imageOverlay: overlay('gradient-bottom', 'primary', 35), textAlign: 'center', textVerticalAlign: 'end' },
+    'split-horizontal': { imageOverlay: overlay('solid', 'primary', 8), textAlign: 'left', textVerticalAlign: 'center' },
+    'golden-left': { imageOverlay: overlay('solid', 'primary', 8), textAlign: 'left', textVerticalAlign: 'center' },
+    'golden-right': { imageOverlay: overlay('solid', 'primary', 8), textAlign: 'left', textVerticalAlign: 'center' },
+    'wide-feature': { imageOverlay: overlay('gradient-bottom', 'primary', 30), textAlign: 'center', textVerticalAlign: 'end' },
+    'tall-feature': { imageOverlay: overlay('gradient-bottom', 'primary', 30), textAlign: 'left', textVerticalAlign: 'end' },
+  }
+)
+const editorialTextStyles = {
+  title: { color: 'secondary', bold: true },
+  tagline: { color: 'accent', bold: false },
+  bodyHeading: { color: 'secondary', bold: true },
+  bodyText: { color: 'secondary', bold: false },
+  cta: { color: 'accent', bold: true },
+  footnote: { color: 'gray', bold: false },
+}
+
+// --- Pastel (TT21 style) — soft, airy, system sans feel ---
+const pastelLayouts = buildLayouts(
+  { imageOverlay: overlay('solid', 'primary', 12), textAlign: 'center', textVerticalAlign: 'center' },
+  {
+    'hero': { imageOverlay: overlay('radial-soft', 'primary', 20), textAlign: 'center', textVerticalAlign: 'center' },
+    'split-vertical': { imageOverlay: overlay('solid', 'primary', 10), textAlign: 'left', textVerticalAlign: 'center' },
+    'golden-left': { imageOverlay: overlay('solid', 'primary', 10), textAlign: 'left', textVerticalAlign: 'center' },
+    'golden-right': { imageOverlay: overlay('solid', 'primary', 10), textAlign: 'left', textVerticalAlign: 'center' },
+    'sidebar-stack': { imageOverlay: overlay('solid', 'primary', 8), textAlign: 'left', textVerticalAlign: 'center' },
+  }
+)
+const pastelTextStyles = {
+  title: { color: 'secondary', bold: true },
+  tagline: { color: 'secondary', bold: false },
+  bodyHeading: { color: 'secondary', bold: true },
+  bodyText: { color: 'secondary', bold: false },
+  cta: { color: 'accent', bold: true },
+  footnote: { color: 'dark-gray', bold: false },
+}
+
+// --- Typeset (TT16 style) — classic blog feel, serif + sans pairing ---
+const typesetLayouts = buildLayouts(
+  { imageOverlay: overlay('solid', 'primary', 15), textAlign: 'left', textVerticalAlign: 'center' },
+  {
+    'hero': { imageOverlay: overlay('gradient-bottom', 'primary', 40), textAlign: 'left', textVerticalAlign: 'end' },
+    'split-horizontal': { imageOverlay: overlay('solid', 'primary', 12), textAlign: 'left', textVerticalAlign: 'center' },
+    'split-vertical': { imageOverlay: overlay('solid', 'primary', 12), textAlign: 'left', textVerticalAlign: 'center' },
+    'wide-feature': { imageOverlay: overlay('gradient-bottom', 'primary', 35), textAlign: 'left', textVerticalAlign: 'end' },
+    'quad-grid': { imageOverlay: overlay('solid', 'primary', 10), textAlign: 'center', textVerticalAlign: 'center' },
+  }
+)
+const typesetTextStyles = {
+  title: { color: 'secondary', bold: true },
+  tagline: { color: 'secondary', bold: false },
+  bodyHeading: { color: 'secondary', bold: true },
+  bodyText: { color: 'secondary', bold: false },
+  cta: { color: 'accent', bold: true },
+  footnote: { color: 'gray', bold: false },
+}
+
+// --- Brutalist (TT22/23 style) — sharp, high contrast, minimal decoration ---
+const brutalistLayouts = buildLayouts(
+  { imageOverlay: overlay('solid', 'primary', 0), textAlign: 'left', textVerticalAlign: 'end' },
+  {
+    'hero': { imageOverlay: overlay('solid', 'primary', 20), textAlign: 'left', textVerticalAlign: 'end' },
+    'split-horizontal': { imageOverlay: overlay('solid', 'primary', 0), textAlign: 'left', textVerticalAlign: 'end' },
+    'split-vertical': { imageOverlay: overlay('solid', 'primary', 0), textAlign: 'left', textVerticalAlign: 'end' },
+    'wide-feature': { imageOverlay: overlay('solid', 'primary', 15), textAlign: 'left', textVerticalAlign: 'end' },
+    'tall-feature': { imageOverlay: overlay('solid', 'primary', 15), textAlign: 'left', textVerticalAlign: 'end' },
+  }
+)
+const brutalistTextStyles = {
+  title: { color: 'secondary', bold: true },
+  tagline: { color: 'secondary', bold: false },
+  bodyHeading: { color: 'secondary', bold: true },
+  bodyText: { color: 'secondary', bold: false },
+  cta: { color: 'accent', bold: true },
+  footnote: { color: 'gray', bold: false },
+}
+
+// --- Vivid (TT13 style) — warm, bold, colorful, magazine-inspired ---
+const vividLayouts = buildLayouts(
+  { imageOverlay: overlay('solid', 'accent', 18), textAlign: 'center', textVerticalAlign: 'center' },
+  {
+    'hero': { imageOverlay: overlay('gradient-bottom', 'accent', 45), textAlign: 'center', textVerticalAlign: 'end' },
+    'split-horizontal': { imageOverlay: overlay('solid', 'accent', 15), textAlign: 'center', textVerticalAlign: 'center' },
+    'split-vertical': { imageOverlay: overlay('solid', 'accent', 15), textAlign: 'left', textVerticalAlign: 'center' },
+    'golden-left': { imageOverlay: overlay('gradient-right', 'accent', 25), textAlign: 'left', textVerticalAlign: 'center' },
+    'golden-right': { imageOverlay: overlay('gradient-left', 'accent', 25), textAlign: 'left', textVerticalAlign: 'center' },
+    'wide-feature': { imageOverlay: overlay('gradient-bottom', 'accent', 40), textAlign: 'center', textVerticalAlign: 'end' },
+  }
+)
+const vividTextStyles = {
+  title: { color: 'white', bold: true },
+  tagline: { color: 'off-white', bold: false },
+  bodyHeading: { color: 'white', bold: true },
+  bodyText: { color: 'off-white', bold: false },
+  cta: { color: 'accent', bold: true },
+  footnote: { color: 'light-gray', bold: false },
+}
+
+// ============================================================================
 // LOOK PRESETS ARRAY
 // ============================================================================
 
@@ -2018,6 +2150,64 @@ export const lookPresets = [
     imageFilters: { ...defaultFilters, contrast: 110, brightness: 95 },
     textStyles: duotoneTextStyles,
     layouts: duotoneLayouts,
+  },
+
+  // ========== WORDPRESS-ERA CATEGORY ==========
+  // Requirement: Look presets inspired by WordPress default theme design eras
+  {
+    id: 'editorial',
+    name: 'Editorial',
+    category: 'wordpress',
+    description: 'Warm serif elegance, refined and readable',
+    preview: { style: 'editorial' },
+    fonts: { title: 'cardo', body: 'inter' },
+    imageFilters: { ...defaultFilters, contrast: 102, brightness: 100 },
+    textStyles: editorialTextStyles,
+    layouts: editorialLayouts,
+  },
+  {
+    id: 'pastel',
+    name: 'Pastel',
+    category: 'wordpress',
+    description: 'Soft colors, airy and minimal',
+    preview: { style: 'pastel' },
+    fonts: { title: 'manrope', body: 'manrope' },
+    imageFilters: { ...defaultFilters, contrast: 95, brightness: 105 },
+    textStyles: pastelTextStyles,
+    layouts: pastelLayouts,
+  },
+  {
+    id: 'typeset',
+    name: 'Typeset',
+    category: 'wordpress',
+    description: 'Classic serif + sans, traditional blog aesthetic',
+    preview: { style: 'typeset' },
+    fonts: { title: 'merriweather', body: 'source-sans' },
+    imageFilters: { ...defaultFilters },
+    textStyles: typesetTextStyles,
+    layouts: typesetLayouts,
+  },
+  {
+    id: 'brutalist',
+    name: 'Brutalist',
+    category: 'wordpress',
+    description: 'Sharp, high contrast, no decoration',
+    preview: { style: 'brutalist' },
+    fonts: { title: 'source-serif', body: 'libre-franklin' },
+    imageFilters: { ...defaultFilters, contrast: 112, brightness: 98 },
+    textStyles: brutalistTextStyles,
+    layouts: brutalistLayouts,
+  },
+  {
+    id: 'vivid',
+    name: 'Vivid',
+    category: 'wordpress',
+    description: 'Bold, warm, magazine-inspired color',
+    preview: { style: 'vivid' },
+    fonts: { title: 'bitter', body: 'source-sans' },
+    imageFilters: { ...defaultFilters, contrast: 108, brightness: 98 },
+    textStyles: vividTextStyles,
+    layouts: vividLayouts,
   },
 ]
 
