@@ -82,10 +82,11 @@ export default defineConfig({
             }
           },
           {
-            urlPattern: /^https:\/\/cdn\.jsdelivr\.net\/gh\/devmade-ai\/canva-grid-assets\/.*manifest\.json$/i,
-            handler: 'StaleWhileRevalidate',
+            urlPattern: /^https:\/\/cdn\.jsdelivr\.net\/gh\/devmade-ai\/canva-grid-assets(@[^/]+)?\/.*manifest\.json$/i,
+            handler: 'NetworkFirst',
             options: {
               cacheName: 'sample-manifest-cache',
+              networkTimeoutSeconds: 5,
               expiration: {
                 maxEntries: 1,
                 maxAgeSeconds: 60 * 60 * 24 * 7 // 7 days
@@ -96,7 +97,7 @@ export default defineConfig({
             }
           },
           {
-            urlPattern: /^https:\/\/cdn\.jsdelivr\.net\/gh\/devmade-ai\/canva-grid-assets\/.*/i,
+            urlPattern: /^https:\/\/cdn\.jsdelivr\.net\/gh\/devmade-ai\/canva-grid-assets(@[^/]+)?\/.*/i,
             handler: 'CacheFirst',
             options: {
               cacheName: 'sample-images-cache',
