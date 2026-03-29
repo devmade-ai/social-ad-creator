@@ -82,7 +82,7 @@ export default defineConfig({
             }
           },
           {
-            urlPattern: /^https:\/\/cdn\.jsdelivr\.net\/gh\/devmade-ai\/canva-grid-assets\/.*manifest\.json$/i,
+            urlPattern: /^https:\/\/cdn\.jsdelivr\.net\/gh\/devmade-ai\/canva-grid-assets(@[^/]+)?\/.*manifest\.json$/i,
             handler: 'StaleWhileRevalidate',
             options: {
               cacheName: 'sample-manifest-cache',
@@ -96,7 +96,7 @@ export default defineConfig({
             }
           },
           {
-            urlPattern: /^https:\/\/cdn\.jsdelivr\.net\/gh\/devmade-ai\/canva-grid-assets\/.*/i,
+            urlPattern: /^https:\/\/cdn\.jsdelivr\.net\/gh\/devmade-ai\/canva-grid-assets(@[^/]+)?\/.*/i,
             handler: 'CacheFirst',
             options: {
               cacheName: 'sample-images-cache',
