@@ -34,13 +34,18 @@ export default function SampleImagesSection({ images, onAddImage, selectedCell, 
     setManifestLoading(true)
     setManifestError(null)
     try {
-      const response = await fetch(SAMPLE_MANIFEST_URL)
+      // Cache-bust: append hourly timestamp to bypass jsDelivr CDN edge cache
+      // and browser HTTP cache. Without this, @main URLs can serve stale content
+      // for up to 24 hours even with NetworkFirst SW strategy.
+      const cacheBust = Math.floor(Date.now() / (1000 * 60 * 60)) // changes hourly
+      const url = `${SAMPLE_MANIFEST_URL}?v=${cacheBust}`
+      const response = await fetch(url)
       if (!response.ok) throw new Error(`HTTP ${response.status}`)
       const data = await response.json()
       setManifest(data)
       debugLog('media', 'manifest-loaded', { images: data.images?.length, categories: data.categories?.length })
     } catch (error) {
-      debugLog('media', 'manifest-error', { error: error.message, url: SAMPLE_MANIFEST_URL }, 'error')
+      debugLog('media', 'manifest-error', { error: error.message, url }, 'error')
       setManifestError('Could not load sample images. Check your connection.')
     } finally {
       setManifestLoading(false)
