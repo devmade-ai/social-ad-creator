@@ -82,7 +82,7 @@ export default defineConfig({
             }
           },
           {
-            urlPattern: /^https:\/\/cdn\.jsdelivr\.net\/gh\/devmade-ai\/canva-grid-assets(@[^/]+)?\/.*manifest\.json$/i,
+            urlPattern: /^https:\/\/cdn\.jsdelivr\.net\/gh\/devmade-ai\/canva-grid-assets(@[^/]+)?\/.*manifest\.json(\?.*)?$/i,
             handler: 'NetworkFirst',
             options: {
               cacheName: 'sample-manifest-cache',
