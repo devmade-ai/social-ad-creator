@@ -214,8 +214,8 @@ function App() {
 
   const platform = platforms.find((p) => p.id === state.platform) || platforms[0]
 
-  // Requirement: Lazy-load fonts to reduce initial HTTP requests from 15 to 2.
-  // Approach: Only load the 2 active fonts (title + body) on mount. Load all 15
+  // Requirement: Lazy-load fonts to reduce initial HTTP requests to 2.
+  // Approach: Only load the 2 active fonts (title + body) on mount. Load all
   //   when user opens the font picker in StyleTab, so font previews work.
   // Alternatives:
   //   - Load on font change only: Rejected — font preview in picker needs all fonts loaded.

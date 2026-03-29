@@ -32,7 +32,7 @@ const tutorialSteps = [
           </li>
           <li className="flex gap-2">
             <span className="text-violet-500">•</span>
-            <span><strong>Themes:</strong> Pick a color scheme from 12 presets, or set your own custom colors.</span>
+            <span><strong>Themes:</strong> Pick a color scheme from 20 presets, or set your own custom colors.</span>
           </li>
           <li className="flex gap-2">
             <span className="text-violet-500">•</span>

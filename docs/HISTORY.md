@@ -1,5 +1,26 @@
 # Changelog
 
+## 2026-03-29
+
+### WordPress design token integration
+
+Added fonts, color themes, and look presets derived from the WordPress default theme design tokens document (2010–2025).
+
+**Fonts (9 new, 24 total):**
+- Sans-serif: Manrope (TT25), Libre Franklin (TT17), Source Sans 3 (TT13), Noto Sans (TT15)
+- Serif: Source Serif 4 (TT22), Bitter (TT13), Cardo (TT24), Literata (TT25), Noto Serif (TT15)
+
+**Color themes (8 new, 20 total):**
+- Classic (TT22 teal+peach), Sage (TT21 green pastels), Warm (TT13 beige+orange), Cream (TT20 warm+pink), Parchment (TT24 white+rust), Midnight (TT25 dark+yellow), Dusk (TT25 purple+lilac), Grove (TT23 green+neon)
+
+**Look presets (15 new, 27 total):**
+- One per WP default theme year: Heritage (2010), Neutral (2011), Airy (2012), Vivid (2013), Magazine (2014), Readable (2015), Typeset (2016), Enterprise (2017), Gutenberg (2019), Warmth (2020), Pastel (2021), Botanical (2022), Fluid (2023), Editorial (2024), Flux (2025)
+
+**Infrastructure:**
+- `buildLayouts(base, overrides)` helper reduces per-look layout boilerplate from ~150 lines to ~15
+- 9-point verification: font accuracy, Google Fonts availability, overlay validity, WCAG contrast, ID uniqueness, name collisions, font refs, build/tests, doc counts
+- Renamed 3 themes (Minimal→Muted, Pastel→Sage, Editorial→Parchment) to avoid name overlap with look presets
+
 ## 2026-03-28
 
 ### Remaining TODO items completed

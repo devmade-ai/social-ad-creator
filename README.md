@@ -8,7 +8,7 @@ A browser-based visual design tool. Upload images, add text overlays, choose lay
 
 ### Presets
 - **Layout** - Grid structure presets with aspect ratio filtering
-- **Themes** - 12 color schemes plus custom color inputs
+- **Themes** - 20 color schemes plus custom color inputs
 - **Looks** - One-click visual presets that apply fonts, filters, overlay, and text styles without changing layout or colors
 
 ### Media
@@ -38,7 +38,7 @@ Each text element supports: visibility toggle, cell placement, alignment, color,
 - **Text Alignment** - Per-cell or global horizontal and vertical alignment
 
 ### Style
-- **Typography** - 15 Google Fonts (sans-serif, serif, display categories) with separate title and body font selection
+- **Typography** - 24 Google Fonts (sans-serif, serif, display categories) with separate title and body font selection
 - **Overlay** - Per-cell overlay with 26 effects (solid, 8 gradient directions, radial variants, blend modes, textures) with adjustable opacity
 - **Spacing** - Global padding plus per-cell custom padding, outer frame and cell frames
 
