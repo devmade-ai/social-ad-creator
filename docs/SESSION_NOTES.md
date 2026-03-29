@@ -5,36 +5,27 @@ Compact context summary for session continuity. Rewrite at session end.
 ---
 
 ## Worked on
-Full code review/audit sweep (`start` trigger) + 6 TODO items implemented.
+WordPress design token integration — adding fonts, themes, and look presets derived from 15 years of WP default themes.
 
 ## Accomplished
 
-1. **Code review (rev)** — 12 findings fixed across 10 components
-2. **Code audit (aud)** — 5 findings: concurrent export mutex, loadDesign field filtering, extractPageData try/catch, cellUtils NaN guard, debugLog HMR guard
-3. **Documentation audit (doc)** — 7 discrepancies fixed across CLAUDE.md, TODO.md, TutorialModal, SESSION_NOTES, HISTORY
-4. **Mobile UX (tap)** — 4 touch target improvements (ContextBar page buttons, PageDot, export format, clear text)
-5. **Code hygiene (cln)** — Extracted `normalizeStructure()` to cellUtils.js (replaced 7 duplicates across 4 files)
-6. **TODO items implemented (6):**
-   - Unassigned image feedback (toast when all cells occupied)
-   - Accessibility pass (~20 elements, 5 files)
-   - Phase 4: Platform format data (15 new formats, 7 groups, ecommerce category)
-   - Lazy font loading (2 fonts on mount, 13 on-demand)
-   - Looks per-element text styling (textStyles on all 20 presets)
-   - Calculate imageAspectRatio (suggested layouts adapt to image orientation)
+1. **9 new Google Fonts** — Manrope, Libre Franklin, Source Sans 3, Source Serif 4, Bitter, Cardo, Literata, Noto Serif, Noto Sans (total: 24)
+2. **8 new color themes** — Classic, Sage, Warm, Cream, Parchment, Midnight, Dusk, Grove (total: 20, all WP-prefixed IDs)
+3. **15 WordPress-era look presets** — One per default theme year (2010–2025, skip 2018): Heritage, Neutral, Airy, Vivid, Magazine, Readable, Typeset, Enterprise, Gutenberg, Warmth, Pastel, Botanical, Fluid, Editorial, Flux (total: 27 looks)
+4. **buildLayouts helper** — Reduces per-look layout boilerplate from ~150 lines to ~15 lines using base + overrides pattern
+5. **9-point verification** — Font pairing accuracy, Google Fonts availability, overlay type validity, color contrast (all AAA), ID uniqueness, name collisions, font ID refs, build/tests, hardcoded counts
+6. **Fixes from verification** — Typeset fonts were reversed, Flux had invalid overlay type (`gradient-diagonal-br` → `gradient-br`) and wrong body font (literata → manrope), 12 hardcoded counts updated across 5 files
+7. **Theme renames** — Minimal→Muted, Pastel→Sage, Editorial→Parchment to avoid name overlap with look presets
 
 ## Current state
 
-- **Working** — Build passes clean, all changes on `claude/stoic-gauss-kKRxs`
-- Sweep progress: rev, aud, doc, tap, cln done. Next: perf, sec, dbg, imp
-- 6 TODO items completed and moved to HISTORY.md
-- TODO.md reduced from 13 items to 7 (6 done, pinch-to-zoom declined)
+- **Working** — Build passes, 56/56 tests pass, all changes on `claude/test-image-upload-commit-HsNQr`
+- All 4 commits pushed to remote
 
 ## Key context
 
-- `addImage()` now returns `{ id, assigned }` instead of just `id` — all 4 callers in MediaTab updated
-- `fontsToLoad` useMemo in App.jsx filters to active fonts; `allFontsLoaded` flag triggers full load
-- `CollapsibleSection` has new `onExpand` prop (used by StyleTab Fonts section)
-- `platforms.js` now has 18 groups / 42 formats with 'ecommerce' category
-- `stylePresets.js` has `textStyles` per look; `applyStylePreset` in useAdState merges them into text elements
-- `imageAspectRatio` derived in App.jsx, passed to TemplatesTab for layout suggestions
-- Platform counts in CLAUDE.md need updating (was 27 formats / 12 groups → now 42 / 18)
+- `buildLayouts(base, overrides)` in stylePresets.js generates all 27 layout entries from a default + specific overrides. Uses `ALL_LAYOUTS` constant that must stay in sync with layoutPresets.js.
+- WP theme IDs use `wp-` prefix (e.g., `wp-pastel`) to avoid collision with look preset IDs (e.g., `pastel`)
+- Literata font is in fonts.ts but not used by any look preset (available for manual user selection)
+- Lazy font loading (App.jsx) now has 24 fonts instead of 15 — only 2 load on mount, rest on-demand
+- HISTORY.md line 45 references "20 look presets" — now 27 (historical reference, left as-is)
