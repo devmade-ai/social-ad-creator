@@ -6,7 +6,6 @@
 //   - Inline in MediaTab: Rejected — adds ~250 lines to an already large file.
 import { useCallback, useRef, useState, useMemo, useEffect } from 'react'
 import { SAMPLE_MANIFEST_URL } from '../config/sampleImages'
-import { debugLog } from '../utils/debugLog'
 
 const SAMPLES_PER_PAGE = 15
 
@@ -43,9 +42,7 @@ export default function SampleImagesSection({ images, onAddImage, selectedCell, 
       if (!response.ok) throw new Error(`HTTP ${response.status}`)
       const data = await response.json()
       setManifest(data)
-      debugLog('media', 'manifest-loaded', { images: data.images?.length, categories: data.categories?.length })
     } catch (error) {
-      debugLog('media', 'manifest-error', { error: error.message, url }, 'error')
       setManifestError('Could not load sample images. Check your connection.')
     } finally {
       setManifestLoading(false)
