@@ -83,9 +83,10 @@ export default defineConfig({
           },
           {
             urlPattern: /^https:\/\/cdn\.jsdelivr\.net\/gh\/devmade-ai\/canva-grid-assets(@[^/]+)?\/.*manifest\.json$/i,
-            handler: 'StaleWhileRevalidate',
+            handler: 'NetworkFirst',
             options: {
               cacheName: 'sample-manifest-cache',
+              networkTimeoutSeconds: 5,
               expiration: {
                 maxEntries: 1,
                 maxAgeSeconds: 60 * 60 * 24 * 7 // 7 days
