@@ -2,6 +2,16 @@
 
 ## 2026-03-30
 
+### Dark mode hardening (glow-props alignment)
+
+4 high-priority items from glow-props Suggested Implementations → Theme & Dark Mode:
+
+- **Cross-tab dark mode sync** — Added `storage` event listener to `useDarkMode.js`. Toggling in one tab now updates all other open tabs.
+- **Dynamic meta theme-color update** — Replaced single static `<meta name="theme-color" content="#7c3aed">` in `index.html` with two media-queried tags (light=#FAFAFA, dark=#0F0F23). Hook updates both via `querySelectorAll` on manual toggle.
+- **Dark mode flash prevention** — Added inline classic script in `index.html` that applies `.dark` from localStorage before first paint, preventing white flash for dark mode users.
+- **`color-scheme: dark` on `html.dark`** — Added CSS rule so native `<select>`, `<input>`, scrollbars match dark theme.
+- **Safe localStorage access** — Wrapped all `localStorage` calls in `useDarkMode.js` with `safeStorageGet`/`safeStorageSet` try/catch helpers. Prevents crashes in sandboxed iframes and enterprise browsers.
+
 ### TODO cleanup
 
 - Removed "Wire App.jsx layout components" from TODO — already completed (2026-03-28), App.jsx delegates to ReaderMode/MobileLayout/DesktopLayout

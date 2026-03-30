@@ -6,13 +6,6 @@ Future enhancements and ideas for CanvaGrid.
 
 ## Prioritized Improvements
 
-### High Priority (Quick Wins from glow-props alignment)
-
-- [ ] **Cross-tab dark mode sync** — Add `storage` event listener to `useDarkMode.js` so toggling dark mode in one tab updates all other open tabs. ~10 lines. Without this, tabs show different themes until manually refreshed. Pattern: glow-props Suggested Implementations → Theme & Dark Mode.
-- [ ] **Dynamic meta theme-color update** — In `useDarkMode.js` effect, update all `<meta name="theme-color">` tags via `querySelectorAll` on toggle. ~5 lines. Without this, Android Chrome address bar stays wrong color after manual dark mode toggle. Pattern: glow-props Suggested Implementations → Theme & Dark Mode.
-- [ ] **`color-scheme: dark` on `html.dark`** — Add `html.dark { color-scheme: dark; }` to CSS. 1 line. Without this, native `<select>`, `<input>`, and scrollbars stay light-themed in dark mode. Visible in platform selector, font selectors, text inputs.
-- [ ] **Safe localStorage access** — Wrap all direct `localStorage.getItem`/`setItem` calls in `useDarkMode.js` and `usePWAInstall.js` with try/catch helpers (`safeStorageGet`/`safeStorageSet`). Prevents crashes in sandboxed iframes and enterprise browsers that disable storage. Pattern: glow-props Suggested Implementations → Theme & Dark Mode.
-
 ### Medium Priority
 
 | Item | Effort | Description |
