@@ -31,17 +31,3 @@ Future enhancements and ideas for CanvaGrid.
 
 - [ ] **`no-print` utility class + print CSS** — Add `@media print` rules: `.no-print { display: none !important; }`, force white bg/black text, `break-inside: avoid` on sections. canva-grid uses pdf-lib for export, but this prevents garbage output if a user hits Ctrl+P. Near-zero effort. Pattern: glow-props Suggested Implementations → Download as PDF → Print-Friendly CSS.
 
----
-
-## Considered & Declined
-
-| Item | Reason |
-|------|--------|
-| Pinch-to-zoom on canvas | Canvas already fits viewport at full resolution. Zooming into a portion has no clear value for a static design tool. Complex gesture conflicts with page swipe (which is more useful). High complexity, low ROI. |
-| Template gallery with complete designs | Save/load now exists (IndexedDB). Still declined: base64 images make templates heavy, and layout+theme+look presets already cover most starting points. Would need a separate lightweight template format without embedded images. |
-| Looks define text visibility per layout | Visibility feels like layout's job, not a "look". Could confuse users. |
-| Animation preview for story formats | High complexity, low ROI for a static design tool. Out of scope. |
-| Aspect ratio lock for custom sizes | 20 platform presets already cover most use cases. Niche need. |
-| Image cropping within frame | Repositioning exists with preset grid + X/Y sliders (both implemented). True cropping would need a crop UI with handles — revisit if users request it. |
-| Memoize getOverlayStyle / renderCellImage | These run per-cell per-render but the cost is trivial (simple object creation). Memoizing would add complexity without measurable gain. Revisit only if profiling shows bottleneck. |
-| Inline onClick handlers in .map() loops | Present across many tab components. Extracting to useCallback would add boilerplate with no measurable perf gain — these lists are small (< 20 items) and React handles this fine. |

@@ -10,6 +10,20 @@
 - Updated "Template gallery" declined reason — removed stale "revisit after save/load" since save/load is implemented
 - Updated "Image cropping" declined reason — removed "sliders planned" since X/Y sliders are implemented
 - Added 8 glow-props alignment items (cross-tab sync, meta theme-color, color-scheme, safe localStorage, timer leaks, z-index scale, burger menu a11y, print CSS)
+- Moved "Considered & Declined" section from TODO.md to HISTORY.md — decision records, not actionable work
+
+### Declined Feature Decisions
+
+| Item | Reason |
+|------|--------|
+| Pinch-to-zoom on canvas | Canvas fits viewport at full resolution. Complex gesture conflicts with page swipe. High complexity, low ROI. |
+| Template gallery with complete designs | Base64 images make templates heavy. Layout+theme+look presets cover most starting points. Would need a lightweight format without embedded images. |
+| Looks define text visibility per layout | Visibility is a user content choice, not a style preset decision. Could confuse users. |
+| Animation preview for story formats | High complexity, low ROI for a static design tool. Out of scope. |
+| Aspect ratio lock for custom sizes | 42 platform presets cover most use cases. Niche need. |
+| Image cropping within frame | Repositioning with preset grid + X/Y sliders covers the use case. True cropping needs a crop UI — revisit if users request. |
+| Memoize getOverlayStyle / renderCellImage | Cost is trivial (simple object creation per cell per render). Memoizing adds complexity without measurable gain. |
+| Inline onClick handlers in .map() loops | Lists are small (< 20 items). Extracting to useCallback adds boilerplate with no measurable perf gain. |
 
 ## 2026-03-29
 

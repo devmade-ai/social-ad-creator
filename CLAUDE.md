@@ -162,6 +162,7 @@ These footers are required on every commit. No exceptions.
 - Use `- [ ]` for pending items only
 - Brief description of what and why
 - When complete, move to HISTORY.md (don't keep in TODO)
+- Declined/rejected ideas go to HISTORY.md as decision records, not TODO
 
 **Why:** User reviews this to prioritize work. Keeps TODO focused on pending items only.
 
