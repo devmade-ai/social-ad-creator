@@ -20,10 +20,10 @@ function safeStorageSet(key, value) {
   try { localStorage.setItem(key, value) } catch { /* sandboxed iframe, disabled storage */ }
 }
 
-// Meta theme-color values — must match --color-surface tokens in index.css.
-// Light = body background (#FAFAFA), Dark = dark-page (#0F0F23).
-const THEME_COLOR_LIGHT = '#FAFAFA'
-const THEME_COLOR_DARK = '#0F0F23'
+// Meta theme-color values — brand purple for PWA status bar / browser chrome.
+// Light = violet-600 (#7c3aed), Dark = violet-950 (#2e1065).
+const THEME_COLOR_LIGHT = '#7c3aed'
+const THEME_COLOR_DARK = '#2e1065'
 
 export function useDarkMode() {
   const [isDark, setIsDark] = useState(() => {
