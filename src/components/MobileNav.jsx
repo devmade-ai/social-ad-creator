@@ -69,7 +69,7 @@ export default memo(function MobileNav({ activeTab, sheetOpen, onTabChange }) {
   return (
     <nav
       aria-label="Main navigation"
-      className="fixed bottom-0 left-0 right-0 z-50 bg-white/95 dark:bg-dark-card/95 backdrop-blur-sm border-t border-zinc-200/60 dark:border-zinc-700/60"
+      className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-dark-card/95 backdrop-blur-sm border-t border-zinc-200/60 dark:border-zinc-700/60"
       style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
     >
       <div className="flex items-center justify-around">

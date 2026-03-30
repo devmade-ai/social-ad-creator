@@ -7,7 +7,12 @@
     <meta name="description" content="CanvaGrid - Create social media ads for LinkedIn, Facebook, Instagram, Twitter/X, and TikTok" />
 
     <!-- PWA -->
-    <meta name="theme-color" content="#7c3aed" />
+    <!-- Two meta theme-color tags with media queries cover both OS preferences
+         before JS loads. A single tag can't adapt. Values match body background
+         colors in index.css (light=#FAFAFA, dark=#0F0F23). The useDarkMode hook
+         dynamically updates both on manual toggle via querySelectorAll. -->
+    <meta name="theme-color" content="#FAFAFA" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0F0F23" media="(prefers-color-scheme: dark)" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="CanvaGrid" />
@@ -15,6 +20,23 @@
     <link rel="icon" type="image/svg+xml" href="/icon.svg" />
     <link rel="icon" type="image/png" sizes="48x48" href="/favicon.png" />
     <link rel="icon" type="image/png" sizes="192x192" href="/pwa-192x192.png" />
+
+    <!-- Dark mode flash prevention — apply .dark class before first paint.
+         The useDarkMode hook runs after React mounts, too late to prevent a
+         white flash for dark mode users. This inline classic (non-module) script
+         reads localStorage and applies .dark during HTML parse.
+         Must duplicate the same localStorage key and matchMedia logic as the hook. -->
+    <script>
+      (function() {
+        try {
+          var stored = localStorage.getItem('darkMode');
+          var isDark = stored !== null
+            ? stored === 'true'
+            : window.matchMedia('(prefers-color-scheme: dark)').matches;
+          if (isDark) document.documentElement.classList.add('dark');
+        } catch(e) {}
+      })();
+    </script>
 
     <!-- Capture PWA install prompt before framework mounts.
          Requirement: beforeinstallprompt can fire before React hydrates on cached SW repeat visits.

@@ -1,5 +1,73 @@
 # Changelog
 
+## 2026-03-30
+
+### Dark mode hardening (glow-props alignment)
+
+4 high-priority items from glow-props Suggested Implementations → Theme & Dark Mode:
+
+- **Cross-tab dark mode sync** — Added `storage` event listener to `useDarkMode.js`. Toggling in one tab now updates all other open tabs.
+- **Dynamic meta theme-color update** — Replaced single static `<meta name="theme-color" content="#7c3aed">` in `index.html` with two media-queried tags (light=#FAFAFA, dark=#0F0F23). Hook updates both via `querySelectorAll` on manual toggle.
+- **Dark mode flash prevention** — Added inline classic script in `index.html` that applies `.dark` from localStorage before first paint, preventing white flash for dark mode users.
+- **`color-scheme: dark` on `html.dark`** — Added CSS rule so native `<select>`, `<input>`, scrollbars match dark theme.
+- **Safe localStorage access** — Wrapped all `localStorage` calls in `useDarkMode.js` with `safeStorageGet`/`safeStorageSet` try/catch helpers. Prevents crashes in sandboxed iframes and enterprise browsers.
+
+### Z-index scale standardization (glow-props alignment)
+
+Aligned all 21 z-index values across 11 files to the glow-props canonical scale:
+
+| Layer | Z-Index | Elements |
+|-------|---------|----------|
+| Canvas internals | 0-10 | Text wrappers, frames, overlays, logo, export overlay |
+| Sticky headers | 20 | Desktop tab nav, context bar |
+| Sheets/drawers | 30 | BottomSheet, cell context menu |
+| Fixed bottom nav | 40 | MobileNav |
+| Menu backdrop | 40 | Burger menu backdrop |
+| Menu dropdown / header | 50 | Burger menu card, mobile header (when menu open) |
+| Modals | 60 | SaveLoad, Tutorial, InstallInstructions, KeyboardShortcuts |
+| Toasts / tooltips | 70 | Toast notifications, Tooltip popovers |
+| Debug | 80 | DebugPill (dev only) |
+
+### Burger menu disclosure pattern (glow-props alignment)
+
+Extracted `BurgerMenu.jsx` from inline MobileLayout code. Applied glow-props Suggested Implementations → Burger Menu pattern:
+
+- **Disclosure semantics**: Replaced incorrect `role="menu"`/`role="menuitem"` with `<nav>` + `<ul>/<li>`. ARIA menu pattern causes screen readers to enter forms mode.
+- **`useId()`**: Unique `aria-controls` linking trigger to menu.
+- **`cursor-pointer` on backdrop**: iOS Safari fix — empty divs don't receive click events without it.
+- **`hasBeenOpenRef` focus guard**: Prevents stealing focus on initial mount.
+- **`overscroll-contain`**: Prevents scroll chaining without touching body overflow.
+- **`max-w-[calc(100vw-2rem)]`**: Prevents viewport overflow on narrow screens.
+- **Escape key handler**: Closes menu on Escape.
+- **Focus management**: First item focused on open, trigger refocused on close.
+
+### Timer leak audit
+
+Audited all 9 `useEffect` hooks with `setTimeout`/`setInterval` across the codebase. All have proper cleanup functions. No nested timeouts found. No changes needed.
+
+### TODO cleanup
+
+- Removed "Wire App.jsx layout components" from TODO — already completed (2026-03-28), App.jsx delegates to ReaderMode/MobileLayout/DesktopLayout
+- Updated "TypeScript migration" — corrected description to reflect actual state (~30% config, ~11% utils, 0% hooks/components)
+- Updated "Expand unit test coverage" — corrected from "27 tests, 2 files" to "56 tests, 5 files" and updated untested targets
+- Updated "Template gallery" declined reason — removed stale "revisit after save/load" since save/load is implemented
+- Updated "Image cropping" declined reason — removed "sliders planned" since X/Y sliders are implemented
+- Added 8 glow-props alignment items (cross-tab sync, meta theme-color, color-scheme, safe localStorage, timer leaks, z-index scale, burger menu a11y, print CSS)
+- Moved "Considered & Declined" section from TODO.md to HISTORY.md — decision records, not actionable work
+
+### Declined Feature Decisions
+
+| Item | Reason |
+|------|--------|
+| Pinch-to-zoom on canvas | Canvas fits viewport at full resolution. Complex gesture conflicts with page swipe. High complexity, low ROI. |
+| Template gallery with complete designs | Base64 images make templates heavy. Layout+theme+look presets cover most starting points. Would need a lightweight format without embedded images. |
+| Looks define text visibility per layout | Visibility is a user content choice, not a style preset decision. Could confuse users. |
+| Animation preview for story formats | High complexity, low ROI for a static design tool. Out of scope. |
+| Aspect ratio lock for custom sizes | 42 platform presets cover most use cases. Niche need. |
+| Image cropping within frame | Repositioning with preset grid + X/Y sliders covers the use case. True cropping needs a crop UI — revisit if users request. |
+| Memoize getOverlayStyle / renderCellImage | Cost is trivial (simple object creation per cell per render). Memoizing adds complexity without measurable gain. |
+| Inline onClick handlers in .map() loops | Lists are small (< 20 items). Extracting to useCallback adds boilerplate with no measurable perf gain. |
+
 ## 2026-03-29
 
 ### WordPress design token integration

@@ -61,7 +61,7 @@ export default function Tooltip({ children, content, className = '' }) {
       {visible && createPortal(
         <div
           ref={tooltipRef}
-          className="fixed z-[100] pointer-events-none"
+          className="fixed z-[70] pointer-events-none"
           style={{
             top: position.top,
             left: position.left,

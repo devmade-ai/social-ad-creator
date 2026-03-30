@@ -42,6 +42,11 @@
   --color-border-strong: theme('colors.zinc.600');
 }
 
+/* Native form inputs, selects, scrollbars must match theme.
+   Without this, <select>, <input>, <option> dropdowns and default
+   scrollbars remain light-themed even when the app is dark. */
+html.dark { color-scheme: dark; }
+
 * {
   box-sizing: border-box;
 }

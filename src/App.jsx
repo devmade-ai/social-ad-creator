@@ -54,9 +54,9 @@ function CellContextMenu({ position, onAction, onClose }) {
   return (
     <>
       {/* Backdrop to catch outside taps */}
-      <div className="fixed inset-0 z-[15]" onClick={onClose} />
+      <div className="fixed inset-0 z-30" onClick={onClose} />
       <div
-        className="absolute z-[16] bg-white dark:bg-dark-card rounded-xl shadow-lg border border-ui-border py-1 min-w-[140px]"
+        className="absolute z-30 bg-white dark:bg-dark-card rounded-xl shadow-lg border border-ui-border py-1 min-w-[140px]"
         style={{ top: position.y, left: position.x }}
       >
         {actions.map((action) => (

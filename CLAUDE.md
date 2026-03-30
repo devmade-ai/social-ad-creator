@@ -162,6 +162,7 @@ These footers are required on every commit. No exceptions.
 - Use `- [ ]` for pending items only
 - Brief description of what and why
 - When complete, move to HISTORY.md (don't keep in TODO)
+- Declined/rejected ideas go to HISTORY.md as decision records, not TODO
 
 **Why:** User reviews this to prioritize work. Keeps TODO focused on pending items only.
 
@@ -281,6 +282,7 @@ These footers are required on every commit. No exceptions.
 - **Always read files before editing.** Use the Read tool on every file before attempting to Edit it. Editing without reading first will fail.
 - **Check build tools before building.** Run `npm install` or verify `node_modules/.bin/vite` exists before attempting `npm run build`. The `sharp` package may not be installed (used by prebuild icon generation), so use `./node_modules/.bin/vite build` directly to skip the prebuild step.
 - **Communication style:** Direct, concise responses. No filler phrases or conversational padding. State facts and actions. Ask specific questions with concrete options when clarification is needed.
+- **Dark mode system:** `useDarkMode.js` manages `.dark` class on `<html>`, localStorage persistence (with safe try/catch wrappers), cross-tab sync via `storage` event, OS preference fallback, and dynamic meta theme-color update. Two inline scripts in `index.html` run before React mounts: (1) flash prevention (applies `.dark` from localStorage before first paint), (2) PWA `beforeinstallprompt` capture. Never remove either inline script. `index.css` has `html.dark { color-scheme: dark; }` for native form inputs/scrollbars. Meta theme-color values: light=`#FAFAFA`, dark=`#0F0F23` (must match body background colors).
 - **PWA install prompt race condition:** `beforeinstallprompt` is captured by an inline script in `index.html` before React mounts. The `usePWAInstall` hook checks `window.__pwaInstallPrompt` on mount. Never remove that inline script.
 - **PWA icon purposes:** Never combine `"any maskable"` in a single icon entry. Use separate entries with individual `purpose` values. Dedicated 1024px maskable icon at `pwa-maskable-1024.png`.
 - **Debug system (dev only):** `src/utils/debugLog.js` is an in-memory 200-entry circular buffer with pub/sub. `src/components/DebugPill.jsx` renders in a separate React root (survives App crashes). Only mounted in `import.meta.env.DEV`. Use `debugLog(source, event, details, severity)` to add entries.
@@ -292,6 +294,8 @@ These footers are required on every commit. No exceptions.
   - Never clone sibling repos — use the API instead
 - **Mobile breakpoint:** `useIsMobile` hook uses `matchMedia('(max-width: 1023px)')` — matches Tailwind `lg` breakpoint. App.jsx conditionally renders entirely different layouts for mobile vs desktop. When modifying layout/UI in App.jsx, always check both code paths.
 - **BottomSheet snap points:** closed (0), half (50vh), full (85vh). Uses `transform: translateY()` for GPU-composited animation (no layout reflow). During drag, DOM updated directly via refs — React state only updates on snap (touchend). Sheet state resets when switching tabs. Props: `snapPoint`/`onSnapChange` (discrete snap values, not continuous height).
+- **Z-index scale:** Canvas internals 0-10, sticky headers 20, sheets/drawers 30, mobile nav 40, menu backdrop 40, menu dropdown 50, modals 60, toasts/tooltips 70, debug 80. All values use Tailwind arbitrary syntax `z-[60]` for non-standard tiers. DebugPill uses inline `zIndex: 80`.
+- **Burger menu:** `BurgerMenu.jsx` uses WAI-ARIA disclosure pattern (not `role="menu"`). Has `cursor-pointer` on backdrop (iOS Safari fix), `hasBeenOpenRef` focus guard, `overscroll-contain`, `useId()` for `aria-controls`, Escape key handler. State managed in App.jsx, rendered in MobileLayout.
 - **Sister project reference:** `devmade-ai/glow-props` shares the same CLAUDE.md scaffolding (process, principles, standards). Its `Suggested Implementations` section documents PWA patterns, debug system, and icon generation that were adopted here. Check it for future cross-pollination: `https://github.com/devmade-ai/glow-props/blob/main/CLAUDE.md`
 
 ### REMINDER: READ AND FOLLOW THE FUCKING AI NOTES EVERY TIME
@@ -525,6 +529,7 @@ src/
 │   ├── KeyboardShortcutsOverlay.jsx # Keyboard shortcuts modal
 │   ├── EmptyStateGuide.jsx    # Empty canvas guidance (below canvas on mobile, overlay on desktop)
 │   ├── QuickActionsBar.jsx    # Cell quick-action shortcuts (Image, Text, Style)
+│   ├── BurgerMenu.jsx         # Disclosure-pattern dropdown menu (WAI-ARIA, iOS Safari fixes)
 │   ├── BottomSheet.jsx        # Touch-draggable bottom sheet for mobile tab content (3 snap points)
 │   ├── MobileNav.jsx          # Fixed bottom navigation bar for mobile (6 tabs incl. Export)
 │   ├── ReaderMode.jsx         # Full-screen reader view with page navigation
