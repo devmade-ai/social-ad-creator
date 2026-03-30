@@ -1,5 +1,16 @@
 # Changelog
 
+## 2026-03-30
+
+### TODO cleanup
+
+- Removed "Wire App.jsx layout components" from TODO — already completed (2026-03-28), App.jsx delegates to ReaderMode/MobileLayout/DesktopLayout
+- Updated "TypeScript migration" — corrected description to reflect actual state (~30% config, ~11% utils, 0% hooks/components)
+- Updated "Expand unit test coverage" — corrected from "27 tests, 2 files" to "56 tests, 5 files" and updated untested targets
+- Updated "Template gallery" declined reason — removed stale "revisit after save/load" since save/load is implemented
+- Updated "Image cropping" declined reason — removed "sliders planned" since X/Y sliders are implemented
+- Added 8 glow-props alignment items (cross-tab sync, meta theme-color, color-scheme, safe localStorage, timer leaks, z-index scale, burger menu a11y, print CSS)
+
 ## 2026-03-29
 
 ### WordPress design token integration
