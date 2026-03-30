@@ -12,10 +12,6 @@ Future enhancements and ideas for CanvaGrid.
 |------|--------|-------------|
 | **TypeScript migration** | Medium-High | Actual state: ~30% of config (3/11: textDefaults.ts, fonts.ts, sampleImages.ts), ~11% of utils (1/9: layoutHelpers.ts), 0% hooks, 0% components. Next: finish config + utils, then hooks (useHistory, useAdState — needs generic types), then components (.jsx → .tsx, starting smallest). |
 
-- [ ] **Timer leak audit (nested timeouts)** — Audit all `useEffect` hooks for nested `setTimeout` patterns. Apply the array cleanup pattern or mounted-ref guard from glow-props. Candidates: debounced saves, bottom sheet animations, toast timers, any close-then-act patterns. Each leak risks state updates on unmounted components. Pattern: glow-props Suggested Implementations → PWA System → Fix: Timer Leaks on Unmount.
-- [ ] **Z-index scale standardization** — Audit and align all z-index values to the glow-props scale: headers=20, sheets=30, menu backdrop=40, menu dropdown=50, modals=60, toasts=70, debug pill=80. Affects: BottomSheet, burger menu, SaveLoadModal, TutorialModal, InstallInstructionsModal, KeyboardShortcutsOverlay, Toast, DebugPill. Prevents stacking bugs. Pattern: glow-props Suggested Implementations → Burger Menu → Z-Index Scale.
-- [ ] **Burger menu disclosure pattern fixes** — Refactor mobile hamburger menu to add: `cursor-pointer` on backdrop (iOS Safari click fix), `hasBeenOpenRef` focus guard, `overscroll-contain` on menu card, `useId()` for `aria-controls`, proper `aria-expanded` + `<nav>` semantics. Accessibility and iOS bug fixes, not a rewrite. Pattern: glow-props Suggested Implementations → Burger Menu.
-
 ### Low Priority (Long-term)
 
 | Item | Effort | Description |

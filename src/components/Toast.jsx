@@ -125,7 +125,7 @@ function ToastContainer({ toasts, onRemove }) {
   // Alternatives:
   //   - Fixed bottom-4 only: Rejected — toast hidden behind home indicator on notched iPhones
   return (
-    <div className="fixed left-1/2 -translate-x-1/2 z-50 flex flex-col-reverse gap-2 pointer-events-auto max-w-sm w-full px-4" style={{ bottom: 'max(1rem, env(safe-area-inset-bottom, 1rem))' }}>
+    <div className="fixed left-1/2 -translate-x-1/2 z-[70] flex flex-col-reverse gap-2 pointer-events-auto max-w-sm w-full px-4" style={{ bottom: 'max(1rem, env(safe-area-inset-bottom, 1rem))' }}>
       {toasts.map((toast) => (
         <ToastItem key={toast.id} toast={toast} onRemove={onRemove} />
       ))}

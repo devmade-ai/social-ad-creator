@@ -133,7 +133,7 @@ export default function DesktopLayout({
       )}
 
       {/* Tab nav bar — desktop only */}
-      <nav ref={tabNavRef} className="bg-white/90 dark:bg-dark-card/90 backdrop-blur-sm border-b border-zinc-200/60 dark:border-zinc-700/60 sticky top-0 z-10">
+      <nav ref={tabNavRef} className="bg-white/90 dark:bg-dark-card/90 backdrop-blur-sm border-b border-zinc-200/60 dark:border-zinc-700/60 sticky top-0 z-20">
         <div className="flex items-center">
           <div className="flex overflow-x-auto scrollbar-thin">
             {sections.map((section) => (

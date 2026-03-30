@@ -12,6 +12,39 @@
 - **`color-scheme: dark` on `html.dark`** — Added CSS rule so native `<select>`, `<input>`, scrollbars match dark theme.
 - **Safe localStorage access** — Wrapped all `localStorage` calls in `useDarkMode.js` with `safeStorageGet`/`safeStorageSet` try/catch helpers. Prevents crashes in sandboxed iframes and enterprise browsers.
 
+### Z-index scale standardization (glow-props alignment)
+
+Aligned all 21 z-index values across 11 files to the glow-props canonical scale:
+
+| Layer | Z-Index | Elements |
+|-------|---------|----------|
+| Canvas internals | 0-10 | Text wrappers, frames, overlays, logo, export overlay |
+| Sticky headers | 20 | Desktop tab nav, context bar |
+| Sheets/drawers | 30 | BottomSheet, cell context menu |
+| Fixed bottom nav | 40 | MobileNav |
+| Menu backdrop | 40 | Burger menu backdrop |
+| Menu dropdown / header | 50 | Burger menu card, mobile header (when menu open) |
+| Modals | 60 | SaveLoad, Tutorial, InstallInstructions, KeyboardShortcuts |
+| Toasts / tooltips | 70 | Toast notifications, Tooltip popovers |
+| Debug | 80 | DebugPill (dev only) |
+
+### Burger menu disclosure pattern (glow-props alignment)
+
+Extracted `BurgerMenu.jsx` from inline MobileLayout code. Applied glow-props Suggested Implementations → Burger Menu pattern:
+
+- **Disclosure semantics**: Replaced incorrect `role="menu"`/`role="menuitem"` with `<nav>` + `<ul>/<li>`. ARIA menu pattern causes screen readers to enter forms mode.
+- **`useId()`**: Unique `aria-controls` linking trigger to menu.
+- **`cursor-pointer` on backdrop**: iOS Safari fix — empty divs don't receive click events without it.
+- **`hasBeenOpenRef` focus guard**: Prevents stealing focus on initial mount.
+- **`overscroll-contain`**: Prevents scroll chaining without touching body overflow.
+- **`max-w-[calc(100vw-2rem)]`**: Prevents viewport overflow on narrow screens.
+- **Escape key handler**: Closes menu on Escape.
+- **Focus management**: First item focused on open, trigger refocused on close.
+
+### Timer leak audit
+
+Audited all 9 `useEffect` hooks with `setTimeout`/`setInterval` across the codebase. All have proper cleanup functions. No nested timeouts found. No changes needed.
+
 ### TODO cleanup
 
 - Removed "Wire App.jsx layout components" from TODO — already completed (2026-03-28), App.jsx delegates to ReaderMode/MobileLayout/DesktopLayout

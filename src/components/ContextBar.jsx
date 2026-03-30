@@ -178,7 +178,7 @@ export default memo(function ContextBar({
   //   - Always show two rows: Rejected — wastes ~40px on mobile for the most common case (1 page)
   //   - Hide undo/redo entirely: Rejected — they should appear once user makes changes
   return (
-    <div className="bg-white/90 dark:bg-dark-card/90 backdrop-blur-sm border-b border-zinc-200/60 dark:border-zinc-700/60 px-3 sm:px-4 py-1.5 sticky z-[9]" style={{ top: 'var(--tab-nav-height, 41px)' }}>
+    <div className="bg-white/90 dark:bg-dark-card/90 backdrop-blur-sm border-b border-zinc-200/60 dark:border-zinc-700/60 px-3 sm:px-4 py-1.5 sticky z-20" style={{ top: 'var(--tab-nav-height, 41px)' }}>
       {/* Desktop: single row always. Mobile: one row (1 page) or two rows (multi-page) */}
       <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-3">
         {/* Pages row — hidden on mobile when single page, always shown on desktop */}

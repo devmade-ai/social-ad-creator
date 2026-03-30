@@ -92,7 +92,7 @@ export default function SaveLoadModal({ isOpen, onClose, onSave, onLoad, onDelet
 
   return (
     // Backdrop — click outside modal to close
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50" onClick={onClose}>
+    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50" onClick={onClose}>
       {/* Modal content — stop propagation so clicks inside don't close */}
       <div ref={modalRef} role="dialog" aria-modal="true" aria-labelledby="save-load-title" className="bg-ui-surface rounded-xl shadow-2xl w-full max-w-md max-h-[80vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
         {/* Header */}

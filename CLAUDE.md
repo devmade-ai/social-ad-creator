@@ -294,6 +294,8 @@ These footers are required on every commit. No exceptions.
   - Never clone sibling repos — use the API instead
 - **Mobile breakpoint:** `useIsMobile` hook uses `matchMedia('(max-width: 1023px)')` — matches Tailwind `lg` breakpoint. App.jsx conditionally renders entirely different layouts for mobile vs desktop. When modifying layout/UI in App.jsx, always check both code paths.
 - **BottomSheet snap points:** closed (0), half (50vh), full (85vh). Uses `transform: translateY()` for GPU-composited animation (no layout reflow). During drag, DOM updated directly via refs — React state only updates on snap (touchend). Sheet state resets when switching tabs. Props: `snapPoint`/`onSnapChange` (discrete snap values, not continuous height).
+- **Z-index scale:** Canvas internals 0-10, sticky headers 20, sheets/drawers 30, mobile nav 40, menu backdrop 40, menu dropdown 50, modals 60, toasts/tooltips 70, debug 80. All values use Tailwind arbitrary syntax `z-[60]` for non-standard tiers. DebugPill uses inline `zIndex: 80`.
+- **Burger menu:** `BurgerMenu.jsx` uses WAI-ARIA disclosure pattern (not `role="menu"`). Has `cursor-pointer` on backdrop (iOS Safari fix), `hasBeenOpenRef` focus guard, `overscroll-contain`, `useId()` for `aria-controls`, Escape key handler. State managed in App.jsx, rendered in MobileLayout.
 - **Sister project reference:** `devmade-ai/glow-props` shares the same CLAUDE.md scaffolding (process, principles, standards). Its `Suggested Implementations` section documents PWA patterns, debug system, and icon generation that were adopted here. Check it for future cross-pollination: `https://github.com/devmade-ai/glow-props/blob/main/CLAUDE.md`
 
 ### REMINDER: READ AND FOLLOW THE FUCKING AI NOTES EVERY TIME
@@ -527,6 +529,7 @@ src/
 │   ├── KeyboardShortcutsOverlay.jsx # Keyboard shortcuts modal
 │   ├── EmptyStateGuide.jsx    # Empty canvas guidance (below canvas on mobile, overlay on desktop)
 │   ├── QuickActionsBar.jsx    # Cell quick-action shortcuts (Image, Text, Style)
+│   ├── BurgerMenu.jsx         # Disclosure-pattern dropdown menu (WAI-ARIA, iOS Safari fixes)
 │   ├── BottomSheet.jsx        # Touch-draggable bottom sheet for mobile tab content (3 snap points)
 │   ├── MobileNav.jsx          # Fixed bottom navigation bar for mobile (6 tabs incl. Export)
 │   ├── ReaderMode.jsx         # Full-screen reader view with page navigation
