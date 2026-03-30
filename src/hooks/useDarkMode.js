@@ -55,10 +55,17 @@ export function useDarkMode() {
   // Cross-tab sync — when another tab changes darkMode in localStorage,
   // update this tab to match. The storage event only fires in OTHER tabs
   // (not the one that wrote), so there's no infinite loop risk.
+  // When newValue is null (key was removed), fall back to system preference
+  // instead of keeping the stale value — matches what the hook does on
+  // fresh load with no stored preference.
   useEffect(() => {
     const handleStorage = (e) => {
-      if (e.key === 'darkMode' && e.newValue !== null) {
-        setIsDark(e.newValue === 'true')
+      if (e.key === 'darkMode') {
+        if (e.newValue !== null) {
+          setIsDark(e.newValue === 'true')
+        } else {
+          setIsDark(window.matchMedia('(prefers-color-scheme: dark)').matches)
+        }
       }
     }
     window.addEventListener('storage', handleStorage)

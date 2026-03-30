@@ -84,7 +84,14 @@ export default function BurgerMenu({ items, open, onToggle, onClose }) {
                 <li key={item.label}>
                   <button
                     type="button"
-                    onClick={() => { item.action(); onClose() }}
+                    onClick={() => {
+                      // Close menu first regardless of whether action succeeds.
+                      // If item.action() throws, the menu must still close —
+                      // otherwise the user is stuck with an open menu and no
+                      // way to recover except tapping the backdrop.
+                      try { item.action() } catch (e) { console.error('Menu action failed:', e) }
+                      onClose()
+                    }}
                     className={`w-full flex items-center gap-3 px-4 py-3 text-sm transition-colors
                       outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset
                       ${item.highlight
