@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026-03-31
+
+### Theme light/dark variants
+
+- **Variant system** — Each of 19 themes now has light and dark variants with independently chosen accent colors per variant. Old flat `{ primary, secondary, accent }` replaced by `{ variants: { light: {...}, dark: {...} }, defaultVariant }`.
+- **Merged dark/light themes** — Old separate `dark` and `light` themes merged into single `neutral` theme with both variants. Backward compat maps old preset IDs.
+- **Accent color design** — Light variants use darker/more saturated accents (bright accents wash out on white). Dark variants use lighter/more luminous accents (accent becomes a light source). Some themes shift accent hue per variant (e.g., Ruby: burnt orange on light, gold on dark).
+- **UI toggle** — Light/Dark mode toggle with sun/moon icons in Presets → Themes section. Theme swatches update to show current variant colors. Hover tooltip shows both variants side-by-side.
+- **State changes** — Added `variant` field to `theme` state object, `setThemeVariant` callback, backward compat migration in `loadDesign` for saved designs without variant field.
+
 ## 2026-03-30
 
 ### Dark mode hardening (glow-props alignment)

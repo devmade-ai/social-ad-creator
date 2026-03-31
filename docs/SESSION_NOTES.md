@@ -5,27 +5,26 @@ Compact context summary for session continuity. Rewrite at session end.
 ---
 
 ## Worked on
-WordPress design token integration — adding fonts, themes, and look presets derived from 15 years of WP default themes.
+Theme light/dark variants — adding light and dark color variants to every theme preset, with accent colors carefully chosen per variant.
 
 ## Accomplished
 
-1. **9 new Google Fonts** — Manrope, Libre Franklin, Source Sans 3, Source Serif 4, Bitter, Cardo, Literata, Noto Serif, Noto Sans (total: 24)
-2. **8 new color themes** — Classic, Sage, Warm, Cream, Parchment, Midnight, Dusk, Grove (total: 20, all WP-prefixed IDs)
-3. **15 WordPress-era look presets** — One per default theme year (2010–2025, skip 2018): Heritage, Neutral, Airy, Vivid, Magazine, Readable, Typeset, Enterprise, Gutenberg, Warmth, Pastel, Botanical, Fluid, Editorial, Flux (total: 27 looks)
-4. **buildLayouts helper** — Reduces per-look layout boilerplate from ~150 lines to ~15 lines using base + overrides pattern
-5. **9-point verification** — Font pairing accuracy, Google Fonts availability, overlay type validity, color contrast (all AAA), ID uniqueness, name collisions, font ID refs, build/tests, hardcoded counts
-6. **Fixes from verification** — Typeset fonts were reversed, Flux had invalid overlay type (`gradient-diagonal-br` → `gradient-br`) and wrong body font (literata → manrope), 12 hardcoded counts updated across 5 files
-7. **Theme renames** — Minimal→Muted, Pastel→Sage, Editorial→Parchment to avoid name overlap with look presets
+1. **Theme variant system** — Restructured `themes.js` from flat `{ primary, secondary, accent }` to `{ variants: { light: {...}, dark: {...} } }` with `defaultVariant` per theme
+2. **19 themes with 38 color palettes** — Old `dark`/`light` themes merged into `neutral`; each theme has unique accent colors per variant (not just swapped primary/secondary)
+3. **State management** — Added `variant` field to `theme` state in `useAdState.js`, new `setThemeVariant` callback, `setThemePreset` now accepts optional variant param and preserves current variant preference when switching themes
+4. **Backward compat** — `loadDesign` migrates old `preset: 'dark'`/`'light'` to `preset: 'neutral'` with appropriate variant; designs without `variant` field get auto-migrated
+5. **Theme picker UI** — Light/Dark toggle with sun/moon icons above theme grid in TemplatesTab; theme swatches show current variant's colors; hover tooltip shows both variants
+6. **Helper functions** — `getThemeVariant()`, `resolveThemePreset()` exported from themes.js for reuse
 
 ## Current state
 
-- **Working** — Build passes, 56/56 tests pass, all changes on `claude/test-image-upload-commit-HsNQr`
-- All 4 commits pushed to remote
+- **Working** — Build passes, all changes on `claude/add-theme-variants-VK9ql`
+- No breaking changes to canvas rendering — AdCanvas, ColorPicker, ThemeColorPicker all consume flat `theme.primary`/`theme.secondary`/`theme.accent` which still exist in state
 
 ## Key context
 
-- `buildLayouts(base, overrides)` in stylePresets.js generates all 27 layout entries from a default + specific overrides. Uses `ALL_LAYOUTS` constant that must stay in sync with layoutPresets.js.
-- WP theme IDs use `wp-` prefix (e.g., `wp-pastel`) to avoid collision with look preset IDs (e.g., `pastel`)
-- Literata font is in fonts.ts but not used by any look preset (available for manual user selection)
-- Lazy font loading (App.jsx) now has 24 fonts instead of 15 — only 2 load on mount, rest on-demand
-- HISTORY.md line 45 references "20 look presets" — now 27 (historical reference, left as-is)
+- Theme state shape: `{ preset: 'corporate', variant: 'dark', primary: '#1e3a5f', secondary: '#ffffff', accent: '#fbbf24' }`
+- `variant` is always `'light'` or `'dark'` — stored in state, resolved at set-time to hex colors
+- Custom themes (`preset: 'custom'`) ignore variant toggle — no variants for custom colors
+- Accent colors differ per variant by design (see themes.js comments for rationale per theme)
+- Old `'dark'`/`'light'` preset IDs no longer exist in `presetThemes` array — they map to `'neutral'` in `resolveThemePreset()`

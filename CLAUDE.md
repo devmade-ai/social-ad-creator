@@ -407,7 +407,7 @@ Core features working:
 - Per-cell structured text (guided mode):
   - Each cell has its own text elements: title, tagline, bodyHeading, bodyText, cta, footnote
   - Text elements organized in groups: Title+Tagline, Body, CTA, Footnote
-- Theme system with 20 color themes and custom colors
+- Theme system with 19 color themes (each with light and dark variants) and custom colors
 - Overlay system with 26 effects:
   - Basic: Solid color
   - Linear gradients: 8 directions (↑↓←→ and diagonals)
@@ -542,7 +542,7 @@ src/
 │   ├── stylePresets.js   # Look presets (fonts + filters + overlay effects per layout + text styles)
 │   ├── platforms.js      # 42 formats across 18 platform groups (nested: platformGroups + flat: platforms)
 │   ├── sampleImages.ts   # CDN manifest URL for sample images (fetched at runtime)
-│   ├── themes.js         # 20 color themes
+│   ├── themes.js         # 19 color themes with light/dark variants
 │   ├── fonts.ts          # 24 Google Fonts (FontEntry interface)
 │   ├── textDefaults.ts   # Default text layer state (TextLayer, FreeformBlock interfaces)
 │   └── alignment.jsx     # Alignment icon components and option arrays
@@ -658,7 +658,7 @@ text: {
 Entry point for users. Four sections:
 - **Platform** - Target size selector (Instagram, TikTok, LinkedIn, print, etc.) — sets canvas dimensions. Shown on mobile only (desktop has platform selector always visible above canvas).
 - **Layout** - Grid structure presets with aspect ratio filtering (All, Square, Portrait, Landscape) and category filtering
-- **Themes** - 20 preset color themes + custom color inputs
+- **Themes** - 19 preset color themes with light/dark variant toggle + custom color inputs
 - **Looks** - Visual effect presets that apply overlay, fonts, and filters without changing layout or colors
 
 ### Media Tab
@@ -703,5 +703,5 @@ Note: Color themes are in the Presets tab, not Style.
 | Name | Location | What It Applies | Config File |
 |------|----------|-----------------|-------------|
 | **Layouts** | Presets → Layout | Grid structure + image/text cell placements (filterable by aspect ratio) | `layoutPresets.js` |
-| **Themes** | Presets → Themes | Color scheme only (primary, secondary, accent) | `themes.js` |
+| **Themes** | Presets → Themes | Color scheme with light/dark variants (primary, secondary, accent per variant) | `themes.js` |
 | **Looks** | Presets → Looks | Fonts + image filters + overlay (without changing layout or colors) | `stylePresets.js` |
