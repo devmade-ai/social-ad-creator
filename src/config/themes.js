@@ -126,14 +126,15 @@ export const presetThemes = [
   // --- Nature ---
 
   // Forest: Deep green palette.
-  // Light accent: dark gold (#ca8a04) — earthy contrast to green, like sunlight through leaves.
+  // Light accent: deep gold (#a16207) — earthy contrast to green, like sunlight through leaves.
+  //   Originally #ca8a04 but failed WCAG 3:1 on #f0fdf4 (2.81:1). Darkened to 4.76:1.
   // Dark accent: bright lime (#a3e635) — neon against deep forest, reads as new growth.
   {
     id: 'forest',
     name: 'Forest',
     defaultVariant: 'dark',
     variants: {
-      light: { primary: '#f0fdf4', secondary: '#166534', accent: '#ca8a04' },
+      light: { primary: '#f0fdf4', secondary: '#166534', accent: '#a16207' },
       dark: { primary: '#166534', secondary: '#f0fdf4', accent: '#a3e635' },
     },
   },
