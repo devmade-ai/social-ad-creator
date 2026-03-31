@@ -82,104 +82,6 @@ export const presetThemes = [
     },
   },
 
-  // --- Vibrant ---
-
-  // Ruby: Deep burgundy jewel tone.
-  // Light accent: burnt orange (#c2410c) — gold felt disconnected on blush bg; orange bridges red+warm.
-  // Dark accent: true gold (#fcd34d) — on burgundy reads as luxurious, high contrast.
-  {
-    id: 'ruby',
-    name: 'Ruby',
-    defaultVariant: 'dark',
-    variants: {
-      light: { primary: '#fef2f2', secondary: '#7f1d1d', accent: '#c2410c' },
-      dark: { primary: '#7f1d1d', secondary: '#fef2f2', accent: '#fcd34d' },
-    },
-  },
-
-  // Sunset: Warm orange-red.
-  // Light accent: rose-red (#e11d48) — cooler red distinguishes from warm text, creates tension.
-  // Dark accent: bright orange (#fb923c) — glows warmly on deep brown, like actual sunset sky.
-  {
-    id: 'sunset',
-    name: 'Sunset',
-    defaultVariant: 'light',
-    variants: {
-      light: { primary: '#fffbeb', secondary: '#9a3412', accent: '#e11d48' },
-      dark: { primary: '#7c2d12', secondary: '#fed7aa', accent: '#fb923c' },
-    },
-  },
-
-  // Ocean: Cyan-teal palette.
-  // Light accent: teal (#0d9488) — shifts toward green to avoid monotone blue-on-blue.
-  // Dark accent: bright cyan (#22d3ee) — electric pop on deep ocean, bioluminescence feel.
-  {
-    id: 'ocean',
-    name: 'Ocean',
-    defaultVariant: 'light',
-    variants: {
-      light: { primary: '#ecfeff', secondary: '#155e75', accent: '#0d9488' },
-      dark: { primary: '#164e63', secondary: '#cffafe', accent: '#22d3ee' },
-    },
-  },
-
-  // --- Nature ---
-
-  // Forest: Deep green palette.
-  // Light accent: deep gold (#a16207) — earthy contrast to green, like sunlight through leaves.
-  //   Originally #ca8a04 but failed WCAG 3:1 on #f0fdf4 (2.81:1). Darkened to 4.76:1.
-  // Dark accent: bright lime (#a3e635) — neon against deep forest, reads as new growth.
-  {
-    id: 'forest',
-    name: 'Forest',
-    defaultVariant: 'dark',
-    variants: {
-      light: { primary: '#f0fdf4', secondary: '#166534', accent: '#a16207' },
-      dark: { primary: '#166534', secondary: '#f0fdf4', accent: '#a3e635' },
-    },
-  },
-
-  // Earth: Brown-amber warmth.
-  // Light accent: deep amber (#a16207) — warm but distinct from brown text, like clay pottery.
-  // Dark accent: bright amber (#f59e0b) — campfire glow on darkest brown.
-  {
-    id: 'earth',
-    name: 'Earth',
-    defaultVariant: 'dark',
-    variants: {
-      light: { primary: '#fefce8', secondary: '#78350f', accent: '#a16207' },
-      dark: { primary: '#78350f', secondary: '#fef3c7', accent: '#f59e0b' },
-    },
-  },
-
-  // --- Bold ---
-
-  // Neon: Electric palette.
-  // Light accent: hot magenta (#d946ef) — on light bg green would look sickly; magenta stays electric.
-  // Dark accent: fuchsia (#e879f9) — original neon feel, glows on black.
-  {
-    id: 'neon',
-    name: 'Neon',
-    defaultVariant: 'dark',
-    variants: {
-      light: { primary: '#fafafa', secondary: '#18181b', accent: '#d946ef' },
-      dark: { primary: '#0a0a0a', secondary: '#4ade80', accent: '#e879f9' },
-    },
-  },
-
-  // Candy: Playful pink.
-  // Light accent: fuchsia (#c026d3) — shifts from gold to purple-pink for a more playful candy palette.
-  // Dark accent: soft gold (#fde68a) — warm glow on dark pink, like candy wrapper foil.
-  {
-    id: 'candy',
-    name: 'Candy',
-    defaultVariant: 'dark',
-    variants: {
-      light: { primary: '#fff1f2', secondary: '#be185d', accent: '#c026d3' },
-      dark: { primary: '#be185d', secondary: '#ffffff', accent: '#fde68a' },
-    },
-  },
-
   // --- WordPress-inspired themes ---
 
   // Classic: Dark teal + peach (TT22).
@@ -283,6 +185,104 @@ export const presetThemes = [
     variants: {
       light: { primary: '#f7fee7', secondary: '#365314', accent: '#4d7c0f' },
       dark: { primary: '#1a2e05', secondary: '#ecfccb', accent: '#9DFF20' },
+    },
+  },
+
+  // --- Vibrant ---
+
+  // Ruby: Rich crimson jewel tone.
+  // Light accent: burnt orange (#c2410c) — gold felt disconnected on blush bg; orange bridges red+warm.
+  // Dark accent: true gold (#fcd34d) — on crimson reads as luxurious, high contrast.
+  {
+    id: 'ruby',
+    name: 'Ruby',
+    defaultVariant: 'dark',
+    variants: {
+      light: { primary: '#fef2f2', secondary: '#7f1d1d', accent: '#c2410c' },
+      dark: { primary: '#9f1239', secondary: '#fef2f2', accent: '#fcd34d' },
+    },
+  },
+
+  // Sunset: Warm orange-red.
+  // Light accent: rose-red (#e11d48) — cooler red distinguishes from warm text, creates tension.
+  // Dark accent: bright orange (#fb923c) — glows warmly on deep brown, like actual sunset sky.
+  {
+    id: 'sunset',
+    name: 'Sunset',
+    defaultVariant: 'light',
+    variants: {
+      light: { primary: '#fffbeb', secondary: '#9a3412', accent: '#e11d48' },
+      dark: { primary: '#7c2d12', secondary: '#fed7aa', accent: '#fb923c' },
+    },
+  },
+
+  // Ocean: Cyan-teal palette.
+  // Light accent: teal (#0d9488) — shifts toward green to avoid monotone blue-on-blue.
+  // Dark accent: bright cyan (#22d3ee) — electric pop on deep ocean, bioluminescence feel.
+  {
+    id: 'ocean',
+    name: 'Ocean',
+    defaultVariant: 'light',
+    variants: {
+      light: { primary: '#ecfeff', secondary: '#155e75', accent: '#0d9488' },
+      dark: { primary: '#164e63', secondary: '#cffafe', accent: '#22d3ee' },
+    },
+  },
+
+  // --- Nature ---
+
+  // Forest: Deep green palette.
+  // Light accent: deep gold (#a16207) — earthy contrast to green, like sunlight through leaves.
+  //   Originally #ca8a04 but failed WCAG 3:1 on #f0fdf4 (2.81:1). Darkened to 4.76:1.
+  // Dark accent: bright lime (#a3e635) — neon against deep forest, reads as new growth.
+  {
+    id: 'forest',
+    name: 'Forest',
+    defaultVariant: 'dark',
+    variants: {
+      light: { primary: '#f0fdf4', secondary: '#166534', accent: '#a16207' },
+      dark: { primary: '#166534', secondary: '#f0fdf4', accent: '#a3e635' },
+    },
+  },
+
+  // Earth: Brown-amber warmth.
+  // Light accent: deep amber (#a16207) — warm but distinct from brown text, like clay pottery.
+  // Dark accent: bright amber (#f59e0b) — campfire glow on darkest brown.
+  {
+    id: 'earth',
+    name: 'Earth',
+    defaultVariant: 'dark',
+    variants: {
+      light: { primary: '#fefce8', secondary: '#78350f', accent: '#a16207' },
+      dark: { primary: '#78350f', secondary: '#fef3c7', accent: '#f59e0b' },
+    },
+  },
+
+  // --- Bold ---
+
+  // Neon: Electric palette.
+  // Light accent: teal (#0d9488) — turquoise-family accent readable on light bg.
+  // Dark accent: coral (#fb7185) — warm complement to cyan, glows on black.
+  {
+    id: 'neon',
+    name: 'Neon',
+    defaultVariant: 'dark',
+    variants: {
+      light: { primary: '#fafafa', secondary: '#18181b', accent: '#0d9488' },
+      dark: { primary: '#0a0a0a', secondary: '#22d3ee', accent: '#fb7185' },
+    },
+  },
+
+  // Candy: Playful pink.
+  // Light accent: fuchsia (#c026d3) — shifts from gold to purple-pink for a more playful candy palette.
+  // Dark accent: soft gold (#fde68a) — warm glow on dark pink, like candy wrapper foil.
+  {
+    id: 'candy',
+    name: 'Candy',
+    defaultVariant: 'dark',
+    variants: {
+      light: { primary: '#fff1f2', secondary: '#be185d', accent: '#c026d3' },
+      dark: { primary: '#be185d', secondary: '#ffffff', accent: '#fde68a' },
     },
   },
 ]
