@@ -205,14 +205,16 @@ export const presetThemes = [
 
   // Sunset: Warm orange-red.
   // Light accent: rose-red (#e11d48) — cooler red distinguishes from warm text, creates tension.
-  // Dark accent: bright orange (#fb923c) — glows warmly on deep brown, like actual sunset sky.
+  // Dark primary: deep red-orange (#c2410c) — reads as rich sunset sky, not muddy brown.
+  // Dark accent: red (#dc2626) — restores original red accent; contrasts against orange primary
+  //   instead of blending into it. Orange primary + orange accent was monotone.
   {
     id: 'sunset',
     name: 'Sunset',
     defaultVariant: 'light',
     variants: {
       light: { primary: '#fffbeb', secondary: '#9a3412', accent: '#e11d48' },
-      dark: { primary: '#7c2d12', secondary: '#fed7aa', accent: '#fb923c' },
+      dark: { primary: '#c2410c', secondary: '#fed7aa', accent: '#dc2626' },
     },
   },
 
