@@ -8,6 +8,12 @@
 import { useState, useRef, useCallback } from 'react'
 import { createPortal } from 'react-dom'
 
+// Touch devices fire mouseEnter on tap but never mouseLeave, leaving tooltips
+// stuck on screen. Detect touch support and skip hover tooltips entirely.
+const isTouchDevice = () =>
+  typeof window !== 'undefined' &&
+  ('ontouchstart' in window || navigator.maxTouchPoints > 0)
+
 export default function Tooltip({ children, content, className = '' }) {
   const [visible, setVisible] = useState(false)
   const [position, setPosition] = useState({ top: 0, left: 0 })
@@ -15,6 +21,7 @@ export default function Tooltip({ children, content, className = '' }) {
   const tooltipRef = useRef(null)
 
   const show = useCallback(() => {
+    if (isTouchDevice()) return
     if (!triggerRef.current) return
     const rect = triggerRef.current.getBoundingClientRect()
     // Position above center of trigger, will adjust after render if needed
