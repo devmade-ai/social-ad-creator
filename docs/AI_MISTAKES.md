@@ -145,4 +145,26 @@ Each wrong assumption led to a commit that didn't solve the actual problem. Thre
 
 ---
 
+## 2026-03 | Sunset Theme — 3 Fixes to Undo an Unrequested Change
+
+**What went wrong:** When light/dark variants were added to all themes (`0b9bfc6`), the Sunset dark variant drifted from the original palette without being asked to. Original was vivid orange (`#f97316`) + cream + red (`#dc2626`). The variant rework changed dark primary to muddy brown (`#7c2d12`) and accent to orange (`#fb923c`) — losing the orange-vs-red contrast that defined the theme. Light accent also shifted from red to rose-pink (`#e11d48`).
+
+**Timeline of damage:**
+- `0b9bfc6` Variant rework introduced the drift (not requested for Sunset specifically)
+- `4aab728` Fix 1: Changed dark primary from brown to deep red-orange (`#c2410c`) — better but still not the original
+- `7edf112` Fix 2: Restored dark accent from orange to red (`#dc2626`) — fixed one problem but `#c2410c` primary was too close to `#dc2626` accent
+- `9430088` Fix 3: Restored original vivid orange (`#f97316`) primary + aligned both variants to red accent
+
+3 commits across 2 branches to get back to where it started.
+
+**Why it happened:** The variant rework applied creative judgment to every theme instead of preserving known-good palettes. Sunset's original colors were orange+red — a clear identity — but the rework "reinterpreted" them into brown+orange (dark) and warm-white+rose-pink (light).
+
+**How to prevent:**
+- When adding variants to existing themes, preserve the original colors as one variant and derive the other
+- Don't reinterpret a theme's identity — orange+red sunset shouldn't become brown+orange
+- If the original palette works, use it directly instead of picking "close" alternatives
+- Each incremental fix should be checked against the original, not just against the previous broken state
+
+---
+
 *Add new entries above this line*
