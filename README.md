@@ -8,7 +8,7 @@ A browser-based visual design tool. Upload images, add text overlays, choose lay
 
 ### Presets
 - **Layout** - Grid structure presets with aspect ratio filtering
-- **Themes** - 20 color schemes plus custom color inputs
+- **Themes** - 19 color schemes plus custom color inputs
 - **Looks** - One-click visual presets that apply fonts, filters, overlay, and text styles without changing layout or colors
 
 ### Media
@@ -50,7 +50,7 @@ Each text element supports: visibility toggle, cell placement, alignment, color,
 - **Reader mode** - Clean full-screen view with page navigation
 
 ### Export
-- **42 formats** across 18 platform groups in 6 categories:
+- **40 formats** across 18 platform groups in 6 categories:
   - **Social** - Instagram (Feed Portrait/Square/Feed Landscape/Story), Facebook (Feed/Square/Story/Cover), TikTok, LinkedIn (Square/Portrait/Landscape), Twitter/X, Pinterest (Pin/Story), Snapchat (Ad/Story), WhatsApp (Status), Threads (Post/Story)
   - **Website** - Hero (Standard/Tall/Full HD), OG Image
   - **Banners** - LinkedIn Banner, YouTube (Banner/Thumbnail/End Screen)

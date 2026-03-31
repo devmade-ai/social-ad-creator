@@ -19,7 +19,9 @@ A vibrant, creative design system for makers who want their ads to *pop*.
 
 ## Color System
 
-### Primary Palette
+### UI Chrome Palette
+
+These colors are for the **app interface** (buttons, focus rings, links) — not for the user's design canvas. The 19 content themes in `src/config/themes.js` have their own palettes.
 
 | Name | Hex | Usage | Vibe |
 |------|-----|-------|------|

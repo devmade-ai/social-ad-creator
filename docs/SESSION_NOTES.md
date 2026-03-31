@@ -5,26 +5,25 @@ Compact context summary for session continuity. Rewrite at session end.
 ---
 
 ## Worked on
-Theme light/dark variants — adding light and dark color variants to every theme preset, with accent colors carefully chosen per variant.
+Sunset theme restoration + documentation accuracy pass.
 
 ## Accomplished
 
-1. **Theme variant system** — Restructured `themes.js` from flat `{ primary, secondary, accent }` to `{ variants: { light: {...}, dark: {...} } }` with `defaultVariant` per theme
-2. **19 themes with 38 color palettes** — Old `dark`/`light` themes merged into `neutral`; each theme has unique accent colors per variant (not just swapped primary/secondary)
-3. **State management** — Added `variant` field to `theme` state in `useAdState.js`, new `setThemeVariant` callback, `setThemePreset` now accepts optional variant param and preserves current variant preference when switching themes
-4. **Backward compat** — `loadDesign` migrates old `preset: 'dark'`/`'light'` to `preset: 'neutral'` with appropriate variant; designs without `variant` field get auto-migrated
-5. **Theme picker UI** — Light/Dark toggle with sun/moon icons above theme grid in TemplatesTab; theme swatches show current variant's colors; hover tooltip shows both variants
-6. **Helper functions** — `getThemeVariant()`, `resolveThemePreset()` exported from themes.js for reuse
+1. **Sunset theme restored to original palette** — Dark variant back to vivid orange (`#f97316`) + cream (`#fef3c7`) + red (`#dc2626`). Light accent aligned from rose-pink (`#e11d48`) to red (`#dc2626`). Both variants now share the same red accent.
+2. **AI_MISTAKES.md entry** — Documented the 3-commit fix chain caused by the variant rework changing Sunset's colors without being asked. Key lesson: don't change things that weren't requested.
+3. **Documentation accuracy pass** — Fixed stale counts across multiple docs:
+   - Theme count: 20→19 in README, USER_GUIDE, TESTING_GUIDE
+   - Export format count: 42→40 in README, USER_GUIDE, TESTING_GUIDE, CLAUDE.md
+   - STYLE_GUIDE: Clarified that the UI chrome palette (Violet/Pink/Cyan) is separate from the 19 content themes
+   - SESSION_NOTES: Rewritten to reflect current session
 
 ## Current state
 
-- **Working** — Build passes, all changes on `claude/add-theme-variants-VK9ql`
-- No breaking changes to canvas rendering — AdCanvas, ColorPicker, ThemeColorPicker all consume flat `theme.primary`/`theme.secondary`/`theme.accent` which still exist in state
+- **Working** — All changes on `claude/review-sunset-theme-eE7qu`
+- Sunset theme: light=`#fffbeb`/`#9a3412`/`#dc2626`, dark=`#f97316`/`#fef3c7`/`#dc2626`
+- Documentation counts now match actual code (19 themes, 40 formats, 18 groups)
 
 ## Key context
 
-- Theme state shape: `{ preset: 'corporate', variant: 'dark', primary: '#1e3a5f', secondary: '#ffffff', accent: '#fbbf24' }`
-- `variant` is always `'light'` or `'dark'` — stored in state, resolved at set-time to hex colors
-- Custom themes (`preset: 'custom'`) ignore variant toggle — no variants for custom colors
-- Accent colors differ per variant by design (see themes.js comments for rationale per theme)
-- Old `'dark'`/`'light'` preset IDs no longer exist in `presetThemes` array — they map to `'neutral'` in `resolveThemePreset()`
+- The variant rework (`0b9bfc6`) drifted Sunset's colors. Three fixes followed: `4aab728`, `7edf112`, `9430088`. Lesson recorded in AI_MISTAKES.md.
+- Platform count discrepancy (docs said 42, code has 40) predates this session — unclear when formats were removed without updating docs.

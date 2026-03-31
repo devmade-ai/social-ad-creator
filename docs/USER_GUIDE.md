@@ -115,7 +115,7 @@ Grid templates that change your structure without affecting colors or fonts:
 
 #### Themes
 Color schemes for your ad:
-- **Presets:** 20 pre-built color themes you can apply with one click
+- **Presets:** 19 pre-built color themes you can apply with one click
 - **Custom Colors:** Set your own primary, secondary, and accent colors
 
 **How to use:** Click a theme preset to apply it, or edit the custom color inputs to create your own palette.
@@ -328,7 +328,7 @@ Located below the preview area.
 ### Platform Selection
 A two-level selector organized by category → platform → format. Use the **search filter** to find platforms by name, or click categories to expand and browse. Platforms with a single format select directly; platforms with multiple formats expand to show options. Tips and file size limits are shown for each platform.
 
-42 formats across 18 platform groups:
+40 formats across 18 platform groups:
 
 **Social Media:**
 - Instagram: Feed Portrait (1080×1350), Square (1080×1080), Feed Landscape (1080×566), Story/Reels (1080×1920)
@@ -358,6 +358,7 @@ A two-level selector organized by category → platform → format. Use the **se
 
 **Other:**
 - Email Header (800×400)
+- Zoom Background (1920×1080)
 - Zoom Background (1920×1080)
 
 ### File Format

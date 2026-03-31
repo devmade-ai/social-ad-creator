@@ -56,7 +56,7 @@ const tutorialSteps = [
           </li>
           <li className="flex gap-2">
             <span className="text-violet-500">•</span>
-            <span><strong>Images:</strong> Upload your own images, then assign them to cells. Adjust zoom and position per image.</span>
+            <span><strong>Images:</strong> Upload your own images, then assign them to cells. Adjust fit and position per image.</span>
           </li>
           <li className="flex gap-2">
             <span className="text-violet-500">•</span>

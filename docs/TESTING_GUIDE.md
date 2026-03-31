@@ -297,7 +297,7 @@ Run these tests after making changes to ensure nothing is broken.
 | Step | Action | Where | Expected |
 |------|--------|-------|----------|
 | 1 | Click "Presets" tab | Top tab bar | Presets tab opens |
-| 2 | Expand "Themes" section | Presets tab | 20 theme thumbnails visible |
+| 2 | Expand "Themes" section | Presets tab | 19 theme thumbnails visible |
 | 3 | Click a different theme | Theme grid | Preview colors change |
 | 4 | Check text colors | Preview | Text uses theme colors |
 
@@ -378,10 +378,10 @@ Run these tests after making changes to ensure nothing is broken.
 | Step | Action | Where | Expected |
 |------|--------|-------|----------|
 | 1 | Click "Download Multiple Platforms (ZIP)" | Export buttons | Platform selection UI appears |
-| 2 | Click "Select All" | Multi-select panel | All 42 platforms selected |
-| 3 | Click "Export 42 Platforms" | Multi-select panel | Progress indicator appears |
+| 2 | Click "Select All" | Multi-select panel | All 40 platforms selected |
+| 3 | Click "Export 40 Platforms" | Multi-select panel | Progress indicator appears |
 | 4 | Wait for completion | Progress indicator | ZIP file downloads |
-| 5 | Extract ZIP | File system | Contains 42 image files, one per format |
+| 5 | Extract ZIP | File system | Contains 40 image files, one per format |
 | 6 | Check dimensions | Each file | Correct dimensions for each platform |
 
 ### E4: Format Selection
