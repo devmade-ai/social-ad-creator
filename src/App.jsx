@@ -191,7 +191,7 @@ function App() {
     state,
     addImage, removeImage, updateImage, updateImageFilters, updateImagePosition, updateImageOverlay, setCellImage,
     setLogo, setLogoPosition, setLogoSize,
-    setText, setLayout, setTheme, setThemePreset, setFonts,
+    setText, setLayout, setTheme, setThemePreset, setThemeVariant, setFonts,
     setPadding, setFrame, setOuterFrame, setCellFrame,
     setPlatform, setExportFormat,
     applyStylePreset, applyLayoutPreset,
@@ -437,6 +437,7 @@ function App() {
             theme={state.theme}
             onThemeChange={setTheme}
             onThemePresetChange={setThemePreset}
+            onThemeVariantChange={setThemeVariant}
             imageAspectRatio={imageAspectRatio}
           />
         )}
@@ -529,7 +530,7 @@ function App() {
       state.logo, state.logoPosition, state.logoSize, state.text, state.fonts, state.padding, state.frame,
       state.textMode, state.freeformText,
       // Callbacks (stable refs from useAdState)
-      applyStylePreset, applyLayoutPreset, setTheme, setThemePreset,
+      applyStylePreset, applyLayoutPreset, setTheme, setThemePreset, setThemeVariant,
       addImage, removeImage, updateImage, updateImageFilters, updateImagePosition, updateImageOverlay, setCellImage,
       setLogo, setLogoPosition, setLogoSize, setText, setLayout, setFonts, setPadding, setFrame,
       setTextMode, addFreeformBlock, updateFreeformBlock, removeFreeformBlock, moveFreeformBlock, setSelectedCell, loadAllFonts])

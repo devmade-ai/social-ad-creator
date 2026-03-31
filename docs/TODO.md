@@ -16,7 +16,7 @@ Future enhancements and ideas for CanvaGrid.
 
 | Item | Effort | Description |
 |------|--------|-------------|
-| **Expand unit test coverage** | Low-Medium | Current: 56 tests across 5 files (cellUtils, layoutPresets, stylePresets, canvasRenderers, exportHelpers). Untested: designStorage.js (IndexedDB ops — needs mock), debugLog.js (circular buffer, pub/sub), layouts.js (toRgba, gradient stops), platforms.js (group structure validation), themes.js (neutral colors, preset integrity). |
+| **Expand unit test coverage** | Low-Medium | Current: 56 tests across 5 files (cellUtils, layoutPresets, stylePresets, canvasRenderers, exportHelpers). Untested: designStorage.js (IndexedDB ops — needs mock), debugLog.js (circular buffer, pub/sub), layouts.js (toRgba, gradient stops), platforms.js (group structure validation), themes.js (neutral colors, preset integrity, variant resolution, backward compat mapping). |
 
 - [ ] **`no-print` utility class + print CSS** — Add `@media print` rules: `.no-print { display: none !important; }`, force white bg/black text, `break-inside: avoid` on sections. canva-grid uses pdf-lib for export, but this prevents garbage output if a user hits Ctrl+P. Near-zero effort. Pattern: glow-props Suggested Implementations → Download as PDF → Print-Friendly CSS.
 

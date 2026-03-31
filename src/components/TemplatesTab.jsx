@@ -11,7 +11,7 @@ import {
   aspectRatioCategories,
   getPresetsByAspectRatio,
 } from '../config/layoutPresets'
-import { presetThemes } from '../config/themes'
+import { presetThemes, getThemeVariant } from '../config/themes'
 
 // Color input component for custom theme colors
 const ColorInput = memo(function ColorInput({ label, value, onChange }) {
@@ -124,24 +124,28 @@ function LayoutPresetIcon({ presetId, isActive }) {
 //   - Live preview on canvas: Rejected — too expensive, causes flickering.
 //   - Name-only tooltip: Rejected — colors are visual, text names aren't enough.
 //   - Inline absolute tooltip: Rejected — clips at container overflow boundaries.
-function ThemePreviewContent({ preset }) {
+// Requirement: Hover preview for theme presets — shows both light and dark variant swatches.
+// Approach: Stacked rows showing light variant on top, dark variant below, with labels.
+//   Active variant gets a ring highlight so user knows which mode they're in.
+// Why: Users need to see what both variants look like before committing to a theme.
+function ThemePreviewContent({ preset, activeVariant }) {
   return (
-    <div className="bg-ui-surface border border-ui-border rounded-lg shadow-lg p-2.5 min-w-[120px]">
-      <div className="flex gap-2 mb-1.5 justify-center">
-        <div className="flex flex-col items-center gap-0.5">
-          <div className="w-7 h-7 rounded-full shadow-sm border border-black/10" style={{ backgroundColor: preset.primary }} />
-          <span className="text-[8px] text-ui-text-faint">Primary</span>
-        </div>
-        <div className="flex flex-col items-center gap-0.5">
-          <div className="w-7 h-7 rounded-full shadow-sm border border-black/10" style={{ backgroundColor: preset.secondary }} />
-          <span className="text-[8px] text-ui-text-faint">Secondary</span>
-        </div>
-        <div className="flex flex-col items-center gap-0.5">
-          <div className="w-7 h-7 rounded-full shadow-sm border border-black/10" style={{ backgroundColor: preset.accent }} />
-          <span className="text-[8px] text-ui-text-faint">Accent</span>
-        </div>
-      </div>
-      <p className="text-[10px] text-ui-text text-center font-medium">{preset.name}</p>
+    <div className="bg-ui-surface border border-ui-border rounded-lg shadow-lg p-2.5 min-w-[140px]">
+      <p className="text-[10px] text-ui-text text-center font-medium mb-2">{preset.name}</p>
+      {['light', 'dark'].map((variant) => {
+        const colors = getThemeVariant(preset, variant)
+        const isActive = activeVariant === variant
+        return (
+          <div key={variant} className={`flex items-center gap-1.5 px-1.5 py-1 rounded ${isActive ? 'bg-violet-100 dark:bg-violet-900/30' : ''}`}>
+            <span className="text-[8px] text-ui-text-faint w-7 shrink-0">{variant === 'light' ? 'Light' : 'Dark'}</span>
+            <div className="flex gap-1">
+              <div className="w-5 h-5 rounded-full shadow-sm border border-black/10" style={{ backgroundColor: colors.primary }} />
+              <div className="w-5 h-5 rounded-full shadow-sm border border-black/10" style={{ backgroundColor: colors.secondary }} />
+              <div className="w-5 h-5 rounded-full shadow-sm border border-black/10" style={{ backgroundColor: colors.accent }} />
+            </div>
+          </div>
+        )
+      })}
     </div>
   )
 }
@@ -156,9 +160,11 @@ export default memo(function TemplatesTab({
   theme,
   onThemeChange,
   onThemePresetChange,
+  onThemeVariantChange,
   imageAspectRatio,
 }) {
   const isCustomTheme = theme?.preset === 'custom'
+  const currentVariant = theme?.variant || 'dark'
   const [layoutCategory, setLayoutCategory] = useState('all')
   const [aspectRatioFilter, setAspectRatioFilter] = useState('all')
 
@@ -323,32 +329,79 @@ export default memo(function TemplatesTab({
 
       {/* Theme Presets */}
       <CollapsibleSection title="Themes" defaultExpanded={false}>
-        {/* Preset Themes */}
-        <div className="space-y-2">
-          <label className="block text-xs font-medium text-ui-text-muted">Presets</label>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-            {presetThemes.map((preset) => (
-              <Tooltip
-                key={preset.id}
-                content={<ThemePreviewContent preset={preset} />}
+        {/* Requirement: Light/dark variant toggle — global control above theme grid.
+            Approach: Single toggle affects which variant colors are shown on all presets
+              and which variant is applied when selecting a theme. When toggled, re-applies
+              the current theme in the new variant so the canvas updates immediately.
+            Why: Non-technical users understand "light mode / dark mode" as a global concept.
+              Per-theme toggles would be overwhelming and unclear.
+            Alternatives:
+              - Per-theme toggle: Rejected — too many controls, confusing for non-tech users.
+              - Separate light/dark sections: Rejected — doubles visual clutter. */}
+        <div className="space-y-3">
+          {/* Variant Toggle */}
+          <div className="flex items-center justify-between">
+            <label className="text-xs font-medium text-ui-text-muted">Mode</label>
+            <div className="flex bg-ui-surface-inset rounded-lg p-0.5">
+              <button
+                onClick={() => onThemeVariantChange?.('light')}
+                className={`flex items-center gap-1.5 px-3 min-h-[44px] text-xs rounded-md font-medium transition-all ${
+                  currentVariant === 'light'
+                    ? 'bg-white dark:bg-zinc-700 text-ui-text shadow-sm'
+                    : 'text-ui-text-muted hover:text-ui-text'
+                }`}
               >
-                <button
-                  onClick={() => onThemePresetChange?.(preset.id)}
-                  className={`w-full p-2 rounded-lg border-2 transition-all ${
-                    theme?.preset === preset.id
-                      ? 'border-primary bg-violet-50 dark:bg-violet-900/20 ring-2 ring-primary/20'
-                      : 'border-ui-border hover:border-ui-border-strong hover:bg-ui-surface-elevated'
-                  }`}
-                >
-                  <div className="flex gap-1 mb-1.5 justify-center">
-                    <div className="w-4 h-4 rounded-full shadow-sm" style={{ backgroundColor: preset.primary }} />
-                    <div className="w-4 h-4 rounded-full shadow-sm" style={{ backgroundColor: preset.secondary }} />
-                    <div className="w-4 h-4 rounded-full shadow-sm" style={{ backgroundColor: preset.accent }} />
-                  </div>
-                  <span className="text-[10px] text-ui-text font-medium">{preset.name}</span>
-                </button>
-              </Tooltip>
-            ))}
+                <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clipRule="evenodd" />
+                </svg>
+                Light
+              </button>
+              <button
+                onClick={() => onThemeVariantChange?.('dark')}
+                className={`flex items-center gap-1.5 px-3 min-h-[44px] text-xs rounded-md font-medium transition-all ${
+                  currentVariant === 'dark'
+                    ? 'bg-white dark:bg-zinc-700 text-ui-text shadow-sm'
+                    : 'text-ui-text-muted hover:text-ui-text'
+                }`}
+              >
+                <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
+                  <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
+                </svg>
+                Dark
+              </button>
+            </div>
+          </div>
+
+          {/* Preset Themes */}
+          <div className="space-y-2">
+            <label className="block text-xs font-medium text-ui-text-muted">Presets</label>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+              {presetThemes.map((preset) => {
+                const variantColors = getThemeVariant(preset, currentVariant)
+                return (
+                  <Tooltip
+                    key={preset.id}
+                    content={<ThemePreviewContent preset={preset} activeVariant={currentVariant} />}
+                  >
+                    <button
+                      onClick={() => onThemePresetChange?.(preset.id, currentVariant)}
+                      className={`w-full p-2 rounded-lg border-2 transition-all ${
+                        theme?.preset === preset.id
+                          ? 'border-primary bg-violet-50 dark:bg-violet-900/20 ring-2 ring-primary/20'
+                          : 'border-ui-border hover:border-ui-border-strong hover:bg-ui-surface-elevated'
+                      }`}
+                    >
+                      <div className="flex gap-1 mb-1.5 justify-center">
+                        <div className="w-4 h-4 rounded-full shadow-sm" style={{ backgroundColor: variantColors.primary }} />
+                        <div className="w-4 h-4 rounded-full shadow-sm" style={{ backgroundColor: variantColors.secondary }} />
+                        <div className="w-4 h-4 rounded-full shadow-sm" style={{ backgroundColor: variantColors.accent }} />
+                      </div>
+                      <span className="text-[10px] text-ui-text font-medium">{preset.name}</span>
+                    </button>
+                  </Tooltip>
+                )
+              })}
+            </div>
           </div>
         </div>
 

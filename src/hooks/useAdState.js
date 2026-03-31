@@ -7,7 +7,7 @@
 //     need cross-page sync logic, and undo/redo would only cover the active page.
 //   - Redux/Zustand: Rejected - adds dependency for a single-page app with no async state.
 import { useCallback, useEffect, useRef } from 'react'
-import { presetThemes } from '../config/themes'
+import { presetThemes, getThemeVariant, resolveThemePreset } from '../config/themes'
 import { getLookSettingsForLayout } from '../config/stylePresets'
 import { useHistory } from './useHistory'
 import { countCells, cleanupOrphanedCells, shiftCellIndices, swapCellIndices, shiftLayoutCellData, swapLayoutCellData } from '../utils/cellUtils'
@@ -15,7 +15,10 @@ import { createFreeformBlock } from '../config/textDefaults'
 import * as designStorage from '../utils/designStorage'
 import { debugLog } from '../utils/debugLog'
 
-const defaultTheme = presetThemes[0] // Dark theme
+// Requirement: Default theme uses first preset's default variant (neutral/dark).
+// Approach: Resolve variant colors from the structured theme definition.
+const defaultThemeEntry = presetThemes[0] // Neutral theme
+const defaultThemeColors = getThemeVariant(defaultThemeEntry, defaultThemeEntry.defaultVariant)
 
 // Element IDs for structured text (used in legacy migration and look preset text style application)
 const TEXT_ELEMENT_IDS = ['title', 'tagline', 'bodyHeading', 'bodyText', 'cta', 'footnote']
@@ -190,10 +193,11 @@ export const defaultState = {
   },
 
   theme: {
-    preset: 'dark',
-    primary: defaultTheme.primary,
-    secondary: defaultTheme.secondary,
-    accent: defaultTheme.accent,
+    preset: defaultThemeEntry.id,
+    variant: defaultThemeEntry.defaultVariant,
+    primary: defaultThemeColors.primary,
+    secondary: defaultThemeColors.secondary,
+    accent: defaultThemeColors.accent,
   },
 
   fonts: {
@@ -487,19 +491,50 @@ export function useAdState() {
     setState((prev) => ({ ...prev, theme: { ...prev.theme, ...theme } }))
   }, [setState])
 
-  const setThemePreset = useCallback((presetId) => {
+  // Requirement: Apply theme preset with variant support.
+  // Approach: Accepts optional variant param. If omitted, uses the current variant
+  //   (preserving user's light/dark preference when switching themes), falling back
+  //   to the theme's defaultVariant.
+  const setThemePreset = useCallback((presetId, variant = null) => {
     const preset = presetThemes.find((t) => t.id === presetId)
     if (preset) {
-      setState((prev) => ({
+      setState((prev) => {
+        const resolvedVariant = variant || prev.theme?.variant || preset.defaultVariant
+        const colors = getThemeVariant(preset, resolvedVariant)
+        return {
+          ...prev,
+          theme: {
+            preset: preset.id,
+            variant: resolvedVariant,
+            primary: colors.primary,
+            secondary: colors.secondary,
+            accent: colors.accent,
+          },
+        }
+      })
+    }
+  }, [setState])
+
+  // Requirement: Toggle between light/dark variant for the current theme.
+  // Approach: Resolves current theme from presetThemes, applies the requested variant's colors.
+  //   If current theme is 'custom', does nothing — custom colors have no variants.
+  const setThemeVariant = useCallback((variant) => {
+    setState((prev) => {
+      if (prev.theme?.preset === 'custom') return prev
+      const preset = presetThemes.find((t) => t.id === prev.theme?.preset)
+      if (!preset) return prev
+      const colors = getThemeVariant(preset, variant)
+      return {
         ...prev,
         theme: {
-          preset: preset.id,
-          primary: preset.primary,
-          secondary: preset.secondary,
-          accent: preset.accent,
+          ...prev.theme,
+          variant,
+          primary: colors.primary,
+          secondary: colors.secondary,
+          accent: colors.accent,
         },
-      }))
-    }
+      }
+    })
   }, [setState])
 
   const setFonts = useCallback((fonts) => {
@@ -905,6 +940,19 @@ export function useAdState() {
         if (!loadedState.pages) loadedState.pages = [null]
         if (!loadedState.textMode) loadedState.textMode = 'structured'
         if (!loadedState.freeformText) loadedState.freeformText = {}
+        // Requirement: Backward compat for saved designs without theme variant.
+        // Approach: Migrate old 'dark'/'light' presets to 'neutral' with variant,
+        //   and add variant field to any theme missing it.
+        if (loadedState.theme && !loadedState.theme.variant) {
+          const resolved = resolveThemePreset(loadedState.theme.preset)
+          if (resolved) {
+            loadedState.theme.preset = resolved.theme.id
+            loadedState.theme.variant = resolved.variant
+          } else {
+            // Unknown preset or custom — default to 'dark' variant
+            loadedState.theme.variant = 'dark'
+          }
+        }
         // Requirement: Validate activePage bounds to prevent crash on corrupted saves
         // Approach: Clamp activePage to valid range
         const activePage = Math.max(0, Math.min(loadedState.activePage || 0, loadedState.pages.length - 1))
@@ -965,6 +1013,7 @@ export function useAdState() {
     setLayout,
     setTheme,
     setThemePreset,
+    setThemeVariant,
     setFonts,
     setPadding,
     setFrame,
