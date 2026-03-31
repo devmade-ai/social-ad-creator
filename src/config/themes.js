@@ -84,16 +84,16 @@ export const presetThemes = [
 
   // --- Vibrant ---
 
-  // Ruby: Deep burgundy jewel tone.
+  // Ruby: Rich crimson jewel tone.
   // Light accent: burnt orange (#c2410c) — gold felt disconnected on blush bg; orange bridges red+warm.
-  // Dark accent: true gold (#fcd34d) — on burgundy reads as luxurious, high contrast.
+  // Dark accent: true gold (#fcd34d) — on crimson reads as luxurious, high contrast.
   {
     id: 'ruby',
     name: 'Ruby',
     defaultVariant: 'dark',
     variants: {
       light: { primary: '#fef2f2', secondary: '#7f1d1d', accent: '#c2410c' },
-      dark: { primary: '#7f1d1d', secondary: '#fef2f2', accent: '#fcd34d' },
+      dark: { primary: '#9f1239', secondary: '#fef2f2', accent: '#fcd34d' },
     },
   },
 
