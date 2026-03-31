@@ -155,15 +155,15 @@ export const presetThemes = [
   // --- Bold ---
 
   // Neon: Electric palette.
-  // Light accent: hot magenta (#d946ef) — on light bg green would look sickly; magenta stays electric.
-  // Dark accent: fuchsia (#e879f9) — original neon feel, glows on black.
+  // Light accent: teal (#0d9488) — turquoise-family accent readable on light bg.
+  // Dark accent: coral (#fb7185) — warm complement to cyan, glows on black.
   {
     id: 'neon',
     name: 'Neon',
     defaultVariant: 'dark',
     variants: {
-      light: { primary: '#fafafa', secondary: '#18181b', accent: '#d946ef' },
-      dark: { primary: '#0a0a0a', secondary: '#4ade80', accent: '#e879f9' },
+      light: { primary: '#fafafa', secondary: '#18181b', accent: '#0d9488' },
+      dark: { primary: '#0a0a0a', secondary: '#22d3ee', accent: '#fb7185' },
     },
   },
 
