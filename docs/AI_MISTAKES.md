@@ -160,10 +160,9 @@ Each wrong assumption led to a commit that didn't solve the actual problem. Thre
 **Why it happened:** The variant rework applied creative judgment to every theme instead of preserving known-good palettes. Sunset's original colors were orange+red — a clear identity — but the rework "reinterpreted" them into brown+orange (dark) and warm-white+rose-pink (light).
 
 **How to prevent:**
-- When adding variants to existing themes, preserve the original colors as one variant and derive the other
-- Don't reinterpret a theme's identity — orange+red sunset shouldn't become brown+orange
-- If the original palette works, use it directly instead of picking "close" alternatives
-- Each incremental fix should be checked against the original, not just against the previous broken state
+- Don't change things that weren't asked to be changed. The task was "add light/dark variants" — not "redesign every theme's colors"
+- When adding structure around existing values (variants, modes, etc.), wrap the existing values — don't replace them
+- "While I'm here" changes are how working things break
 
 ---
 
