@@ -345,26 +345,26 @@ export default memo(function TemplatesTab({
             <div className="flex bg-ui-surface-inset rounded-lg p-0.5">
               <button
                 onClick={() => onThemeVariantChange?.('light')}
-                className={`flex items-center gap-1 px-3 py-1.5 text-xs rounded-md font-medium transition-all ${
+                className={`flex items-center gap-1.5 px-3 min-h-[44px] text-xs rounded-md font-medium transition-all ${
                   currentVariant === 'light'
                     ? 'bg-white dark:bg-zinc-700 text-ui-text shadow-sm'
                     : 'text-ui-text-muted hover:text-ui-text'
                 }`}
               >
-                <svg className="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor">
+                <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
                   <path fillRule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clipRule="evenodd" />
                 </svg>
                 Light
               </button>
               <button
                 onClick={() => onThemeVariantChange?.('dark')}
-                className={`flex items-center gap-1 px-3 py-1.5 text-xs rounded-md font-medium transition-all ${
+                className={`flex items-center gap-1.5 px-3 min-h-[44px] text-xs rounded-md font-medium transition-all ${
                   currentVariant === 'dark'
                     ? 'bg-white dark:bg-zinc-700 text-ui-text shadow-sm'
                     : 'text-ui-text-muted hover:text-ui-text'
                 }`}
               >
-                <svg className="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor">
+                <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
                   <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
                 </svg>
                 Dark
