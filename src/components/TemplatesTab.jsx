@@ -327,6 +327,63 @@ export default memo(function TemplatesTab({
         </div>
       </CollapsibleSection>
 
+      {/* Looks - Visual effects presets
+          Requirement: Looks before Themes in preset flow.
+          Why: Layout → Looks → Themes mirrors the design decision order:
+            structure first, then overall vibe, then fine-tune colors. */}
+      <CollapsibleSection title="Looks" defaultExpanded={false}>
+        <div className="space-y-3">
+          {/* Active look indicator */}
+          {activeLookPreset && (
+            <div className="flex items-center gap-2 px-3 py-2 bg-violet-50 dark:bg-violet-900/20 rounded-lg">
+              <LookSwatch preset={activeLookPreset} isActive={true} theme={theme} />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-violet-700 dark:text-violet-300">{activeLookPreset.name}</p>
+                <p className="text-xs text-primary dark:text-violet-400 truncate">{activeLookPreset.description}</p>
+              </div>
+            </div>
+          )}
+
+          {/* Look preset grid */}
+          <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+            {lookPresets.map((preset) => (
+              <Tooltip
+                key={preset.id}
+                content={
+                  <div className="bg-ui-surface border border-ui-border rounded-lg shadow-lg px-2.5 py-1.5 whitespace-nowrap">
+                    <p className="text-[10px] text-ui-text text-center">{preset.description}</p>
+                  </div>
+                }
+              >
+                <button
+                  onClick={() => onSelectStylePreset(preset)}
+                  className={`w-full flex flex-col items-center gap-1.5 p-2 rounded-lg transition-all ${
+                    activeStylePreset === preset.id
+                      ? 'bg-violet-50 dark:bg-violet-900/20 ring-2 ring-primary'
+                      : 'hover:bg-zinc-50 dark:hover:bg-dark-subtle'
+                  }`}
+                >
+                  <LookSwatch preset={preset} isActive={activeStylePreset === preset.id} theme={theme} />
+                  <span
+                    className={`text-[10px] leading-tight text-center line-clamp-1 ${
+                      activeStylePreset === preset.id
+                        ? 'text-violet-700 dark:text-violet-300 font-medium'
+                        : 'text-ui-text-subtle'
+                    }`}
+                  >
+                    {preset.name}
+                  </span>
+                </button>
+              </Tooltip>
+            ))}
+          </div>
+
+          <p className="text-[10px] text-ui-text-subtle text-center">
+            Looks apply color tints, fonts &amp; filters without changing layout or colors
+          </p>
+        </div>
+      </CollapsibleSection>
+
       {/* Theme Presets */}
       <CollapsibleSection title="Themes" defaultExpanded={false}>
         {/* Requirement: Light/dark variant toggle — global control above theme grid.
@@ -428,60 +485,6 @@ export default memo(function TemplatesTab({
               onChange={(value) => onThemeChange?.({ preset: 'custom', accent: value })}
             />
           </div>
-        </div>
-      </CollapsibleSection>
-
-      {/* Looks - Visual effects presets */}
-      <CollapsibleSection title="Looks" defaultExpanded={false}>
-        <div className="space-y-3">
-          {/* Active look indicator */}
-          {activeLookPreset && (
-            <div className="flex items-center gap-2 px-3 py-2 bg-violet-50 dark:bg-violet-900/20 rounded-lg">
-              <LookSwatch preset={activeLookPreset} isActive={true} theme={theme} />
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-violet-700 dark:text-violet-300">{activeLookPreset.name}</p>
-                <p className="text-xs text-primary dark:text-violet-400 truncate">{activeLookPreset.description}</p>
-              </div>
-            </div>
-          )}
-
-          {/* Look preset grid */}
-          <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
-            {lookPresets.map((preset) => (
-              <Tooltip
-                key={preset.id}
-                content={
-                  <div className="bg-ui-surface border border-ui-border rounded-lg shadow-lg px-2.5 py-1.5 whitespace-nowrap">
-                    <p className="text-[10px] text-ui-text text-center">{preset.description}</p>
-                  </div>
-                }
-              >
-                <button
-                  onClick={() => onSelectStylePreset(preset)}
-                  className={`w-full flex flex-col items-center gap-1.5 p-2 rounded-lg transition-all ${
-                    activeStylePreset === preset.id
-                      ? 'bg-violet-50 dark:bg-violet-900/20 ring-2 ring-primary'
-                      : 'hover:bg-zinc-50 dark:hover:bg-dark-subtle'
-                  }`}
-                >
-                  <LookSwatch preset={preset} isActive={activeStylePreset === preset.id} theme={theme} />
-                  <span
-                    className={`text-[10px] leading-tight text-center line-clamp-1 ${
-                      activeStylePreset === preset.id
-                        ? 'text-violet-700 dark:text-violet-300 font-medium'
-                        : 'text-ui-text-subtle'
-                    }`}
-                  >
-                    {preset.name}
-                  </span>
-                </button>
-              </Tooltip>
-            ))}
-          </div>
-
-          <p className="text-[10px] text-ui-text-subtle text-center">
-            Looks apply color tints, fonts &amp; filters without changing layout or colors
-          </p>
         </div>
       </CollapsibleSection>
     </div>
