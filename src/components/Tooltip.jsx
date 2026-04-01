@@ -81,7 +81,7 @@ export default function Tooltip({ children, content, className = '' }) {
             {content}
             {/* Arrow */}
             <div
-              className={`absolute left-1/2 -translate-x-1/2 w-2 h-2 rotate-45 bg-ui-surface border-ui-border ${
+              className={`absolute left-1/2 -translate-x-1/2 w-2 h-2 rotate-45 bg-base-100 border-base-300 ${
                 position.below
                   ? '-top-1 border-l border-t'
                   : '-bottom-1 border-r border-b'

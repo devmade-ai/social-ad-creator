@@ -1,11 +1,12 @@
 // Requirement: User-controlled dark/light mode with system fallback, cross-tab sync,
-//   safe storage, and dynamic meta theme-color.
-// Approach: localStorage persistence with try/catch wrappers, .dark class on <html>,
-//   matchMedia listener, storage event for cross-tab sync, querySelectorAll for
-//   meta theme-color update on manual toggle.
+//   safe storage, dynamic meta theme-color, and DaisyUI data-theme sync.
+// Approach: localStorage persistence with try/catch wrappers, dual-layer theming:
+//   .dark class on <html> for Tailwind dark: utilities, data-theme attribute for
+//   DaisyUI component colors. Both must be set together.
 // Alternatives:
 //   - CSS-only prefers-color-scheme: Rejected — no user override possible
 //   - React Context: Rejected — overkill for web (DOM class is the source of truth)
+//   - data-theme only: Rejected — Tailwind dark: utilities need .dark class
 import { useState, useEffect } from 'react'
 
 // Safe localStorage wrappers — localStorage throws SecurityError in sandboxed
@@ -20,10 +21,14 @@ function safeStorageSet(key, value) {
   try { localStorage.setItem(key, value) } catch { /* sandboxed iframe, disabled storage */ }
 }
 
-// Meta theme-color values — brand purple for PWA status bar / browser chrome.
-// Light = violet-600 (#7c3aed), Dark = violet-950 (#2e1065).
-const THEME_COLOR_LIGHT = '#7c3aed'
-const THEME_COLOR_DARK = '#2e1065'
+// DaisyUI theme names — must match the themes registered in index.css @plugin directive.
+const DAISYUI_LIGHT = 'nord'
+const DAISYUI_DARK = 'night'
+
+// Meta theme-color values — match DaisyUI theme primary colors for PWA status bar.
+// Light = nord primary (#5E81AC), Dark = night base-100 (#0F172A).
+const THEME_COLOR_LIGHT = '#5E81AC'
+const THEME_COLOR_DARK = '#0F172A'
 
 export function useDarkMode() {
   const [isDark, setIsDark] = useState(() => {
@@ -32,13 +37,17 @@ export function useDarkMode() {
     return window.matchMedia('(prefers-color-scheme: dark)').matches
   })
 
-  // Apply .dark class to <html>, persist, and update meta theme-color.
+  // Apply .dark class + data-theme to <html>, persist, and update meta theme-color.
+  // Requirement: DaisyUI uses data-theme for component colors; Tailwind uses .dark
+  // for dark: utility variants. Both must be synced together on every toggle.
   useEffect(() => {
     const root = document.documentElement
     if (isDark) {
       root.classList.add('dark')
+      root.setAttribute('data-theme', DAISYUI_DARK)
     } else {
       root.classList.remove('dark')
+      root.setAttribute('data-theme', DAISYUI_LIGHT)
     }
     safeStorageSet('darkMode', isDark)
 

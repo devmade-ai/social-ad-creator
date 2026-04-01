@@ -23,12 +23,12 @@ export default memo(function ColorPicker({ value, onChange, theme }) {
           className={`w-7 h-7 rounded-full border-2 transition-transform hover:scale-110 active:scale-95 ${
             value === color.id
               ? 'border-primary ring-2 ring-primary/20'
-              : 'border-ui-border'
+              : 'border-base-300'
           }`}
           style={{ backgroundColor: theme[color.id] }}
         />
       ))}
-      <span className="w-px h-5 bg-ui-surface-hover mx-0.5" />
+      <span className="w-px h-5 bg-base-300 mx-0.5" />
       {neutralColors.map((color) => (
         <button
           key={color.id}
@@ -37,7 +37,7 @@ export default memo(function ColorPicker({ value, onChange, theme }) {
           className={`w-6 h-6 rounded-full border transition-transform hover:scale-110 active:scale-95 ${
             value === color.id
               ? 'border-primary ring-2 ring-primary/20'
-              : 'border-ui-border-strong'
+              : 'border-base-300'
           }`}
           style={{ backgroundColor: color.hex }}
         />

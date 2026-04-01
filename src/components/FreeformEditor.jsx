@@ -100,14 +100,14 @@ function MarkdownToolbar({ textareaRef, content, onContentChange }) {
     <div className="flex items-center gap-0.5 flex-nowrap overflow-x-auto scrollbar-thin">
       {groupedMarkdownFormats.map(({ id: group, formats }, gi) => (
         <div key={group} className="flex items-center gap-0.5 shrink-0">
-          {gi > 0 && <span className="w-px h-4 bg-ui-border-subtle mx-0.5 shrink-0" />}
+          {gi > 0 && <span className="w-px h-4 bg-base-200 mx-0.5 shrink-0" />}
           {formats.map((fmt) => (
             <button
               key={fmt.title}
               type="button"
               onClick={() => applyFormat(fmt)}
               title={fmt.title}
-              className="px-2.5 py-1.5 sm:px-2 sm:py-1 text-[12px] sm:text-[11px] font-medium rounded text-ui-text-muted hover:bg-ui-surface-hover hover:text-ui-text active:bg-ui-surface-inset transition-colors shrink-0"
+              className="px-2.5 py-1.5 sm:px-2 sm:py-1 text-[12px] sm:text-[11px] font-medium rounded text-base-content/70 hover:bg-base-300 hover:text-base-content active:bg-base-200 transition-colors shrink-0"
               style={fmt.style ? { textDecoration: fmt.style === 'line-through' ? 'line-through' : undefined, fontStyle: fmt.style === 'italic' ? 'italic' : undefined } : undefined}
             >
               {fmt.label}
@@ -198,13 +198,13 @@ function FreeformBlockEditor({
   const isMultiBlock = total > 1
 
   return (
-    <div className="space-y-2 p-2 bg-ui-surface-inset/30 rounded-lg border border-ui-border-subtle">
+    <div className="space-y-2 p-2 bg-base-200/30 rounded-lg border border-base-200">
       {/* Header: block number + move + style + delete */}
       <div className="flex items-center gap-1">
         {/* Only show block number and move buttons when multiple blocks exist */}
         {isMultiBlock && (
           <>
-            <span className="text-[10px] text-ui-text-subtle font-medium w-6 shrink-0">#{index + 1}</span>
+            <span className="text-[10px] text-base-content/60 font-medium w-6 shrink-0">#{index + 1}</span>
 
             <button
               onClick={() => onMoveBlock(cellIndex, block.id, -1)}
@@ -232,7 +232,7 @@ function FreeformBlockEditor({
         <button
           onClick={() => setShowStyle(!showStyle)}
           className={`w-7 h-7 sm:w-6 sm:h-6 rounded flex items-center justify-center text-xs transition-colors active:scale-90 ${
-            showStyle ? 'bg-primary/10 text-primary' : 'bg-ui-surface-inset text-ui-text-subtle hover:bg-ui-surface-hover'
+            showStyle ? 'bg-primary/10 text-primary' : 'bg-ui-surface-inset text-base-content/60 hover:bg-ui-surface-hover'
           }`}
           title="Block style options"
         >

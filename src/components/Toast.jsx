@@ -64,10 +64,10 @@ function ToastItem({ toast, onRemove }) {
   }, [isExiting, toast.id, onRemove])
 
   const typeStyles = {
-    success: 'bg-emerald-600 text-white',
-    error: 'bg-red-600 text-white',
-    info: 'bg-zinc-800 dark:bg-zinc-200 text-white dark:text-zinc-900',
-    warning: 'bg-amber-500 text-white',
+    success: 'bg-success text-success-content',
+    error: 'bg-error text-error-content',
+    info: 'bg-neutral text-neutral-content',
+    warning: 'bg-warning text-warning-content',
   }
 
   const icons = {

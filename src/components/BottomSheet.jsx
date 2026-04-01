@@ -126,7 +126,7 @@ export default function BottomSheet({ isOpen, onClose, children, snapPoint, onSn
   return (
     <div
       ref={sheetRef}
-      className="fixed bottom-0 left-0 right-0 z-30 bg-white dark:bg-dark-card rounded-t-2xl shadow-[0_-4px_20px_rgba(0,0,0,0.12)] flex flex-col will-change-transform"
+      className="fixed bottom-0 left-0 right-0 z-30 bg-base-100 rounded-t-2xl shadow-[0_-4px_20px_rgba(0,0,0,0.12)] flex flex-col will-change-transform"
       style={{
         height: `${SNAP_FULL}vh`,
         maxHeight: 'calc(100dvh - 6rem)',
@@ -143,7 +143,7 @@ export default function BottomSheet({ isOpen, onClose, children, snapPoint, onSn
         onTouchEnd={handleTouchEnd}
         onTouchCancel={handleTouchCancel}
       >
-        <div className="w-10 h-1 bg-zinc-300 dark:bg-zinc-600 rounded-full" />
+        <div className="w-10 h-1 bg-base-300 rounded-full" />
       </div>
       {/* Scrollable content — max-height constrained to visible snap area */}
       <div

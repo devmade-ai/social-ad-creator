@@ -16,11 +16,11 @@ export default memo(function InstallInstructionsModal({ isOpen, onClose, instruc
       />
 
       {/* Modal */}
-      <div ref={modalRef} className="relative bg-white dark:bg-dark-card rounded-xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto p-6 border border-zinc-200 dark:border-zinc-700">
+      <div ref={modalRef} className="relative bg-base-100 rounded-xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto p-6 border border-base-300">
         {/* Close button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200"
+          className="absolute top-4 right-4 text-base-content/40 hover:text-base-content/70"
         >
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />

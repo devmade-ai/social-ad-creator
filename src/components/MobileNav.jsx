@@ -69,7 +69,7 @@ export default memo(function MobileNav({ activeTab, sheetOpen, onTabChange }) {
   return (
     <nav
       aria-label="Main navigation"
-      className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-dark-card/95 backdrop-blur-sm border-t border-zinc-200/60 dark:border-zinc-700/60"
+      className="fixed bottom-0 left-0 right-0 z-40 bg-base-100/95 backdrop-blur-sm border-t border-base-300/60"
       style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
     >
       <div className="flex items-center justify-around">
@@ -82,7 +82,7 @@ export default memo(function MobileNav({ activeTab, sheetOpen, onTabChange }) {
               key={tab.id}
               onClick={() => onTabChange(tab.id)}
               className={`flex flex-col items-center justify-center py-2 px-1 min-w-0 flex-1 transition-colors ${
-                isActive ? 'text-primary' : 'text-ui-text-muted'
+                isActive ? 'text-primary' : 'text-base-content/70'
               }`}
             >
               <span className={isActive && sheetOpen ? 'scale-110 transition-transform' : 'transition-transform'} aria-hidden="true">

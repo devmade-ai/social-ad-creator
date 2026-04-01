@@ -23,10 +23,10 @@ const letterSpacingOptions = [
 
 export default function TextStyleControls({ value, onChange, theme }) {
   return (
-    <div className="space-y-2 p-2 bg-ui-surface-inset/50 rounded-lg">
+    <div className="space-y-2 p-2 bg-base-200/50 rounded-lg">
       {/* Alignment */}
       <div className="flex items-center gap-2">
-        <span className="text-[10px] text-ui-text-subtle w-10 shrink-0">Align</span>
+        <span className="text-[10px] text-base-content/60 w-10 shrink-0">Align</span>
         <AlignmentPicker
           value={value.textAlign}
           onChange={(id) => onChange({ textAlign: id })}
@@ -35,7 +35,7 @@ export default function TextStyleControls({ value, onChange, theme }) {
 
       {/* Color */}
       <div className="flex items-center gap-2">
-        <span className="text-[10px] text-ui-text-subtle w-10 shrink-0">Color</span>
+        <span className="text-[10px] text-base-content/60 w-10 shrink-0">Color</span>
         <ColorPicker
           value={value.color}
           onChange={(id) => onChange({ color: id })}
@@ -45,7 +45,7 @@ export default function TextStyleControls({ value, onChange, theme }) {
 
       {/* Size + Bold/Italic */}
       <div className="flex items-center gap-2 flex-wrap">
-        <span className="text-[10px] text-ui-text-subtle w-10 shrink-0">Size</span>
+        <span className="text-[10px] text-base-content/60 w-10 shrink-0">Size</span>
         <div className="flex items-center gap-1">
           {sizeOptions.map((size) => (
             <button
@@ -54,8 +54,8 @@ export default function TextStyleControls({ value, onChange, theme }) {
               title={`Size ${size.name}`}
               className={`w-8 h-7 sm:w-7 sm:h-6 text-[11px] sm:text-[10px] active:scale-90 font-medium rounded ${
                 value.size === size.id
-                  ? 'bg-primary text-white'
-                  : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
+                  ? 'bg-primary text-primary-content'
+                  : 'bg-base-200 text-base-content/70 hover:bg-base-300'
               }`}
             >
               {size.name}
@@ -69,8 +69,8 @@ export default function TextStyleControls({ value, onChange, theme }) {
             title="Bold"
             className={`w-9 h-7 sm:w-7 sm:h-6 text-[11px] sm:text-[10px] active:scale-90 font-bold rounded ${
               value.bold
-                ? 'bg-primary text-white'
-                : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
+                ? 'bg-primary text-primary-content'
+                : 'bg-base-200 text-base-content/70 hover:bg-base-300'
             }`}
           >
             B
@@ -80,8 +80,8 @@ export default function TextStyleControls({ value, onChange, theme }) {
             title="Italic"
             className={`w-9 h-7 sm:w-7 sm:h-6 text-[11px] sm:text-[10px] active:scale-90 italic rounded ${
               value.italic
-                ? 'bg-primary text-white'
-                : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
+                ? 'bg-primary text-primary-content'
+                : 'bg-base-200 text-base-content/70 hover:bg-base-300'
             }`}
           >
             I
@@ -91,7 +91,7 @@ export default function TextStyleControls({ value, onChange, theme }) {
 
       {/* Letter spacing */}
       <div className="flex items-center gap-2">
-        <span className="text-[10px] text-ui-text-subtle w-10 shrink-0">Spacing</span>
+        <span className="text-[10px] text-base-content/60 w-10 shrink-0">Spacing</span>
         <div className="flex items-center gap-1">
           {letterSpacingOptions.map((opt) => (
             <button
@@ -100,8 +100,8 @@ export default function TextStyleControls({ value, onChange, theme }) {
               title={opt.name}
               className={`px-2.5 h-7 sm:px-2 sm:h-6 text-[11px] sm:text-[10px] active:scale-90 rounded ${
                 value.letterSpacing === opt.id
-                  ? 'bg-primary text-white'
-                  : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
+                  ? 'bg-primary text-primary-content'
+                  : 'bg-base-200 text-base-content/70 hover:bg-base-300'
               }`}
             >
               {opt.name}
@@ -112,15 +112,15 @@ export default function TextStyleControls({ value, onChange, theme }) {
 
       {/* Spacer/line above */}
       <div className="flex items-center gap-2">
-        <span className="text-[10px] text-ui-text-subtle w-10 shrink-0">Above</span>
+        <span className="text-[10px] text-base-content/60 w-10 shrink-0">Above</span>
         <div className="flex items-center gap-1">
           <button
             onClick={() => onChange({ spacerAbove: ((value.spacerAbove || 0) + 1) % 3 })}
             title={`Spacer above: ${['None', 'Small', 'Large'][value.spacerAbove || 0]}`}
             className={`flex items-center gap-1 px-2 h-7 sm:h-6 text-[11px] sm:text-[10px] active:scale-90 rounded ${
               (value.spacerAbove || 0) > 0
-                ? 'bg-primary text-white'
-                : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
+                ? 'bg-primary text-primary-content'
+                : 'bg-base-200 text-base-content/70 hover:bg-base-300'
             }`}
           >
             Gap {['Off', 'S', 'L'][value.spacerAbove || 0]}
@@ -130,8 +130,8 @@ export default function TextStyleControls({ value, onChange, theme }) {
             title={`Line above: ${value.lineAbove ? 'On' : 'Off'}`}
             className={`flex items-center gap-1 px-2 h-7 sm:h-6 text-[11px] sm:text-[10px] active:scale-90 rounded ${
               value.lineAbove
-                ? 'bg-primary text-white'
-                : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
+                ? 'bg-primary text-primary-content'
+                : 'bg-base-200 text-base-content/70 hover:bg-base-300'
             }`}
           >
             Line
@@ -141,15 +141,15 @@ export default function TextStyleControls({ value, onChange, theme }) {
 
       {/* Spacer/line below */}
       <div className="flex items-center gap-2">
-        <span className="text-[10px] text-ui-text-subtle w-10 shrink-0">Below</span>
+        <span className="text-[10px] text-base-content/60 w-10 shrink-0">Below</span>
         <div className="flex items-center gap-1">
           <button
             onClick={() => onChange({ spacerBelow: ((value.spacerBelow || 0) + 1) % 3 })}
             title={`Spacer below: ${['None', 'Small', 'Large'][value.spacerBelow || 0]}`}
             className={`flex items-center gap-1 px-2 h-7 sm:h-6 text-[11px] sm:text-[10px] active:scale-90 rounded ${
               (value.spacerBelow || 0) > 0
-                ? 'bg-primary text-white'
-                : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
+                ? 'bg-primary text-primary-content'
+                : 'bg-base-200 text-base-content/70 hover:bg-base-300'
             }`}
           >
             Gap {['Off', 'S', 'L'][value.spacerBelow || 0]}
@@ -159,8 +159,8 @@ export default function TextStyleControls({ value, onChange, theme }) {
             title={`Line below: ${value.lineBelow ? 'On' : 'Off'}`}
             className={`flex items-center gap-1 px-2 h-7 sm:h-6 text-[11px] sm:text-[10px] active:scale-90 rounded ${
               value.lineBelow
-                ? 'bg-primary text-white'
-                : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
+                ? 'bg-primary text-primary-content'
+                : 'bg-base-200 text-base-content/70 hover:bg-base-300'
             }`}
           >
             Line

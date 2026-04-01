@@ -19,8 +19,8 @@ function OverlayTypeButton({ type, isActive, onClick }) {
       onClick={onClick}
       className={`px-1.5 py-1 text-[9px] rounded truncate ${
         isActive
-          ? 'bg-primary text-white'
-          : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
+          ? 'bg-primary text-primary-content'
+          : 'bg-base-200 text-base-content/70 hover:bg-base-300'
       }`}
       title={type.name}
       aria-label={`Overlay type: ${type.name}`}
@@ -97,18 +97,18 @@ export default memo(function StyleTab({
 
   return (
     <div className="space-y-3">
-      <h3 className="text-sm font-semibold text-ui-text">Style</h3>
+      <h3 className="text-sm font-semibold text-base-content">Style</h3>
 
       {/* Background Section */}
       <CollapsibleSection title="Background" defaultExpanded={false}>
         <div className="space-y-3">
-          <div className="text-xs text-center py-1.5 bg-ui-surface-elevated rounded">
-            <span className="text-primary dark:text-violet-400">
+          <div className="text-xs text-center py-1.5 bg-base-200 rounded">
+            <span className="text-primary">
               Cell {clampedCell + 1}
             </span>
           </div>
 
-          <div className="p-3 bg-ui-surface-elevated rounded-lg space-y-2">
+          <div className="p-3 bg-base-200 rounded-lg space-y-2">
             <div className="flex items-center gap-2">
               <input
                 type="checkbox"
@@ -123,11 +123,11 @@ export default memo(function StyleTab({
                   }
                   onLayoutChange({ cellBackgrounds: newBgs })
                 }}
-                className="w-4 h-4 text-primary rounded border-zinc-300 focus:ring-primary"
+                className="w-4 h-4 text-primary rounded border-base-300 focus:ring-primary"
               />
               <label
                 htmlFor={`bg-custom-${clampedCell}`}
-                className="text-xs text-ui-text-subtle"
+                className="text-xs text-base-content/60"
               >
                 Override theme color
               </label>
@@ -153,15 +153,15 @@ export default memo(function StyleTab({
       <CollapsibleSection title="Color Tint" defaultExpanded={false}>
         <div className="space-y-3">
           {/* Cell indicator */}
-          <div className="text-xs text-center py-1.5 bg-ui-surface-elevated rounded">
-            <span className="text-primary dark:text-violet-400">
+          <div className="text-xs text-center py-1.5 bg-base-200 rounded">
+            <span className="text-primary">
               Cell {clampedCell + 1}
-              {cellHasImage(clampedCell) && <span className="text-violet-400 ml-1">(image)</span>}
+              {cellHasImage(clampedCell) && <span className="text-primary ml-1">(image)</span>}
             </span>
           </div>
 
           {/* Cell Overlay Controls */}
-          <div className="space-y-3 p-3 bg-ui-surface-elevated rounded-lg">
+          <div className="space-y-3 p-3 bg-base-200 rounded-lg">
               {/* Enable/Disable */}
               <div className="flex items-center gap-2">
                 <input
@@ -169,11 +169,11 @@ export default memo(function StyleTab({
                   id={`overlay-enabled-${clampedCell}`}
                   checked={isCellOverlayEnabled(clampedCell)}
                   onChange={(e) => updateCellOverlay(clampedCell, { enabled: e.target.checked })}
-                  className="w-4 h-4 text-primary rounded border-zinc-300 focus:ring-primary"
+                  className="w-4 h-4 text-primary rounded border-base-300 focus:ring-primary"
                 />
                 <label
                   htmlFor={`overlay-enabled-${clampedCell}`}
-                  className="text-xs font-medium text-ui-text-muted"
+                  className="text-xs font-medium text-base-content/70"
                 >
                   Enable Color Tint
                 </label>
@@ -208,11 +208,11 @@ export default memo(function StyleTab({
                           onLayoutChange({ cellOverlays: newCellOverlays })
                         }
                       }}
-                      className="w-4 h-4 text-primary rounded border-zinc-300 focus:ring-primary"
+                      className="w-4 h-4 text-primary rounded border-base-300 focus:ring-primary"
                     />
                     <label
                       htmlFor={`overlay-custom-${clampedCell}`}
-                      className="text-xs text-ui-text-subtle"
+                      className="text-xs text-base-content/60"
                     >
                       Custom settings
                     </label>
@@ -220,10 +220,10 @@ export default memo(function StyleTab({
 
                   {/* Custom overlay settings */}
                   {getCellOverlayConfig(clampedCell)?.type !== undefined && (
-                    <div className="space-y-3 pt-2 border-t border-ui-border">
+                    <div className="space-y-3 pt-2 border-t border-base-300">
                       {/* Type - organized by category */}
                       <div className="space-y-2">
-                        <label className="block text-xs font-medium text-ui-text-muted">Type</label>
+                        <label className="block text-xs font-medium text-base-content/70">Type</label>
                         {/* Overlay type categories */}
                         {[
                           { key: 'basicAndLinear', label: 'Basic & Gradients' },
@@ -232,7 +232,7 @@ export default memo(function StyleTab({
                           { key: 'blend', label: 'Blending' },
                         ].map(({ key, label }) => (
                           <div key={key} className="space-y-1">
-                            <span className="text-[9px] text-ui-text-faint uppercase tracking-wide">{label}</span>
+                            <span className="text-[9px] text-base-content-faint uppercase tracking-wide">{label}</span>
                             <div className="grid grid-cols-3 gap-1">
                               {overlayTypesByCategory[key].map((t) => (
                                 <OverlayTypeButton
@@ -249,7 +249,7 @@ export default memo(function StyleTab({
 
                       {/* Color */}
                       <div className="space-y-1.5">
-                        <label className="block text-xs font-medium text-ui-text-muted">Color</label>
+                        <label className="block text-xs font-medium text-base-content/70">Color</label>
                         <ThemeColorPicker
                           value={getCellOverlayConfig(clampedCell)?.color}
                           onChange={(id) => updateCellOverlay(clampedCell, { color: id })}
@@ -260,8 +260,8 @@ export default memo(function StyleTab({
                       {/* Opacity */}
                       <div className="space-y-1">
                         <div className="flex justify-between">
-                          <label className="text-xs font-medium text-ui-text-muted">Transparency</label>
-                          <span className="text-xs text-ui-text-subtle">
+                          <label className="text-xs font-medium text-base-content/70">Transparency</label>
+                          <span className="text-xs text-base-content-subtle">
                             {getCellOverlayConfig(clampedCell)?.opacity ?? 50}%
                           </span>
                         </div>
@@ -285,7 +285,7 @@ export default memo(function StyleTab({
               {/* Reset */}
               <button
                 onClick={() => updateCellOverlay(clampedCell, null)}
-                className="w-full px-2 py-1.5 text-xs bg-zinc-200 dark:bg-dark-subtle text-ui-text-muted hover:bg-zinc-300 dark:hover:bg-dark-elevated rounded"
+                className="w-full px-2 py-1.5 text-xs bg-zinc-200 dark:bg-dark-subtle text-base-content/70 hover:bg-zinc-300 dark:hover:bg-dark-elevated rounded"
               >
                 Reset to Default
               </button>
@@ -297,18 +297,18 @@ export default memo(function StyleTab({
       <CollapsibleSection title="Frames" defaultExpanded={false}>
         <div className="space-y-3">
           {/* Outer Frame */}
-          <div className="space-y-2 p-3 bg-ui-surface-elevated rounded-lg">
+          <div className="space-y-2 p-3 bg-base-200 rounded-lg">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-ui-text-muted">Outer Frame</span>
-              <span className="text-[10px] text-ui-text-faint">
+              <span className="text-xs font-medium text-base-content/70">Outer Frame</span>
+              <span className="text-[10px] text-base-content-faint">
                 % of spacing used as border
               </span>
             </div>
 
             <div className="space-y-1">
               <div className="flex justify-between">
-                <label className="text-xs text-ui-text-subtle">Border %</label>
-                <span className="text-xs text-ui-text-subtle">
+                <label className="text-xs text-base-content-subtle">Border %</label>
+                <span className="text-xs text-base-content-subtle">
                   {frame.outer?.percent || 0}%
                 </span>
               </div>
@@ -325,7 +325,7 @@ export default memo(function StyleTab({
 
             {(frame.outer?.percent || 0) > 0 && (
               <div className="space-y-1.5">
-                <label className="text-xs text-ui-text-subtle">Color</label>
+                <label className="text-xs text-base-content-subtle">Color</label>
                 <ThemeColorPicker
                   value={frame.outer?.color}
                   onChange={(id) => onFrameChange?.({ outer: { ...frame.outer, color: id } })}
@@ -336,14 +336,14 @@ export default memo(function StyleTab({
           </div>
 
           {/* Per-cell frame */}
-          <div className="pt-3 border-t border-ui-border-subtle space-y-3">
-            <div className="text-xs text-center py-1.5 bg-ui-surface-elevated rounded">
-              <span className="text-primary dark:text-violet-400">
+          <div className="pt-3 border-t border-base-300-subtle space-y-3">
+            <div className="text-xs text-center py-1.5 bg-base-200 rounded">
+              <span className="text-primary">
                 Cell {clampedCell + 1}
               </span>
             </div>
 
-            <div className="p-3 bg-ui-surface-elevated rounded-lg space-y-2">
+            <div className="p-3 bg-base-200 rounded-lg space-y-2">
               <div className="flex items-center gap-2">
                 <input
                   type="checkbox"
@@ -363,7 +363,7 @@ export default memo(function StyleTab({
                 />
                 <label
                   htmlFor={`frame-custom-${clampedCell}`}
-                  className="text-xs text-ui-text-subtle"
+                  className="text-xs text-base-content-subtle"
                 >
                   Custom frame
                 </label>
@@ -373,8 +373,8 @@ export default memo(function StyleTab({
                 <div className="space-y-2 pl-6">
                   <div className="space-y-1">
                     <div className="flex justify-between">
-                      <label className="text-xs text-ui-text-subtle">Border %</label>
-                      <span className="text-xs text-ui-text-subtle">
+                      <label className="text-xs text-base-content-subtle">Border %</label>
+                      <span className="text-xs text-base-content-subtle">
                         {frame.cellFrames[clampedCell]?.percent || 0}%
                       </span>
                     </div>
@@ -399,7 +399,7 @@ export default memo(function StyleTab({
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="text-xs text-ui-text-subtle">Color</label>
+                    <label className="text-xs text-base-content-subtle">Color</label>
                     <ThemeColorPicker
                       value={frame.cellFrames[clampedCell]?.color}
                       onChange={(id) => {
@@ -428,8 +428,8 @@ export default memo(function StyleTab({
           {/* Global Padding */}
           <div className="space-y-2">
             <div className="flex justify-between">
-              <label className="text-xs font-medium text-ui-text-muted">Overall Spacing</label>
-              <span className="text-xs text-ui-text-subtle">{padding.global}px</span>
+              <label className="text-xs font-medium text-base-content/70">Overall Spacing</label>
+              <span className="text-xs text-base-content-subtle">{padding.global}px</span>
             </div>
             <input
               type="range"
@@ -443,14 +443,14 @@ export default memo(function StyleTab({
           </div>
 
           {/* Per-cell padding */}
-          <div className="pt-3 border-t border-ui-border-subtle space-y-3">
-            <div className="text-xs text-center py-1.5 bg-ui-surface-elevated rounded">
-              <span className="text-primary dark:text-violet-400">
+          <div className="pt-3 border-t border-base-300-subtle space-y-3">
+            <div className="text-xs text-center py-1.5 bg-base-200 rounded">
+              <span className="text-primary">
                 Cell {clampedCell + 1}
               </span>
             </div>
 
-            <div className="p-3 bg-ui-surface-elevated rounded-lg space-y-2">
+            <div className="p-3 bg-base-200 rounded-lg space-y-2">
               <div className="flex items-center gap-2">
                 <input
                   type="checkbox"
@@ -467,7 +467,7 @@ export default memo(function StyleTab({
                 />
                 <label
                   htmlFor={`padding-custom-${clampedCell}`}
-                  className="text-xs text-ui-text-subtle"
+                  className="text-xs text-base-content-subtle"
                 >
                   Custom spacing
                 </label>
@@ -476,8 +476,8 @@ export default memo(function StyleTab({
               {padding.cellOverrides?.[clampedCell] !== undefined && (
                 <div className="space-y-1 pl-6">
                   <div className="flex justify-between">
-                    <label className="text-xs text-ui-text-subtle">Spacing</label>
-                    <span className="text-xs text-ui-text-subtle">
+                    <label className="text-xs text-base-content-subtle">Spacing</label>
+                    <span className="text-xs text-base-content-subtle">
                       {getCellPaddingValue(clampedCell)}px
                     </span>
                   </div>
@@ -501,11 +501,11 @@ export default memo(function StyleTab({
       <CollapsibleSection title="Fonts" defaultExpanded={false} onExpand={onLoadAllFonts}>
         <div className="space-y-3">
           <div className="space-y-2">
-            <label className="block text-xs font-medium text-ui-text-muted">Title Font</label>
+            <label className="block text-xs font-medium text-base-content/70">Title Font</label>
             <select
               value={selectedFonts.title}
               onChange={(e) => onFontsChange({ title: e.target.value })}
-              className="w-full px-3 py-2 text-sm text-ui-text border border-ui-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-white dark:bg-dark-subtle"
+              className="w-full px-3 py-2 text-sm text-base-content border border-ui-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-white dark:bg-dark-subtle"
             >
               {fonts.map((font) => (
                 <option key={font.id} value={font.id}>
@@ -516,11 +516,11 @@ export default memo(function StyleTab({
           </div>
 
           <div className="space-y-2">
-            <label className="block text-xs font-medium text-ui-text-muted">Body Font</label>
+            <label className="block text-xs font-medium text-base-content/70">Body Font</label>
             <select
               value={selectedFonts.body}
               onChange={(e) => onFontsChange({ body: e.target.value })}
-              className="w-full px-3 py-2 text-sm text-ui-text border border-ui-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-white dark:bg-dark-subtle"
+              className="w-full px-3 py-2 text-sm text-base-content border border-ui-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-white dark:bg-dark-subtle"
             >
               {fonts.map((font) => (
                 <option key={font.id} value={font.id}>
@@ -531,16 +531,16 @@ export default memo(function StyleTab({
           </div>
 
           {/* Preview */}
-          <div className="p-3 bg-ui-surface-elevated rounded-lg">
-            <p className="text-[10px] text-ui-text-subtle mb-1">Preview:</p>
+          <div className="p-3 bg-base-200 rounded-lg">
+            <p className="text-[10px] text-base-content-subtle mb-1">Preview:</p>
             <p
-              className="text-lg font-bold text-ui-text"
+              className="text-lg font-bold text-base-content"
               style={{ fontFamily: fonts.find((f) => f.id === selectedFonts.title)?.family }}
             >
               Title Text
             </p>
             <p
-              className="text-sm text-ui-text-muted mt-0.5"
+              className="text-sm text-base-content/70 mt-0.5"
               style={{ fontFamily: fonts.find((f) => f.id === selectedFonts.body)?.family }}
             >
               Body text preview

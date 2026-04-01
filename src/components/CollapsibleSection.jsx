@@ -20,7 +20,7 @@ export default memo(function CollapsibleSection({
   const [isExpanded, setIsExpanded] = useState(defaultExpanded)
 
   return (
-    <div className={`border border-ui-border rounded-lg overflow-hidden ${className}`}>
+    <div className={`border border-base-300 rounded-lg overflow-hidden ${className}`}>
       {/* Header */}
       <button
         onClick={() => {
@@ -28,16 +28,16 @@ export default memo(function CollapsibleSection({
           setIsExpanded(next)
           if (next) onExpand?.()
         }}
-        className="w-full flex items-center justify-between px-3 py-3 lg:py-2.5 bg-ui-surface-elevated hover:bg-zinc-100 dark:hover:bg-dark-elevated transition-colors"
+        className="w-full flex items-center justify-between px-3 py-3 lg:py-2.5 bg-base-200 hover:bg-base-300 transition-colors"
       >
-        <span className="text-sm font-medium text-ui-text flex items-center gap-2 min-w-0">
+        <span className="text-sm font-medium text-base-content flex items-center gap-2 min-w-0">
           <span className="shrink-0">{title}</span>
           {!isExpanded && subtitle && (
-            <span className="text-[10px] text-ui-text-faint font-normal truncate">— {subtitle}</span>
+            <span className="text-[10px] text-base-content/40 font-normal truncate">— {subtitle}</span>
           )}
         </span>
         <svg
-          className={`w-4 h-4 text-ui-text-subtle transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}
+          className={`w-4 h-4 text-base-content/60 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -48,7 +48,7 @@ export default memo(function CollapsibleSection({
 
       {/* Content */}
       {isExpanded && (
-        <div className="p-3 space-y-3 bg-white dark:bg-dark-card">
+        <div className="p-3 space-y-3 bg-base-100">
           {children}
         </div>
       )}

@@ -34,7 +34,7 @@ export default memo(function ThemeColorPicker({ value, onChange, theme }) {
         ))}
       </div>
       <div className="flex items-center gap-1.5">
-        <span className="text-[10px] text-ui-text-subtle">Neutrals:</span>
+        <span className="text-[10px] text-base-content/60">Neutrals:</span>
         {neutralColors.map((c) => (
           <button
             key={c.id}
@@ -43,7 +43,7 @@ export default memo(function ThemeColorPicker({ value, onChange, theme }) {
             className={`w-5 h-5 rounded-full border transition-transform hover:scale-110 ${
               value === c.id
                 ? 'ring-2 ring-primary ring-offset-1 border-transparent'
-                : 'border-ui-border-strong'
+                : 'border-base-300'
             }`}
             style={{ backgroundColor: c.hex }}
           />
