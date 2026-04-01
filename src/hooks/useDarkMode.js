@@ -3,12 +3,15 @@
 // Approach: Each mode (light/dark) stores its own DaisyUI theme choice in localStorage.
 //   Dual-layer theming: .dark class on <html> for Tailwind dark: utilities, data-theme
 //   attribute for DaisyUI component colors. Both set together on every change.
+//   All theme IDs are validated against the catalog — invalid values fall back to defaults.
 // Alternatives:
 //   - Paired combos (glow-props pattern): Rejected — user wants independent per-mode selection.
 //   - CSS-only prefers-color-scheme: Rejected — no user override possible.
 //   - data-theme only: Rejected — Tailwind dark: utilities need .dark class.
 import { useState, useEffect, useCallback } from 'react'
 import {
+  lightThemes,
+  darkThemes,
   DEFAULT_LIGHT_THEME,
   DEFAULT_DARK_THEME,
   getMetaColor,
@@ -24,6 +27,21 @@ function safeStorageSet(key, value) {
   try { localStorage.setItem(key, value) } catch { /* sandboxed iframe, disabled storage */ }
 }
 
+// Validate a theme ID exists in its respective catalog array.
+// Returns the ID if valid, or the default for that mode if not.
+// Prevents garbage localStorage values or cross-mode mismatches
+// (e.g. a light theme ID stored as darkTheme) from producing unstyled pages.
+const lightIds = new Set(lightThemes.map(t => t.id))
+const darkIds = new Set(darkThemes.map(t => t.id))
+
+function validLightTheme(id) {
+  return lightIds.has(id) ? id : DEFAULT_LIGHT_THEME
+}
+
+function validDarkTheme(id) {
+  return darkIds.has(id) ? id : DEFAULT_DARK_THEME
+}
+
 export function useDarkMode() {
   const [isDark, setIsDark] = useState(() => {
     const stored = safeStorageGet('darkMode')
@@ -33,11 +51,12 @@ export function useDarkMode() {
 
   // Per-mode theme selection — each mode remembers its own DaisyUI theme.
   // localStorage keys: 'lightTheme', 'darkTheme'
+  // Validated on init: invalid/missing values fall back to defaults.
   const [lightTheme, setLightThemeState] = useState(
-    () => safeStorageGet('lightTheme') || DEFAULT_LIGHT_THEME
+    () => validLightTheme(safeStorageGet('lightTheme'))
   )
   const [darkTheme, setDarkThemeState] = useState(
-    () => safeStorageGet('darkTheme') || DEFAULT_DARK_THEME
+    () => validDarkTheme(safeStorageGet('darkTheme'))
   )
 
   // The currently active DaisyUI theme (based on mode)
@@ -61,19 +80,23 @@ export function useDarkMode() {
     })
   }, [isDark, activeTheme])
 
-  // Setters that persist to localStorage
+  // Setters that validate + persist to localStorage.
+  // Invalid IDs are silently corrected to defaults — no crash, no unstyled page.
   const setLightTheme = useCallback((themeId) => {
-    setLightThemeState(themeId)
-    safeStorageSet('lightTheme', themeId)
+    const valid = validLightTheme(themeId)
+    setLightThemeState(valid)
+    safeStorageSet('lightTheme', valid)
   }, [])
 
   const setDarkTheme = useCallback((themeId) => {
-    setDarkThemeState(themeId)
-    safeStorageSet('darkTheme', themeId)
+    const valid = validDarkTheme(themeId)
+    setDarkThemeState(valid)
+    safeStorageSet('darkTheme', valid)
   }, [])
 
   // Cross-tab sync — when another tab changes any theme key in localStorage,
-  // update this tab to match.
+  // update this tab to match. Values are validated to prevent garbage from
+  // producing unstyled pages.
   useEffect(() => {
     const handleStorage = (e) => {
       if (e.key === 'darkMode') {
@@ -83,9 +106,9 @@ export function useDarkMode() {
           setIsDark(window.matchMedia('(prefers-color-scheme: dark)').matches)
         }
       } else if (e.key === 'lightTheme' && e.newValue) {
-        setLightThemeState(e.newValue)
+        setLightThemeState(validLightTheme(e.newValue))
       } else if (e.key === 'darkTheme' && e.newValue) {
-        setDarkThemeState(e.newValue)
+        setDarkThemeState(validDarkTheme(e.newValue))
       }
     }
     window.addEventListener('storage', handleStorage)

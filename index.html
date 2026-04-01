@@ -25,8 +25,11 @@
          The useDarkMode hook runs after React mounts, too late to prevent a flash.
          This inline classic (non-module) script reads localStorage and applies both
          .dark (Tailwind) and data-theme (DaisyUI) during HTML parse.
-         Must duplicate the same localStorage keys and defaults as the hook.
-         Per-mode theme storage: 'lightTheme' and 'darkTheme' keys, defaults 'lofi'/'black'. -->
+         SYNC WARNING: This script duplicates localStorage keys and default theme names
+         from src/config/daisyuiThemes.js (DEFAULT_LIGHT_THEME / DEFAULT_DARK_THEME).
+         Inline scripts cannot import ES modules, so these values are hardcoded here.
+         If you change defaults in daisyuiThemes.js, update the fallbacks below to match.
+         Keys: 'darkMode', 'lightTheme', 'darkTheme'. Defaults: 'lofi', 'black'. -->
     <script>
       (function() {
         try {

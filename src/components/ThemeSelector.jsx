@@ -31,6 +31,12 @@ export default function ThemeSelector({
 
   const close = useCallback(() => setIsOpen(false), [])
 
+  // Close dropdown when mode changes — the theme list switches from light to dark
+  // themes, so keeping it open would show a jarring instant swap.
+  useEffect(() => {
+    setIsOpen(false)
+  }, [isDark])
+
   // Focus management: focus first item on open, return to trigger on close.
   // hasBeenOpenRef prevents stealing focus on initial mount.
   useEffect(() => {
