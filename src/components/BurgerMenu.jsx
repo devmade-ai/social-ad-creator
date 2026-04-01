@@ -4,18 +4,14 @@
 //   (File/Edit/View). Screen readers enter forms mode, suppress normal nav keys,
 //   and expect arrow-key navigation. A burger nav is a disclosure — a list of
 //   actions revealed by a toggle.
+// Ref: glow-props burger menu implementation — same disclosure pattern, same z-index
+//   scale, same focus management. Adapted from vanilla JS to React.
 // Alternatives:
 //   - role="menu" pattern: Rejected — wrong ARIA semantics for navigation
 //   - Slide-out drawer: Rejected — needs animation lib, fights with bottom nav
 //   - Headless UI Disclosure: Viable — adds dependency for a single component
-import { useState, useRef, useCallback, useEffect, useId } from 'react'
+import { useRef, useEffect, useId } from 'react'
 
-// Requirement: Move Save + ThemeSelector into burger menu for cleaner mobile header.
-// Approach: Items support separator, trailing ReactNode, and preventClose.
-//   children prop renders additional content (e.g. theme picker) after items.
-// Alternatives:
-//   - Separate ThemeSelector in header: Rejected — clutters mobile header per glow-props spec.
-//   - Custom item components: Rejected — trailing + children covers all cases simply.
 export default function BurgerMenu({ items, open, onToggle, onClose, children }) {
   const menuId = useId()
   const triggerRef = useRef(null)
@@ -30,7 +26,7 @@ export default function BurgerMenu({ items, open, onToggle, onClose, children })
     if (open) {
       hasBeenOpenRef.current = true
       const rafId = requestAnimationFrame(() => {
-        const firstItem = menuRef.current?.querySelector('button')
+        const firstItem = menuRef.current?.querySelector('button, a')
         firstItem?.focus()
       })
       return () => cancelAnimationFrame(rafId)
@@ -87,31 +83,27 @@ export default function BurgerMenu({ items, open, onToggle, onClose, children })
           >
             <ul className="list-none m-0 p-0">
               {visibleItems.map((item, i) => (
-                item.separator ? (
-                  <li key={`sep-${i}`} className="border-t border-base-200 my-1" aria-hidden="true" />
-                ) : (
-                  <li key={item.label}>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        try { item.action() } catch (e) { console.error('Menu action failed:', e) }
-                        if (!item.preventClose) onClose()
-                      }}
-                      className={`w-full flex items-center gap-3 px-4 py-3 text-sm transition-colors
-                        outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset
-                        ${item.highlight
-                          ? `${item.highlightColor || 'text-primary'} hover:bg-primary/5`
-                          : 'text-base-content hover:bg-base-300'
-                        }`}
-                    >
-                      <svg className="w-4 h-4 shrink-0" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={item.icon} />
-                      </svg>
-                      <span className="flex-1 text-left">{item.label}</span>
-                      {item.trailing}
-                    </button>
-                  </li>
-                )
+                <li key={item.label || `sep-${i}`}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      try { item.action() } catch (e) { console.error('Menu action failed:', e) }
+                      onClose()
+                    }}
+                    className={`w-full flex items-center gap-3 px-4 py-3 text-sm transition-colors
+                      outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset
+                      min-h-11
+                      ${item.highlight
+                        ? `${item.highlightColor || 'text-primary'} hover:bg-primary/5`
+                        : 'text-base-content hover:bg-base-200'
+                      }`}
+                  >
+                    <svg className="w-4 h-4 shrink-0" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={item.icon} />
+                    </svg>
+                    {item.label}
+                  </button>
+                </li>
               ))}
             </ul>
             {children}

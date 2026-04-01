@@ -4,7 +4,6 @@
 // Alternatives:
 //   - Responsive sidebar: Rejected — scroll-heavy, canvas hidden by controls.
 //   - Tab content above canvas: Rejected — canvas should be primary focus.
-import { useState } from 'react'
 import ErrorBoundary from './ErrorBoundary'
 import AdCanvas from './AdCanvas'
 import ContextBar from './ContextBar'
@@ -15,84 +14,63 @@ import MobileNav from './MobileNav'
 import BurgerMenu from './BurgerMenu'
 import { lightThemes, darkThemes } from '../config/daisyuiThemes'
 
-// Requirement: Visual toggle indicator for dark mode item in burger menu.
-// Pure presentational — the actual toggle logic is on the menu item action.
-function ToggleSwitch({ checked }) {
-  return (
-    <span
-      aria-hidden="true"
-      className={`relative inline-flex h-5 w-9 shrink-0 rounded-full transition-colors ${checked ? 'bg-primary' : 'bg-base-300'}`}
-    >
-      <span className={`inline-block h-4 w-4 rounded-full bg-base-100 shadow-sm transition-transform mt-0.5 ${checked ? 'translate-x-4.5 ml-0' : 'translate-x-0.5'}`} />
-    </span>
-  )
-}
-
-// Requirement: Dark mode toggle + theme picker grouped together in burger menu.
-// Approach: Toggle row + expandable theme list as a single section.
-// Replaces the standalone ThemeSelector component in the header.
-function MenuThemePicker({ isDark, toggleDarkMode, lightTheme, darkTheme, setLightTheme, setDarkTheme }) {
-  const [expanded, setExpanded] = useState(false)
+// Requirement: Dark mode toggle + per-mode theme picker inside burger menu.
+// Ref: glow-props burger menu implementation — dark/light toggle as plain text item,
+//   theme list always visible (not collapsed) with section header, checkmark indicator,
+//   name + description, max-h scrollable. Menu stays open on toggle and theme selection.
+// Approach: Rendered as BurgerMenu children (below action items, separated by <hr>).
+//   Toggle is a plain button matching other menu items. Theme list is always visible
+//   with a "Light themes" / "Dark themes" section header above.
+// Alternatives:
+//   - ToggleSwitch widget on dark mode row: Rejected — glow-props uses plain text label.
+//   - Collapsed/expandable theme list: Rejected — glow-props shows themes always visible.
+//   - Separate ThemeSelector in header: Rejected — clutters mobile header.
+function MenuThemeSection({ isDark, toggleDarkMode, lightTheme, darkTheme, setLightTheme, setDarkTheme }) {
   const themes = isDark ? darkThemes : lightThemes
   const currentTheme = isDark ? darkTheme : lightTheme
   const setTheme = isDark ? setDarkTheme : setLightTheme
-  const currentEntry = themes.find(t => t.id === currentTheme)
 
   return (
-    <div className="border-t border-base-200">
-      {/* Dark/Light mode toggle */}
+    <>
+      <hr className="my-1 border-base-300" />
+      {/* Dark/Light mode toggle — plain text button, same as glow-props */}
       <button
         type="button"
         onClick={toggleDarkMode}
-        className="w-full flex items-center gap-3 px-4 py-3 text-sm text-base-content hover:bg-base-300 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset"
+        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-base-content
+                   hover:bg-base-200 transition-colors cursor-pointer min-h-11
+                   outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset"
       >
-        <svg className="w-4 h-4 shrink-0" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={isDark ? 'M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z' : 'M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z'} />
-        </svg>
-        <span className="flex-1 text-left">{isDark ? 'Light Mode' : 'Dark Mode'}</span>
-        <ToggleSwitch checked={isDark} />
+        {isDark ? 'Light mode' : 'Dark mode'}
       </button>
-      {/* Theme picker — expandable list for active mode */}
-      <button
-        type="button"
-        onClick={() => setExpanded(!expanded)}
-        className="w-full flex items-center gap-3 px-4 py-3 text-sm text-base-content hover:bg-base-300 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset"
-      >
-        <svg className="w-4 h-4 shrink-0" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
-        </svg>
-        <span className="flex-1 text-left">Theme: {currentEntry?.name || currentTheme}</span>
-        <svg className={`w-3 h-3 transition-transform ${expanded ? 'rotate-180' : ''}`} aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-        </svg>
-      </button>
-      {expanded && (
-        <div className="max-h-48 overflow-y-auto overscroll-contain border-t border-base-200">
-          {themes.map((theme) => (
-            <button
-              key={theme.id}
-              type="button"
-              onClick={() => setTheme(theme.id)}
-              className={`w-full text-left px-4 py-2.5 text-sm flex items-center justify-between transition-colors outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset ${
-                currentTheme === theme.id
-                  ? 'bg-primary/10 text-primary font-medium'
-                  : 'text-base-content hover:bg-base-200'
-              }`}
-            >
-              <div className="pl-7">
-                <span>{theme.name}</span>
-                <span className="text-xs text-base-content/50 ml-2">{theme.description}</span>
-              </div>
-              {currentTheme === theme.id && (
-                <svg className="w-3.5 h-3.5 shrink-0 text-primary" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-              )}
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
+      <hr className="my-1 border-base-300" />
+      {/* Section header — updates to reflect which mode's themes are shown */}
+      <div className="px-4 pt-2 pb-1">
+        <span className="text-xs font-semibold uppercase tracking-wider text-base-content/40">
+          {isDark ? 'Dark themes' : 'Light themes'}
+        </span>
+      </div>
+      {/* Theme list — always visible, scrollable, matches glow-props layout:
+          checkmark (invisible when not selected) + name + description (ml-auto) */}
+      <div className="max-h-52 overflow-y-auto overscroll-contain">
+        {themes.map((theme) => (
+          <button
+            key={theme.id}
+            type="button"
+            onClick={() => setTheme(theme.id)}
+            className={`w-full text-left px-4 py-2.5 text-sm
+                       flex items-center gap-2 rounded-lg
+                       transition-colors cursor-pointer min-h-11
+                       outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset
+                       ${currentTheme === theme.id ? 'bg-base-200' : 'hover:bg-base-200'}`}
+          >
+            <span className={`text-primary text-xs ${currentTheme === theme.id ? '' : 'invisible'}`} aria-hidden="true">&#10003;</span>
+            <span>{theme.name}</span>
+            <span className="ml-auto text-xs text-base-content/40">{theme.description}</span>
+          </button>
+        ))}
+      </div>
+    </>
   )
 }
 
@@ -200,7 +178,7 @@ export default function MobileLayout({
               { label: 'Update Available', icon: 'M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15', action: update, visible: hasUpdate, highlight: true, highlightColor: 'text-success' },
             ]}
           >
-            <MenuThemePicker isDark={isDark} toggleDarkMode={toggleDarkMode} lightTheme={lightTheme} darkTheme={darkTheme} setLightTheme={setLightTheme} setDarkTheme={setDarkTheme} />
+            <MenuThemeSection isDark={isDark} toggleDarkMode={toggleDarkMode} lightTheme={lightTheme} darkTheme={darkTheme} setLightTheme={setLightTheme} setDarkTheme={setDarkTheme} />
           </BurgerMenu>
         </div>
       </header>
