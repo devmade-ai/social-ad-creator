@@ -261,8 +261,7 @@ DaisyUI handles light/dark automatically via `data-theme` — no need for manual
 ### Cards
 
 ```html
-<div class="bg-white dark:bg-zinc-800/50 rounded-xl border border-zinc-200 dark:border-zinc-700/50
-            p-5 shadow-sm hover:shadow-md transition-shadow">
+<div class="bg-base-100 rounded-xl border border-base-300 p-5 shadow-sm hover:shadow-md transition-shadow">
   <!-- Content -->
 </div>
 ```
@@ -273,13 +272,13 @@ Active tab should feel *selected*, not just different.
 
 ```html
 <!-- Tab container -->
-<div class="flex gap-1 p-1 bg-zinc-100 dark:bg-zinc-800 rounded-lg">
+<div class="flex gap-1 p-1 bg-base-200 rounded-lg">
   <!-- Active tab -->
-  <button class="px-4 py-2 bg-white dark:bg-zinc-700 rounded-md font-medium shadow-sm">
+  <button class="px-4 py-2 bg-base-100 rounded-md font-medium shadow-sm">
     Templates
   </button>
   <!-- Inactive tab -->
-  <button class="px-4 py-2 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200">
+  <button class="px-4 py-2 text-base-content/60 hover:text-base-content">
     Media
   </button>
 </div>
