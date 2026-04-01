@@ -56,14 +56,14 @@ function CellContextMenu({ position, onAction, onClose }) {
       {/* Backdrop to catch outside taps */}
       <div className="fixed inset-0 z-30" onClick={onClose} />
       <div
-        className="absolute z-30 bg-white dark:bg-dark-card rounded-xl shadow-lg border border-ui-border py-1 min-w-[140px]"
+        className="absolute z-30 bg-base-100 rounded-xl shadow-lg border border-base-300 py-1 min-w-[140px]"
         style={{ top: position.y, left: position.x }}
       >
         {actions.map((action) => (
           <button
             key={action.id}
             onClick={() => onAction(action.id)}
-            className="w-full px-3 py-2.5 text-sm text-left flex items-center gap-2 text-ui-text hover:bg-ui-surface-hover active:bg-ui-surface-inset transition-colors"
+            className="w-full px-3 py-2.5 text-sm text-left flex items-center gap-2 text-base-content hover:bg-base-300 active:bg-base-200 transition-colors"
           >
             <span aria-hidden="true">{action.icon}</span>
             {action.label}
@@ -547,11 +547,11 @@ function App() {
 
   // Shared export overlay
   const exportOverlay = isExporting && (
-    <div className="absolute inset-0 bg-dark-page/80 flex items-center justify-center backdrop-blur-sm z-10">
+    <div className="absolute inset-0 bg-neutral/80 flex items-center justify-center backdrop-blur-sm z-10">
       <div className="text-center">
         <div className="inline-block w-8 h-8 border-2 border-primary/30 border-t-primary rounded-full animate-spin mb-3" />
-        <p className="text-white font-medium">Exporting...</p>
-        <button onClick={() => { cancelExportRef.current = true; setIsExporting(false) }} className="mt-3 px-4 py-1.5 text-sm text-white/70 hover:text-white rounded-lg hover:bg-white/10 transition-colors">Cancel</button>
+        <p className="text-neutral-content font-medium">Exporting...</p>
+        <button onClick={() => { cancelExportRef.current = true; setIsExporting(false) }} className="mt-3 px-4 py-1.5 text-sm text-neutral-content/70 hover:text-neutral-content rounded-lg hover:bg-neutral-content/10 transition-colors">Cancel</button>
       </div>
     </div>
   )

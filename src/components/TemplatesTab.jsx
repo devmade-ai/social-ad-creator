@@ -22,15 +22,15 @@ const ColorInput = memo(function ColorInput({ label, value, onChange }) {
         value={value}
         onChange={(e) => onChange(e.target.value)}
         aria-label={label}
-        className="w-10 h-10 rounded-lg cursor-pointer border-2 border-ui-border shadow-sm"
+        className="w-10 h-10 rounded-lg cursor-pointer border-2 border-base-300 shadow-sm"
       />
       <div className="flex-1">
-        <label className="text-xs text-ui-text-subtle mb-0.5 block">{label}</label>
+        <label className="text-xs text-base-content/60 mb-0.5 block">{label}</label>
         <input
           type="text"
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className="w-full px-2 py-1.5 text-sm text-ui-text font-mono border border-ui-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-white dark:bg-dark-subtle"
+          className="w-full px-2 py-1.5 text-sm text-base-content font-mono border border-base-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-base-100"
         />
       </div>
     </div>
@@ -67,7 +67,7 @@ function LookSwatch({ preset, isActive, theme }) {
   return (
     <div
       className={`w-10 h-7 rounded overflow-hidden border-2 transition-all relative ${
-        isActive ? 'border-primary ring-2 ring-violet-300' : 'border-ui-border-strong'
+        isActive ? 'border-primary ring-2 ring-primary/30' : 'border-base-300'
       }`}
       style={bgStyle}
     >
@@ -130,14 +130,14 @@ function LayoutPresetIcon({ presetId, isActive }) {
 // Why: Users need to see what both variants look like before committing to a theme.
 function ThemePreviewContent({ preset, activeVariant }) {
   return (
-    <div className="bg-ui-surface border border-ui-border rounded-lg shadow-lg p-2.5 min-w-[140px]">
-      <p className="text-[10px] text-ui-text text-center font-medium mb-2">{preset.name}</p>
+    <div className="bg-base-100 border border-base-300 rounded-lg shadow-lg p-2.5 min-w-[140px]">
+      <p className="text-[10px] text-base-content text-center font-medium mb-2">{preset.name}</p>
       {['light', 'dark'].map((variant) => {
         const colors = getThemeVariant(preset, variant)
         const isActive = activeVariant === variant
         return (
-          <div key={variant} className={`flex items-center gap-1.5 px-1.5 py-1 rounded ${isActive ? 'bg-violet-100 dark:bg-violet-900/30' : ''}`}>
-            <span className="text-[8px] text-ui-text-faint w-7 shrink-0">{variant === 'light' ? 'Light' : 'Dark'}</span>
+          <div key={variant} className={`flex items-center gap-1.5 px-1.5 py-1 rounded ${isActive ? 'bg-primary/15' : ''}`}>
+            <span className="text-[8px] text-base-content/40 w-7 shrink-0">{variant === 'light' ? 'Light' : 'Dark'}</span>
             <div className="flex gap-1">
               <div className="w-5 h-5 rounded-full shadow-sm border border-black/10" style={{ backgroundColor: colors.primary }} />
               <div className="w-5 h-5 rounded-full shadow-sm border border-black/10" style={{ backgroundColor: colors.secondary }} />
@@ -217,7 +217,7 @@ export default memo(function TemplatesTab({
 
   return (
     <div className="space-y-3">
-      <h3 className="text-sm font-semibold text-ui-text">Presets</h3>
+      <h3 className="text-sm font-semibold text-base-content">Presets</h3>
 
       {/* Requirement: Platform selection as first section in Presets tab
           Why: Platform defines canvas dimensions — a foundational design decision,
@@ -237,7 +237,7 @@ export default memo(function TemplatesTab({
         <div className="space-y-3">
           {/* Aspect Ratio Filter */}
           <div className="space-y-1.5">
-            <label className="block text-[10px] text-ui-text-subtle uppercase tracking-wide">Shape</label>
+            <label className="block text-[10px] text-base-content/60 uppercase tracking-wide">Shape</label>
             <div className="flex gap-1">
               {aspectRatioCategories.map((ar) => (
                 <button
@@ -245,8 +245,8 @@ export default memo(function TemplatesTab({
                   onClick={() => setAspectRatioFilter(ar.id)}
                   className={`flex-1 px-2 py-1.5 text-xs rounded-lg font-medium transition-all ${
                     aspectRatioFilter === ar.id
-                      ? 'bg-violet-600 text-white shadow-sm'
-                      : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
+                      ? 'bg-primary text-primary-content shadow-sm'
+                      : 'bg-base-200 text-base-content/70 hover:bg-base-300'
                   }`}
                 >
                   {ar.name}
@@ -257,14 +257,14 @@ export default memo(function TemplatesTab({
 
           {/* Category pills */}
           <div className="space-y-1.5">
-            <label className="block text-[10px] text-ui-text-subtle uppercase tracking-wide">Category</label>
+            <label className="block text-[10px] text-base-content/60 uppercase tracking-wide">Category</label>
             <div className="flex flex-wrap gap-1.5">
               <button
                 onClick={() => setLayoutCategory('all')}
                 className={`px-2.5 py-1 text-xs rounded-lg font-medium ${
                   layoutCategory === 'all'
-                    ? 'bg-primary text-white shadow-sm'
-                    : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
+                    ? 'bg-primary text-primary-content shadow-sm'
+                    : 'bg-base-200 text-base-content/70 hover:bg-base-300'
                 }`}
               >
                 All
@@ -273,8 +273,8 @@ export default memo(function TemplatesTab({
                 onClick={() => setLayoutCategory('suggested')}
                 className={`px-2.5 py-1 text-xs rounded-lg font-medium ${
                   layoutCategory === 'suggested'
-                    ? 'bg-primary text-white shadow-sm'
-                    : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
+                    ? 'bg-primary text-primary-content shadow-sm'
+                    : 'bg-base-200 text-base-content/70 hover:bg-base-300'
                 }`}
               >
                 Suggested
@@ -285,8 +285,8 @@ export default memo(function TemplatesTab({
                   onClick={() => setLayoutCategory(cat.id)}
                   className={`px-2.5 py-1 text-xs rounded-lg font-medium ${
                     layoutCategory === cat.id
-                      ? 'bg-primary text-white shadow-sm'
-                      : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
+                      ? 'bg-primary text-primary-content shadow-sm'
+                      : 'bg-base-200 text-base-content/70 hover:bg-base-300'
                   }`}
                 >
                   {cat.name}
@@ -305,23 +305,23 @@ export default memo(function TemplatesTab({
                   onClick={() => onApplyLayoutPreset?.(preset)}
                   className={`p-2 rounded-lg border-2 transition-all flex flex-col items-center gap-1.5 ${
                     isActive
-                      ? 'border-primary bg-primary text-white shadow-sm'
-                      : 'border-ui-border bg-ui-surface hover:border-violet-300 dark:hover:border-violet-500 hover:bg-violet-50 dark:hover:bg-violet-900/30'
+                      ? 'border-primary bg-primary text-primary-content shadow-sm'
+                      : 'border-base-300 bg-base-100 hover:border-primary hover:bg-primary/10'
                   }`}
                   title={preset.description}
                 >
                   <LayoutPresetIcon presetId={preset.id} isActive={isActive} />
-                  <span className={`text-[10px] font-medium leading-tight text-center ${isActive ? '' : 'text-ui-text'}`}>{preset.name}</span>
+                  <span className={`text-[10px] font-medium leading-tight text-center ${isActive ? '' : 'text-base-content'}`}>{preset.name}</span>
                 </button>
               )
             })}
           </div>
 
           {displayLayoutPresets.length === 0 && (
-            <p className="text-sm text-ui-text-subtle text-center py-4">No layouts match — try a different shape or category</p>
+            <p className="text-sm text-base-content/60 text-center py-4">No layouts match — try a different shape or category</p>
           )}
 
-          <p className="text-[10px] text-ui-text-subtle text-center">
+          <p className="text-[10px] text-base-content/60 text-center">
             Layout presets change structure without affecting colors or fonts
           </p>
         </div>
@@ -335,11 +335,11 @@ export default memo(function TemplatesTab({
         <div className="space-y-3">
           {/* Active look indicator */}
           {activeLookPreset && (
-            <div className="flex items-center gap-2 px-3 py-2 bg-violet-50 dark:bg-violet-900/20 rounded-lg">
+            <div className="flex items-center gap-2 px-3 py-2 bg-primary/10 rounded-lg">
               <LookSwatch preset={activeLookPreset} isActive={true} theme={theme} />
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-violet-700 dark:text-violet-300">{activeLookPreset.name}</p>
-                <p className="text-xs text-primary dark:text-violet-400 truncate">{activeLookPreset.description}</p>
+                <p className="text-sm font-medium text-primary">{activeLookPreset.name}</p>
+                <p className="text-xs text-primary/70 truncate">{activeLookPreset.description}</p>
               </div>
             </div>
           )}
@@ -350,8 +350,8 @@ export default memo(function TemplatesTab({
               <Tooltip
                 key={preset.id}
                 content={
-                  <div className="bg-ui-surface border border-ui-border rounded-lg shadow-lg px-2.5 py-1.5 whitespace-nowrap">
-                    <p className="text-[10px] text-ui-text text-center">{preset.description}</p>
+                  <div className="bg-base-100 border border-base-300 rounded-lg shadow-lg px-2.5 py-1.5 whitespace-nowrap">
+                    <p className="text-[10px] text-base-content text-center">{preset.description}</p>
                   </div>
                 }
               >
@@ -359,16 +359,16 @@ export default memo(function TemplatesTab({
                   onClick={() => onSelectStylePreset(preset)}
                   className={`w-full flex flex-col items-center gap-1.5 p-2 rounded-lg transition-all ${
                     activeStylePreset === preset.id
-                      ? 'bg-violet-50 dark:bg-violet-900/20 ring-2 ring-primary'
-                      : 'hover:bg-zinc-50 dark:hover:bg-dark-subtle'
+                      ? 'bg-primary/10 ring-2 ring-primary'
+                      : 'hover:bg-base-200'
                   }`}
                 >
                   <LookSwatch preset={preset} isActive={activeStylePreset === preset.id} theme={theme} />
                   <span
                     className={`text-[10px] leading-tight text-center line-clamp-1 ${
                       activeStylePreset === preset.id
-                        ? 'text-violet-700 dark:text-violet-300 font-medium'
-                        : 'text-ui-text-subtle'
+                        ? 'text-primary font-medium'
+                        : 'text-base-content/60'
                     }`}
                   >
                     {preset.name}
@@ -378,7 +378,7 @@ export default memo(function TemplatesTab({
             ))}
           </div>
 
-          <p className="text-[10px] text-ui-text-subtle text-center">
+          <p className="text-[10px] text-base-content/60 text-center">
             Looks apply color tints, fonts &amp; filters without changing layout or colors
           </p>
         </div>
@@ -398,14 +398,14 @@ export default memo(function TemplatesTab({
         <div className="space-y-3">
           {/* Variant Toggle */}
           <div className="flex items-center justify-between">
-            <label className="text-xs font-medium text-ui-text-muted">Mode</label>
-            <div className="flex bg-ui-surface-inset rounded-lg p-0.5">
+            <label className="text-xs font-medium text-base-content/70">Mode</label>
+            <div className="flex bg-base-200 rounded-lg p-0.5">
               <button
                 onClick={() => onThemeVariantChange?.('light')}
                 className={`flex items-center gap-1.5 px-3 min-h-[44px] text-xs rounded-md font-medium transition-all ${
                   currentVariant === 'light'
-                    ? 'bg-white dark:bg-zinc-700 text-ui-text shadow-sm'
-                    : 'text-ui-text-muted hover:text-ui-text'
+                    ? 'bg-base-100 text-base-content shadow-sm'
+                    : 'text-base-content/70 hover:text-base-content'
                 }`}
               >
                 <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
@@ -417,8 +417,8 @@ export default memo(function TemplatesTab({
                 onClick={() => onThemeVariantChange?.('dark')}
                 className={`flex items-center gap-1.5 px-3 min-h-[44px] text-xs rounded-md font-medium transition-all ${
                   currentVariant === 'dark'
-                    ? 'bg-white dark:bg-zinc-700 text-ui-text shadow-sm'
-                    : 'text-ui-text-muted hover:text-ui-text'
+                    ? 'bg-base-100 text-base-content shadow-sm'
+                    : 'text-base-content/70 hover:text-base-content'
                 }`}
               >
                 <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
@@ -431,7 +431,7 @@ export default memo(function TemplatesTab({
 
           {/* Preset Themes */}
           <div className="space-y-2">
-            <label className="block text-xs font-medium text-ui-text-muted">Presets</label>
+            <label className="block text-xs font-medium text-base-content/70">Presets</label>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
               {presetThemes.map((preset) => {
                 const variantColors = getThemeVariant(preset, currentVariant)
@@ -444,8 +444,8 @@ export default memo(function TemplatesTab({
                       onClick={() => onThemePresetChange?.(preset.id, currentVariant)}
                       className={`w-full p-2 rounded-lg border-2 transition-all ${
                         theme?.preset === preset.id
-                          ? 'border-primary bg-violet-50 dark:bg-violet-900/20 ring-2 ring-primary/20'
-                          : 'border-ui-border hover:border-ui-border-strong hover:bg-ui-surface-elevated'
+                          ? 'border-primary bg-primary/10 ring-2 ring-primary/20'
+                          : 'border-base-300 hover:border-base-300 hover:bg-base-200'
                       }`}
                     >
                       <div className="flex gap-1 mb-1.5 justify-center">
@@ -453,7 +453,7 @@ export default memo(function TemplatesTab({
                         <div className="w-4 h-4 rounded-full shadow-sm" style={{ backgroundColor: variantColors.secondary }} />
                         <div className="w-4 h-4 rounded-full shadow-sm" style={{ backgroundColor: variantColors.accent }} />
                       </div>
-                      <span className="text-[10px] text-ui-text font-medium">{preset.name}</span>
+                      <span className="text-[10px] text-base-content font-medium">{preset.name}</span>
                     </button>
                   </Tooltip>
                 )
@@ -463,10 +463,10 @@ export default memo(function TemplatesTab({
         </div>
 
         {/* Custom Colors */}
-        <div className="space-y-2 pt-3 border-t border-ui-border-subtle">
+        <div className="space-y-2 pt-3 border-t border-base-200">
           <div className="flex items-center justify-between">
-            <label className="text-xs font-medium text-ui-text-muted">Custom Colors</label>
-            {!isCustomTheme && <span className="text-[10px] text-ui-text-faint">(Edit to customize)</span>}
+            <label className="text-xs font-medium text-base-content/70">Custom Colors</label>
+            {!isCustomTheme && <span className="text-[10px] text-base-content/40">(Edit to customize)</span>}
           </div>
           <div className="space-y-2">
             <ColorInput

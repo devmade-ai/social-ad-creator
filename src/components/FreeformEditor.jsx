@@ -209,7 +209,7 @@ function FreeformBlockEditor({
             <button
               onClick={() => onMoveBlock(cellIndex, block.id, -1)}
               disabled={index === 0}
-              className="w-7 h-7 sm:w-6 sm:h-6 rounded flex items-center justify-center text-xs active:scale-90 disabled:opacity-30 bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover disabled:hover:bg-ui-surface-inset"
+              className="w-7 h-7 sm:w-6 sm:h-6 rounded flex items-center justify-center text-xs active:scale-90 disabled:opacity-30 bg-base-200 text-base-content/70 hover:bg-base-300 disabled:hover:bg-base-200"
               title="Move up"
             >
               <ChevronUpIcon />
@@ -218,7 +218,7 @@ function FreeformBlockEditor({
             <button
               onClick={() => onMoveBlock(cellIndex, block.id, 1)}
               disabled={index === total - 1}
-              className="w-7 h-7 sm:w-6 sm:h-6 rounded flex items-center justify-center text-xs active:scale-90 disabled:opacity-30 bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover disabled:hover:bg-ui-surface-inset"
+              className="w-7 h-7 sm:w-6 sm:h-6 rounded flex items-center justify-center text-xs active:scale-90 disabled:opacity-30 bg-base-200 text-base-content/70 hover:bg-base-300 disabled:hover:bg-base-200"
               title="Move down"
             >
               <ChevronDownIcon />
@@ -232,7 +232,7 @@ function FreeformBlockEditor({
         <button
           onClick={() => setShowStyle(!showStyle)}
           className={`w-7 h-7 sm:w-6 sm:h-6 rounded flex items-center justify-center text-xs transition-colors active:scale-90 ${
-            showStyle ? 'bg-primary/10 text-primary' : 'bg-ui-surface-inset text-base-content/60 hover:bg-ui-surface-hover'
+            showStyle ? 'bg-primary/10 text-primary' : 'bg-base-200 text-base-content/60 hover:bg-base-300'
           }`}
           title="Block style options"
         >
@@ -245,8 +245,8 @@ function FreeformBlockEditor({
           onBlur={handleDeleteBlur}
           className={`w-7 h-7 sm:w-6 sm:h-6 rounded flex items-center justify-center text-xs active:scale-90 transition-colors ${
             confirmDelete
-              ? 'bg-red-500 text-white'
-              : 'bg-ui-surface-inset text-ui-text-faint hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20'
+              ? 'bg-error text-error-content'
+              : 'bg-base-200 text-base-content/40 hover:text-error hover:bg-error/10'
           }`}
           title={confirmDelete ? 'Click again to confirm delete' : 'Delete block'}
         >
@@ -273,7 +273,7 @@ function FreeformBlockEditor({
           onBlur={handleBlur}
           placeholder="Type here — focus to see formatting toolbar"
           rows={textareaRows}
-          className="w-full px-3 py-2 text-sm text-ui-text border border-ui-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-white dark:bg-dark-subtle placeholder-zinc-400 dark:placeholder-zinc-500 font-mono"
+          className="w-full px-3 py-2 text-sm text-base-content border border-base-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-base-100 placeholder-base-content/50 font-mono"
           style={{ resize: 'vertical', minHeight: '3rem' }}
         />
       </div>
@@ -332,7 +332,7 @@ export default function FreeformCellEditor({
 
       <button
         onClick={() => onAddBlock(cellIndex)}
-        className="w-full py-2 text-xs font-medium text-ui-text-muted hover:text-ui-text bg-ui-surface-inset hover:bg-ui-surface-hover rounded-lg transition-colors active:scale-[0.98]"
+        className="w-full py-2 text-xs font-medium text-base-content/70 hover:text-base-content bg-base-200 hover:bg-base-300 rounded-lg transition-colors active:scale-[0.98]"
       >
         + Add Text Block
       </button>

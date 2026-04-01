@@ -7,10 +7,10 @@
 export default function QuickActionsBar({ selectedCell, onNavigate }) {
   return (
     <div className="mt-2 flex items-center justify-center gap-1.5">
-      <span className="text-[10px] text-ui-text-faint mr-1">Cell {selectedCell + 1}:</span>
+      <span className="text-[10px] text-base-content/40 mr-1">Cell {selectedCell + 1}:</span>
       <button
         onClick={() => onNavigate('media')}
-        className="px-2 py-1 text-[11px] font-medium rounded-md text-ui-text-muted hover:text-ui-text hover:bg-ui-surface-hover transition-all flex items-center gap-1"
+        className="px-2 py-1 text-[11px] font-medium rounded-md text-base-content/70 hover:text-base-content hover:bg-base-300 transition-all flex items-center gap-1"
         title="Go to Media tab to add/change image for this cell"
       >
         <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -20,7 +20,7 @@ export default function QuickActionsBar({ selectedCell, onNavigate }) {
       </button>
       <button
         onClick={() => onNavigate('content')}
-        className="px-2 py-1 text-[11px] font-medium rounded-md text-ui-text-muted hover:text-ui-text hover:bg-ui-surface-hover transition-all flex items-center gap-1"
+        className="px-2 py-1 text-[11px] font-medium rounded-md text-base-content/70 hover:text-base-content hover:bg-base-300 transition-all flex items-center gap-1"
         title="Go to Content tab to edit text for this cell"
       >
         <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -30,7 +30,7 @@ export default function QuickActionsBar({ selectedCell, onNavigate }) {
       </button>
       <button
         onClick={() => onNavigate('style')}
-        className="px-2 py-1 text-[11px] font-medium rounded-md text-ui-text-muted hover:text-ui-text hover:bg-ui-surface-hover transition-all flex items-center gap-1"
+        className="px-2 py-1 text-[11px] font-medium rounded-md text-base-content/70 hover:text-base-content hover:bg-base-300 transition-all flex items-center gap-1"
         title="Go to Style tab to change overlay/spacing for this cell"
       >
         <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">

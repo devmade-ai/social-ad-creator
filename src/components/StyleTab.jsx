@@ -232,7 +232,7 @@ export default memo(function StyleTab({
                           { key: 'blend', label: 'Blending' },
                         ].map(({ key, label }) => (
                           <div key={key} className="space-y-1">
-                            <span className="text-[9px] text-base-content-faint uppercase tracking-wide">{label}</span>
+                            <span className="text-[9px] text-base-content/40 uppercase tracking-wide">{label}</span>
                             <div className="grid grid-cols-3 gap-1">
                               {overlayTypesByCategory[key].map((t) => (
                                 <OverlayTypeButton
@@ -261,7 +261,7 @@ export default memo(function StyleTab({
                       <div className="space-y-1">
                         <div className="flex justify-between">
                           <label className="text-xs font-medium text-base-content/70">Transparency</label>
-                          <span className="text-xs text-base-content-subtle">
+                          <span className="text-xs text-base-content/60">
                             {getCellOverlayConfig(clampedCell)?.opacity ?? 50}%
                           </span>
                         </div>
@@ -274,7 +274,7 @@ export default memo(function StyleTab({
                           onChange={(e) =>
                             updateCellOverlay(clampedCell, { opacity: parseInt(e.target.value, 10) })
                           }
-                          className="w-full h-2 bg-ui-surface-hover rounded-lg appearance-none cursor-pointer"
+                          className="w-full h-2 bg-base-300 rounded-lg appearance-none cursor-pointer"
                         />
                       </div>
                     </div>
@@ -285,7 +285,7 @@ export default memo(function StyleTab({
               {/* Reset */}
               <button
                 onClick={() => updateCellOverlay(clampedCell, null)}
-                className="w-full px-2 py-1.5 text-xs bg-zinc-200 dark:bg-dark-subtle text-base-content/70 hover:bg-zinc-300 dark:hover:bg-dark-elevated rounded"
+                className="w-full px-2 py-1.5 text-xs bg-base-300 text-base-content/70 hover:bg-base-300 rounded"
               >
                 Reset to Default
               </button>
@@ -300,15 +300,15 @@ export default memo(function StyleTab({
           <div className="space-y-2 p-3 bg-base-200 rounded-lg">
             <div className="flex items-center justify-between">
               <span className="text-xs font-medium text-base-content/70">Outer Frame</span>
-              <span className="text-[10px] text-base-content-faint">
+              <span className="text-[10px] text-base-content/40">
                 % of spacing used as border
               </span>
             </div>
 
             <div className="space-y-1">
               <div className="flex justify-between">
-                <label className="text-xs text-base-content-subtle">Border %</label>
-                <span className="text-xs text-base-content-subtle">
+                <label className="text-xs text-base-content/60">Border %</label>
+                <span className="text-xs text-base-content/60">
                   {frame.outer?.percent || 0}%
                 </span>
               </div>
@@ -319,13 +319,13 @@ export default memo(function StyleTab({
                 step="10"
                 value={frame.outer?.percent || 0}
                 onChange={(e) => onFrameChange?.({ outer: { ...frame.outer, percent: parseInt(e.target.value, 10) } })}
-                className="w-full h-2 bg-ui-surface-hover rounded-lg appearance-none cursor-pointer"
+                className="w-full h-2 bg-base-300 rounded-lg appearance-none cursor-pointer"
               />
             </div>
 
             {(frame.outer?.percent || 0) > 0 && (
               <div className="space-y-1.5">
-                <label className="text-xs text-base-content-subtle">Color</label>
+                <label className="text-xs text-base-content/60">Color</label>
                 <ThemeColorPicker
                   value={frame.outer?.color}
                   onChange={(id) => onFrameChange?.({ outer: { ...frame.outer, color: id } })}
@@ -359,11 +359,11 @@ export default memo(function StyleTab({
                       onFrameChange?.({ cellFrames: newCellFrames })
                     }
                   }}
-                  className="w-4 h-4 text-primary rounded border-zinc-300 focus:ring-primary"
+                  className="w-4 h-4 text-primary rounded border-base-300 focus:ring-primary"
                 />
                 <label
                   htmlFor={`frame-custom-${clampedCell}`}
-                  className="text-xs text-base-content-subtle"
+                  className="text-xs text-base-content/60"
                 >
                   Custom frame
                 </label>
@@ -373,8 +373,8 @@ export default memo(function StyleTab({
                 <div className="space-y-2 pl-6">
                   <div className="space-y-1">
                     <div className="flex justify-between">
-                      <label className="text-xs text-base-content-subtle">Border %</label>
-                      <span className="text-xs text-base-content-subtle">
+                      <label className="text-xs text-base-content/60">Border %</label>
+                      <span className="text-xs text-base-content/60">
                         {frame.cellFrames[clampedCell]?.percent || 0}%
                       </span>
                     </div>
@@ -394,12 +394,12 @@ export default memo(function StyleTab({
                         }
                         onFrameChange?.({ cellFrames: newCellFrames })
                       }}
-                      className="w-full h-2 bg-ui-surface-hover rounded-lg appearance-none cursor-pointer"
+                      className="w-full h-2 bg-base-300 rounded-lg appearance-none cursor-pointer"
                     />
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="text-xs text-base-content-subtle">Color</label>
+                    <label className="text-xs text-base-content/60">Color</label>
                     <ThemeColorPicker
                       value={frame.cellFrames[clampedCell]?.color}
                       onChange={(id) => {
@@ -429,7 +429,7 @@ export default memo(function StyleTab({
           <div className="space-y-2">
             <div className="flex justify-between">
               <label className="text-xs font-medium text-base-content/70">Overall Spacing</label>
-              <span className="text-xs text-base-content-subtle">{padding.global}px</span>
+              <span className="text-xs text-base-content/60">{padding.global}px</span>
             </div>
             <input
               type="range"
@@ -438,7 +438,7 @@ export default memo(function StyleTab({
               step="5"
               value={padding.global}
               onChange={(e) => onPaddingChange?.({ global: parseInt(e.target.value, 10) })}
-              className="w-full h-2 bg-ui-surface-hover rounded-lg appearance-none cursor-pointer"
+              className="w-full h-2 bg-base-300 rounded-lg appearance-none cursor-pointer"
             />
           </div>
 
@@ -463,11 +463,11 @@ export default memo(function StyleTab({
                       updateCellPadding(clampedCell, null)
                     }
                   }}
-                  className="w-4 h-4 text-primary rounded border-zinc-300 focus:ring-primary"
+                  className="w-4 h-4 text-primary rounded border-base-300 focus:ring-primary"
                 />
                 <label
                   htmlFor={`padding-custom-${clampedCell}`}
-                  className="text-xs text-base-content-subtle"
+                  className="text-xs text-base-content/60"
                 >
                   Custom spacing
                 </label>
@@ -476,8 +476,8 @@ export default memo(function StyleTab({
               {padding.cellOverrides?.[clampedCell] !== undefined && (
                 <div className="space-y-1 pl-6">
                   <div className="flex justify-between">
-                    <label className="text-xs text-base-content-subtle">Spacing</label>
-                    <span className="text-xs text-base-content-subtle">
+                    <label className="text-xs text-base-content/60">Spacing</label>
+                    <span className="text-xs text-base-content/60">
                       {getCellPaddingValue(clampedCell)}px
                     </span>
                   </div>
@@ -488,7 +488,7 @@ export default memo(function StyleTab({
                     step="5"
                     value={getCellPaddingValue(clampedCell)}
                     onChange={(e) => updateCellPadding(clampedCell, parseInt(e.target.value, 10))}
-                    className="w-full h-2 bg-ui-surface-hover rounded-lg appearance-none cursor-pointer"
+                    className="w-full h-2 bg-base-300 rounded-lg appearance-none cursor-pointer"
                   />
                 </div>
               )}
@@ -505,7 +505,7 @@ export default memo(function StyleTab({
             <select
               value={selectedFonts.title}
               onChange={(e) => onFontsChange({ title: e.target.value })}
-              className="w-full px-3 py-2 text-sm text-base-content border border-ui-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-white dark:bg-dark-subtle"
+              className="w-full px-3 py-2 text-sm text-base-content border border-base-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-base-100"
             >
               {fonts.map((font) => (
                 <option key={font.id} value={font.id}>
@@ -520,7 +520,7 @@ export default memo(function StyleTab({
             <select
               value={selectedFonts.body}
               onChange={(e) => onFontsChange({ body: e.target.value })}
-              className="w-full px-3 py-2 text-sm text-base-content border border-ui-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-white dark:bg-dark-subtle"
+              className="w-full px-3 py-2 text-sm text-base-content border border-base-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-base-100"
             >
               {fonts.map((font) => (
                 <option key={font.id} value={font.id}>
@@ -532,7 +532,7 @@ export default memo(function StyleTab({
 
           {/* Preview */}
           <div className="p-3 bg-base-200 rounded-lg">
-            <p className="text-[10px] text-base-content-subtle mb-1">Preview:</p>
+            <p className="text-[10px] text-base-content/60 mb-1">Preview:</p>
             <p
               className="text-lg font-bold text-base-content"
               style={{ fontFamily: fonts.find((f) => f.id === selectedFonts.title)?.family }}

@@ -97,19 +97,19 @@ export default function AIPromptHelper({ theme }) {
     <div className="space-y-3">
       {/* Subject/Context */}
       <div className="space-y-1.5">
-        <label className="block text-xs font-medium text-ui-text-muted">Subject / Context</label>
+        <label className="block text-xs font-medium text-base-content/70">Subject / Context</label>
         <textarea
           value={context}
           onChange={(e) => setContext(e.target.value)}
           placeholder="e.g., coffee shop interior, mountain landscape, abstract geometric shapes..."
-          className="w-full px-3 py-2 text-sm text-ui-text bg-white dark:bg-dark-subtle placeholder-zinc-400 dark:placeholder-zinc-500 border border-ui-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
+          className="w-full px-3 py-2 text-sm text-base-content bg-base-100 placeholder-base-content/50 border border-base-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
           rows={2}
         />
       </div>
 
       {/* Style */}
       <div className="space-y-1.5">
-        <label className="block text-xs font-medium text-ui-text-muted">Style</label>
+        <label className="block text-xs font-medium text-base-content/70">Style</label>
         <div className="flex flex-wrap gap-1">
           {styleOptions.map((opt) => (
             <button
@@ -117,8 +117,8 @@ export default function AIPromptHelper({ theme }) {
               onClick={() => setStyle(opt.id)}
               className={`px-2 py-1 text-xs rounded-lg font-medium ${
                 style === opt.id
-                  ? 'bg-primary text-white shadow-sm'
-                  : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
+                  ? 'bg-primary text-primary-content shadow-sm'
+                  : 'bg-base-200 text-base-content/70 hover:bg-base-300'
               }`}
             >
               {opt.name}
@@ -129,7 +129,7 @@ export default function AIPromptHelper({ theme }) {
 
       {/* Mood */}
       <div className="space-y-1.5">
-        <label className="block text-xs font-medium text-ui-text-muted">Mood / Lighting</label>
+        <label className="block text-xs font-medium text-base-content/70">Mood / Lighting</label>
         <div className="flex flex-wrap gap-1">
           {moodOptions.map((opt) => (
             <button
@@ -137,8 +137,8 @@ export default function AIPromptHelper({ theme }) {
               onClick={() => setMood(opt.id)}
               className={`px-2 py-1 text-xs rounded-lg font-medium ${
                 mood === opt.id
-                  ? 'bg-primary text-white shadow-sm'
-                  : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
+                  ? 'bg-primary text-primary-content shadow-sm'
+                  : 'bg-base-200 text-base-content/70 hover:bg-base-300'
               }`}
             >
               {opt.name}
@@ -149,7 +149,7 @@ export default function AIPromptHelper({ theme }) {
 
       {/* Purpose */}
       <div className="space-y-1.5">
-        <label className="block text-xs font-medium text-ui-text-muted">Image Purpose</label>
+        <label className="block text-xs font-medium text-base-content/70">Image Purpose</label>
         <div className="flex gap-1.5">
           {purposeOptions.map((opt) => (
             <button
@@ -157,22 +157,22 @@ export default function AIPromptHelper({ theme }) {
               onClick={() => setPurpose(opt.id)}
               className={`flex-1 px-2 py-1.5 text-xs rounded-lg font-medium ${
                 purpose === opt.id
-                  ? 'bg-primary text-white shadow-sm'
-                  : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
+                  ? 'bg-primary text-primary-content shadow-sm'
+                  : 'bg-base-200 text-base-content/70 hover:bg-base-300'
               }`}
             >
               {opt.name}
             </button>
           ))}
         </div>
-        <p className="text-[10px] text-ui-text-faint">
+        <p className="text-[10px] text-base-content/40">
           {purpose === 'hero' ? 'Clean focal point for featured images' : 'Subtle details, good for text overlays'}
         </p>
       </div>
 
       {/* Orientation */}
       <div className="space-y-1.5">
-        <label className="block text-xs font-medium text-ui-text-muted">Orientation</label>
+        <label className="block text-xs font-medium text-base-content/70">Orientation</label>
         <div className="flex gap-1">
           {orientationOptions.map((opt) => (
             <button
@@ -180,8 +180,8 @@ export default function AIPromptHelper({ theme }) {
               onClick={() => setOrientation(opt.id)}
               className={`flex-1 px-2 py-1.5 text-xs rounded-lg font-medium ${
                 orientation === opt.id
-                  ? 'bg-primary text-white shadow-sm'
-                  : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
+                  ? 'bg-primary text-primary-content shadow-sm'
+                  : 'bg-base-200 text-base-content/70 hover:bg-base-300'
               }`}
             >
               {opt.name}
@@ -192,14 +192,14 @@ export default function AIPromptHelper({ theme }) {
 
       {/* Colors */}
       <div className="space-y-1.5">
-        <label className="block text-xs font-medium text-ui-text-muted">Colors (optional)</label>
+        <label className="block text-xs font-medium text-base-content/70">Colors (optional)</label>
         <div className="flex gap-1.5 mb-2">
           <button
             onClick={() => setUseThemeColors(true)}
             className={`flex-1 px-2 py-1.5 text-xs rounded-lg font-medium ${
               useThemeColors
-                ? 'bg-primary text-white shadow-sm'
-                : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
+                ? 'bg-primary text-primary-content shadow-sm'
+                : 'bg-base-200 text-base-content/70 hover:bg-base-300'
             }`}
           >
             Use Theme
@@ -208,8 +208,8 @@ export default function AIPromptHelper({ theme }) {
             onClick={() => setUseThemeColors(false)}
             className={`flex-1 px-2 py-1.5 text-xs rounded-lg font-medium ${
               !useThemeColors
-                ? 'bg-primary text-white shadow-sm'
-                : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
+                ? 'bg-primary text-primary-content shadow-sm'
+                : 'bg-base-200 text-base-content/70 hover:bg-base-300'
             }`}
           >
             Custom
@@ -217,14 +217,14 @@ export default function AIPromptHelper({ theme }) {
         </div>
         {useThemeColors ? (
           theme ? (
-            <div className="flex gap-2 items-center text-xs text-ui-text-subtle">
+            <div className="flex gap-2 items-center text-xs text-base-content/60">
               <span className="inline-block w-4 h-4 rounded border" style={{ backgroundColor: theme.primary }} />
               <span className="inline-block w-4 h-4 rounded border" style={{ backgroundColor: theme.secondary }} />
               <span className="inline-block w-4 h-4 rounded border" style={{ backgroundColor: theme.accent }} />
               <span>From Style tab</span>
             </div>
           ) : (
-            <p className="text-[10px] text-ui-text-faint">
+            <p className="text-[10px] text-base-content/40">
               Select a theme in the Style tab, or switch to Custom
             </p>
           )
@@ -242,11 +242,11 @@ export default function AIPromptHelper({ theme }) {
       {/* Generated Prompt */}
       <div className="space-y-1.5">
         <div className="flex justify-between items-center">
-          <label className="block text-xs font-medium text-ui-text-muted">Generated Prompt</label>
-          <span className="text-[10px] text-ui-text-faint">Updates as you change options</span>
+          <label className="block text-xs font-medium text-base-content/70">Generated Prompt</label>
+          <span className="text-[10px] text-base-content/40">Updates as you change options</span>
         </div>
         <div className="relative">
-          <div className="w-full px-3 py-2 text-xs bg-ui-surface-elevated border border-ui-border rounded-lg text-ui-text-muted max-h-24 overflow-y-auto">
+          <div className="w-full px-3 py-2 text-xs bg-base-200 border border-base-300 rounded-lg text-base-content/70 max-h-24 overflow-y-auto">
             {generatedPrompt}
           </div>
           <button
