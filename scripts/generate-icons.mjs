@@ -11,6 +11,13 @@ const svgBuffer = readFileSync(resolve(publicDir, 'icon.svg'))
 // Requirement: Generate all PNG sizes from single SVG source.
 // 1024px maskable icon uses separate manifest entry (purpose: "maskable" only).
 // SVG design rule: important content within inner 80% (maskable safe zone).
+//
+// 400 DPI: ~5.5x the default 72 DPI. Sharp rasterizes the SVG at this density
+// before downscaling, so edges are anti-aliased from high-res source data.
+// The 192px PWA icon benefits most — arc and shape edges are noticeably crisper.
+// Ref: glow-props Suggested Implementations → App Icons from SVG Source.
+const SVG_DENSITY = 400
+
 const sizes = [
   { name: 'favicon.png', size: 48 },
   { name: 'apple-touch-icon.png', size: 180 },
@@ -19,12 +26,18 @@ const sizes = [
   { name: 'pwa-maskable-1024.png', size: 1024 },
 ]
 
-for (const { name, size } of sizes) {
-  await sharp(svgBuffer)
-    .resize(size, size)
-    .png()
-    .toFile(resolve(publicDir, name))
-  console.log(`Generated ${name}`)
+async function generate() {
+  for (const { name, size } of sizes) {
+    await sharp(svgBuffer, { density: SVG_DENSITY })
+      .resize(size, size)
+      .png()
+      .toFile(resolve(publicDir, name))
+    console.log(`  ${name} (${size}x${size})`)
+  }
+  console.log(`Done — ${sizes.length} icons generated.`)
 }
 
-console.log('All icons generated!')
+generate().catch((err) => {
+  console.error('Icon generation failed:', err)
+  process.exit(1)
+})
