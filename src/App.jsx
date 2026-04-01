@@ -172,7 +172,7 @@ function App() {
   const [showSaveLoadModal, setShowSaveLoadModal] = useState(false)
   const [isReaderMode, setIsReaderMode] = useState(false)
   const [selectedCell, setSelectedCell] = useState(0)
-  const { isDark, toggle: toggleDarkMode, lightTheme, darkTheme, activeTheme, setLightTheme, setDarkTheme } = useDarkMode()
+  const { isDark, toggle: toggleDarkMode, lightTheme, darkTheme, setLightTheme, setDarkTheme } = useDarkMode()
   const { canInstall, install, showManualInstructions, getInstallInstructions, isInstalled } = usePWAInstall()
   const { hasUpdate, update } = usePWAUpdate()
   const isOnline = useOnlineStatus()

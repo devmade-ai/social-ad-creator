@@ -138,7 +138,7 @@ export default function ThemeSelector({
                   setTheme(theme.id)
                   close()
                 }}
-                className={`w-full text-left px-3 py-2.5 text-sm flex items-center justify-between gap-2 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset ${
+                className={`w-full text-left px-3 py-3 text-sm flex items-center justify-between gap-2 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset ${
                   currentTheme === theme.id
                     ? 'bg-primary/10 text-primary font-medium'
                     : 'text-base-content hover:bg-base-200'

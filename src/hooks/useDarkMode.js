@@ -9,6 +9,7 @@
 //   - CSS-only prefers-color-scheme: Rejected — no user override possible.
 //   - data-theme only: Rejected — Tailwind dark: utilities need .dark class.
 import { useState, useEffect, useCallback } from 'react'
+import { debugLog } from '../utils/debugLog'
 import {
   lightThemes,
   darkThemes,
@@ -72,6 +73,7 @@ export function useDarkMode() {
     }
     root.setAttribute('data-theme', activeTheme)
     safeStorageSet('darkMode', isDark)
+    debugLog('dark-mode', 'theme-applied', { isDark, activeTheme })
 
     // Update ALL meta theme-color tags so Android Chrome address bar syncs.
     const color = getMetaColor(activeTheme)
@@ -84,14 +86,18 @@ export function useDarkMode() {
   // Invalid IDs are silently corrected to defaults — no crash, no unstyled page.
   const setLightTheme = useCallback((themeId) => {
     const valid = validLightTheme(themeId)
+    if (valid !== themeId) debugLog('dark-mode', 'invalid-light-theme', { requested: themeId, fallback: valid }, 'warn')
     setLightThemeState(valid)
     safeStorageSet('lightTheme', valid)
+    debugLog('dark-mode', 'light-theme-set', { theme: valid })
   }, [])
 
   const setDarkTheme = useCallback((themeId) => {
     const valid = validDarkTheme(themeId)
+    if (valid !== themeId) debugLog('dark-mode', 'invalid-dark-theme', { requested: themeId, fallback: valid }, 'warn')
     setDarkThemeState(valid)
     safeStorageSet('darkTheme', valid)
+    debugLog('dark-mode', 'dark-theme-set', { theme: valid })
   }, [])
 
   // Cross-tab sync — when another tab changes any theme key in localStorage,
@@ -100,15 +106,17 @@ export function useDarkMode() {
   useEffect(() => {
     const handleStorage = (e) => {
       if (e.key === 'darkMode') {
-        if (e.newValue !== null) {
-          setIsDark(e.newValue === 'true')
-        } else {
-          setIsDark(window.matchMedia('(prefers-color-scheme: dark)').matches)
-        }
+        const newDark = e.newValue !== null ? e.newValue === 'true' : window.matchMedia('(prefers-color-scheme: dark)').matches
+        setIsDark(newDark)
+        debugLog('dark-mode', 'cross-tab-sync', { key: 'darkMode', value: newDark })
       } else if (e.key === 'lightTheme' && e.newValue) {
-        setLightThemeState(validLightTheme(e.newValue))
+        const valid = validLightTheme(e.newValue)
+        setLightThemeState(valid)
+        debugLog('dark-mode', 'cross-tab-sync', { key: 'lightTheme', value: valid })
       } else if (e.key === 'darkTheme' && e.newValue) {
-        setDarkThemeState(validDarkTheme(e.newValue))
+        const valid = validDarkTheme(e.newValue)
+        setDarkThemeState(valid)
+        debugLog('dark-mode', 'cross-tab-sync', { key: 'darkTheme', value: valid })
       }
     }
     window.addEventListener('storage', handleStorage)

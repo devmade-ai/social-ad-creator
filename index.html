@@ -39,9 +39,15 @@
             : window.matchMedia('(prefers-color-scheme: dark)').matches;
           var root = document.documentElement;
           if (isDark) root.classList.add('dark');
-          var theme = isDark
-            ? (localStorage.getItem('darkTheme') || 'black')
-            : (localStorage.getItem('lightTheme') || 'lofi');
+          // SYNC: These allowlists must match the theme arrays in src/config/daisyuiThemes.js.
+          var light = ['lofi','nord','emerald','cupcake','garden','autumn','pastel','caramellatte'];
+          var dark = ['black','night','forest','dracula','dim','synthwave','luxury','coffee'];
+          var raw = isDark
+            ? localStorage.getItem('darkTheme')
+            : localStorage.getItem('lightTheme');
+          var allowed = isDark ? dark : light;
+          var fallback = isDark ? 'black' : 'lofi';
+          var theme = (raw && allowed.indexOf(raw) !== -1) ? raw : fallback;
           root.setAttribute('data-theme', theme);
         } catch(e) {}
       })();
