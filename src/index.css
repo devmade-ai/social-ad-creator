@@ -5,7 +5,7 @@
 @import "tailwindcss";
 
 @plugin "daisyui" {
-  themes: nord --default, night --prefersdark,
+  themes: lofi --default, black --prefersdark,
           lofi, emerald, cupcake, garden, autumn, pastel, caramellatte,
           black, forest, dracula, dim, synthwave, luxury, coffee;
 }

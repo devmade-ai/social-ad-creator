@@ -15,10 +15,10 @@ export default defineConfig({
         name: 'CanvaGrid',
         short_name: 'CanvaGrid',
         description: 'CanvaGrid - Create social media ads for LinkedIn, Facebook, Instagram, Twitter/X, and TikTok',
-        // Requirement: Colors match DaisyUI nord (light) / night (dark) themes.
-        // theme_color = nord primary (#5E81AC), background_color = night base-100 (#0F1729).
-        theme_color: '#5E81AC',
-        background_color: '#0F1729',
+        // Requirement: Colors match DaisyUI lofi (light) / black (dark) default themes.
+        // theme_color = lofi neutral (#808080), background_color = black base-100 (#000000).
+        theme_color: '#808080',
+        background_color: '#000000',
         display: 'standalone',
         // Requirement: Explicit id prevents Chrome from deriving identity from start_url.
         // Without this, changing start_url would break install identity for existing users.

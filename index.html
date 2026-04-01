@@ -10,9 +10,9 @@
     <!-- Two meta theme-color tags with media queries cover both OS preferences
          before JS loads. A single tag can't adapt. The useDarkMode hook
          dynamically updates both on manual toggle via querySelectorAll.
-         Light = nord primary (#5E81AC), Dark = night base-100 (#0F172A). -->
-    <meta name="theme-color" content="#5E81AC" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#0F172A" media="(prefers-color-scheme: dark)" />
+         Light = lofi (#808080), Dark = black (#000000). -->
+    <meta name="theme-color" content="#808080" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="CanvaGrid" />
@@ -26,7 +26,7 @@
          This inline classic (non-module) script reads localStorage and applies both
          .dark (Tailwind) and data-theme (DaisyUI) during HTML parse.
          Must duplicate the same localStorage keys and defaults as the hook.
-         Per-mode theme storage: 'lightTheme' and 'darkTheme' keys, defaults 'nord'/'night'. -->
+         Per-mode theme storage: 'lightTheme' and 'darkTheme' keys, defaults 'lofi'/'black'. -->
     <script>
       (function() {
         try {
@@ -37,8 +37,8 @@
           var root = document.documentElement;
           if (isDark) root.classList.add('dark');
           var theme = isDark
-            ? (localStorage.getItem('darkTheme') || 'night')
-            : (localStorage.getItem('lightTheme') || 'nord');
+            ? (localStorage.getItem('darkTheme') || 'black')
+            : (localStorage.getItem('lightTheme') || 'lofi');
           root.setAttribute('data-theme', theme);
         } catch(e) {}
       })();

@@ -30,8 +30,8 @@ export const darkThemes = [
   { id: 'coffee', name: 'Coffee', description: 'Dark roast', metaColor: '#20161F' },
 ]
 
-export const DEFAULT_LIGHT_THEME = 'nord'
-export const DEFAULT_DARK_THEME = 'night'
+export const DEFAULT_LIGHT_THEME = 'lofi'
+export const DEFAULT_DARK_THEME = 'black'
 
 // Look up meta theme-color for a given theme ID.
 // Falls back to neutral values if theme not found.
