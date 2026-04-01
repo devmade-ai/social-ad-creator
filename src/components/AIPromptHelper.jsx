@@ -234,7 +234,7 @@ export default function AIPromptHelper({ theme }) {
             value={customColors}
             onChange={(e) => setCustomColors(e.target.value)}
             placeholder="e.g., blue and orange, muted earth tones..."
-            className="w-full px-3 py-1.5 text-sm text-ui-text bg-white dark:bg-dark-subtle placeholder-zinc-400 dark:placeholder-zinc-500 border border-ui-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+            className="w-full px-3 py-1.5 text-sm text-base-content bg-base-100 placeholder-base-content/50 border border-base-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
           />
         )}
       </div>
@@ -253,8 +253,8 @@ export default function AIPromptHelper({ theme }) {
             onClick={handleCopy}
             className={`absolute top-1.5 right-1.5 px-2 py-1 text-[10px] rounded font-medium transition-colors ${
               copied
-                ? 'bg-green-500 text-white'
-                : 'bg-primary text-white hover:bg-primary-hover'
+                ? 'bg-success text-success-content'
+                : 'bg-primary text-primary-content hover:bg-primary/80'
             }`}
           >
             {copied ? 'Copied!' : 'Copy'}

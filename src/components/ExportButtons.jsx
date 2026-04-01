@@ -370,7 +370,7 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
       {/* Format selector */}
       <div className="space-y-1.5">
         <div className="flex items-center justify-between">
-          <span className="text-xs font-medium text-ui-text-muted">File Format</span>
+          <span className="text-xs font-medium text-base-content/70">File Format</span>
           {currentFormat.recommendedFormat && currentFormat.recommendedFormat !== exportFormat && (
             <button
               onClick={() => onExportFormatChange(currentFormat.recommendedFormat)}
@@ -389,7 +389,7 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
               className={`flex-1 px-2 py-2.5 sm:py-1.5 text-xs font-semibold rounded-lg transition-all ${
                 exportFormat === opt.id
                   ? 'bg-primary text-white shadow-sm'
-                  : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
+                  : 'bg-base-200 text-base-content/70 hover:bg-base-300'
               }`}
             >
               {opt.label}
@@ -410,7 +410,7 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
       {/* More export options toggle */}
       <button
         onClick={() => setShowMoreOptions(!showMoreOptions)}
-        className="w-full flex items-center justify-center gap-1.5 py-1.5 text-xs font-medium text-ui-text-muted hover:text-ui-text transition-colors"
+        className="w-full flex items-center justify-center gap-1.5 py-1.5 text-xs font-medium text-base-content/70 hover:text-base-content transition-colors"
       >
         <span>{showMoreOptions ? 'Fewer options' : 'More export options'}</span>
         <svg
@@ -423,7 +423,7 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
 
       {/* Collapsible secondary export options */}
       {showMoreOptions && (
-        <div className="space-y-2 pt-1 border-t border-ui-border-subtle">
+        <div className="space-y-2 pt-1 border-t border-base-200">
           {/* Download all pages as ZIP */}
           {pageCount > 1 && (
             <button
@@ -462,8 +462,8 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
               </button>
             </div>
             {showPdfQuality && (
-              <div className="p-2 bg-ui-surface-elevated rounded-lg border border-ui-border">
-                <span className="text-xs text-ui-text-muted block mb-1.5">PDF Quality</span>
+              <div className="p-2 bg-base-200 rounded-lg border border-base-300">
+                <span className="text-xs text-base-content/70 block mb-1.5">PDF Quality</span>
                 <div className="flex gap-1">
                   {[
                     { id: 'low', label: 'Low', desc: '1x' },
@@ -476,7 +476,7 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
                       className={`flex-1 px-2 py-1.5 text-xs rounded-md transition-colors ${
                         pdfQuality === q.id
                           ? 'bg-orange-200 dark:bg-orange-800 text-orange-800 dark:text-orange-200 font-semibold'
-                          : 'bg-ui-surface text-ui-text-muted hover:bg-ui-surface-elevated'
+                          : 'bg-base-100text-base-content/70 hover:bg-base-200'
                       }`}
                     >
                       {q.label}
@@ -498,14 +498,14 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
 
           {/* Multi-select platform UI */}
           {showMultiSelect && (
-            <div className="space-y-3 p-3 bg-ui-surface-elevated rounded-lg border border-ui-border">
+            <div className="space-y-3 p-3 bg-base-200 rounded-lg border border-base-300">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-medium text-ui-text-muted">
+                <span className="text-xs font-medium text-base-content/70">
                   {selectedPlatforms.size} of {platforms.length} selected
                 </span>
                 <div className="flex gap-2">
                   <button onClick={selectAll} className="text-xs text-primary hover:underline">Select All</button>
-                  <button onClick={selectNone} className="text-xs text-ui-text-subtle hover:underline">Clear</button>
+                  <button onClick={selectNone} className="text-xs text-base-content/60 hover:underline">Clear</button>
                 </div>
               </div>
 
@@ -520,7 +520,7 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
                     <div key={category} className="space-y-1">
                       <button
                         onClick={() => selectCategory(category)}
-                        className="text-[10px] text-ui-text-faint uppercase tracking-wide font-medium hover:text-primary transition-colors"
+                        className="text-[10px] text-base-content/40 uppercase tracking-wide font-medium hover:text-primary transition-colors"
                       >
                         {categoryLabels[category] || category}
                         {someSelected && !allSelected && <span className="ml-1 text-primary">+</span>}
@@ -534,7 +534,7 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
                             className={`px-2 py-0.5 text-xs rounded font-medium transition-all ${
                               selectedPlatforms.has(p.id)
                                 ? 'bg-primary text-white'
-                                : 'bg-ui-surface text-ui-text-muted hover:bg-ui-surface-inset border border-ui-border'
+                                : 'bg-base-100text-base-content/70 hover:bg-base-200 border border-base-300'
                             }`}
                           >
                             {p.name}
@@ -563,13 +563,13 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
       {/* Progress bar - always visible when active */}
       {exportProgress && (
         <div className="space-y-2">
-          <div className="w-full bg-ui-surface-hover rounded-full h-1.5 overflow-hidden">
+          <div className="w-full bg-base-300 rounded-full h-1.5 overflow-hidden">
             <div
               className="bg-gradient-creative h-1.5 rounded-full transition-all duration-300"
               style={{ width: `${(exportProgress.current / exportProgress.total) * 100}%` }}
             />
           </div>
-          <p className="text-sm text-center text-ui-text-subtle">
+          <p className="text-sm text-center text-base-content/60">
             Processing: {exportProgress.name}
           </p>
         </div>
