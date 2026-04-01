@@ -28,10 +28,10 @@ function ToggleSwitch({ checked }) {
   )
 }
 
-// Requirement: Theme picker section inside burger menu.
-// Approach: Expandable section showing theme list for active mode.
+// Requirement: Dark mode toggle + theme picker grouped together in burger menu.
+// Approach: Toggle row + expandable theme list as a single section.
 // Replaces the standalone ThemeSelector component in the header.
-function MenuThemePicker({ isDark, lightTheme, darkTheme, setLightTheme, setDarkTheme }) {
+function MenuThemePicker({ isDark, toggleDarkMode, lightTheme, darkTheme, setLightTheme, setDarkTheme }) {
   const [expanded, setExpanded] = useState(false)
   const themes = isDark ? darkThemes : lightThemes
   const currentTheme = isDark ? darkTheme : lightTheme
@@ -40,6 +40,19 @@ function MenuThemePicker({ isDark, lightTheme, darkTheme, setLightTheme, setDark
 
   return (
     <div className="border-t border-base-200">
+      {/* Dark/Light mode toggle */}
+      <button
+        type="button"
+        onClick={toggleDarkMode}
+        className="w-full flex items-center gap-3 px-4 py-3 text-sm text-base-content hover:bg-base-300 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset"
+      >
+        <svg className="w-4 h-4 shrink-0" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={isDark ? 'M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z' : 'M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z'} />
+        </svg>
+        <span className="flex-1 text-left">{isDark ? 'Light Mode' : 'Dark Mode'}</span>
+        <ToggleSwitch checked={isDark} />
+      </button>
+      {/* Theme picker — expandable list for active mode */}
       <button
         type="button"
         onClick={() => setExpanded(!expanded)}
@@ -179,8 +192,6 @@ export default function MobileLayout({
             onClose={() => setShowMobileMenu(false)}
             items={[
               { label: 'Save / Load', icon: 'M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4', action: () => setShowSaveLoadModal(true) },
-              { label: isDark ? 'Light Mode' : 'Dark Mode', icon: isDark ? 'M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z' : 'M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z', action: toggleDarkMode, preventClose: true, trailing: <ToggleSwitch checked={isDark} /> },
-              { separator: true },
               { label: 'Reader Mode', icon: 'M15 12a3 3 0 11-6 0 3 3 0 016 0z', action: () => setIsReaderMode(true) },
               { label: 'Help & Tutorial', icon: 'M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z', action: () => setShowTutorial(true) },
               { label: 'Keyboard Shortcuts', icon: 'M3 8a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8zm4 2h2m2 0h2m2 0h2M5 14h14', action: () => setShowShortcuts(true) },
@@ -189,7 +200,7 @@ export default function MobileLayout({
               { label: 'Update Available', icon: 'M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15', action: update, visible: hasUpdate, highlight: true, highlightColor: 'text-success' },
             ]}
           >
-            <MenuThemePicker isDark={isDark} lightTheme={lightTheme} darkTheme={darkTheme} setLightTheme={setLightTheme} setDarkTheme={setDarkTheme} />
+            <MenuThemePicker isDark={isDark} toggleDarkMode={toggleDarkMode} lightTheme={lightTheme} darkTheme={darkTheme} setLightTheme={setLightTheme} setDarkTheme={setDarkTheme} />
           </BurgerMenu>
         </div>
       </header>
