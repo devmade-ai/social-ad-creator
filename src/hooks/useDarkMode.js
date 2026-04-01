@@ -1,17 +1,25 @@
-// Requirement: User-controlled dark/light mode with system fallback, cross-tab sync,
-//   safe storage, and dynamic meta theme-color.
-// Approach: localStorage persistence with try/catch wrappers, .dark class on <html>,
-//   matchMedia listener, storage event for cross-tab sync, querySelectorAll for
-//   meta theme-color update on manual toggle.
+// Requirement: Independent per-mode DaisyUI theme selection with dark/light toggle,
+//   system fallback, cross-tab sync, safe storage, and dynamic meta theme-color.
+// Approach: Each mode (light/dark) stores its own DaisyUI theme choice in localStorage.
+//   Dual-layer theming: .dark class on <html> for Tailwind dark: utilities, data-theme
+//   attribute for DaisyUI component colors. Both set together on every change.
+//   All theme IDs are validated against the catalog — invalid values fall back to defaults.
 // Alternatives:
-//   - CSS-only prefers-color-scheme: Rejected — no user override possible
-//   - React Context: Rejected — overkill for web (DOM class is the source of truth)
-import { useState, useEffect } from 'react'
+//   - Paired combos (glow-props pattern): Rejected — user wants independent per-mode selection.
+//   - CSS-only prefers-color-scheme: Rejected — no user override possible.
+//   - data-theme only: Rejected — Tailwind dark: utilities need .dark class.
+import { useState, useEffect, useCallback } from 'react'
+import { debugLog } from '../utils/debugLog'
+import {
+  lightThemes,
+  darkThemes,
+  DEFAULT_LIGHT_THEME,
+  DEFAULT_DARK_THEME,
+  getMetaColor,
+} from '../config/daisyuiThemes'
 
 // Safe localStorage wrappers — localStorage throws SecurityError in sandboxed
 // iframes, disabled-storage settings, and some enterprise environments.
-// Wrapping both reads and writes ensures the hook degrades to system preference
-// instead of crashing.
 function safeStorageGet(key) {
   try { return localStorage.getItem(key) } catch { return null }
 }
@@ -20,10 +28,20 @@ function safeStorageSet(key, value) {
   try { localStorage.setItem(key, value) } catch { /* sandboxed iframe, disabled storage */ }
 }
 
-// Meta theme-color values — brand purple for PWA status bar / browser chrome.
-// Light = violet-600 (#7c3aed), Dark = violet-950 (#2e1065).
-const THEME_COLOR_LIGHT = '#7c3aed'
-const THEME_COLOR_DARK = '#2e1065'
+// Validate a theme ID exists in its respective catalog array.
+// Returns the ID if valid, or the default for that mode if not.
+// Prevents garbage localStorage values or cross-mode mismatches
+// (e.g. a light theme ID stored as darkTheme) from producing unstyled pages.
+const lightIds = new Set(lightThemes.map(t => t.id))
+const darkIds = new Set(darkThemes.map(t => t.id))
+
+function validLightTheme(id) {
+  return lightIds.has(id) ? id : DEFAULT_LIGHT_THEME
+}
+
+function validDarkTheme(id) {
+  return darkIds.has(id) ? id : DEFAULT_DARK_THEME
+}
 
 export function useDarkMode() {
   const [isDark, setIsDark] = useState(() => {
@@ -32,7 +50,20 @@ export function useDarkMode() {
     return window.matchMedia('(prefers-color-scheme: dark)').matches
   })
 
-  // Apply .dark class to <html>, persist, and update meta theme-color.
+  // Per-mode theme selection — each mode remembers its own DaisyUI theme.
+  // localStorage keys: 'lightTheme', 'darkTheme'
+  // Validated on init: invalid/missing values fall back to defaults.
+  const [lightTheme, setLightThemeState] = useState(
+    () => validLightTheme(safeStorageGet('lightTheme'))
+  )
+  const [darkTheme, setDarkThemeState] = useState(
+    () => validDarkTheme(safeStorageGet('darkTheme'))
+  )
+
+  // The currently active DaisyUI theme (based on mode)
+  const activeTheme = isDark ? darkTheme : lightTheme
+
+  // Apply .dark class + data-theme to <html>, persist, and update meta theme-color.
   useEffect(() => {
     const root = document.documentElement
     if (isDark) {
@@ -40,32 +71,52 @@ export function useDarkMode() {
     } else {
       root.classList.remove('dark')
     }
+    root.setAttribute('data-theme', activeTheme)
     safeStorageSet('darkMode', isDark)
+    debugLog('dark-mode', 'theme-applied', { isDark, activeTheme })
 
-    // Update ALL meta theme-color tags so Android Chrome address bar syncs
-    // with manual toggles. querySelectorAll (not querySelector) is required
-    // because index.html has two tags with different media attributes —
-    // querySelector only returns the first one, leaving the second stale.
-    const color = isDark ? THEME_COLOR_DARK : THEME_COLOR_LIGHT
+    // Update ALL meta theme-color tags so Android Chrome address bar syncs.
+    const color = getMetaColor(activeTheme)
     document.querySelectorAll('meta[name="theme-color"]').forEach(meta => {
       meta.setAttribute('content', color)
     })
-  }, [isDark])
+  }, [isDark, activeTheme])
 
-  // Cross-tab sync — when another tab changes darkMode in localStorage,
-  // update this tab to match. The storage event only fires in OTHER tabs
-  // (not the one that wrote), so there's no infinite loop risk.
-  // When newValue is null (key was removed), fall back to system preference
-  // instead of keeping the stale value — matches what the hook does on
-  // fresh load with no stored preference.
+  // Setters that validate + persist to localStorage.
+  // Invalid IDs are silently corrected to defaults — no crash, no unstyled page.
+  const setLightTheme = useCallback((themeId) => {
+    const valid = validLightTheme(themeId)
+    if (valid !== themeId) debugLog('dark-mode', 'invalid-light-theme', { requested: themeId, fallback: valid }, 'warn')
+    setLightThemeState(valid)
+    safeStorageSet('lightTheme', valid)
+    debugLog('dark-mode', 'light-theme-set', { theme: valid })
+  }, [])
+
+  const setDarkTheme = useCallback((themeId) => {
+    const valid = validDarkTheme(themeId)
+    if (valid !== themeId) debugLog('dark-mode', 'invalid-dark-theme', { requested: themeId, fallback: valid }, 'warn')
+    setDarkThemeState(valid)
+    safeStorageSet('darkTheme', valid)
+    debugLog('dark-mode', 'dark-theme-set', { theme: valid })
+  }, [])
+
+  // Cross-tab sync — when another tab changes any theme key in localStorage,
+  // update this tab to match. Values are validated to prevent garbage from
+  // producing unstyled pages.
   useEffect(() => {
     const handleStorage = (e) => {
       if (e.key === 'darkMode') {
-        if (e.newValue !== null) {
-          setIsDark(e.newValue === 'true')
-        } else {
-          setIsDark(window.matchMedia('(prefers-color-scheme: dark)').matches)
-        }
+        const newDark = e.newValue !== null ? e.newValue === 'true' : window.matchMedia('(prefers-color-scheme: dark)').matches
+        setIsDark(newDark)
+        debugLog('dark-mode', 'cross-tab-sync', { key: 'darkMode', value: newDark })
+      } else if (e.key === 'lightTheme' && e.newValue) {
+        const valid = validLightTheme(e.newValue)
+        setLightThemeState(valid)
+        debugLog('dark-mode', 'cross-tab-sync', { key: 'lightTheme', value: valid })
+      } else if (e.key === 'darkTheme' && e.newValue) {
+        const valid = validDarkTheme(e.newValue)
+        setDarkThemeState(valid)
+        debugLog('dark-mode', 'cross-tab-sync', { key: 'darkTheme', value: valid })
       }
     }
     window.addEventListener('storage', handleStorage)
@@ -84,5 +135,15 @@ export function useDarkMode() {
 
   const toggle = () => setIsDark((prev) => !prev)
 
-  return { isDark, toggle, setIsDark }
+  return {
+    isDark,
+    toggle,
+    setIsDark,
+    // Per-mode theme selection
+    lightTheme,
+    darkTheme,
+    activeTheme,
+    setLightTheme,
+    setDarkTheme,
+  }
 }

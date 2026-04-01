@@ -16,11 +16,11 @@ export default memo(function InstallInstructionsModal({ isOpen, onClose, instruc
       />
 
       {/* Modal */}
-      <div ref={modalRef} className="relative bg-white dark:bg-dark-card rounded-xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto p-6 border border-zinc-200 dark:border-zinc-700">
+      <div ref={modalRef} className="relative bg-base-100 rounded-xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto p-6 border border-base-300">
         {/* Close button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200"
+          className="absolute top-4 right-4 text-base-content/40 hover:text-base-content/70"
         >
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -35,14 +35,14 @@ export default memo(function InstallInstructionsModal({ isOpen, onClose, instruc
             </svg>
           </div>
           <div>
-            <h2 className="text-lg font-semibold text-ui-text">Install App</h2>
-            <p className="text-sm text-ui-text-muted">{instructions.browser}</p>
+            <h2 className="text-lg font-semibold text-base-content">Install App</h2>
+            <p className="text-sm text-base-content/70">{instructions.browser}</p>
           </div>
         </div>
 
         {/* Instructions */}
         <div className="space-y-3 mb-4">
-          <p className="text-sm text-ui-text-muted">
+          <p className="text-sm text-base-content/70">
             Follow these steps to install CanvaGrid:
           </p>
           <ol className="space-y-2">
@@ -51,7 +51,7 @@ export default memo(function InstallInstructionsModal({ isOpen, onClose, instruc
                 <span className="flex-shrink-0 w-6 h-6 bg-primary/10 text-primary rounded-full flex items-center justify-center text-xs font-medium">
                   {index + 1}
                 </span>
-                <span className="text-ui-text pt-0.5">{step}</span>
+                <span className="text-base-content pt-0.5">{step}</span>
               </li>
             ))}
           </ol>
@@ -59,31 +59,31 @@ export default memo(function InstallInstructionsModal({ isOpen, onClose, instruc
 
         {/* Note if present */}
         {instructions.note && (
-          <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-3 mb-4">
-            <p className="text-xs text-amber-700 dark:text-amber-300">
+          <div className="bg-warning/10 border border-warning/30 rounded-lg p-3 mb-4">
+            <p className="text-xs text-warning">
               <strong>Note:</strong> {instructions.note}
             </p>
           </div>
         )}
 
         {/* Benefits */}
-        <div className="border-t border-zinc-200 dark:border-zinc-700 pt-4">
-          <p className="text-xs text-ui-text-muted mb-2">Benefits of installing:</p>
-          <ul className="text-xs text-ui-text-subtle space-y-1">
+        <div className="border-t border-base-300 pt-4">
+          <p className="text-xs text-base-content/70 mb-2">Benefits of installing:</p>
+          <ul className="text-xs text-base-content/60 space-y-1">
             <li className="flex items-center gap-2">
-              <svg className="w-3.5 h-3.5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg className="w-3.5 h-3.5 text-success" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
               Works offline
             </li>
             <li className="flex items-center gap-2">
-              <svg className="w-3.5 h-3.5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg className="w-3.5 h-3.5 text-success" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
               Launches from your dock/home screen
             </li>
             <li className="flex items-center gap-2">
-              <svg className="w-3.5 h-3.5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg className="w-3.5 h-3.5 text-success" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
               Full-screen experience without browser UI
@@ -94,7 +94,7 @@ export default memo(function InstallInstructionsModal({ isOpen, onClose, instruc
         {/* Close button */}
         <button
           onClick={onClose}
-          className="mt-4 w-full py-2 px-4 bg-primary text-white rounded-lg font-medium hover:bg-primary-hover transition-colors"
+          className="mt-4 w-full py-2 px-4 bg-primary text-primary-content rounded-lg font-medium hover:bg-primary/80 transition-colors"
         >
           Got it
         </button>

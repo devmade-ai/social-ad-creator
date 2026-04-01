@@ -25,7 +25,7 @@ The header bar contains:
 | **View** | Enter reader mode for a clean full-screen view |
 | **Save** | Open the save/load modal to save or restore designs |
 | **Help** (?) | Open the in-app tutorial |
-| **Dark/Light Mode** | Toggle between dark and light interface themes |
+| **Theme** | Switch between dark and light mode, and choose from 16 themes (8 light, 8 dark) for each mode independently |
 | **Refresh** | Reload the app |
 | **Install** | (When available) Install the app for offline use |
 | **Update** | (When available) Apply the latest version of the app |

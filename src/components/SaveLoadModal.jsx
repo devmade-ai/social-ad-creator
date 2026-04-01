@@ -94,14 +94,14 @@ export default function SaveLoadModal({ isOpen, onClose, onSave, onLoad, onDelet
     // Backdrop — click outside modal to close
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50" onClick={onClose}>
       {/* Modal content — stop propagation so clicks inside don't close */}
-      <div ref={modalRef} role="dialog" aria-modal="true" aria-labelledby="save-load-title" className="bg-ui-surface rounded-xl shadow-2xl w-full max-w-md max-h-[80vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
+      <div ref={modalRef} role="dialog" aria-modal="true" aria-labelledby="save-load-title" className="bg-base-100 rounded-xl shadow-2xl w-full max-w-md max-h-[80vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-ui-border">
-          <h2 id="save-load-title" className="text-lg font-semibold text-ui-text">Saved Designs</h2>
+        <div className="flex items-center justify-between p-4 border-b border-base-300">
+          <h2 id="save-load-title" className="text-lg font-semibold text-base-content">Saved Designs</h2>
           <button
             onClick={onClose}
             aria-label="Close dialog"
-            className="p-2 rounded-lg hover:bg-ui-surface-hover active:bg-ui-surface-inset text-ui-text-muted"
+            className="p-2 rounded-lg hover:bg-base-300 active:bg-base-200 text-base-content/70"
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -110,13 +110,13 @@ export default function SaveLoadModal({ isOpen, onClose, onSave, onLoad, onDelet
         </div>
 
         {/* Tabs */}
-        <div className="flex border-b border-ui-border">
+        <div className="flex border-b border-base-300">
           <button
             onClick={() => setActiveTab('save')}
             className={`flex-1 px-4 py-2.5 text-sm font-medium ${
               activeTab === 'save'
                 ? 'text-primary border-b-2 border-primary'
-                : 'text-ui-text-muted hover:text-ui-text'
+                : 'text-base-content/70 hover:text-base-content'
             }`}
           >
             Save Current
@@ -126,7 +126,7 @@ export default function SaveLoadModal({ isOpen, onClose, onSave, onLoad, onDelet
             className={`flex-1 px-4 py-2.5 text-sm font-medium ${
               activeTab === 'load'
                 ? 'text-primary border-b-2 border-primary'
-                : 'text-ui-text-muted hover:text-ui-text'
+                : 'text-base-content/70 hover:text-base-content'
             }`}
           >
             Load ({designs.length})
@@ -135,7 +135,7 @@ export default function SaveLoadModal({ isOpen, onClose, onSave, onLoad, onDelet
 
         {/* Error banner */}
         {error && (
-          <div className="mx-4 mt-3 px-3 py-2 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-sm text-red-600 dark:text-red-400">
+          <div className="mx-4 mt-3 px-3 py-2 rounded-lg bg-error/10 border border-error/20 text-sm text-error">
             {error}
           </div>
         )}
@@ -145,7 +145,7 @@ export default function SaveLoadModal({ isOpen, onClose, onSave, onLoad, onDelet
           {activeTab === 'save' && (
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-ui-text-muted mb-1">
+                <label className="block text-sm font-medium text-base-content/70 mb-1">
                   Design Name
                 </label>
                 <input
@@ -154,17 +154,17 @@ export default function SaveLoadModal({ isOpen, onClose, onSave, onLoad, onDelet
                   value={saveName}
                   onChange={(e) => setSaveName(e.target.value)}
                   placeholder="My Design"
-                  className="w-full px-3 py-2.5 rounded-lg bg-ui-surface-inset border border-ui-border text-ui-text placeholder-ui-text-muted focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="w-full px-3 py-2.5 rounded-lg bg-base-200 border border-base-300 text-base-content placeholder-base-content/70 focus:outline-none focus:ring-2 focus:ring-primary"
                 />
               </div>
               <button
                 onClick={handleSave}
                 disabled={loading}
-                className="w-full px-4 py-2.5 rounded-lg bg-primary text-white font-medium hover:bg-primary-hover active:scale-[0.98] disabled:opacity-50 transition-all"
+                className="w-full px-4 py-2.5 rounded-lg bg-primary text-primary-content font-medium hover:bg-primary/80 active:scale-[0.98] disabled:opacity-50 transition-all"
               >
                 {loading ? 'Saving...' : 'Save Design'}
               </button>
-              <p className="text-xs text-ui-text-muted text-center">
+              <p className="text-xs text-base-content/70 text-center">
                 Designs are saved in your browser.
               </p>
             </div>
@@ -180,11 +180,11 @@ export default function SaveLoadModal({ isOpen, onClose, onSave, onLoad, onDelet
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search designs..."
                   aria-label="Search saved designs"
-                  className="w-full px-3 py-2 rounded-lg bg-ui-surface-inset border border-ui-border text-ui-text text-sm placeholder-ui-text-muted focus:outline-none focus:ring-2 focus:ring-primary mb-2"
+                  className="w-full px-3 py-2 rounded-lg bg-base-200 border border-base-300 text-base-content text-sm placeholder-base-content/70 focus:outline-none focus:ring-2 focus:ring-primary mb-2"
                 />
               )}
               {designs.length === 0 ? (
-                <p className="text-center text-ui-text-muted py-8">
+                <p className="text-center text-base-content/70 py-8">
                   No saved designs yet.
                 </p>
               ) : (
@@ -196,17 +196,17 @@ export default function SaveLoadModal({ isOpen, onClose, onSave, onLoad, onDelet
                     aria-label={`Load design "${design.name}"`}
                     onClick={() => !loading && handleLoad(design.id)}
                     onKeyDown={(e) => { if (e.key === 'Enter' && !loading) handleLoad(design.id) }}
-                    className={`w-full p-3 rounded-lg bg-ui-surface-inset hover:bg-ui-surface-hover active:bg-ui-surface-hover/80 text-left group transition-colors cursor-pointer ${loading ? 'opacity-50 pointer-events-none' : ''}`}
+                    className={`w-full p-3 rounded-lg bg-base-200 hover:bg-base-300 active:bg-base-300/80 text-left group transition-colors cursor-pointer ${loading ? 'opacity-50 pointer-events-none' : ''}`}
                   >
                     <div className="flex items-center justify-between">
                       <div>
-                        <div className="font-medium text-ui-text">{design.name}</div>
-                        <div className="text-xs text-ui-text-muted">{formatDate(design.savedAt)}</div>
+                        <div className="font-medium text-base-content">{design.name}</div>
+                        <div className="text-xs text-base-content/70">{formatDate(design.savedAt)}</div>
                       </div>
                       <ConfirmButton
                         onConfirm={() => handleDelete(design.id)}
                         confirmLabel="Delete?"
-                        className="p-2 rounded-lg opacity-50 sm:opacity-0 group-hover:opacity-100 hover:bg-red-100 dark:hover:bg-red-900/30 active:bg-red-200 dark:active:bg-red-900/50 text-red-500 transition-all"
+                        className="p-2 rounded-lg opacity-50 sm:opacity-0 group-hover:opacity-100 hover:bg-error/10 active:bg-error/20 text-error transition-all"
                         title="Delete design"
                       >
                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

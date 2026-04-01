@@ -5,25 +5,27 @@ Compact context summary for session continuity. Rewrite at session end.
 ---
 
 ## Worked on
-Sunset theme restoration + documentation accuracy pass.
+Tailwind 3 → Tailwind 4 + DaisyUI 5 migration, then independent per-mode theme selection.
 
 ## Accomplished
 
-1. **Sunset theme restored to original palette** — Dark variant back to vivid orange (`#f97316`) + cream (`#fef3c7`) + red (`#dc2626`). Light accent aligned from rose-pink (`#e11d48`) to red (`#dc2626`). Both variants now share the same red accent.
-2. **AI_MISTAKES.md entry** — Documented the 3-commit fix chain caused by the variant rework changing Sunset's colors without being asked. Key lesson: don't change things that weren't requested.
-3. **Documentation accuracy pass** — Fixed stale counts across multiple docs:
-   - Theme count: 20→19 in README, USER_GUIDE, TESTING_GUIDE
-   - Export format count: 42→40 in README, USER_GUIDE, TESTING_GUIDE, CLAUDE.md
-   - STYLE_GUIDE: Clarified that the UI chrome palette (Violet/Pink/Cyan) is separate from the 19 content themes
-   - SESSION_NOTES: Rewritten to reflect current session
+1. **TW4 + DaisyUI migration**: Full migration from TW3 to TW4 + DaisyUI 5. Deleted config files, rewrote CSS, migrated ~170 class pairs across 30+ components.
+2. **Independent theme selection**: Users pick light theme and dark theme separately from 16 curated options (8 light + 8 dark). Mode toggle controls which list is visible. Each mode remembers its own choice via localStorage.
+3. **ThemeSelector component**: Dropdown in header (desktop, mobile, reader mode) with mode toggle + theme picker. Replaces old single toggle button.
+4. **Theme catalog**: `src/config/daisyuiThemes.js` — curated lists with names, descriptions, and meta theme-color values for PWA status bar.
+5. **Documentation updated**: CLAUDE.md, STYLE_GUIDE.md, SESSION_NOTES, HISTORY.
 
 ## Current state
 
-- **Working** — All changes on `claude/review-sunset-theme-eE7qu`
-- Sunset theme: light=`#fffbeb`/`#9a3412`/`#dc2626`, dark=`#f97316`/`#fef3c7`/`#dc2626`
-- Documentation counts now match actual code (19 themes, 40 formats, 18 groups)
+- **Working** — Build passes, 56 tests pass, on branch `claude/evaluate-daisyui-themes-FfUgj`
+- Light themes: nord, lofi, emerald, cupcake, garden, autumn, pastel, caramellatte
+- Dark themes: night, black, forest, dracula, dim, synthwave, luxury, coffee
+- localStorage keys: `darkMode`, `lightTheme`, `darkTheme`
+- Flash-prevention script reads all three keys
 
 ## Key context
 
-- The variant rework (`0b9bfc6`) drifted Sunset's colors. Three fixes followed: `4aab728`, `7edf112`, `9430088`. Lesson recorded in AI_MISTAKES.md.
-- Platform count discrepancy (docs said 42, code has 40) predates this session — unclear when formats were removed without updating docs.
+- Canvas design themes (19 presets) unaffected — inline styles, not DaisyUI
+- The old CSS variable system is completely gone
+- All 16 DaisyUI themes registered in @plugin directive = 141KB CSS (was 124KB with 2 themes)
+- Needs visual regression testing on actual device

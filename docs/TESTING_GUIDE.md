@@ -461,6 +461,53 @@ Run these tests after making changes to ensure nothing is broken.
 
 ---
 
+## Theme Selector Tests
+
+### TH1: Toggle Dark/Light Mode
+
+**Scenario:** Clicking the sun/moon button switches between light and dark mode.
+
+| Step | Action | Where | Expected |
+|------|--------|-------|----------|
+| 1 | Click the sun/moon button in the header | Header ThemeSelector | UI switches between light and dark mode |
+| 2 | Reload the page | Browser | Mode persists (same light/dark state) |
+| 3 | Open the same URL in another tab | New tab | Same mode is active (cross-tab sync) |
+
+### TH2: Select a Theme Per Mode
+
+**Scenario:** Users can independently choose themes for light and dark mode.
+
+| Step | Action | Where | Expected |
+|------|--------|-------|----------|
+| 1 | Click the theme name/chevron next to the sun/moon | Header ThemeSelector | Dropdown opens showing 8 themes for current mode |
+| 2 | Click a different theme (e.g. "Emerald") | Dropdown list | UI colors change immediately, checkmark moves to selected theme |
+| 3 | Close dropdown and toggle to other mode | ThemeSelector | Other mode's previously selected theme loads (not the one you just picked) |
+| 4 | Open dropdown in the other mode | ThemeSelector | Shows 8 themes for this mode, different list than the first mode |
+| 5 | Select a theme, reload the page | Browser | Both mode selections persist independently |
+
+### TH3: Invalid Theme Recovery
+
+**Scenario:** Manually corrupting localStorage doesn't break the app.
+
+| Step | Action | Where | Expected |
+|------|--------|-------|----------|
+| 1 | Open DevTools console | Browser | Console ready |
+| 2 | Run: `localStorage.setItem('lightTheme', 'garbage')` | Console | Value set |
+| 3 | Reload the page | Browser | App loads with default theme (lofi), not unstyled |
+
+### TH4: Keyboard Navigation
+
+**Scenario:** Theme dropdown is fully keyboard-accessible.
+
+| Step | Action | Where | Expected |
+|------|--------|-------|----------|
+| 1 | Tab to the theme name button and press Enter | Header | Dropdown opens, first item focused |
+| 2 | Press ArrowDown twice | Dropdown | Focus moves down through items |
+| 3 | Press Enter on a theme | Dropdown | Theme applied, dropdown closes, focus returns to trigger |
+| 4 | Re-open dropdown and press Escape | Dropdown | Dropdown closes, focus returns to trigger |
+
+---
+
 ## Mobile-Specific Tests
 
 ### MOB1: Long-Press Cell Context Menu

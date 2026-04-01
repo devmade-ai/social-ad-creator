@@ -1,10 +1,12 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import tailwindcss from '@tailwindcss/vite'
 import { VitePWA } from 'vite-plugin-pwa'
 
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
+    tailwindcss(),
     react(),
     VitePWA({
       registerType: 'prompt',
@@ -13,8 +15,10 @@ export default defineConfig({
         name: 'CanvaGrid',
         short_name: 'CanvaGrid',
         description: 'CanvaGrid - Create social media ads for LinkedIn, Facebook, Instagram, Twitter/X, and TikTok',
-        theme_color: '#7c3aed',
-        background_color: '#18181b',
+        // Requirement: Colors match DaisyUI lofi (light) / black (dark) default themes.
+        // theme_color = lofi neutral (#808080), background_color = black base-100 (#000000).
+        theme_color: '#808080',
+        background_color: '#000000',
         display: 'standalone',
         // Requirement: Explicit id prevents Chrome from deriving identity from start_url.
         // Without this, changing start_url would break install identity for existing users.

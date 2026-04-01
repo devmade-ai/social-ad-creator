@@ -61,14 +61,14 @@ export default memo(function MiniCellGrid({
       // ContentTab style: selected > hasContent > hasImage > default
       if (isSelected) {
         return {
-          bgClass: 'bg-primary hover:bg-primary-hover',
-          content: <span className={`text-white ${fontSize}`}>{currentCellIndex + 1}</span>,
+          bgClass: 'bg-primary hover:bg-primary/80',
+          content: <span className={`text-primary-content ${fontSize}`}>{currentCellIndex + 1}</span>,
         }
       }
       if (hasContent) {
         return {
-          bgClass: 'bg-violet-200 dark:bg-violet-800 hover:bg-violet-300 dark:hover:bg-violet-700',
-          content: <span className={`text-violet-700 dark:text-violet-200 ${fontSize}`}>{currentCellIndex + 1}</span>,
+          bgClass: 'bg-primary/15 hover:bg-primary/20',
+          content: <span className={`text-primary ${fontSize}`}>{currentCellIndex + 1}</span>,
         }
       }
       if (hasImage) {
@@ -78,33 +78,33 @@ export default memo(function MiniCellGrid({
         }
       }
       return {
-        bgClass: 'bg-ui-surface-inset hover:bg-ui-surface-hover',
-        content: <span className={`text-ui-text-subtle ${fontSize}`}>{currentCellIndex + 1}</span>,
+        bgClass: 'bg-base-200 hover:bg-base-300',
+        content: <span className={`text-base-content/60 ${fontSize}`}>{currentCellIndex + 1}</span>,
       }
     }
 
     // Default/StyleTab style: selected > hasImage > default
     if (isSelected) {
       return {
-        bgClass: 'bg-primary hover:bg-primary-hover',
-        content: <span className="text-white text-[10px]">✓</span>,
+        bgClass: 'bg-primary hover:bg-primary/80',
+        content: <span className="text-primary-content text-[10px]">✓</span>,
       }
     }
     if (hasImage) {
       return {
-        bgClass: 'bg-violet-200 dark:bg-violet-800 hover:bg-violet-300 dark:hover:bg-violet-700',
-        content: <span className="text-violet-700 dark:text-violet-200 text-[10px]">📷</span>,
+        bgClass: 'bg-primary/15 hover:bg-primary/20',
+        content: <span className="text-primary text-[10px]">📷</span>,
       }
     }
     return {
-      bgClass: 'bg-ui-surface-inset hover:bg-ui-surface-hover',
-      content: <span className="text-ui-text-subtle text-[10px]">{currentCellIndex + 1}</span>,
+      bgClass: 'bg-base-200 hover:bg-base-300',
+      content: <span className="text-base-content/60 text-[10px]">{currentCellIndex + 1}</span>,
     }
   }
 
   return (
     <div
-      className={`flex overflow-hidden border border-ui-border-strong rounded ${size === 'large' ? 'w-[120px]' : ''}`}
+      className={`flex overflow-hidden border border-base-300 rounded ${size === 'large' ? 'w-[120px]' : ''}`}
       style={{
         ...(size !== 'large' ? { width: `${gridWidth}px` } : {}),
         ...(size === 'large' ? {} : { height: `${gridWidth / aspectRatio}px` }),

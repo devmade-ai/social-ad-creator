@@ -55,8 +55,8 @@ export default memo(function AlignmentPicker({ value, onChange }) {
             title={align.name}
             className={`w-8 h-7 sm:w-7 sm:h-6 rounded flex items-center justify-center transition-colors active:scale-90 ${
               isActive
-                ? 'bg-primary text-white'
-                : 'bg-ui-surface-inset text-ui-text-subtle hover:bg-ui-surface-hover'
+                ? 'bg-primary text-primary-content'
+                : 'bg-base-200 text-base-content/60 hover:bg-base-300'
             }`}
           >
             <align.Icon />

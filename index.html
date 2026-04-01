@@ -10,9 +10,9 @@
     <!-- Two meta theme-color tags with media queries cover both OS preferences
          before JS loads. A single tag can't adapt. The useDarkMode hook
          dynamically updates both on manual toggle via querySelectorAll.
-         Light = brand purple (#7c3aed), Dark = deep purple (#2e1065). -->
-    <meta name="theme-color" content="#7c3aed" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#2e1065" media="(prefers-color-scheme: dark)" />
+         Light = lofi (#808080), Dark = black (#000000). -->
+    <meta name="theme-color" content="#808080" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="CanvaGrid" />
@@ -21,11 +21,15 @@
     <link rel="icon" type="image/png" sizes="48x48" href="/favicon.png" />
     <link rel="icon" type="image/png" sizes="192x192" href="/pwa-192x192.png" />
 
-    <!-- Dark mode flash prevention — apply .dark class before first paint.
-         The useDarkMode hook runs after React mounts, too late to prevent a
-         white flash for dark mode users. This inline classic (non-module) script
-         reads localStorage and applies .dark during HTML parse.
-         Must duplicate the same localStorage key and matchMedia logic as the hook. -->
+    <!-- Dark mode + theme flash prevention — apply .dark class + data-theme before first paint.
+         The useDarkMode hook runs after React mounts, too late to prevent a flash.
+         This inline classic (non-module) script reads localStorage and applies both
+         .dark (Tailwind) and data-theme (DaisyUI) during HTML parse.
+         SYNC WARNING: This script duplicates localStorage keys and default theme names
+         from src/config/daisyuiThemes.js (DEFAULT_LIGHT_THEME / DEFAULT_DARK_THEME).
+         Inline scripts cannot import ES modules, so these values are hardcoded here.
+         If you change defaults in daisyuiThemes.js, update the fallbacks below to match.
+         Keys: 'darkMode', 'lightTheme', 'darkTheme'. Defaults: 'lofi', 'black'. -->
     <script>
       (function() {
         try {
@@ -33,7 +37,18 @@
           var isDark = stored !== null
             ? stored === 'true'
             : window.matchMedia('(prefers-color-scheme: dark)').matches;
-          if (isDark) document.documentElement.classList.add('dark');
+          var root = document.documentElement;
+          if (isDark) root.classList.add('dark');
+          // SYNC: These allowlists must match the theme arrays in src/config/daisyuiThemes.js.
+          var light = ['lofi','nord','emerald','cupcake','garden','autumn','pastel','caramellatte'];
+          var dark = ['black','night','forest','dracula','dim','synthwave','luxury','coffee'];
+          var raw = isDark
+            ? localStorage.getItem('darkTheme')
+            : localStorage.getItem('lightTheme');
+          var allowed = isDark ? dark : light;
+          var fallback = isDark ? 'black' : 'lofi';
+          var theme = (raw && allowed.indexOf(raw) !== -1) ? raw : fallback;
+          root.setAttribute('data-theme', theme);
         } catch(e) {}
       })();
     </script>

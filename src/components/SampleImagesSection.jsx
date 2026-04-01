@@ -128,8 +128,8 @@ export default function SampleImagesSection({ images, onAddImage, selectedCell, 
   if (manifestLoading) {
     return (
       <div className="flex items-center justify-center py-6 gap-2">
-        <div className="w-4 h-4 border-2 border-violet-400 border-t-transparent rounded-full animate-spin" />
-        <p className="text-xs text-ui-text-subtle">Loading sample images...</p>
+        <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+        <p className="text-xs text-base-content/60">Loading sample images...</p>
       </div>
     )
   }
@@ -137,10 +137,10 @@ export default function SampleImagesSection({ images, onAddImage, selectedCell, 
   if (manifestError) {
     return (
       <div className="text-center py-4 space-y-2">
-        <p className="text-xs text-red-600 dark:text-red-400">{manifestError}</p>
+        <p className="text-xs text-error">{manifestError}</p>
         <button
           onClick={loadManifest}
-          className="px-3 py-1 text-xs rounded-lg bg-ui-surface-inset hover:bg-ui-surface-hover text-ui-text-muted"
+          className="px-3 py-1 text-xs rounded-lg bg-base-200 hover:bg-base-300 text-base-content/70"
         >
           Try again
         </button>
@@ -150,13 +150,13 @@ export default function SampleImagesSection({ images, onAddImage, selectedCell, 
 
   if (sampleImages.length === 0) {
     return (
-      <p className="text-xs text-ui-text-subtle text-center py-3">No sample images available</p>
+      <p className="text-xs text-base-content/60 text-center py-3">No sample images available</p>
     )
   }
 
   return (
     <div className="space-y-2">
-      <p className="text-xs text-ui-text-subtle">
+      <p className="text-xs text-base-content/60">
         {images.length === 0 ? 'Add a sample image to get started' : 'Add sample images to your library'}
       </p>
 
@@ -171,8 +171,8 @@ export default function SampleImagesSection({ images, onAddImage, selectedCell, 
               onClick={() => handleCategoryChange('all')}
               className={`px-2.5 py-1 text-xs rounded-lg font-medium whitespace-nowrap flex-shrink-0 ${
                 activeCategory === 'all'
-                  ? 'bg-primary text-white shadow-sm'
-                  : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
+                  ? 'bg-primary text-primary-content shadow-sm'
+                  : 'bg-base-200 text-base-content/70 hover:bg-base-300'
               }`}
             >
               All
@@ -183,8 +183,8 @@ export default function SampleImagesSection({ images, onAddImage, selectedCell, 
                 onClick={() => handleCategoryChange(cat.id)}
                 className={`px-2.5 py-1 text-xs rounded-lg font-medium whitespace-nowrap flex-shrink-0 ${
                   activeCategory === cat.id
-                    ? 'bg-primary text-white shadow-sm'
-                    : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
+                    ? 'bg-primary text-primary-content shadow-sm'
+                    : 'bg-base-200 text-base-content/70 hover:bg-base-300'
                 }`}
               >
                 {cat.name}
@@ -192,7 +192,7 @@ export default function SampleImagesSection({ images, onAddImage, selectedCell, 
             ))}
           </div>
           {/* Fade indicator on right edge when scrollable */}
-          <div className="absolute right-0 top-0 bottom-0 w-6 bg-gradient-to-l from-white dark:from-zinc-900 pointer-events-none opacity-0 group-hover/cats:opacity-100 transition-opacity" />
+          <div className="absolute right-0 top-0 bottom-0 w-6 bg-gradient-to-l from-base-100 pointer-events-none opacity-0 group-hover/cats:opacity-100 transition-opacity" />
         </div>
       )}
 
@@ -206,8 +206,8 @@ export default function SampleImagesSection({ images, onAddImage, selectedCell, 
             title={`Add ${sample.name} to library`}
             className={`aspect-square rounded-lg overflow-hidden border-2 transition-all relative ${
               loadingSample === sample.id
-                ? 'border-violet-400 opacity-50 scale-95'
-                : 'border-ui-border hover:border-violet-400 hover:shadow-sm active:scale-95'
+                ? 'border-primary opacity-50 scale-95'
+                : 'border-base-300 hover:border-primary hover:shadow-sm active:scale-95'
             }`}
           >
             <img
@@ -221,7 +221,7 @@ export default function SampleImagesSection({ images, onAddImage, selectedCell, 
               }}
             />
             <div
-              className="w-full h-full bg-ui-surface-inset items-center justify-center text-ui-text-faint text-[9px] text-center p-0.5"
+              className="w-full h-full bg-base-200 items-center justify-center text-base-content/40 text-[9px] text-center p-0.5"
               style={{ display: 'none' }}
             >
               {sample.name}
@@ -236,7 +236,7 @@ export default function SampleImagesSection({ images, onAddImage, selectedCell, 
       </div>
 
       {filteredImages.length === 0 && (
-        <p className="text-xs text-ui-text-subtle text-center py-3">No images in this category</p>
+        <p className="text-xs text-base-content/60 text-center py-3">No images in this category</p>
       )}
 
       {/* Pagination controls */}
@@ -245,24 +245,24 @@ export default function SampleImagesSection({ images, onAddImage, selectedCell, 
           <button
             onClick={() => setPage((p) => Math.max(0, p - 1))}
             disabled={page === 0}
-            className="px-2 py-1 text-xs rounded-lg font-medium bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover disabled:opacity-30 disabled:pointer-events-none"
+            className="px-2 py-1 text-xs rounded-lg font-medium bg-base-200 text-base-content/70 hover:bg-base-300 disabled:opacity-30 disabled:pointer-events-none"
           >
             Prev
           </button>
-          <span className="text-xs text-ui-text-subtle">
+          <span className="text-xs text-base-content/60">
             {page + 1} / {totalPages}
           </span>
           <button
             onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
             disabled={page >= totalPages - 1}
-            className="px-2 py-1 text-xs rounded-lg font-medium bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover disabled:opacity-30 disabled:pointer-events-none"
+            className="px-2 py-1 text-xs rounded-lg font-medium bg-base-200 text-base-content/70 hover:bg-base-300 disabled:opacity-30 disabled:pointer-events-none"
           >
             Next
           </button>
         </div>
       )}
 
-      {sampleError && <p className="text-xs text-red-600 dark:text-red-400">{sampleError}</p>}
+      {sampleError && <p className="text-xs text-error">{sampleError}</p>}
     </div>
   )
 }

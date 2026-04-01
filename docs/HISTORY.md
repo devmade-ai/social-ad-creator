@@ -1,5 +1,24 @@
 # Changelog
 
+## 2026-04-01
+
+### Tailwind 4 + DaisyUI 5 migration
+
+- **Infrastructure** — Upgraded from Tailwind 3.4 to Tailwind 4.2 + DaisyUI 5.5. Deleted `tailwind.config.js` and `postcss.config.js`. Config now CSS-first in `src/index.css` using `@import "tailwindcss"`, `@plugin "daisyui"`, `@theme`, `@custom-variant`, and `@utility` directives. Added `@tailwindcss/vite` plugin.
+- **DaisyUI themes** — Chose `lofi` (light) and `black` (dark) as default themes. Replaced hand-rolled violet/indigo color palette with DaisyUI semantic tokens.
+- **Dual-layer theming** — `useDarkMode.js` and `index.html` flash-prevention script now manage both `.dark` class (Tailwind `dark:` utilities) and `data-theme` attribute (DaisyUI component colors) simultaneously.
+- **Component migration** — Migrated ~170 `dark:` class pairs across 30+ files. Replaced custom semantic tokens (`text-ui-text`, `bg-ui-surface`, `border-ui-border`) with DaisyUI equivalents (`text-base-content`, `bg-base-100`, `border-base-300`). Replaced all violet/indigo hardcoded colors with `primary`/`secondary` tokens. Replaced status colors (red/green/amber/emerald/orange) with DaisyUI semantic tokens (error/success/warning).
+- **Old CSS variable system removed** — The `:root`/`.dark` semantic token system (18 `theme()` calls) replaced entirely by DaisyUI's built-in token system.
+- **PWA manifest** — Updated `theme_color` to `#5E81AC` (nord primary) and `background_color` to `#0F1729` (night base-100).
+- **Documentation** — Updated CLAUDE.md, STYLE_GUIDE.md, SESSION_NOTES.md.
+
+### Independent per-mode theme selection
+
+- **Theme catalog** — 16 curated DaisyUI themes (8 light: nord, lofi, emerald, cupcake, garden, autumn, pastel, caramellatte; 8 dark: night, black, forest, dracula, dim, synthwave, luxury, coffee) defined in `src/config/daisyuiThemes.js`.
+- **Independent selection** — Users pick light theme and dark theme separately. Each mode stores its own choice in localStorage (`lightTheme`, `darkTheme`). Mode toggle shows the relevant theme list.
+- **ThemeSelector component** — Dropdown in header (desktop, mobile, reader mode) combines mode toggle (sun/moon) with theme picker. Replaces old single toggle button.
+- **Flash prevention** — Inline script in `index.html` reads all three localStorage keys (`darkMode`, `lightTheme`, `darkTheme`) to apply correct theme before first paint.
+
 ## 2026-03-31
 
 ### Theme light/dark variants

@@ -53,7 +53,7 @@ export default function BurgerMenu({ items, open, onToggle, onClose }) {
         aria-label="Menu"
         aria-expanded={open}
         aria-controls={menuId}
-        className="p-2 rounded-lg text-ui-text hover:bg-zinc-100 dark:hover:bg-dark-subtle transition-colors"
+        className="p-2 rounded-lg text-base-content hover:bg-base-200 transition-colors"
       >
         <svg className="w-5 h-5" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
@@ -75,8 +75,8 @@ export default function BurgerMenu({ items, open, onToggle, onClose }) {
             id={menuId}
             aria-label="More options"
             className="absolute right-3 top-full mt-1 z-50
-                       bg-white dark:bg-dark-card rounded-xl shadow-lg
-                       border border-ui-border py-1 min-w-[180px]
+                       bg-base-100 rounded-xl shadow-lg
+                       border border-base-300 py-1 min-w-[180px]
                        max-w-[calc(100vw-2rem)] overflow-hidden overscroll-contain"
           >
             <ul className="list-none m-0 p-0">
@@ -96,7 +96,7 @@ export default function BurgerMenu({ items, open, onToggle, onClose }) {
                       outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset
                       ${item.highlight
                         ? `${item.highlightColor || 'text-primary'} hover:bg-primary/5`
-                        : 'text-ui-text hover:bg-ui-surface-hover'
+                        : 'text-base-content hover:bg-base-300'
                       }`}
                   >
                     <svg className="w-4 h-4 shrink-0" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor">

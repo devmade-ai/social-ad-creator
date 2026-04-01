@@ -94,14 +94,14 @@ function TextElementEditor({
   }, [])
 
   return (
-    <div className="space-y-2 pb-3 border-b border-ui-border-subtle last:border-0 last:pb-0">
+    <div className="space-y-2 pb-3 border-b border-base-200 last:border-0 last:pb-0">
       {/* Row 1: Visibility + Label + Clear + Style toggle */}
       <div className="flex items-center gap-2">
         {/* Visibility Toggle */}
         <button
           onClick={() => onTextChange(cellIndex, element.id, { visible: !isVisible })}
           className={`w-8 h-8 sm:w-7 sm:h-7 rounded-md flex items-center justify-center text-xs shrink-0 active:scale-90 ${
-            isVisible ? 'bg-green-100 dark:bg-green-900/50 text-green-600 dark:text-green-400' : 'bg-ui-surface-inset text-ui-text-faint'
+            isVisible ? 'bg-success/10 text-success' : 'bg-base-200 text-base-content/40'
           }`}
           title={isVisible ? 'Visible - click to hide' : 'Hidden - click to show'}
         >
@@ -109,7 +109,7 @@ function TextElementEditor({
         </button>
 
         {/* Label */}
-        <span className={`text-sm flex-1 min-w-0 ${isVisible ? 'text-ui-text' : 'text-ui-text-faint'}`}>
+        <span className={`text-sm flex-1 min-w-0 ${isVisible ? 'text-base-content' : 'text-base-content/40'}`}>
           {element.label}
         </span>
 
@@ -117,7 +117,7 @@ function TextElementEditor({
         {layerState.content && (
           <button
             onClick={() => onTextChange(cellIndex, element.id, { content: '' })}
-            className="w-8 h-8 sm:w-7 sm:h-7 rounded flex items-center justify-center text-ui-text-faint hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 active:bg-red-100 dark:active:bg-red-900/30 transition-colors"
+            className="w-8 h-8 sm:w-7 sm:h-7 rounded flex items-center justify-center text-base-content/40 hover:text-error hover:bg-error/10 active:bg-error/20 transition-colors"
             title="Clear text"
           >
             <CloseIcon />
@@ -128,7 +128,7 @@ function TextElementEditor({
         <button
           onClick={() => setShowStyle(!showStyle)}
           className={`w-8 h-8 sm:w-7 sm:h-7 rounded flex items-center justify-center text-xs transition-colors active:scale-90 ${
-            showStyle ? 'bg-primary/10 text-primary' : 'bg-ui-surface-inset text-ui-text-subtle hover:bg-ui-surface-hover'
+            showStyle ? 'bg-primary/10 text-primary' : 'bg-base-200 text-base-content/60 hover:bg-base-300'
           }`}
           title="Text style options"
         >
@@ -157,7 +157,7 @@ function TextElementEditor({
           onFocus={handleFocus}
           placeholder={element.placeholder}
           rows={textareaRows}
-          className="w-full px-3 py-2 text-sm text-ui-text border border-ui-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-white dark:bg-dark-subtle placeholder-zinc-400 dark:placeholder-zinc-500"
+          className="w-full px-3 py-2 text-sm text-base-content border border-base-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-base-100 placeholder-base-content/50"
           style={{ resize: 'vertical', minHeight: '2.5rem' }}
         />
       </div>
@@ -266,16 +266,16 @@ export default memo(function ContentTab({
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-ui-text">Content</h3>
+        <h3 className="text-sm font-semibold text-base-content">Content</h3>
 
         {/* Text mode toggle — renamed Structured to Guided (#13) */}
-        <div className="flex bg-ui-surface-inset rounded-lg p-0.5">
+        <div className="flex bg-base-200 rounded-lg p-0.5">
           <button
             onClick={() => onTextModeChange?.('structured')}
             className={`px-2.5 py-1 text-[11px] font-medium rounded-md transition-all ${
               textMode === 'structured'
-                ? 'bg-white dark:bg-dark-card text-ui-text shadow-sm'
-                : 'text-ui-text-muted hover:text-ui-text'
+                ? 'bg-base-100 text-base-content shadow-sm'
+                : 'text-base-content/70 hover:text-base-content'
             }`}
           >
             Guided
@@ -284,8 +284,8 @@ export default memo(function ContentTab({
             onClick={() => onTextModeChange?.('freeform')}
             className={`px-2.5 py-1 text-[11px] font-medium rounded-md transition-all ${
               textMode === 'freeform'
-                ? 'bg-white dark:bg-dark-card text-ui-text shadow-sm'
-                : 'text-ui-text-muted hover:text-ui-text'
+                ? 'bg-base-100 text-base-content shadow-sm'
+                : 'text-base-content/70 hover:text-base-content'
             }`}
           >
             Freeform
@@ -294,7 +294,7 @@ export default memo(function ContentTab({
       </div>
 
       {/* Subtitle for mode explanation (#13) */}
-      <p className="text-[10px] text-ui-text-faint -mt-1">
+      <p className="text-[10px] text-base-content/40 -mt-1">
         {textMode === 'structured'
           ? 'Select a cell, then fill in title, tagline, body, and more'
           : 'Write anything in each cell, your way'}
@@ -314,13 +314,13 @@ export default memo(function ContentTab({
           />
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium text-ui-text">
+          <p className="text-sm font-medium text-base-content">
             Cell {activeCell + 1}
             {cellPositionLabel && (
-              <span className="text-ui-text-subtle font-normal"> ({cellPositionLabel})</span>
+              <span className="text-base-content/60 font-normal"> ({cellPositionLabel})</span>
             )}
           </p>
-          <p className="text-[10px] text-ui-text-subtle mt-0.5">
+          <p className="text-[10px] text-base-content/60 mt-0.5">
             {textMode === 'structured'
               ? 'Add title, body, CTA and more to this cell'
               : 'Add text blocks with independent styling'}
@@ -375,7 +375,7 @@ export default memo(function ContentTab({
       <CollapsibleSection title="Text Alignment" subtitle={layoutType === 'fullbleed' ? 'Global' : `Cell ${activeCell + 1}`} defaultExpanded={false}>
         <div className="flex gap-4">
           <div className="flex-1">
-            <span className="text-xs text-ui-text-subtle block mb-1.5">Horizontal</span>
+            <span className="text-xs text-base-content/60 block mb-1.5">Horizontal</span>
             <div className="flex gap-1.5">
               {textAlignOptions.map((align) => (
                 <button
@@ -384,8 +384,8 @@ export default memo(function ContentTab({
                   title={align.name}
                   className={`flex-1 px-2 py-2 rounded-lg flex items-center justify-center ${
                     getCellAlignment('textAlign') === align.id
-                      ? 'bg-primary text-white shadow-sm'
-                      : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
+                      ? 'bg-primary text-primary-content shadow-sm'
+                      : 'bg-base-200 text-base-content/70 hover:bg-base-300'
                   }`}
                 >
                   <align.Icon />
@@ -394,7 +394,7 @@ export default memo(function ContentTab({
             </div>
           </div>
           <div className="flex-1">
-            <span className="text-xs text-ui-text-subtle block mb-1.5">Vertical</span>
+            <span className="text-xs text-base-content/60 block mb-1.5">Vertical</span>
             <div className="flex gap-1.5">
               {verticalAlignOptions.map((align) => (
                 <button
@@ -403,8 +403,8 @@ export default memo(function ContentTab({
                   title={align.name}
                   className={`flex-1 px-2 py-2 rounded-lg flex items-center justify-center ${
                     getCellAlignment('textVerticalAlign') === align.id
-                      ? 'bg-primary text-white shadow-sm'
-                      : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
+                      ? 'bg-primary text-primary-content shadow-sm'
+                      : 'bg-base-200 text-base-content/70 hover:bg-base-300'
                   }`}
                 >
                   <align.Icon />

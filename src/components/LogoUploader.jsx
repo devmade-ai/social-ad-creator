@@ -69,12 +69,12 @@ export default function LogoUploader({
 
   return (
     <div className="space-y-4">
-      <h3 className="text-sm font-semibold text-ui-text">Logo</h3>
+      <h3 className="text-sm font-semibold text-base-content">Logo</h3>
 
       {/* Upload area */}
       {!logo ? (
         <div
-          className="border-2 border-dashed border-ui-border-strong rounded-lg p-4 text-center cursor-pointer hover:border-violet-400 hover:bg-violet-50 dark:hover:bg-violet-900/20 transition-colors"
+          className="border-2 border-dashed border-base-300 rounded-lg p-4 text-center cursor-pointer hover:border-primary hover:bg-primary/10 transition-colors"
           onDrop={handleDrop}
           onDragOver={handleDragOver}
           onClick={() => fileInputRef.current?.click()}
@@ -86,7 +86,7 @@ export default function LogoUploader({
             onChange={handleFileChange}
             className="hidden"
           />
-          <div className="text-ui-text-subtle">
+          <div className="text-base-content/60">
             <svg
               className="mx-auto h-8 w-8 mb-2"
               fill="none"
@@ -106,7 +106,7 @@ export default function LogoUploader({
       ) : (
         <div className="space-y-3">
           {/* Logo preview */}
-          <div className="relative bg-ui-surface-inset rounded-lg p-2">
+          <div className="relative bg-base-200 rounded-lg p-2">
             <img
               src={logo}
               alt="Logo preview"
@@ -114,7 +114,7 @@ export default function LogoUploader({
             />
             <button
               onClick={handleRemove}
-              className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-red-600"
+              className="absolute top-1 right-1 bg-error text-error-content rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-error/80"
             >
               ×
             </button>
@@ -122,7 +122,7 @@ export default function LogoUploader({
 
           {/* Position selector */}
           <div>
-            <label className="block text-xs font-medium text-ui-text-muted mb-1">Position</label>
+            <label className="block text-xs font-medium text-base-content/70 mb-1">Position</label>
             <div className="grid grid-cols-3 gap-1">
               {positionOptions.map((opt) => (
                 <button
@@ -130,8 +130,8 @@ export default function LogoUploader({
                   onClick={() => onPositionChange(opt.id)}
                   className={`px-2 py-1 text-xs rounded transition-colors ${
                     position === opt.id
-                      ? 'bg-primary text-white'
-                      : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
+                      ? 'bg-primary text-primary-content'
+                      : 'bg-base-200 text-base-content/70 hover:bg-base-300'
                   }`}
                 >
                   {opt.name}
@@ -142,7 +142,7 @@ export default function LogoUploader({
 
           {/* Size selector */}
           <div>
-            <label className="block text-xs font-medium text-ui-text-muted mb-1">Size</label>
+            <label className="block text-xs font-medium text-base-content/70 mb-1">Size</label>
             <div className="flex gap-1">
               {sizeOptions.map((opt) => (
                 <button
@@ -150,8 +150,8 @@ export default function LogoUploader({
                   onClick={() => onSizeChange(opt.id)}
                   className={`flex-1 px-2 py-1 text-xs rounded transition-colors ${
                     size === opt.id
-                      ? 'bg-primary text-white'
-                      : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
+                      ? 'bg-primary text-primary-content'
+                      : 'bg-base-200 text-base-content/70 hover:bg-base-300'
                   }`}
                 >
                   {opt.name}

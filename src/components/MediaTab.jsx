@@ -56,7 +56,7 @@ function CellGrid({ layout, cellImages, selectedCell, onSelectCell, platform, hi
 
   return (
     <div
-      className="rounded overflow-hidden border border-ui-border-strong flex"
+      className="rounded overflow-hidden border border-base-300 flex"
       style={{
         aspectRatio,
         maxWidth: '140px',
@@ -89,12 +89,12 @@ function CellGrid({ layout, cellImages, selectedCell, onSelectCell, platform, hi
                   onClick={() => onSelectCell(currentCellIndex)}
                   className={`flex items-center justify-center text-xs font-medium transition-colors ${
                     isHighlighted
-                      ? 'bg-primary hover:bg-primary-hover text-white ring-2 ring-primary ring-offset-1'
+                      ? 'bg-primary hover:bg-primary/80 text-primary-content ring-2 ring-primary ring-offset-1'
                       : isSelected
-                      ? 'bg-primary hover:bg-primary-hover text-white ring-2 ring-primary ring-offset-1'
+                      ? 'bg-primary hover:bg-primary/80 text-primary-content ring-2 ring-primary ring-offset-1'
                       : hasImage
-                      ? 'bg-violet-200 dark:bg-violet-800 hover:bg-violet-300 dark:hover:bg-violet-700 text-violet-700 dark:text-violet-200'
-                      : 'bg-ui-surface-inset hover:bg-ui-surface-hover text-ui-text-subtle'
+                      ? 'bg-primary/20 hover:bg-primary/30 text-primary'
+                      : 'bg-base-200 hover:bg-base-300 text-base-content/60'
                   }`}
                   style={{ flex: `0 0 ${subSize}%` }}
                 >
@@ -284,7 +284,7 @@ export default memo(function MediaTab({
 
   return (
     <div className="space-y-3">
-      <h3 className="text-sm font-semibold text-ui-text">Media</h3>
+      <h3 className="text-sm font-semibold text-base-content">Media</h3>
 
       {/* AI Image Prompt Helper Section - collapsed by default */}
       <CollapsibleSection title="AI Image Prompt" defaultExpanded={false}>
@@ -301,14 +301,14 @@ export default memo(function MediaTab({
 
           {/* Upload area */}
           <div
-            className="border-2 border-dashed border-ui-border rounded-xl p-4 text-center cursor-pointer hover:border-violet-400 hover:bg-violet-50/30 dark:hover:bg-violet-900/30 transition-all"
+            className="border-2 border-dashed border-base-300 rounded-xl p-4 text-center cursor-pointer hover:border-primary hover:bg-primary/10 transition-all"
             onDrop={handleDrop}
             onDragOver={handleDragOver}
             onClick={() => fileInputRef.current?.click()}
           >
             <div className="py-2">
               <svg
-                className="w-8 h-8 mx-auto text-ui-text-faint mb-2"
+                className="w-8 h-8 mx-auto text-base-content/40 mb-2"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -320,8 +320,8 @@ export default memo(function MediaTab({
                   d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
                 />
               </svg>
-              <p className="text-sm text-ui-text-muted font-medium">Drop image or click to upload</p>
-              <p className="text-xs text-ui-text-faint mt-1">
+              <p className="text-sm text-base-content/70 font-medium">Drop image or click to upload</p>
+              <p className="text-xs text-base-content/40 mt-1">
                 {images.length === 0 ? 'Add images to your library' : `${images.length} image${images.length !== 1 ? 's' : ''} in library`}
               </p>
             </div>
@@ -331,8 +331,8 @@ export default memo(function MediaTab({
           {/* Image Library - click to select an image */}
           {images.length > 0 && (
             <div className="space-y-2">
-              <label className="block text-xs font-medium text-ui-text-muted">
-                Select Image <span className="text-ui-text-faint font-normal">(click to edit)</span>
+              <label className="block text-xs font-medium text-base-content/70">
+                Select Image <span className="text-base-content/40 font-normal">(click to edit)</span>
               </label>
               <div className="grid grid-cols-4 gap-1.5">
                 {images.map((img) => {
@@ -347,8 +347,8 @@ export default memo(function MediaTab({
                           isSelected
                             ? 'border-primary ring-2 ring-primary/30'
                             : assignedCells.length > 0
-                            ? 'border-violet-300 dark:border-violet-600 hover:border-violet-400'
-                            : 'border-ui-border hover:border-violet-400'
+                            ? 'border-primary/50 hover:border-primary'
+                            : 'border-base-300 hover:border-primary'
                         }`}
                         title={isSelected ? 'Selected' : 'Click to select'}
                       >
@@ -360,14 +360,14 @@ export default memo(function MediaTab({
                           e.stopPropagation()
                           onRemoveImage(img.id)
                         }}
-                        className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-sm hover:bg-red-600"
+                        className="absolute -top-1 -right-1 w-5 h-5 bg-error text-error-content rounded-full text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-sm hover:bg-error/80"
                         title="Remove from library"
                       >
                         ×
                       </button>
                       {/* Assignment indicator */}
                       {assignedCells.length > 0 && (
-                        <div className="absolute bottom-0.5 left-0.5 bg-violet-600 text-white text-[8px] px-1 rounded">
+                        <div className="absolute bottom-0.5 left-0.5 bg-primary text-primary-content text-[8px] px-1 rounded">
                           {assignedCells.length > 2 ? `${assignedCells.length} cells` : assignedCells.map(c => c + 1).join(', ')}
                         </div>
                       )}
@@ -380,16 +380,16 @@ export default memo(function MediaTab({
 
           {/* Selected Image Settings */}
           {selectedImage && (
-            <div className="space-y-3 pt-3 border-t border-ui-border-subtle">
+            <div className="space-y-3 pt-3 border-t border-base-200">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-medium text-ui-text-muted">
+                <span className="text-xs font-medium text-base-content/70">
                   {selectedImage.name}
                 </span>
               </div>
 
               {/* Assign to Cells - primary action after selection */}
               <div className="space-y-2">
-                <label className="block text-xs font-medium text-ui-text-muted">Assign to Cells</label>
+                <label className="block text-xs font-medium text-base-content/70">Assign to Cells</label>
                 <div className="flex items-center gap-3">
                   <CellGrid
                     layout={layout}
@@ -399,9 +399,9 @@ export default memo(function MediaTab({
                     platform={platform}
                     highlightImageId={selectedImageId}
                   />
-                  <div className="text-xs text-ui-text-subtle">
+                  <div className="text-xs text-base-content/60">
                     <div>Click cells to assign/unassign</div>
-                    <div className="text-violet-600 dark:text-violet-400">
+                    <div className="text-primary">
                       {getImageCells(selectedImageId).length > 0
                         ? `In cells: ${getImageCells(selectedImageId).map(c => c + 1).join(', ')}`
                         : 'Not assigned'}
@@ -411,8 +411,8 @@ export default memo(function MediaTab({
               </div>
 
               {/* Object Fit */}
-              <div className="space-y-2 pt-3 border-t border-ui-border-subtle">
-                <label className="block text-xs font-medium text-ui-text-muted">Fit</label>
+              <div className="space-y-2 pt-3 border-t border-base-200">
+                <label className="block text-xs font-medium text-base-content/70">Fit</label>
                 <div className="flex gap-2">
                   {[{ value: 'cover', label: 'Fill' }, { value: 'contain', label: 'Fit' }].map(({ value, label }) => (
                     <button
@@ -420,8 +420,8 @@ export default memo(function MediaTab({
                       onClick={() => onUpdateImage(selectedImageId, { fit: value })}
                       className={`flex-1 px-3 py-2 text-sm rounded-lg font-medium ${
                         selectedImage.fit === value
-                          ? 'bg-primary text-white shadow-sm'
-                          : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
+                          ? 'bg-primary text-primary-content shadow-sm'
+                          : 'bg-base-200 text-base-content/70 hover:bg-base-300'
                       }`}
                     >
                       {label}
@@ -432,7 +432,7 @@ export default memo(function MediaTab({
 
               {/* Position */}
               <div className="space-y-2">
-                <label className="block text-xs font-medium text-ui-text-muted">Position</label>
+                <label className="block text-xs font-medium text-base-content/70">Position</label>
                 <div className="grid grid-cols-3 gap-1">
                   {[
                     { x: 0, y: 0, label: '↖' },
@@ -450,8 +450,8 @@ export default memo(function MediaTab({
                       onClick={() => onUpdateImagePosition(selectedImageId, { x: preset.x, y: preset.y })}
                       className={`px-2 py-1.5 text-sm rounded font-medium ${
                         selectedImage.position?.x === preset.x && selectedImage.position?.y === preset.y
-                          ? 'bg-primary text-white shadow-sm'
-                          : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
+                          ? 'bg-primary text-primary-content shadow-sm'
+                          : 'bg-base-200 text-base-content/70 hover:bg-base-300'
                       }`}
                     >
                       {preset.label}
@@ -461,7 +461,7 @@ export default memo(function MediaTab({
                 {/* Fine-grained position sliders */}
                 <div className="space-y-2 pt-2">
                   <div className="flex items-center gap-2">
-                    <span className="text-xs text-ui-text-muted w-6">X</span>
+                    <span className="text-xs text-base-content/70 w-6">X</span>
                     <input
                       type="range"
                       min="0"
@@ -470,10 +470,10 @@ export default memo(function MediaTab({
                       onChange={(e) => onUpdateImagePosition(selectedImageId, { x: parseInt(e.target.value) })}
                       className="flex-1 accent-primary"
                     />
-                    <span className="text-xs text-ui-text-muted w-8 text-right">{selectedImage.position?.x ?? 50}%</span>
+                    <span className="text-xs text-base-content/70 w-8 text-right">{selectedImage.position?.x ?? 50}%</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-xs text-ui-text-muted w-6">Y</span>
+                    <span className="text-xs text-base-content/70 w-6">Y</span>
                     <input
                       type="range"
                       min="0"
@@ -482,14 +482,14 @@ export default memo(function MediaTab({
                       onChange={(e) => onUpdateImagePosition(selectedImageId, { y: parseInt(e.target.value) })}
                       className="flex-1 accent-primary"
                     />
-                    <span className="text-xs text-ui-text-muted w-8 text-right">{selectedImage.position?.y ?? 50}%</span>
+                    <span className="text-xs text-base-content/70 w-8 text-right">{selectedImage.position?.y ?? 50}%</span>
                   </div>
                 </div>
               </div>
 
               {/* Grayscale toggle */}
               <div className="space-y-2">
-                <label className="block text-xs font-medium text-ui-text-muted">Grayscale</label>
+                <label className="block text-xs font-medium text-base-content/70">Grayscale</label>
                 <button
                   onClick={() =>
                     onUpdateImageFilters(selectedImageId, {
@@ -498,8 +498,8 @@ export default memo(function MediaTab({
                   }
                   className={`w-full px-3 py-2 text-sm rounded-lg font-medium ${
                     (selectedImage.filters?.grayscale || 0) > 0
-                      ? 'bg-primary text-white shadow-sm'
-                      : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
+                      ? 'bg-primary text-primary-content shadow-sm'
+                      : 'bg-base-200 text-base-content/70 hover:bg-base-300'
                   }`}
                 >
                   {(selectedImage.filters?.grayscale || 0) > 0 ? 'On' : 'Off'}
@@ -515,19 +515,19 @@ export default memo(function MediaTab({
       {selectedImage && (
         <CollapsibleSection title="Image Color Tint" defaultExpanded={false}>
           <div className="space-y-3">
-            <p className="text-xs text-ui-text-subtle">
+            <p className="text-xs text-base-content/60">
               Color tint for {selectedImage.name}
             </p>
 
             {/* On/Off Toggle */}
             <div className="space-y-2">
-              <label className="block text-xs font-medium text-ui-text-muted">Color Tint</label>
+              <label className="block text-xs font-medium text-base-content/70">Color Tint</label>
               <button
                 onClick={() => onUpdateImageOverlay(selectedImageId, { opacity: (selectedImage.overlay?.opacity ?? 0) > 0 ? 0 : 50 })}
                 className={`w-full px-3 py-2 text-sm rounded-lg font-medium ${
                   (selectedImage.overlay?.opacity ?? 0) > 0
-                    ? 'bg-primary text-white shadow-sm'
-                    : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
+                    ? 'bg-primary text-primary-content shadow-sm'
+                    : 'bg-base-200 text-base-content/70 hover:bg-base-300'
                 }`}
               >
                 {(selectedImage.overlay?.opacity ?? 0) > 0 ? 'On' : 'Off'}
@@ -539,10 +539,10 @@ export default memo(function MediaTab({
               <>
                 {/* Overlay Type - organized by category */}
                 <div className="space-y-3">
-                  <label className="block text-xs font-medium text-ui-text-muted">Type</label>
+                  <label className="block text-xs font-medium text-base-content/70">Type</label>
                   {/* Basic & Linear Gradients */}
                   <div className="space-y-1.5">
-                    <span className="text-[10px] text-ui-text-faint uppercase tracking-wide">Basic & Gradients</span>
+                    <span className="text-[10px] text-base-content/40 uppercase tracking-wide">Basic & Gradients</span>
                     <div className="grid grid-cols-5 gap-1">
                       {overlayTypes.filter(t => t.category === 'basic' || t.category === 'linear').map((t) => (
                         <button
@@ -550,8 +550,8 @@ export default memo(function MediaTab({
                           onClick={() => onUpdateImageOverlay(selectedImageId, { type: t.id })}
                           className={`px-1.5 py-1.5 text-[10px] rounded-lg font-medium truncate ${
                             selectedImage.overlay?.type === t.id
-                              ? 'bg-primary text-white shadow-sm'
-                              : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
+                              ? 'bg-primary text-primary-content shadow-sm'
+                              : 'bg-base-200 text-base-content/70 hover:bg-base-300'
                           }`}
                           title={t.name}
                         >
@@ -562,7 +562,7 @@ export default memo(function MediaTab({
                   </div>
                   {/* Radial */}
                   <div className="space-y-1.5">
-                    <span className="text-[10px] text-ui-text-faint uppercase tracking-wide">Circular</span>
+                    <span className="text-[10px] text-base-content/40 uppercase tracking-wide">Circular</span>
                     <div className="grid grid-cols-4 gap-1">
                       {overlayTypes.filter(t => t.category === 'radial').map((t) => (
                         <button
@@ -570,8 +570,8 @@ export default memo(function MediaTab({
                           onClick={() => onUpdateImageOverlay(selectedImageId, { type: t.id })}
                           className={`px-1.5 py-1.5 text-[10px] rounded-lg font-medium truncate ${
                             selectedImage.overlay?.type === t.id
-                              ? 'bg-primary text-white shadow-sm'
-                              : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
+                              ? 'bg-primary text-primary-content shadow-sm'
+                              : 'bg-base-200 text-base-content/70 hover:bg-base-300'
                           }`}
                           title={t.name}
                         >
@@ -582,7 +582,7 @@ export default memo(function MediaTab({
                   </div>
                   {/* Effects & Textures */}
                   <div className="space-y-1.5">
-                    <span className="text-[10px] text-ui-text-faint uppercase tracking-wide">Effects</span>
+                    <span className="text-[10px] text-base-content/40 uppercase tracking-wide">Effects</span>
                     <div className="grid grid-cols-4 gap-1">
                       {overlayTypes.filter(t => t.category === 'effect' || t.category === 'texture').map((t) => (
                         <button
@@ -590,8 +590,8 @@ export default memo(function MediaTab({
                           onClick={() => onUpdateImageOverlay(selectedImageId, { type: t.id })}
                           className={`px-1.5 py-1.5 text-[10px] rounded-lg font-medium truncate ${
                             selectedImage.overlay?.type === t.id
-                              ? 'bg-primary text-white shadow-sm'
-                              : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
+                              ? 'bg-primary text-primary-content shadow-sm'
+                              : 'bg-base-200 text-base-content/70 hover:bg-base-300'
                           }`}
                           title={t.name}
                         >
@@ -602,7 +602,7 @@ export default memo(function MediaTab({
                   </div>
                   {/* Blend Modes */}
                   <div className="space-y-1.5">
-                    <span className="text-[10px] text-ui-text-faint uppercase tracking-wide">Blending</span>
+                    <span className="text-[10px] text-base-content/40 uppercase tracking-wide">Blending</span>
                     <div className="grid grid-cols-4 gap-1">
                       {overlayTypes.filter(t => t.category === 'blend').map((t) => (
                         <button
@@ -610,8 +610,8 @@ export default memo(function MediaTab({
                           onClick={() => onUpdateImageOverlay(selectedImageId, { type: t.id })}
                           className={`px-1.5 py-1.5 text-[10px] rounded-lg font-medium truncate ${
                             selectedImage.overlay?.type === t.id
-                              ? 'bg-primary text-white shadow-sm'
-                              : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
+                              ? 'bg-primary text-primary-content shadow-sm'
+                              : 'bg-base-200 text-base-content/70 hover:bg-base-300'
                           }`}
                           title={t.name}
                         >
@@ -624,7 +624,7 @@ export default memo(function MediaTab({
 
                 {/* Overlay Color */}
                 <div className="space-y-2">
-                  <label className="block text-xs font-medium text-ui-text-muted">Color</label>
+                  <label className="block text-xs font-medium text-base-content/70">Color</label>
                   <div className="flex flex-wrap gap-1.5">
                     {/* Theme colors */}
                     {themeColorOptions.map((c) => (
@@ -633,12 +633,12 @@ export default memo(function MediaTab({
                         onClick={() => onUpdateImageOverlay(selectedImageId, { color: c.id })}
                         className={`px-2.5 py-1.5 text-xs rounded-lg font-medium ${
                           selectedImage.overlay?.color === c.id
-                            ? 'bg-primary text-white shadow-sm'
-                            : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
+                            ? 'bg-primary text-primary-content shadow-sm'
+                            : 'bg-base-200 text-base-content/70 hover:bg-base-300'
                         }`}
                       >
                         <span
-                          className="inline-block w-2.5 h-2.5 rounded-full mr-1.5 border border-ui-border-strong"
+                          className="inline-block w-2.5 h-2.5 rounded-full mr-1.5 border border-base-300"
                           style={{ backgroundColor: theme?.[c.id] || '#000' }}
                         />
                         {c.name}
@@ -651,12 +651,12 @@ export default memo(function MediaTab({
                         onClick={() => onUpdateImageOverlay(selectedImageId, { color: c.id })}
                         className={`px-2.5 py-1.5 text-xs rounded-lg font-medium ${
                           selectedImage.overlay?.color === c.id
-                            ? 'bg-primary text-white shadow-sm'
-                            : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
+                            ? 'bg-primary text-primary-content shadow-sm'
+                            : 'bg-base-200 text-base-content/70 hover:bg-base-300'
                         }`}
                       >
                         <span
-                          className="inline-block w-2.5 h-2.5 rounded-full mr-1.5 border border-ui-border-strong"
+                          className="inline-block w-2.5 h-2.5 rounded-full mr-1.5 border border-base-300"
                           style={{ backgroundColor: c.color }}
                         />
                         {c.name}
@@ -668,8 +668,8 @@ export default memo(function MediaTab({
                 {/* Overlay Opacity */}
                 <div className="space-y-1">
                   <div className="flex justify-between">
-                    <label className="text-xs font-medium text-ui-text-muted">Transparency</label>
-                    <span className="text-xs text-ui-text-subtle">
+                    <label className="text-xs font-medium text-base-content/70">Transparency</label>
+                    <span className="text-xs text-base-content/60">
                       {selectedImage.overlay?.opacity ?? 0}%
                     </span>
                   </div>
@@ -680,7 +680,7 @@ export default memo(function MediaTab({
                     step="5"
                     value={selectedImage.overlay?.opacity ?? 0}
                     onChange={(e) => onUpdateImageOverlay(selectedImageId, { opacity: parseInt(e.target.value, 10) })}
-                    className="w-full h-2 bg-ui-surface-hover rounded-lg appearance-none cursor-pointer"
+                    className="w-full h-2 bg-base-300 rounded-lg appearance-none cursor-pointer"
                   />
                 </div>
               </>
@@ -693,14 +693,14 @@ export default memo(function MediaTab({
       {selectedImage && (
         <CollapsibleSection title="Advanced Filters" defaultExpanded={false}>
           <div className="space-y-3">
-            <p className="text-xs text-ui-text-subtle">
+            <p className="text-xs text-base-content/60">
               Filters for {selectedImage.name}
             </p>
 
             <div className="space-y-1">
               <div className="flex justify-between">
-                <label className="text-xs font-medium text-ui-text-muted">Grayscale</label>
-                <span className="text-xs text-ui-text-subtle">{selectedImage.filters?.grayscale || 0}%</span>
+                <label className="text-xs font-medium text-base-content/70">Grayscale</label>
+                <span className="text-xs text-base-content/60">{selectedImage.filters?.grayscale || 0}%</span>
               </div>
               <input
                 type="range"
@@ -709,14 +709,14 @@ export default memo(function MediaTab({
                 step="5"
                 value={selectedImage.filters?.grayscale || 0}
                 onChange={(e) => onUpdateImageFilters(selectedImageId, { grayscale: parseInt(e.target.value, 10) })}
-                className="w-full h-2 bg-ui-surface-hover rounded-lg appearance-none cursor-pointer"
+                className="w-full h-2 bg-base-300 rounded-lg appearance-none cursor-pointer"
               />
             </div>
 
             <div className="space-y-1">
               <div className="flex justify-between">
-                <label className="text-xs font-medium text-ui-text-muted">Sepia</label>
-                <span className="text-xs text-ui-text-subtle">{selectedImage.filters?.sepia || 0}%</span>
+                <label className="text-xs font-medium text-base-content/70">Sepia</label>
+                <span className="text-xs text-base-content/60">{selectedImage.filters?.sepia || 0}%</span>
               </div>
               <input
                 type="range"
@@ -725,14 +725,14 @@ export default memo(function MediaTab({
                 step="5"
                 value={selectedImage.filters?.sepia || 0}
                 onChange={(e) => onUpdateImageFilters(selectedImageId, { sepia: parseInt(e.target.value, 10) })}
-                className="w-full h-2 bg-ui-surface-hover rounded-lg appearance-none cursor-pointer"
+                className="w-full h-2 bg-base-300 rounded-lg appearance-none cursor-pointer"
               />
             </div>
 
             <div className="space-y-1">
               <div className="flex justify-between">
-                <label className="text-xs font-medium text-ui-text-muted">Blur</label>
-                <span className="text-xs text-ui-text-subtle">{selectedImage.filters?.blur || 0}px</span>
+                <label className="text-xs font-medium text-base-content/70">Blur</label>
+                <span className="text-xs text-base-content/60">{selectedImage.filters?.blur || 0}px</span>
               </div>
               <input
                 type="range"
@@ -741,14 +741,14 @@ export default memo(function MediaTab({
                 step="0.5"
                 value={selectedImage.filters?.blur || 0}
                 onChange={(e) => onUpdateImageFilters(selectedImageId, { blur: parseFloat(e.target.value) })}
-                className="w-full h-2 bg-ui-surface-hover rounded-lg appearance-none cursor-pointer"
+                className="w-full h-2 bg-base-300 rounded-lg appearance-none cursor-pointer"
               />
             </div>
 
             <div className="space-y-1">
               <div className="flex justify-between">
-                <label className="text-xs font-medium text-ui-text-muted">Contrast</label>
-                <span className="text-xs text-ui-text-subtle">{selectedImage.filters?.contrast || 100}%</span>
+                <label className="text-xs font-medium text-base-content/70">Contrast</label>
+                <span className="text-xs text-base-content/60">{selectedImage.filters?.contrast || 100}%</span>
               </div>
               <input
                 type="range"
@@ -757,14 +757,14 @@ export default memo(function MediaTab({
                 step="5"
                 value={selectedImage.filters?.contrast || 100}
                 onChange={(e) => onUpdateImageFilters(selectedImageId, { contrast: parseInt(e.target.value, 10) })}
-                className="w-full h-2 bg-ui-surface-hover rounded-lg appearance-none cursor-pointer"
+                className="w-full h-2 bg-base-300 rounded-lg appearance-none cursor-pointer"
               />
             </div>
 
             <div className="space-y-1">
               <div className="flex justify-between">
-                <label className="text-xs font-medium text-ui-text-muted">Brightness</label>
-                <span className="text-xs text-ui-text-subtle">{selectedImage.filters?.brightness || 100}%</span>
+                <label className="text-xs font-medium text-base-content/70">Brightness</label>
+                <span className="text-xs text-base-content/60">{selectedImage.filters?.brightness || 100}%</span>
               </div>
               <input
                 type="range"
@@ -773,7 +773,7 @@ export default memo(function MediaTab({
                 step="5"
                 value={selectedImage.filters?.brightness || 100}
                 onChange={(e) => onUpdateImageFilters(selectedImageId, { brightness: parseInt(e.target.value, 10) })}
-                className="w-full h-2 bg-ui-surface-hover rounded-lg appearance-none cursor-pointer"
+                className="w-full h-2 bg-base-300 rounded-lg appearance-none cursor-pointer"
               />
             </div>
           </div>
@@ -785,11 +785,11 @@ export default memo(function MediaTab({
         <CollapsibleSection title="Logo" defaultExpanded={false}>
           {!logo ? (
             <div
-              className="border-2 border-dashed border-ui-border rounded-xl p-4 text-center cursor-pointer hover:border-violet-400 hover:bg-violet-50/30 dark:hover:bg-violet-900/30 transition-all"
+              className="border-2 border-dashed border-base-300 rounded-xl p-4 text-center cursor-pointer hover:border-primary hover:bg-primary/10 transition-all"
               onClick={() => logoInputRef.current?.click()}
             >
               <svg
-                className="w-8 h-8 mx-auto text-ui-text-faint mb-2"
+                className="w-8 h-8 mx-auto text-base-content/40 mb-2"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -801,8 +801,8 @@ export default memo(function MediaTab({
                   d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
                 />
               </svg>
-              <p className="text-sm text-ui-text-subtle">Click to upload logo</p>
-              <p className="text-xs text-ui-text-faint mt-1">Optional</p>
+              <p className="text-sm text-base-content/60">Click to upload logo</p>
+              <p className="text-xs text-base-content/40 mt-1">Optional</p>
               <input
                 ref={logoInputRef}
                 type="file"
@@ -821,14 +821,14 @@ export default memo(function MediaTab({
           ) : (
             <div className="space-y-3">
               {/* Logo preview */}
-              <div className="relative bg-ui-surface-elevated rounded-xl p-3">
+              <div className="relative bg-base-200 rounded-xl p-3">
                 <img src={logo} alt="Logo" className="max-h-16 mx-auto object-contain" />
                 <button
                   onClick={() => {
                     onLogoChange(null)
                     if (logoInputRef.current) logoInputRef.current.value = ''
                   }}
-                  className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-red-600 shadow-sm"
+                  className="absolute top-2 right-2 bg-error text-error-content rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-error/80 shadow-sm"
                 >
                   ×
                 </button>
@@ -836,7 +836,7 @@ export default memo(function MediaTab({
 
               {/* Logo position */}
               <div className="space-y-2">
-                <label className="block text-xs font-medium text-ui-text-muted">Position</label>
+                <label className="block text-xs font-medium text-base-content/70">Position</label>
                 <div className="grid grid-cols-3 gap-1.5">
                   {logoPositionOptions.map((opt) => (
                     <button
@@ -844,8 +844,8 @@ export default memo(function MediaTab({
                       onClick={() => onLogoPositionChange(opt.id)}
                       className={`px-2 py-1.5 text-xs rounded-lg font-medium ${
                         logoPosition === opt.id
-                          ? 'bg-primary text-white shadow-sm'
-                          : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
+                          ? 'bg-primary text-primary-content shadow-sm'
+                          : 'bg-base-200 text-base-content/70 hover:bg-base-300'
                       }`}
                     >
                       {opt.name}
@@ -856,7 +856,7 @@ export default memo(function MediaTab({
 
               {/* Logo size */}
               <div className="space-y-2">
-                <label className="block text-xs font-medium text-ui-text-muted">Size</label>
+                <label className="block text-xs font-medium text-base-content/70">Size</label>
                 <div className="flex gap-1.5">
                   {logoSizeOptions.map((opt) => (
                     <button
@@ -864,8 +864,8 @@ export default memo(function MediaTab({
                       onClick={() => onLogoSizeChange(opt.id)}
                       className={`flex-1 px-2 py-1.5 text-xs rounded-lg font-medium ${
                         logoSize === opt.id
-                          ? 'bg-primary text-white shadow-sm'
-                          : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
+                          ? 'bg-primary text-primary-content shadow-sm'
+                          : 'bg-base-200 text-base-content/70 hover:bg-base-300'
                       }`}
                     >
                       {opt.name}

@@ -23,10 +23,10 @@ const layoutTypes = [
 
 // Shared button style constants to reduce repetition
 const btnBase = 'px-3 py-2 text-sm rounded-lg font-medium'
-const btnAction = `${btnBase} bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300 hover:bg-violet-200 dark:hover:bg-violet-900/40`
-const btnDisabled = `${btnBase} bg-violet-100 dark:bg-violet-900/30 text-violet-300 dark:text-violet-600 cursor-not-allowed`
-const btnDelete = `${btnBase} bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-900/50`
-const btnSnap = `${btnBase} bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-200 dark:hover:bg-emerald-900/50`
+const btnAction = `${btnBase} bg-primary/15 text-primary hover:bg-primary/20`
+const btnDisabled = `${btnBase} bg-primary/15 text-primary/40 cursor-not-allowed`
+const btnDelete = `${btnBase} bg-error/10 text-error hover:bg-error/20`
+const btnSnap = `${btnBase} bg-success/10 text-success hover:bg-success/20`
 
 export default memo(function LayoutTab({
   layout,
@@ -611,14 +611,14 @@ export default memo(function LayoutTab({
 
   return (
     <div className="space-y-3">
-      <h3 className="text-sm font-semibold text-ui-text">Structure</h3>
+      <h3 className="text-sm font-semibold text-base-content">Structure</h3>
 
       {/* Grid Section */}
       <CollapsibleSection title="Grid" defaultExpanded={true}>
         <div className="space-y-4">
           {/* Layout Type */}
           <div>
-            <label className="block text-xs font-medium text-ui-text-muted mb-2">Layout Type</label>
+            <label className="block text-xs font-medium text-base-content/70 mb-2">Layout Type</label>
             <div className="flex gap-1.5">
               {layoutTypes.map((lt) => (
                 <button
@@ -626,8 +626,8 @@ export default memo(function LayoutTab({
                   onClick={() => handleTypeChange(lt.id)}
                   className={`flex-1 px-3 py-2.5 text-sm rounded-lg flex flex-col items-center gap-1 font-medium ${
                     type === lt.id
-                      ? 'bg-primary text-white shadow-sm'
-                      : 'bg-ui-surface-inset text-ui-text-muted hover:bg-ui-surface-hover'
+                      ? 'bg-primary text-primary-content shadow-sm'
+                      : 'bg-base-200 text-base-content/70 hover:bg-base-300'
                   }`}
                 >
                   <span className="text-base">{lt.icon}</span>
@@ -639,8 +639,8 @@ export default memo(function LayoutTab({
 
           {/* Cell Selector */}
           <div className="space-y-3">
-            <label className="block text-xs font-medium text-ui-text-muted text-center">
-              Select Cell <span className="text-ui-text-faint font-normal">(to configure)</span>
+            <label className="block text-xs font-medium text-base-content/70 text-center">
+              Select Cell <span className="text-base-content/40 font-normal">(to configure)</span>
             </label>
             <div className="flex justify-center">
               <MiniCellGrid
@@ -653,8 +653,8 @@ export default memo(function LayoutTab({
               />
             </div>
             {type !== 'fullbleed' && selectedSection && (
-              <div className="text-sm text-center py-2 bg-ui-surface-elevated rounded-lg">
-                <span className="text-primary dark:text-violet-400">
+              <div className="text-sm text-center py-2 bg-base-200 rounded-lg">
+                <span className="text-primary">
                   {hasSubdivisions
                     ? `${isRows ? 'Column' : 'Row'} ${selectedSubIndex + 1} in ${sectionLabel} ${selectedSectionIndex + 1}`
                     : `${sectionLabel} ${selectedSectionIndex + 1}`}
@@ -665,14 +665,14 @@ export default memo(function LayoutTab({
 
           {/* Cell Controls (subdivision within a section) — shown first for direct manipulation */}
           {type !== 'fullbleed' && selectedSection && (
-            <div className="space-y-4 p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl">
+            <div className="space-y-4 p-4 bg-secondary/15 rounded-xl">
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-indigo-700 dark:text-indigo-300">
+                <span className="text-sm font-medium text-secondary">
                   {hasSubdivisions
                     ? `${isRows ? 'Column' : 'Row'} ${selectedSubIndex + 1}`
                     : 'Cell'}
                 </span>
-                <span className="text-xs text-indigo-400 dark:text-indigo-500">
+                <span className="text-xs text-secondary/70">
                   {selectedSection.subdivisions || 1} {selectedSection.subdivisions > 1 ? (isRows ? 'columns' : 'rows') : 'cell'} in {sectionLabel.toLowerCase()} {selectedSectionIndex + 1}
                 </span>
               </div>
@@ -682,13 +682,13 @@ export default memo(function LayoutTab({
                 <div className="flex gap-2">
                   <button
                     onClick={() => insertCell(selectedSectionIndex, selectedSubIndex)}
-                    className={`flex-1 ${btnBase} bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-200 dark:hover:bg-indigo-900/40`}
+                    className={`flex-1 ${btnBase} bg-secondary/15 text-secondary hover:bg-secondary/20`}
                   >
                     + {isRows ? 'Cell Left' : 'Cell Above'}
                   </button>
                   <button
                     onClick={() => insertCell(selectedSectionIndex, selectedSubIndex + 1)}
-                    className={`flex-1 ${btnBase} bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-200 dark:hover:bg-indigo-900/40`}
+                    className={`flex-1 ${btnBase} bg-secondary/15 text-secondary hover:bg-secondary/20`}
                   >
                     + {isRows ? 'Cell Right' : 'Cell Below'}
                   </button>
@@ -703,8 +703,8 @@ export default memo(function LayoutTab({
                     disabled={selectedSubIndex === 0}
                     className={`flex-1 ${btnBase} ${
                       selectedSubIndex === 0
-                        ? 'bg-indigo-100 dark:bg-indigo-900/30 text-indigo-300 dark:text-indigo-600 cursor-not-allowed'
-                        : 'bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-200 dark:hover:bg-indigo-900/40'
+                        ? 'bg-secondary/15 text-secondary/40 cursor-not-allowed'
+                        : 'bg-secondary/15 text-secondary hover:bg-secondary/20'
                     }`}
                   >
                     {isRows ? 'Move Left' : 'Move Up'}
@@ -714,8 +714,8 @@ export default memo(function LayoutTab({
                     disabled={selectedSubIndex === (selectedSection.subdivisions || 1) - 1}
                     className={`flex-1 ${btnBase} ${
                       selectedSubIndex === (selectedSection.subdivisions || 1) - 1
-                        ? 'bg-indigo-100 dark:bg-indigo-900/30 text-indigo-300 dark:text-indigo-600 cursor-not-allowed'
-                        : 'bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-200 dark:hover:bg-indigo-900/40'
+                        ? 'bg-secondary/15 text-secondary/40 cursor-not-allowed'
+                        : 'bg-secondary/15 text-secondary hover:bg-secondary/20'
                     }`}
                   >
                     {isRows ? 'Move Right' : 'Move Down'}
@@ -731,8 +731,8 @@ export default memo(function LayoutTab({
                     disabled={!canMoveCellToSection(-1)}
                     className={`flex-1 ${btnBase} ${
                       !canMoveCellToSection(-1)
-                        ? 'bg-indigo-100 dark:bg-indigo-900/30 text-indigo-300 dark:text-indigo-600 cursor-not-allowed'
-                        : 'bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-200 dark:hover:bg-indigo-900/40'
+                        ? 'bg-secondary/15 text-secondary/40 cursor-not-allowed'
+                        : 'bg-secondary/15 text-secondary hover:bg-secondary/20'
                     }`}
                   >
                     {getMoveSectionLabel(-1)}
@@ -742,8 +742,8 @@ export default memo(function LayoutTab({
                     disabled={!canMoveCellToSection(1)}
                     className={`flex-1 ${btnBase} ${
                       !canMoveCellToSection(1)
-                        ? 'bg-indigo-100 dark:bg-indigo-900/30 text-indigo-300 dark:text-indigo-600 cursor-not-allowed'
-                        : 'bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-200 dark:hover:bg-indigo-900/40'
+                        ? 'bg-secondary/15 text-secondary/40 cursor-not-allowed'
+                        : 'bg-secondary/15 text-secondary hover:bg-secondary/20'
                     }`}
                   >
                     {getMoveSectionLabel(1)}
@@ -754,9 +754,9 @@ export default memo(function LayoutTab({
               {/* Cell size slider (width for rows, height for columns) */}
               {hasSubdivisions && (
                 <div>
-                  <label className="block text-xs text-indigo-600 dark:text-indigo-400 mb-2 font-medium">
+                  <label className="block text-xs text-secondary mb-2 font-medium">
                     {isRows ? 'Cell Width' : 'Cell Height'}{' '}
-                    <span className="font-normal text-indigo-400 dark:text-indigo-500">
+                    <span className="font-normal text-secondary/70">
                       ({MIN_SIZE}–{getMaxSize(selectedSection.subdivisions || 2)}%)
                     </span>
                   </label>
@@ -770,7 +770,7 @@ export default memo(function LayoutTab({
                       onChange={(e) => updateSubSize(selectedSectionIndex, selectedSubIndex, Number(e.target.value))}
                       className="flex-1"
                     />
-                    <span className="text-sm text-indigo-700 dark:text-indigo-300 w-12 text-right font-medium">
+                    <span className="text-sm text-secondary w-12 text-right font-medium">
                       {Math.round(selectedSection.subSizes?.[selectedSubIndex] || 50)}%
                     </span>
                   </div>
@@ -792,7 +792,7 @@ export default memo(function LayoutTab({
               {hasSubdivisions && (
                 <button
                   onClick={() => removeCell(selectedSectionIndex, selectedSubIndex)}
-                  className={`w-full ${btnBase} bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-900/50`}
+                  className={`w-full ${btnBase} bg-error/10 text-error hover:bg-error/20`}
                 >
                   Delete {isRows ? 'Cell' : 'Cell'}
                 </button>
@@ -802,12 +802,12 @@ export default memo(function LayoutTab({
 
           {/* Section Controls (Row or Column) */}
           {type !== 'fullbleed' && selectedSection && (
-            <div className="space-y-4 p-4 bg-violet-50 dark:bg-violet-900/20 rounded-xl">
+            <div className="space-y-4 p-4 bg-primary/10 rounded-xl">
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-violet-700 dark:text-violet-300">
+                <span className="text-sm font-medium text-primary">
                   {sectionLabel} {selectedSectionIndex + 1}
                 </span>
-                <span className="text-xs text-violet-400 dark:text-violet-500">
+                <span className="text-xs text-primary/70">
                   {structure.length} {isRows ? 'rows' : 'columns'}
                 </span>
               </div>
@@ -853,9 +853,9 @@ export default memo(function LayoutTab({
               {/* Section size slider (height for rows, width for columns) */}
               {structure.length > 1 && (
                 <div>
-                  <label className="block text-xs text-primary dark:text-violet-400 mb-2 font-medium">
+                  <label className="block text-xs text-primary mb-2 font-medium">
                     {isRows ? 'Row Height' : 'Col Width'}{' '}
-                    <span className="font-normal text-violet-400 dark:text-primary">
+                    <span className="font-normal text-primary/70">
                       ({MIN_SIZE}–{getMaxSize(structure.length)}%)
                     </span>
                   </label>
@@ -869,7 +869,7 @@ export default memo(function LayoutTab({
                       onChange={(e) => updateSectionSize(selectedSectionIndex, Number(e.target.value))}
                       className="flex-1"
                     />
-                    <span className="text-sm text-violet-700 dark:text-violet-300 w-12 text-right font-medium">
+                    <span className="text-sm text-primary w-12 text-right font-medium">
                       {Math.round(selectedSection.size)}%
                     </span>
                   </div>
@@ -901,7 +901,7 @@ export default memo(function LayoutTab({
 
           <button
             onClick={handleReset}
-            className="w-full px-3 py-2.5 text-sm bg-zinc-100 dark:bg-dark-subtle text-ui-text-muted hover:bg-zinc-200 dark:hover:bg-dark-elevated rounded-lg font-medium"
+            className="w-full px-3 py-2.5 text-sm bg-base-200 text-base-content/70 hover:bg-base-300 rounded-lg font-medium"
           >
             Reset to Default
           </button>

@@ -1,50 +1,42 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* Requirement: Tailwind 4 + DaisyUI 5 with independent per-mode theme selection.
+   Approach: CSS-first config replaces tailwind.config.js + postcss.config.js.
+   All 16 curated themes registered here; user picks one light + one dark independently.
+   Theme list matches src/config/daisyuiThemes.js catalog. */
+@import "tailwindcss";
 
-/* Semantic color tokens - Light mode (default) */
-:root {
-  /* Text colors */
-  --color-text-default: theme('colors.zinc.800');
-  --color-text-muted: theme('colors.zinc.600');
-  --color-text-subtle: theme('colors.zinc.500');
-  --color-text-faint: theme('colors.zinc.400');
-
-  /* Surface/background colors */
-  --color-surface: theme('colors.white');
-  --color-surface-elevated: theme('colors.zinc.50');
-  --color-surface-inset: theme('colors.zinc.100');
-  --color-surface-hover: theme('colors.zinc.200');
-
-  /* Border colors */
-  --color-border: theme('colors.zinc.200');
-  --color-border-subtle: theme('colors.zinc.100');
-  --color-border-strong: theme('colors.zinc.300');
+@plugin "daisyui" {
+  themes: lofi --default, black --prefersdark,
+          nord, night, emerald, cupcake, garden, autumn, pastel, caramellatte,
+          forest, dracula, dim, synthwave, luxury, coffee;
 }
 
-/* Semantic color tokens - Dark mode */
-.dark {
-  /* Text colors */
-  --color-text-default: theme('colors.zinc.100');
-  --color-text-muted: theme('colors.zinc.300');
-  --color-text-subtle: theme('colors.zinc.400');
-  --color-text-faint: theme('colors.zinc.500');
+/* Requirement: Tailwind dark: variant must work alongside DaisyUI data-theme.
+   Approach: Custom variant maps dark: prefix to .dark ancestor class.
+   DaisyUI uses data-theme for component colors; Tailwind uses .dark for utilities.
+   Both are set together by useDarkMode.js. */
+@custom-variant dark (&:where(.dark, .dark *));
 
-  /* Surface/background colors - using our custom dark palette */
-  --color-surface: #1A1A2E;           /* dark-card */
-  --color-surface-elevated: #16213E;  /* dark-subtle */
-  --color-surface-inset: #1E1E3F;     /* dark-elevated */
-  --color-surface-hover: #252550;
+/* Requirement: Preserve custom fonts and design tokens from old tailwind.config.js.
+   Approach: @theme block replaces the old theme.extend section.
+   Only tokens actually used in components are carried forward. */
+@theme {
+  --font-sans: 'Inter', system-ui, -apple-system, 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', sans-serif;
+  --font-display: 'Space Grotesk', 'Inter', system-ui, sans-serif;
 
-  /* Border colors */
-  --color-border: theme('colors.zinc.700');
-  --color-border-subtle: theme('colors.zinc.800');
-  --color-border-strong: theme('colors.zinc.600');
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.06), 0 4px 12px rgba(0, 0, 0, 0.04);
+  --shadow-glow: 0 0 20px oklch(var(--p) / 0.3);
+}
+
+/* Custom gradient utilities carried forward from old tailwind.config.js.
+   bg-gradient-creative is used in ExportButtons progress bar. */
+@utility bg-gradient-creative {
+  background: linear-gradient(135deg, oklch(var(--p)) 0%, oklch(var(--s)) 50%, oklch(var(--a)) 100%);
 }
 
 /* Native form inputs, selects, scrollbars must match theme.
    Without this, <select>, <input>, <option> dropdowns and default
    scrollbars remain light-themed even when the app is dark. */
+html { color-scheme: light; }
 html.dark { color-scheme: dark; }
 
 * {
@@ -62,16 +54,10 @@ body {
   margin: 0;
   min-height: 100vh;
   min-height: 100dvh;
-  background: #FAFAFA;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   /* Safe area insets for notched devices (iPhone X+) */
   padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
-}
-
-.dark body,
-:root.dark body {
-  background: #0F0F23;
 }
 
 #root {
@@ -84,12 +70,12 @@ button, input, select, textarea {
   transition: all 0.15s ease;
 }
 
-/* Better focus states - using primary violet */
+/* Better focus states - uses DaisyUI primary color */
 button:focus-visible,
 input:focus-visible,
 select:focus-visible,
 textarea:focus-visible {
-  outline: 2px solid #8B5CF6;
+  outline: 2px solid oklch(var(--p));
   outline-offset: 2px;
 }
 
@@ -104,23 +90,15 @@ textarea:focus-visible {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #D4D4D8;
+  background: oklch(var(--b3));
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #A1A1AA;
+  background: oklch(var(--bc) / 0.4);
 }
 
-.dark ::-webkit-scrollbar-thumb {
-  background: #3F3F46;
-}
-
-.dark ::-webkit-scrollbar-thumb:hover {
-  background: #52525B;
-}
-
-/* Range input styling */
+/* Range input styling — uses DaisyUI primary for thumb */
 input[type="range"] {
   -webkit-appearance: none;
   appearance: none;
@@ -129,13 +107,9 @@ input[type="range"] {
 }
 
 input[type="range"]::-webkit-slider-track {
-  background: #E4E4E7;
+  background: oklch(var(--b3));
   height: 6px;
   border-radius: 3px;
-}
-
-.dark input[type="range"]::-webkit-slider-track {
-  background: #3F3F46;
 }
 
 input[type="range"]::-webkit-slider-thumb {
@@ -144,70 +118,37 @@ input[type="range"]::-webkit-slider-thumb {
   width: 16px;
   height: 16px;
   border-radius: 50%;
-  background: #8B5CF6;
-  border: 2px solid white;
+  background: oklch(var(--p));
+  border: 2px solid oklch(var(--b1));
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
   margin-top: -5px;
 }
 
 input[type="range"]::-moz-range-track {
-  background: #E4E4E7;
+  background: oklch(var(--b3));
   height: 6px;
   border-radius: 3px;
-}
-
-.dark input[type="range"]::-moz-range-track {
-  background: #3F3F46;
 }
 
 input[type="range"]::-moz-range-thumb {
   width: 14px;
   height: 14px;
   border-radius: 50%;
-  background: #8B5CF6;
-  border: 2px solid white;
+  background: oklch(var(--p));
+  border: 2px solid oklch(var(--b1));
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 
-/* Checkbox styling */
+/* Checkbox styling — uses DaisyUI primary */
 input[type="checkbox"] {
-  accent-color: #8B5CF6;
+  accent-color: oklch(var(--p));
 }
 
 /* Button hover scale effect */
-.btn-scale {
+@utility btn-scale {
   transition: transform 0.15s ease, background-color 0.15s ease;
-}
-
-.btn-scale:hover {
-  transform: scale(1.02);
-}
-
-.btn-scale:active {
-  transform: scale(0.98);
-}
-
-/* Card hover lift effect */
-.card-lift {
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.card-lift:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-}
-
-/* Gradient text */
-.text-gradient {
-  background: linear-gradient(135deg, #8B5CF6 0%, #EC4899 50%, #06B6D4 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-/* Glow effect for dark mode */
-.dark .glow-primary {
-  box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+  &:hover { transform: scale(1.02); }
+  &:active { transform: scale(0.98); }
 }
 
 /* Freeform markdown text rendering within AdCanvas.
