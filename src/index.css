@@ -1,12 +1,13 @@
-/* Requirement: Tailwind 4 + DaisyUI 5 migration.
+/* Requirement: Tailwind 4 + DaisyUI 5 with independent per-mode theme selection.
    Approach: CSS-first config replaces tailwind.config.js + postcss.config.js.
-   Alternatives:
-     - Keep TW3 + hand-rolled tokens: Rejected — more maintenance, no component primitives.
-     - Custom DaisyUI theme: Rejected — nord/night built-ins fit the app's needs. */
+   All 16 curated themes registered here; user picks one light + one dark independently.
+   Theme list matches src/config/daisyuiThemes.js catalog. */
 @import "tailwindcss";
 
 @plugin "daisyui" {
-  themes: nord --default, night --prefersdark;
+  themes: nord --default, night --prefersdark,
+          lofi, emerald, cupcake, garden, autumn, pastel, caramellatte,
+          black, forest, dracula, dim, synthwave, luxury, coffee;
 }
 
 /* Requirement: Tailwind dark: variant must work alongside DaisyUI data-theme.

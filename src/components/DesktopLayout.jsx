@@ -3,6 +3,7 @@
 //   Full sidebar with tab content, main area with platform selector, canvas, and export controls.
 import ErrorBoundary from './ErrorBoundary'
 import AdCanvas from './AdCanvas'
+import ThemeSelector from './ThemeSelector'
 import PlatformPreview from './PlatformPreview'
 import ExportButtons from './ExportButtons'
 import ContextBar from './ContextBar'
@@ -56,6 +57,10 @@ export default function DesktopLayout({
   setIsReaderMode,
   isDark,
   toggleDarkMode,
+  lightTheme,
+  darkTheme,
+  setLightTheme,
+  setDarkTheme,
   canInstall,
   install,
   showManualInstructions,
@@ -97,9 +102,7 @@ export default function DesktopLayout({
             <button onClick={() => setShowShortcuts(true)} title="Keyboard shortcuts" className="px-3 py-1.5 text-sm rounded-lg flex items-center gap-1.5 font-medium bg-base-200 text-base-content hover:bg-base-300 active:scale-95 transition-all">
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 8a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8zm4 2h2m2 0h2m2 0h2M5 14h14" /></svg>
             </button>
-            <button onClick={toggleDarkMode} title={isDark ? 'Light mode' : 'Dark mode'} className="px-3 py-1.5 text-sm rounded-lg flex items-center gap-1.5 font-medium bg-base-200 text-base-content hover:bg-base-300 active:scale-95 transition-all">
-              {isDark ? '☀️' : '🌙'}
-            </button>
+            <ThemeSelector isDark={isDark} toggleDarkMode={toggleDarkMode} lightTheme={lightTheme} darkTheme={darkTheme} setLightTheme={setLightTheme} setDarkTheme={setDarkTheme} />
             <button onClick={() => window.location.reload()} title="Refresh" className="px-3 py-1.5 text-sm rounded-lg flex items-center gap-1.5 font-medium bg-base-200 text-base-content hover:bg-base-300 active:scale-95 transition-all">
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
               <span className="hidden sm:inline">Refresh</span>

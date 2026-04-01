@@ -12,6 +12,13 @@
 - **PWA manifest** — Updated `theme_color` to `#5E81AC` (nord primary) and `background_color` to `#0F1729` (night base-100).
 - **Documentation** — Updated CLAUDE.md, STYLE_GUIDE.md, SESSION_NOTES.md.
 
+### Independent per-mode theme selection
+
+- **Theme catalog** — 16 curated DaisyUI themes (8 light: nord, lofi, emerald, cupcake, garden, autumn, pastel, caramellatte; 8 dark: night, black, forest, dracula, dim, synthwave, luxury, coffee) defined in `src/config/daisyuiThemes.js`.
+- **Independent selection** — Users pick light theme and dark theme separately. Each mode stores its own choice in localStorage (`lightTheme`, `darkTheme`). Mode toggle shows the relevant theme list.
+- **ThemeSelector component** — Dropdown in header (desktop, mobile, reader mode) combines mode toggle (sun/moon) with theme picker. Replaces old single toggle button.
+- **Flash prevention** — Inline script in `index.html` reads all three localStorage keys (`darkMode`, `lightTheme`, `darkTheme`) to apply correct theme before first paint.
+
 ## 2026-03-31
 
 ### Theme light/dark variants

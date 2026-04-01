@@ -3,6 +3,7 @@
 // Props: all state/callbacks needed for reader UI (back button, page nav, dark mode toggle).
 import ErrorBoundary from './ErrorBoundary'
 import AdCanvas from './AdCanvas'
+import ThemeSelector from './ThemeSelector'
 
 export default function ReaderMode({
   canvasRef,
@@ -18,6 +19,10 @@ export default function ReaderMode({
   setIsReaderMode,
   isDark,
   toggleDarkMode,
+  lightTheme,
+  darkTheme,
+  setLightTheme,
+  setDarkTheme,
 }) {
   return (
     <div className="h-[100dvh] flex flex-col bg-base-200">
@@ -29,9 +34,7 @@ export default function ReaderMode({
             <span className="hidden sm:inline">Back to Editor</span>
           </button>
           {hasMultiplePages && <span className="text-sm font-medium text-base-content/70">{state.activePage + 1} / {pageCount}</span>}
-          <button onClick={toggleDarkMode} title={isDark ? 'Light mode' : 'Dark mode'} className="px-2 py-1 sm:px-3 sm:py-1.5 text-sm rounded-lg font-medium bg-base-200 text-base-content hover:bg-base-300 active:scale-95 transition-all">
-            {isDark ? '☀️' : '🌙'}
-          </button>
+          <ThemeSelector isDark={isDark} toggleDarkMode={toggleDarkMode} lightTheme={lightTheme} darkTheme={darkTheme} setLightTheme={setLightTheme} setDarkTheme={setDarkTheme} />
         </div>
       </header>
       <main className="flex-1 flex flex-col items-center justify-center px-2 py-1 sm:px-4 sm:py-2 min-h-0">

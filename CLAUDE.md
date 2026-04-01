@@ -282,7 +282,7 @@ These footers are required on every commit. No exceptions.
 - **Always read files before editing.** Use the Read tool on every file before attempting to Edit it. Editing without reading first will fail.
 - **Check build tools before building.** Run `npm install` or verify `node_modules/.bin/vite` exists before attempting `npm run build`. The `sharp` package may not be installed (used by prebuild icon generation), so use `./node_modules/.bin/vite build` directly to skip the prebuild step.
 - **Communication style:** Direct, concise responses. No filler phrases or conversational padding. State facts and actions. Ask specific questions with concrete options when clarification is needed.
-- **Dark mode + DaisyUI dual-layer theming:** `useDarkMode.js` manages both `.dark` class (Tailwind `dark:` utilities) and `data-theme` attribute (DaisyUI component colors) on `<html>`. Light=`data-theme="nord"`, Dark=`data-theme="night"`. Both must always be synced together. localStorage persistence (with safe try/catch wrappers), cross-tab sync via `storage` event, OS preference fallback, and dynamic meta theme-color update. Two inline scripts in `index.html` run before React mounts: (1) flash prevention (applies `.dark` + `data-theme` from localStorage before first paint), (2) PWA `beforeinstallprompt` capture. Never remove either inline script. `index.css` has `html.dark { color-scheme: dark; }` for native form inputs/scrollbars. Meta theme-color values: light=`#5E81AC` (nord primary), dark=`#0F172A` (night base-100).
+- **Dark mode + DaisyUI dual-layer theming:** `useDarkMode.js` manages both `.dark` class (Tailwind `dark:` utilities) and `data-theme` attribute (DaisyUI component colors) on `<html>`. Users independently select a light theme and a dark theme from 16 curated options (8 light + 8 dark in `src/config/daisyuiThemes.js`). Defaults: light=`nord`, dark=`night`. Three localStorage keys: `darkMode` (bool), `lightTheme` (id), `darkTheme` (id). Cross-tab sync via `storage` event, OS preference fallback, dynamic meta theme-color per active theme. Two inline scripts in `index.html` run before React mounts: (1) flash prevention (applies `.dark` + `data-theme` from localStorage before first paint), (2) PWA `beforeinstallprompt` capture. Never remove either inline script. `index.css` has `html.dark { color-scheme: dark; }` for native form inputs/scrollbars.
 - **DaisyUI color tokens:** UI chrome uses DaisyUI semantic tokens, NOT hardcoded colors. Use `bg-base-100/200/300`, `text-base-content`, `border-base-300`, `bg-primary`, `text-primary-content`, `bg-error`, `text-success`, etc. The old custom semantic tokens (`text-ui-text`, `bg-ui-surface`, `border-ui-border`) are gone — replaced by DaisyUI equivalents. Canvas design themes (19 presets in `themes.js`) still use inline styles and are unrelated to DaisyUI.
 - **Tailwind 4 CSS-first config:** No `tailwind.config.js` or `postcss.config.js`. All config lives in `src/index.css` using `@import "tailwindcss"`, `@plugin "daisyui"`, `@theme`, `@custom-variant`, and `@utility` directives. The `@tailwindcss/vite` plugin handles processing.
 - **PWA install prompt race condition:** `beforeinstallprompt` is captured by an inline script in `index.html` before React mounts. The `usePWAInstall` hook checks `window.__pwaInstallPrompt` on mount. Never remove that inline script.
@@ -367,7 +367,7 @@ Rules:
 LANGUAGE=JavaScript (ES2020+)
 FRAMEWORK=React 18
 BUNDLER=Vite
-STYLING=Tailwind CSS 4 + DaisyUI 5 (utility classes in JSX, nord/night themes)
+STYLING=Tailwind CSS 4 + DaisyUI 5 (utility classes in JSX, 16 selectable themes)
 TEST_RUNNER=Manual (see docs/TESTING_GUIDE.md)
 PACKAGE_MANAGER=npm
 DEPLOY=Vercel (auto-deploy on push to main)
@@ -482,7 +482,7 @@ Tab descriptions (workflow-based organization):
 ## Tech Stack
 
 - Vite 5 + React 18
-- Tailwind CSS 4 + DaisyUI 5 (nord/night themes)
+- Tailwind CSS 4 + DaisyUI 5 (16 themes: 8 light, 8 dark — independently selectable per mode)
 - html-to-image for rendering
 - JSZip + file-saver for batch export
 - marked for markdown parsing (freeform text mode)
@@ -524,6 +524,7 @@ src/
 │   ├── AlignmentPicker.jsx    # Reusable alignment button group
 │   ├── ColorPicker.jsx        # Theme-aware color picker for text elements
 │   ├── ThemeColorPicker.jsx   # Theme color swatch picker (primary/secondary/accent/neutrals)
+│   ├── ThemeSelector.jsx      # DaisyUI theme picker (per-mode light/dark theme selection)
 │   ├── MiniCellGrid.jsx       # Compact cell grid for ContextBar
 │   ├── Toast.jsx              # Toast notification system (ToastProvider + useToast hook)
 │   ├── ConfirmButton.jsx      # Inline confirmation replacing browser confirm()
@@ -547,6 +548,7 @@ src/
 │   ├── themes.js         # 19 color themes with light/dark variants
 │   ├── fonts.ts          # 24 Google Fonts (FontEntry interface)
 │   ├── textDefaults.ts   # Default text layer state (TextLayer, FreeformBlock interfaces)
+│   ├── daisyuiThemes.js  # DaisyUI theme catalog (8 light + 8 dark, meta colors, defaults)
 │   └── alignment.jsx     # Alignment icon components and option arrays
 ├── hooks/
 │   ├── useAdState.js     # Central state (multi-page, per-cell text, freeformText, layout)

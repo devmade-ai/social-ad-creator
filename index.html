@@ -21,12 +21,12 @@
     <link rel="icon" type="image/png" sizes="48x48" href="/favicon.png" />
     <link rel="icon" type="image/png" sizes="192x192" href="/pwa-192x192.png" />
 
-    <!-- Dark mode flash prevention — apply .dark class + data-theme before first paint.
-         The useDarkMode hook runs after React mounts, too late to prevent a
-         white flash for dark mode users. This inline classic (non-module) script
-         reads localStorage and applies both .dark (Tailwind) and data-theme (DaisyUI)
-         during HTML parse. Must duplicate the same localStorage key, matchMedia logic,
-         and DaisyUI theme names ('nord'/'night') as the hook. -->
+    <!-- Dark mode + theme flash prevention — apply .dark class + data-theme before first paint.
+         The useDarkMode hook runs after React mounts, too late to prevent a flash.
+         This inline classic (non-module) script reads localStorage and applies both
+         .dark (Tailwind) and data-theme (DaisyUI) during HTML parse.
+         Must duplicate the same localStorage keys and defaults as the hook.
+         Per-mode theme storage: 'lightTheme' and 'darkTheme' keys, defaults 'nord'/'night'. -->
     <script>
       (function() {
         try {
@@ -36,7 +36,10 @@
             : window.matchMedia('(prefers-color-scheme: dark)').matches;
           var root = document.documentElement;
           if (isDark) root.classList.add('dark');
-          root.setAttribute('data-theme', isDark ? 'night' : 'nord');
+          var theme = isDark
+            ? (localStorage.getItem('darkTheme') || 'night')
+            : (localStorage.getItem('lightTheme') || 'nord');
+          root.setAttribute('data-theme', theme);
         } catch(e) {}
       })();
     </script>

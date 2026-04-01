@@ -21,12 +21,12 @@ A vibrant, creative design system for makers who want their ads to *pop*.
 
 ### DaisyUI Themes
 
-The UI chrome uses **DaisyUI 5** with two built-in themes. Colors adapt automatically via `data-theme` attribute on `<html>`.
+The UI chrome uses **DaisyUI 5** with 16 curated themes (8 light, 8 dark). Users independently select a theme for each mode via the `ThemeSelector` dropdown in the header. Colors adapt automatically via `data-theme` attribute on `<html>`.
 
-| Mode | Theme | Primary | Secondary | Accent | Base-100 | Base-content |
-|------|-------|---------|-----------|--------|----------|--------------|
-| **Light** | `nord` | `#5E81AC` | `#81A1C1` | `#88C0D0` | `#ECEFF4` | `#2E3440` |
-| **Dark** | `night` | `#38bdf8` | `#818CF8` | `#F471B5` | `#0F172A` | (auto-light) |
+**Light themes:** Nord (default), Lo-Fi, Emerald, Cupcake, Garden, Autumn, Pastel, Caramel
+**Dark themes:** Night (default), Black, Forest, Dracula, Dim, Synthwave, Luxury, Coffee
+
+Theme catalog is defined in `src/config/daisyuiThemes.js`. Registered in `src/index.css` via `@plugin "daisyui"`.
 
 The 19 content themes in `src/config/themes.js` are for the **design canvas** — they use inline styles and are completely separate from the DaisyUI UI chrome.
 

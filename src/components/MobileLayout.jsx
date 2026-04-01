@@ -12,6 +12,7 @@ import EmptyStateGuide from './EmptyStateGuide'
 import BottomSheet from './BottomSheet'
 import MobileNav from './MobileNav'
 import BurgerMenu from './BurgerMenu'
+import ThemeSelector from './ThemeSelector'
 
 export default function MobileLayout({
   // Refs
@@ -68,6 +69,10 @@ export default function MobileLayout({
   setIsReaderMode,
   isDark,
   toggleDarkMode,
+  lightTheme,
+  darkTheme,
+  setLightTheme,
+  setDarkTheme,
   canInstall,
   install,
   hasUpdate,
@@ -101,9 +106,7 @@ export default function MobileLayout({
             <button onClick={() => setShowSaveLoadModal(true)} title="Save" aria-label="Save" className="p-2 rounded-lg text-base-content hover:bg-base-200 transition-colors">
               <svg className="w-5 h-5" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" /></svg>
             </button>
-            <button onClick={toggleDarkMode} title={isDark ? 'Light mode' : 'Dark mode'} aria-label={isDark ? 'Light mode' : 'Dark mode'} className="p-2 rounded-lg text-base-content hover:bg-base-200 transition-colors">
-              <span className="text-sm" aria-hidden="true">{isDark ? '☀️' : '🌙'}</span>
-            </button>
+            <ThemeSelector isDark={isDark} toggleDarkMode={toggleDarkMode} lightTheme={lightTheme} darkTheme={darkTheme} setLightTheme={setLightTheme} setDarkTheme={setDarkTheme} />
             <BurgerMenu
               open={showMobileMenu}
               onToggle={() => { const opening = !showMobileMenu; setShowMobileMenu(opening); if (opening) closeMobileSheet() }}
