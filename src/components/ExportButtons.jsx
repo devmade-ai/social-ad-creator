@@ -374,7 +374,7 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
           {currentFormat.recommendedFormat && currentFormat.recommendedFormat !== exportFormat && (
             <button
               onClick={() => onExportFormatChange(currentFormat.recommendedFormat)}
-              className="text-[10px] text-primary hover:text-primary-hover transition-colors"
+              className="text-[10px] text-primary hover:text-primary/80 transition-colors"
             >
               Use recommended ({currentFormat.recommendedFormat.toUpperCase()})
             </button>
@@ -388,7 +388,7 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
               title={opt.description}
               className={`flex-1 px-2 py-2.5 sm:py-1.5 text-xs font-semibold rounded-lg transition-all ${
                 exportFormat === opt.id
-                  ? 'bg-primary text-white shadow-sm'
+                  ? 'bg-primary text-primary-content shadow-sm'
                   : 'bg-base-200 text-base-content/70 hover:bg-base-300'
               }`}
             >
@@ -402,7 +402,7 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
       <button
         onClick={handleExportSingle}
         disabled={isExporting}
-        className="w-full px-4 py-3 text-sm font-semibold text-white bg-primary rounded-xl hover:bg-primary-hover disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm hover:shadow-glow active:scale-[0.98] btn-scale"
+        className="w-full px-4 py-3 text-sm font-semibold text-primary-content bg-primary rounded-xl hover:bg-primary/80 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm hover:shadow-glow active:scale-[0.98] btn-scale"
       >
         {exportOp === 'single' ? 'Exporting...' : `Download (.${ext})`}
       </button>
@@ -476,7 +476,7 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
                       className={`flex-1 px-2 py-1.5 text-xs rounded-md transition-colors ${
                         pdfQuality === q.id
                           ? 'bg-warning/20 text-warning font-semibold'
-                          : 'bg-base-100text-base-content/70 hover:bg-base-200'
+                          : 'bg-base-100 text-base-content/70 hover:bg-base-200'
                       }`}
                     >
                       {q.label}
@@ -491,7 +491,7 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
           <button
             onClick={() => setShowMultiSelect(!showMultiSelect)}
             disabled={isExporting}
-            className="w-full px-4 py-2.5 text-sm font-medium text-primary dark:text-violet-400 bg-violet-50 dark:bg-violet-900/20 rounded-lg hover:bg-violet-100 dark:hover:bg-violet-900/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-[0.98]"
+            className="w-full px-4 py-2.5 text-sm font-medium text-primary bg-primary/10 rounded-lg hover:bg-primary/15 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-[0.98]"
           >
             {showMultiSelect ? 'Hide Platforms' : 'Multiple Platforms (ZIP)'}
           </button>
@@ -533,8 +533,8 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
                             title={`${p.width} × ${p.height}`}
                             className={`px-2 py-0.5 text-xs rounded font-medium transition-all ${
                               selectedPlatforms.has(p.id)
-                                ? 'bg-primary text-white'
-                                : 'bg-base-100text-base-content/70 hover:bg-base-200 border border-base-300'
+                                ? 'bg-primary text-primary-content'
+                                : 'bg-base-100 text-base-content/70 hover:bg-base-200 border border-base-300'
                             }`}
                           >
                             {p.name}
@@ -549,7 +549,7 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
               <button
                 onClick={handleExportMultiple}
                 disabled={isExporting || selectedPlatforms.size === 0}
-                className="w-full px-4 py-2.5 text-sm font-semibold text-white bg-primary rounded-lg hover:bg-primary-hover disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                className="w-full px-4 py-2.5 text-sm font-semibold text-primary-content bg-primary rounded-lg hover:bg-primary/80 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
               >
                 {exportOp === 'multi' && exportProgress
                   ? `Exporting ${exportProgress.current}/${exportProgress.total}...`

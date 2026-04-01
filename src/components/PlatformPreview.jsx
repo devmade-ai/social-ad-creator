@@ -71,19 +71,19 @@ export default memo(function PlatformPreview({ selectedPlatform, onPlatformChang
     <div className="space-y-3">
       {/* Header: current selection */}
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-ui-text">Platform</h3>
-        <span className="text-sm text-ui-text-subtle font-medium">
+        <h3 className="text-sm font-semibold text-base-content">Platform</h3>
+        <span className="text-sm text-base-content/60 font-medium">
           {format.width} × {format.height}
         </span>
       </div>
 
       {/* Info bar: selected format details + tips */}
-      <div className="p-2.5 bg-ui-surface-elevated rounded-lg border border-ui-border space-y-1.5">
+      <div className="p-2.5 bg-base-200 rounded-lg border border-base-300 space-y-1.5">
         <div className="flex items-center justify-between">
-          <span className="text-xs font-semibold text-ui-text">
+          <span className="text-xs font-semibold text-base-content">
             {parentGroup.name} — {format.name}
           </span>
-          <span className="text-[10px] text-ui-text-faint font-medium">
+          <span className="text-[10px] text-base-content/40 font-medium">
             {format.recommendedFormat?.toUpperCase() || 'PNG'}
             {format.maxFileSize ? ` · ${format.maxFileSize}` : ''}
           </span>
@@ -95,7 +95,7 @@ export default memo(function PlatformPreview({ selectedPlatform, onPlatformChang
             <button
               onClick={() => setShowTips(!showTips)}
               aria-label="Toggle platform tips"
-              className="flex items-center gap-1 text-[10px] text-primary hover:text-primary-hover transition-colors"
+              className="flex items-center gap-1 text-[10px] text-primary hover:text-primary/80 transition-colors"
             >
               <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -105,7 +105,7 @@ export default memo(function PlatformPreview({ selectedPlatform, onPlatformChang
             {showTips && (
               <ul className="mt-1.5 space-y-1">
                 {parentGroup.tips.map((tip, i) => (
-                  <li key={i} className="text-[10px] text-ui-text-muted leading-relaxed flex items-start gap-1.5">
+                  <li key={i} className="text-[10px] text-base-content/70 leading-relaxed flex items-start gap-1.5">
                     <span className="text-primary mt-0.5 shrink-0">•</span>
                     {tip}
                   </li>
@@ -126,7 +126,7 @@ export default memo(function PlatformPreview({ selectedPlatform, onPlatformChang
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search platforms..."
             aria-label="Search platforms"
-            className="w-full px-3 py-2 text-xs rounded-lg bg-ui-surface-inset border border-ui-border text-ui-text placeholder-ui-text-muted focus:outline-none focus:ring-2 focus:ring-primary"
+            className="w-full px-3 py-2 text-xs rounded-lg bg-base-200 border border-base-300 text-base-content placeholder-base-content/50 focus:outline-none focus:ring-2 focus:ring-primary"
           />
         </div>
         <div className="space-y-1">
@@ -157,9 +157,9 @@ export default memo(function PlatformPreview({ selectedPlatform, onPlatformChang
                 <button
                   onClick={() => toggleCategory(category)}
                   aria-label={`${isCatExpanded ? 'Collapse' : 'Expand'} ${categoryLabels[category] || category}`}
-                  className="w-full flex items-center justify-between py-1 hover:bg-ui-surface-elevated rounded transition-colors"
+                  className="w-full flex items-center justify-between py-1 hover:bg-base-200 rounded transition-colors"
                 >
-                  <span className="text-[10px] text-ui-text-faint uppercase tracking-wide font-medium flex items-center gap-1">
+                  <span className="text-[10px] text-base-content/40 uppercase tracking-wide font-medium flex items-center gap-1">
                     <ChevronIcon expanded={isCatExpanded} />
                     {categoryLabels[category] || category}
                   </span>
@@ -187,7 +187,7 @@ export default memo(function PlatformPreview({ selectedPlatform, onPlatformChang
                             className={`w-full flex items-center justify-between py-1 px-2 rounded-lg text-xs font-medium transition-all ${
                               isSelected
                                 ? 'bg-primary/10 text-primary'
-                                : 'text-ui-text hover:bg-ui-surface-hover'
+                                : 'text-base-content hover:bg-base-300'
                             }`}
                           >
                             <span className="flex items-center gap-1.5">
@@ -197,7 +197,7 @@ export default memo(function PlatformPreview({ selectedPlatform, onPlatformChang
                               {group.name}
                             </span>
                             {hasOneFormat && (
-                              <span className="text-[10px] text-ui-text-faint">
+                              <span className="text-[10px] text-base-content/40">
                                 {group.formats[0].width} × {group.formats[0].height}
                               </span>
                             )}
@@ -217,8 +217,8 @@ export default memo(function PlatformPreview({ selectedPlatform, onPlatformChang
                                   aria-label={`Select ${f.name} format`}
                                   className={`px-2.5 py-1 text-xs rounded-lg font-medium transition-all ${
                                     selectedPlatform === f.id
-                                      ? 'bg-primary text-white shadow-sm'
-                                      : 'bg-ui-surface-inset text-ui-text hover:bg-ui-surface-hover'
+                                      ? 'bg-primary text-primary-content shadow-sm'
+                                      : 'bg-base-200 text-base-content hover:bg-base-300'
                                   }`}
                                 >
                                   {f.name}
