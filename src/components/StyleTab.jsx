@@ -336,7 +336,7 @@ export default memo(function StyleTab({
           </div>
 
           {/* Per-cell frame */}
-          <div className="pt-3 border-t border-base-300-subtle space-y-3">
+          <div className="pt-3 border-t border-base-200 space-y-3">
             <div className="text-xs text-center py-1.5 bg-base-200 rounded">
               <span className="text-primary">
                 Cell {clampedCell + 1}
@@ -443,7 +443,7 @@ export default memo(function StyleTab({
           </div>
 
           {/* Per-cell padding */}
-          <div className="pt-3 border-t border-base-300-subtle space-y-3">
+          <div className="pt-3 border-t border-base-200 space-y-3">
             <div className="text-xs text-center py-1.5 bg-base-200 rounded">
               <span className="text-primary">
                 Cell {clampedCell + 1}
