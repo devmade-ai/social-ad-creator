@@ -23,8 +23,8 @@ A vibrant, creative design system for makers who want their ads to *pop*.
 
 The UI chrome uses **DaisyUI 5** with 16 curated themes (8 light, 8 dark). Users independently select a theme for each mode via the `ThemeSelector` dropdown in the header. Colors adapt automatically via `data-theme` attribute on `<html>`.
 
-**Light themes:** Nord (default), Lo-Fi, Emerald, Cupcake, Garden, Autumn, Pastel, Caramel
-**Dark themes:** Night (default), Black, Forest, Dracula, Dim, Synthwave, Luxury, Coffee
+**Light themes:** Lo-Fi (default), Nord, Emerald, Cupcake, Garden, Autumn, Pastel, Caramel
+**Dark themes:** Black (default), Night, Forest, Dracula, Dim, Synthwave, Luxury, Coffee
 
 Theme catalog is defined in `src/config/daisyuiThemes.js`. Registered in `src/index.css` via `@plugin "daisyui"`.
 
@@ -338,14 +338,12 @@ transition: transform 200ms cubic-bezier(0.34, 1.56, 0.64, 1);
 | `xl` | 32px | Empty states, features |
 
 ```jsx
-import { Sparkles, Download, Image, Type } from 'lucide-react';
-
-// Standard usage
-<Sparkles className="w-5 h-5 text-violet-500" />
+// Standard usage — always use DaisyUI semantic tokens
+<svg className="w-5 h-5 text-primary" />
 
 // In button
 <button className="flex items-center gap-2">
-  <Download className="w-4 h-4" />
+  <svg className="w-4 h-4" />
   Export
 </button>
 ```
@@ -354,23 +352,23 @@ import { Sparkles, Download, Image, Type } from 'lucide-react';
 
 ## Dark Mode
 
-Our dark mode isn't just "invert the colors" — it's crafted.
+DaisyUI handles light/dark automatically via `data-theme`. Users pick independent themes per mode.
 
 ### Key Principles
 
-1. **Deep indigo backgrounds** (not pure black) — feels creative
-2. **Reduced contrast for comfort** — `#FAFAFA` text, not `#FFFFFF`
-3. **Glows over shadows** — light draws the eye in dark mode
-4. **Slightly desaturated colors** — prevents eye strain
+1. **DaisyUI themes handle colors** — no manual dark: class pairs needed
+2. **Dual-layer theming** — `.dark` class for Tailwind utilities + `data-theme` for DaisyUI
+3. **16 curated themes** — 8 light + 8 dark, independently selectable
 
 ### Background Hierarchy
 
-| Level | Light | Dark |
-|-------|-------|------|
-| Page | `#FAFAFA` | `#0F0F23` |
-| Card | `#FFFFFF` | `#1A1A2E` |
-| Elevated | `#FFFFFF` + shadow | `#1E1E3F` + glow |
-| Sunken | `#F4F4F5` | `#0A0A1A` |
+All backgrounds use DaisyUI tokens that adapt per theme:
+
+| Level | Token | Usage |
+|-------|-------|-------|
+| Page | `bg-base-100` | Page and card backgrounds |
+| Elevated | `bg-base-200` | Inset areas, elevated surfaces |
+| Hover | `bg-base-300` | Hover states, stronger borders |
 
 ---
 
@@ -390,13 +388,9 @@ Even fun design needs to be usable.
 
 All interactive elements must have visible focus states.
 
-```css
-/* Our focus ring */
-:focus-visible {
-  outline: none;
-  ring: 2px solid var(--color-primary);
-  ring-offset: 2px;
-}
+```html
+<!-- Focus ring uses DaisyUI primary token -->
+<button class="outline-none focus-visible:ring-2 focus-visible:ring-primary">
 ```
 
 ### Motion Sensitivity
@@ -418,40 +412,41 @@ All interactive elements must have visible focus states.
 
 ```html
 <!-- Primary action button -->
-<button class="h-10 px-4 bg-violet-500 hover:bg-violet-600 text-white font-medium rounded-lg
+<button class="h-10 px-4 bg-primary hover:bg-primary/80 text-primary-content font-medium rounded-lg
                shadow-sm hover:shadow transition-all hover:scale-[1.02]">
 
 <!-- Card container -->
-<div class="bg-white dark:bg-zinc-800/50 rounded-xl border border-zinc-200 dark:border-zinc-700/50
-            p-5 shadow-sm">
+<div class="bg-base-100 rounded-xl border border-base-300 p-5 shadow-sm">
 
 <!-- Section header -->
-<h2 class="text-xl font-semibold text-zinc-900 dark:text-zinc-100">
+<h2 class="text-xl font-semibold text-base-content">
 
 <!-- Secondary text -->
-<p class="text-sm text-zinc-500 dark:text-zinc-400">
+<p class="text-sm text-base-content/60">
 
 <!-- Input field -->
-<input class="h-10 w-full px-3 border border-zinc-200 dark:border-zinc-700 rounded-lg
-              focus:ring-2 focus:ring-violet-500 focus:ring-offset-2">
+<input class="h-10 w-full px-3 border border-base-300 rounded-lg
+              focus:ring-2 focus:ring-primary focus:ring-offset-2">
 
 <!-- Badge/pill -->
-<span class="px-2 py-0.5 text-xs font-medium bg-violet-100 dark:bg-violet-900/30
-             text-violet-700 dark:text-violet-300 rounded-full">
+<span class="px-2 py-0.5 text-xs font-medium bg-primary/15 text-primary rounded-full">
 ```
 
-### The CanvaGrid Palette at a Glance
+### DaisyUI Semantic Tokens at a Glance
 
 ```
-Primary Actions:    #8B5CF6 (Electric Violet)
-Accents & CTAs:     #EC4899 (Hot Pink)
-Secondary:          #06B6D4 (Cyber Cyan)
-Success:            #10B981 (Emerald)
-Warning:            #F59E0B (Amber)
-Error:              #EF4444 (Red)
+Primary actions:    bg-primary / text-primary-content
+Secondary accents:  bg-secondary / text-secondary-content
+Accent highlights:  bg-accent / text-accent-content
+Success:            bg-success / text-success
+Warning:            bg-warning / text-warning
+Error:              bg-error / text-error
 
-Light backgrounds:  #FAFAFA → #FFFFFF → #F4F4F5
-Dark backgrounds:   #0F0F23 → #1A1A2E → #16213E
+Backgrounds:        bg-base-100 → bg-base-200 → bg-base-300
+Text:               text-base-content (full) → /70 → /60 → /40
+Borders:            border-base-300
+
+Actual hex values vary per selected DaisyUI theme.
 ```
 
 ---

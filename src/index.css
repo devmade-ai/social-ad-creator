@@ -6,8 +6,8 @@
 
 @plugin "daisyui" {
   themes: lofi --default, black --prefersdark,
-          lofi, emerald, cupcake, garden, autumn, pastel, caramellatte,
-          black, forest, dracula, dim, synthwave, luxury, coffee;
+          nord, night, emerald, cupcake, garden, autumn, pastel, caramellatte,
+          forest, dracula, dim, synthwave, luxury, coffee;
 }
 
 /* Requirement: Tailwind dark: variant must work alongside DaisyUI data-theme.
