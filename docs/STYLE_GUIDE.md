@@ -19,98 +19,54 @@ A vibrant, creative design system for makers who want their ads to *pop*.
 
 ## Color System
 
-### UI Chrome Palette
+### DaisyUI Themes
 
-These colors are for the **app interface** (buttons, focus rings, links) — not for the user's design canvas. The 19 content themes in `src/config/themes.js` have their own palettes.
+The UI chrome uses **DaisyUI 5** with two built-in themes. Colors adapt automatically via `data-theme` attribute on `<html>`.
 
-| Name | Hex | Usage | Vibe |
-|------|-----|-------|------|
-| **Electric Violet** | `#8B5CF6` | Primary actions, focus states | Creative energy |
-| **Hot Pink** | `#EC4899` | Accent, highlights, CTAs | Attention-grabbing |
-| **Cyber Cyan** | `#06B6D4` | Secondary actions, links | Fresh and modern |
+| Mode | Theme | Primary | Secondary | Accent | Base-100 | Base-content |
+|------|-------|---------|-----------|--------|----------|--------------|
+| **Light** | `nord` | `#5E81AC` | `#81A1C1` | `#88C0D0` | `#ECEFF4` | `#2E3440` |
+| **Dark** | `night` | `#38bdf8` | `#818CF8` | `#F471B5` | `#0F172A` | (auto-light) |
 
-### Background Colors
+The 19 content themes in `src/config/themes.js` are for the **design canvas** — they use inline styles and are completely separate from the DaisyUI UI chrome.
 
-| Mode | Primary | Secondary | Subtle |
-|------|---------|-----------|--------|
-| **Light** | `#FAFAFA` | `#FFFFFF` | `#F4F4F5` |
-| **Dark** | `#0F0F23` | `#1A1A2E` | `#16213E` |
+### DaisyUI Token Usage
 
-*Note: Our dark mode uses deep indigo tones instead of pure black — feels more creative, less oppressive.*
+| Token | Tailwind Class | Usage |
+|-------|---------------|-------|
+| `base-100` | `bg-base-100` | Page/card backgrounds |
+| `base-200` | `bg-base-200` | Elevated surfaces, insets |
+| `base-300` | `bg-base-300` | Hover states, borders |
+| `base-content` | `text-base-content` | Default text |
+| `primary` | `bg-primary` | Primary actions, active states |
+| `primary-content` | `text-primary-content` | Text on primary background |
+| `secondary` | `bg-secondary` | Secondary accents (layout grid) |
+| `neutral` | `bg-neutral` | Neutral info toasts |
+| `error` | `bg-error`, `text-error` | Destructive actions, errors |
+| `success` | `bg-success`, `text-success` | Success feedback |
+| `warning` | `bg-warning`, `text-warning` | Warnings, caution states |
 
-### Semantic Colors
+### Opacity Modifiers
 
-| Name | Hex | Light BG | Dark BG | Usage |
-|------|-----|----------|---------|-------|
-| **Success** | `#10B981` | `#ECFDF5` | `rgba(16,185,129,0.15)` | Saved, exported, done! |
-| **Warning** | `#F59E0B` | `#FFFBEB` | `rgba(245,158,11,0.15)` | Heads up! |
-| **Error** | `#EF4444` | `#FEF2F2` | `rgba(239,68,68,0.15)` | Oops, fix this |
-| **Info** | `#3B82F6` | `#EFF6FF` | `rgba(59,130,246,0.15)` | FYI |
+Use opacity modifiers on DaisyUI tokens instead of hardcoded colors:
 
-### Gradient Magic ✨
+```html
+<!-- Muted text -->
+<span class="text-base-content/70">Secondary text</span>
+<span class="text-base-content/60">Subtle text</span>
+<span class="text-base-content/40">Faint text</span>
 
-Gradients are our secret weapon. Use them for:
-- Hero sections
-- Primary buttons (on hover)
-- Empty state illustrations
-- Accent borders
-
-```css
-/* The Signature Gradient */
---gradient-creative: linear-gradient(135deg, #8B5CF6 0%, #EC4899 50%, #06B6D4 100%);
-
-/* Subtle button hover */
---gradient-button: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%);
-
-/* Background accent */
---gradient-glow: radial-gradient(ellipse at top, rgba(139,92,246,0.15) 0%, transparent 50%);
+<!-- Light backgrounds -->
+<div class="bg-primary/10">Tinted primary background</div>
+<div class="bg-error/10">Light error background</div>
 ```
 
-### Color Tokens (CSS Variables)
+### Gradient
 
 ```css
-:root {
-  /* Core */
-  --color-primary: #8B5CF6;
-  --color-secondary: #EC4899;
-  --color-accent: #06B6D4;
-
-  /* Text */
-  --text-primary: #18181B;
-  --text-secondary: #71717A;
-  --text-muted: #A1A1AA;
-  --text-inverse: #FAFAFA;
-
-  /* Backgrounds */
-  --bg-page: #FAFAFA;
-  --bg-card: #FFFFFF;
-  --bg-subtle: #F4F4F5;
-  --bg-elevated: #FFFFFF;
-
-  /* Borders */
-  --border-default: #E4E4E7;
-  --border-subtle: #F4F4F5;
-  --border-focus: #8B5CF6;
-
-  /* Interactive */
-  --interactive-primary: #8B5CF6;
-  --interactive-hover: #7C3AED;
-  --interactive-active: #6D28D9;
-}
-
-.dark {
-  --text-primary: #FAFAFA;
-  --text-secondary: #A1A1AA;
-  --text-muted: #71717A;
-  --text-inverse: #18181B;
-
-  --bg-page: #0F0F23;
-  --bg-card: #1A1A2E;
-  --bg-subtle: #16213E;
-  --bg-elevated: #1E1E3F;
-
-  --border-default: #2D2D4A;
-  --border-subtle: #252542;
+/* The Signature Gradient — uses DaisyUI primary/secondary/accent oklch values */
+@utility bg-gradient-creative {
+  background: linear-gradient(135deg, oklch(var(--p)) 0%, oklch(var(--s)) 50%, oklch(var(--a)) 100%);
 }
 ```
 
@@ -160,14 +116,14 @@ Gradients are our secret weapon. Use them for:
 
 ```html
 <!-- Headlines (use display font) -->
-<h1 class="text-4xl font-bold tracking-tight">Make Ads That Pop</h1>
-<h2 class="text-2xl font-semibold">Your Templates</h2>
+<h1 class="text-4xl font-bold tracking-tight text-base-content">Make Ads That Pop</h1>
+<h2 class="text-2xl font-semibold text-base-content">Your Templates</h2>
 
 <!-- Body -->
-<p class="text-base text-zinc-600 dark:text-zinc-400">Create stunning social ads...</p>
+<p class="text-base text-base-content/70">Create stunning social ads...</p>
 
 <!-- Captions & Labels -->
-<span class="text-xs font-medium text-zinc-500 uppercase tracking-wide">Platform</span>
+<span class="text-xs font-medium text-base-content/60 uppercase tracking-wide">Platform</span>
 ```
 
 ---
@@ -236,18 +192,12 @@ Keep it friendly with generous rounding.
 
 ### Dark Mode
 
-In dark mode, we rely more on:
-- Border highlights (`border-zinc-700`)
-- Subtle background gradients
-- Glow effects for emphasis
+In dark mode (DaisyUI `night` theme), we rely more on:
+- Border highlights (`border-base-300`)
+- Subtle background differences (`bg-base-200`, `bg-base-300`)
+- Glow effects for emphasis (`shadow-glow`)
 
-```css
-/* Dark mode card */
-.card-dark {
-  background: linear-gradient(180deg, #1A1A2E 0%, #16213E 100%);
-  border: 1px solid rgba(255,255,255,0.06);
-}
-```
+DaisyUI handles light/dark automatically via `data-theme` — no need for manual `dark:` class pairs.
 
 ---
 
@@ -257,10 +207,10 @@ In dark mode, we rely more on:
 
 | Variant | Background | Text | Border | Usage |
 |---------|------------|------|--------|-------|
-| **Primary** | `--color-primary` | White | None | Main actions |
-| **Secondary** | Transparent | `--text-primary` | `--border-default` | Secondary actions |
-| **Ghost** | Transparent | `--text-secondary` | None | Tertiary actions |
-| **Danger** | `#EF4444` | White | None | Destructive actions |
+| **Primary** | `bg-primary` | `text-primary-content` | None | Main actions |
+| **Secondary** | Transparent | `text-base-content` | `border-base-300` | Secondary actions |
+| **Ghost** | Transparent | `text-base-content/70` | None | Tertiary actions |
+| **Danger** | `bg-error` | `text-error-content` | None | Destructive actions |
 
 **Sizes:**
 
@@ -277,14 +227,13 @@ In dark mode, we rely more on:
 
 ```html
 <!-- Primary Button -->
-<button class="h-10 px-4 bg-violet-500 hover:bg-violet-600 text-white font-medium rounded-lg
+<button class="h-10 px-4 bg-primary hover:bg-primary/80 text-primary-content font-medium rounded-lg
                transition-all hover:scale-[1.02] active:scale-[0.98]">
   Create Ad
 </button>
 
 <!-- Secondary Button -->
-<button class="h-10 px-4 border border-zinc-200 dark:border-zinc-700
-               hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-lg transition-colors">
+<button class="h-10 px-4 border border-base-300 hover:bg-base-200 rounded-lg transition-colors">
   Cancel
 </button>
 ```
@@ -295,16 +244,16 @@ In dark mode, we rely more on:
 |----------|-------|
 | Height | 40px |
 | Padding | 0 12px |
-| Border | 1px solid `--border-default` |
+| Border | 1px solid `border-base-300` |
 | Border Radius | 8px |
-| Focus Ring | 2px `--color-primary` with 2px offset |
+| Focus Ring | 2px `primary` with 2px offset |
 
 ```html
 <input
-  class="h-10 w-full px-3 border border-zinc-200 dark:border-zinc-700 rounded-lg
-         bg-white dark:bg-zinc-800
-         focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2
-         placeholder:text-zinc-400"
+  class="h-10 w-full px-3 border border-base-300 rounded-lg
+         bg-base-100
+         focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2
+         placeholder:text-base-content/50"
   placeholder="Enter your headline..."
 />
 ```

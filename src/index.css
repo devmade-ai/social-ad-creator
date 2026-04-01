@@ -24,6 +24,13 @@
 
   --shadow-soft: 0 2px 8px -2px rgba(0, 0, 0, 0.08), 0 4px 16px -4px rgba(0, 0, 0, 0.06);
   --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.06), 0 4px 12px rgba(0, 0, 0, 0.04);
+  --shadow-glow: 0 0 20px oklch(var(--p) / 0.3);
+}
+
+/* Custom gradient utilities carried forward from old tailwind.config.js.
+   bg-gradient-creative is used in ExportButtons progress bar. */
+@utility bg-gradient-creative {
+  background: linear-gradient(135deg, oklch(var(--p)) 0%, oklch(var(--s)) 50%, oklch(var(--a)) 100%);
 }
 
 /* Native form inputs, selects, scrollbars must match theme.

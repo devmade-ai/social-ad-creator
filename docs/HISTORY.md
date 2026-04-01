@@ -1,5 +1,17 @@
 # Changelog
 
+## 2026-04-01
+
+### Tailwind 4 + DaisyUI 5 migration
+
+- **Infrastructure** — Upgraded from Tailwind 3.4 to Tailwind 4.2 + DaisyUI 5.5. Deleted `tailwind.config.js` and `postcss.config.js`. Config now CSS-first in `src/index.css` using `@import "tailwindcss"`, `@plugin "daisyui"`, `@theme`, `@custom-variant`, and `@utility` directives. Added `@tailwindcss/vite` plugin.
+- **DaisyUI themes** — Chose `nord` (light) and `night` (dark) built-in themes. Replaced hand-rolled violet/indigo color palette with DaisyUI semantic tokens.
+- **Dual-layer theming** — `useDarkMode.js` and `index.html` flash-prevention script now manage both `.dark` class (Tailwind `dark:` utilities) and `data-theme` attribute (DaisyUI component colors) simultaneously.
+- **Component migration** — Migrated ~170 `dark:` class pairs across 30+ files. Replaced custom semantic tokens (`text-ui-text`, `bg-ui-surface`, `border-ui-border`) with DaisyUI equivalents (`text-base-content`, `bg-base-100`, `border-base-300`). Replaced all violet/indigo hardcoded colors with `primary`/`secondary` tokens. Replaced status colors (red/green/amber/emerald/orange) with DaisyUI semantic tokens (error/success/warning).
+- **Old CSS variable system removed** — The `:root`/`.dark` semantic token system (18 `theme()` calls) replaced entirely by DaisyUI's built-in token system.
+- **PWA manifest** — Updated `theme_color` to `#5E81AC` (nord primary) and `background_color` to `#0F1729` (night base-100).
+- **Documentation** — Updated CLAUDE.md, STYLE_GUIDE.md, SESSION_NOTES.md.
+
 ## 2026-03-31
 
 ### Theme light/dark variants

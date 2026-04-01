@@ -114,7 +114,7 @@ export default function LogoUploader({
             />
             <button
               onClick={handleRemove}
-              className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-red-600"
+              className="absolute top-1 right-1 bg-error text-error-content rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-error/80"
             >
               ×
             </button>
