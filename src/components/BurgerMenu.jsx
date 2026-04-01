@@ -10,7 +10,13 @@
 //   - Headless UI Disclosure: Viable — adds dependency for a single component
 import { useState, useRef, useCallback, useEffect, useId } from 'react'
 
-export default function BurgerMenu({ items, open, onToggle, onClose }) {
+// Requirement: Move Save + ThemeSelector into burger menu for cleaner mobile header.
+// Approach: Items support separator, trailing ReactNode, and preventClose.
+//   children prop renders additional content (e.g. theme picker) after items.
+// Alternatives:
+//   - Separate ThemeSelector in header: Rejected — clutters mobile header per glow-props spec.
+//   - Custom item components: Rejected — trailing + children covers all cases simply.
+export default function BurgerMenu({ items, open, onToggle, onClose, children }) {
   const menuId = useId()
   const triggerRef = useRef(null)
   const menuRef = useRef(null)
@@ -76,37 +82,39 @@ export default function BurgerMenu({ items, open, onToggle, onClose }) {
             aria-label="More options"
             className="absolute right-3 top-full mt-1 z-50
                        bg-base-100 rounded-xl shadow-lg
-                       border border-base-300 py-1 min-w-[180px]
+                       border border-base-300 py-1 min-w-[200px]
                        max-w-[calc(100vw-2rem)] overflow-hidden overscroll-contain"
           >
             <ul className="list-none m-0 p-0">
-              {visibleItems.map((item) => (
-                <li key={item.label}>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      // Close menu first regardless of whether action succeeds.
-                      // If item.action() throws, the menu must still close —
-                      // otherwise the user is stuck with an open menu and no
-                      // way to recover except tapping the backdrop.
-                      try { item.action() } catch (e) { console.error('Menu action failed:', e) }
-                      onClose()
-                    }}
-                    className={`w-full flex items-center gap-3 px-4 py-3 text-sm transition-colors
-                      outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset
-                      ${item.highlight
-                        ? `${item.highlightColor || 'text-primary'} hover:bg-primary/5`
-                        : 'text-base-content hover:bg-base-300'
-                      }`}
-                  >
-                    <svg className="w-4 h-4 shrink-0" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={item.icon} />
-                    </svg>
-                    {item.label}
-                  </button>
-                </li>
+              {visibleItems.map((item, i) => (
+                item.separator ? (
+                  <li key={`sep-${i}`} className="border-t border-base-200 my-1" aria-hidden="true" />
+                ) : (
+                  <li key={item.label}>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        try { item.action() } catch (e) { console.error('Menu action failed:', e) }
+                        if (!item.preventClose) onClose()
+                      }}
+                      className={`w-full flex items-center gap-3 px-4 py-3 text-sm transition-colors
+                        outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset
+                        ${item.highlight
+                          ? `${item.highlightColor || 'text-primary'} hover:bg-primary/5`
+                          : 'text-base-content hover:bg-base-300'
+                        }`}
+                    >
+                      <svg className="w-4 h-4 shrink-0" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={item.icon} />
+                      </svg>
+                      <span className="flex-1 text-left">{item.label}</span>
+                      {item.trailing}
+                    </button>
+                  </li>
+                )
               ))}
             </ul>
+            {children}
           </nav>
         </>
       )}
