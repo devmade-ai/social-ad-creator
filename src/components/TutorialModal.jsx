@@ -179,7 +179,7 @@ const tutorialSteps = [
           </li>
           <li className="flex gap-2">
             <span className="text-primary">•</span>
-            <span><strong>Dark mode:</strong> Click the sun/moon button to switch.</span>
+            <span><strong>Theme:</strong> Use the theme selector in the header to switch between light/dark mode and pick a theme for each.</span>
           </li>
           <li className="flex gap-2">
             <span className="text-primary">•</span>

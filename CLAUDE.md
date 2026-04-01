@@ -553,7 +553,7 @@ src/
 ├── hooks/
 │   ├── useAdState.js     # Central state (multi-page, per-cell text, freeformText, layout)
 │   ├── useHistory.js     # Undo/redo history management (shallowEqual skips base64)
-│   ├── useDarkMode.js    # Dark mode toggle
+│   ├── useDarkMode.js    # Dark mode + per-mode DaisyUI theme selection
 │   ├── useOnlineStatus.js # Online/offline detection
 │   ├── useFocusTrap.js   # Focus trap for modals (Tab/Shift+Tab boundary wrapping)
 │   ├── useIsMobile.js    # matchMedia hook: viewport < 1024px (Tailwind lg breakpoint)
