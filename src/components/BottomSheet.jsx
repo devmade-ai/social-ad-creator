@@ -102,7 +102,7 @@ export default function BottomSheet({ isOpen, onClose, children, snapPoint, onSn
   const snapToNearest = useCallback(() => {
     dragRef.current.isDragging = false
     const currentVh = SNAP_FULL - currentTranslateRef.current // visible height in vh
-    if (currentVh < 20) {
+    if (currentVh < 30) {
       onClose()
     } else if (currentVh < 65) {
       onSnapChange(SNAP_HALF)
