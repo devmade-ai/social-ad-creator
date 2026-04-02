@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-04-02
+
+### Auto-generated PWA meta theme-color values
+
+- **Build script** — `scripts/generate-theme-meta.mjs` reads DaisyUI's theme objects (`daisyui/theme/object.js`), converts oklch→hex, and updates `daisyuiThemes.js` and `index.html`. Light themes use `--color-primary` (with per-theme overrides for themes where primary is unrepresentative), dark themes use `--color-base-100`.
+- **Flash prevention upgrade** — Inline script in `index.html` now includes an auto-generated color map and updates `<meta name="theme-color">` before first paint (previously only set by `useDarkMode` after React mount).
+- **Zero manual maintenance** — Theme allowlists, hex color maps, and meta tag defaults all generated from a single source. Run `npm run generate-theme-meta` after DaisyUI updates.
+
 ## 2026-04-01
 
 ### Tailwind 4 + DaisyUI 5 migration
