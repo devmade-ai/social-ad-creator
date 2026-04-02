@@ -855,13 +855,16 @@ export default memo(function LayoutTab({
               {/* Cell size slider (width for rows, height for columns) */}
               {hasSubdivisions && (
                 <div>
-                  <label className="block text-xs text-secondary mb-2 font-medium">
-                    {isRows ? 'Cell Width' : 'Cell Height'}{' '}
-                    <span className="font-normal text-base-content/70">
-                      ({MIN_SIZE}–{getMaxSize(selectedSection.subdivisions || 2)}%)
+                  <div className="flex justify-between mb-2">
+                    <label className="text-xs text-secondary font-medium">
+                      {isRows ? 'Cell Width' : 'Cell Height'}
+                    </label>
+                    <span className="text-xs text-secondary font-medium">
+                      {Math.round(selectedSection.subSizes?.[selectedSubIndex] || 50)}%
                     </span>
-                  </label>
-                  <div className="flex items-center gap-3">
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[10px] text-base-content/50 w-7">Small</span>
                     <input
                       type="range"
                       min={MIN_SIZE}
@@ -871,9 +874,7 @@ export default memo(function LayoutTab({
                       onChange={(e) => updateSubSize(selectedSectionIndex, selectedSubIndex, Number(e.target.value))}
                       className="flex-1"
                     />
-                    <span className="text-sm text-secondary w-12 text-right font-medium">
-                      {Math.round(selectedSection.subSizes?.[selectedSubIndex] || 50)}%
-                    </span>
+                    <span className="text-[10px] text-base-content/50 w-7 text-right">Large</span>
                   </div>
                 </div>
               )}
@@ -954,13 +955,16 @@ export default memo(function LayoutTab({
               {/* Section size slider (height for rows, width for columns) */}
               {structure.length > 1 && (
                 <div>
-                  <label className="block text-xs text-primary mb-2 font-medium">
-                    {isRows ? 'Row Height' : 'Col Width'}{' '}
-                    <span className="font-normal text-base-content/70">
-                      ({MIN_SIZE}–{getMaxSize(structure.length)}%)
+                  <div className="flex justify-between mb-2">
+                    <label className="text-xs text-primary font-medium">
+                      {isRows ? 'Row Height' : 'Col Width'}
+                    </label>
+                    <span className="text-xs text-primary font-medium">
+                      {Math.round(selectedSection.size)}%
                     </span>
-                  </label>
-                  <div className="flex items-center gap-3">
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[10px] text-base-content/50 w-7">Small</span>
                     <input
                       type="range"
                       min={MIN_SIZE}
@@ -970,9 +974,7 @@ export default memo(function LayoutTab({
                       onChange={(e) => updateSectionSize(selectedSectionIndex, Number(e.target.value))}
                       className="flex-1"
                     />
-                    <span className="text-sm text-primary w-12 text-right font-medium">
-                      {Math.round(selectedSection.size)}%
-                    </span>
+                    <span className="text-[10px] text-base-content/50 w-7 text-right">Large</span>
                   </div>
                 </div>
               )}

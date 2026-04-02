@@ -460,29 +460,41 @@ export default memo(function MediaTab({
                 </div>
                 {/* Fine-grained position sliders */}
                 <div className="space-y-2 pt-2">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs text-base-content/70 w-6">X</span>
-                    <input
-                      type="range"
-                      min="0"
-                      max="100"
-                      value={selectedImage.position?.x ?? 50}
-                      onChange={(e) => onUpdateImagePosition(selectedImageId, { x: parseInt(e.target.value) })}
-                      className="flex-1 accent-primary"
-                    />
-                    <span className="text-xs text-base-content/70 w-8 text-right">{selectedImage.position?.x ?? 50}%</span>
+                  <div className="space-y-1">
+                    <div className="flex justify-between">
+                      <label className="text-xs font-medium text-base-content/70">Horizontal</label>
+                      <span className="text-xs text-base-content/60">{selectedImage.position?.x ?? 50}%</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-[10px] text-base-content/50 w-6">Left</span>
+                      <input
+                        type="range"
+                        min="0"
+                        max="100"
+                        value={selectedImage.position?.x ?? 50}
+                        onChange={(e) => onUpdateImagePosition(selectedImageId, { x: parseInt(e.target.value) })}
+                        className="flex-1 accent-primary"
+                      />
+                      <span className="text-[10px] text-base-content/50 w-7 text-right">Right</span>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs text-base-content/70 w-6">Y</span>
-                    <input
-                      type="range"
-                      min="0"
-                      max="100"
-                      value={selectedImage.position?.y ?? 50}
-                      onChange={(e) => onUpdateImagePosition(selectedImageId, { y: parseInt(e.target.value) })}
-                      className="flex-1 accent-primary"
-                    />
-                    <span className="text-xs text-base-content/70 w-8 text-right">{selectedImage.position?.y ?? 50}%</span>
+                  <div className="space-y-1">
+                    <div className="flex justify-between">
+                      <label className="text-xs font-medium text-base-content/70">Vertical</label>
+                      <span className="text-xs text-base-content/60">{selectedImage.position?.y ?? 50}%</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-[10px] text-base-content/50 w-6">Top</span>
+                      <input
+                        type="range"
+                        min="0"
+                        max="100"
+                        value={selectedImage.position?.y ?? 50}
+                        onChange={(e) => onUpdateImagePosition(selectedImageId, { y: parseInt(e.target.value) })}
+                        className="flex-1 accent-primary"
+                      />
+                      <span className="text-[10px] text-base-content/50 w-7 text-right">Btm</span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -673,15 +685,19 @@ export default memo(function MediaTab({
                       {selectedImage.overlay?.opacity ?? 0}%
                     </span>
                   </div>
-                  <input
-                    type="range"
-                    min="0"
-                    max="100"
-                    step="5"
-                    value={selectedImage.overlay?.opacity ?? 0}
-                    onChange={(e) => onUpdateImageOverlay(selectedImageId, { opacity: parseInt(e.target.value, 10) })}
-                    className="w-full h-2 bg-base-300 rounded-lg appearance-none cursor-pointer"
-                  />
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[10px] text-base-content/50 w-7">None</span>
+                    <input
+                      type="range"
+                      min="0"
+                      max="100"
+                      step="5"
+                      value={selectedImage.overlay?.opacity ?? 0}
+                      onChange={(e) => onUpdateImageOverlay(selectedImageId, { opacity: parseInt(e.target.value, 10) })}
+                      className="flex-1"
+                    />
+                    <span className="text-[10px] text-base-content/50 w-6 text-right">Full</span>
+                  </div>
                 </div>
               </>
             )}
@@ -702,15 +718,19 @@ export default memo(function MediaTab({
                 <label className="text-xs font-medium text-base-content/70">Grayscale</label>
                 <span className="text-xs text-base-content/60">{selectedImage.filters?.grayscale || 0}%</span>
               </div>
-              <input
-                type="range"
-                min="0"
-                max="100"
-                step="5"
-                value={selectedImage.filters?.grayscale || 0}
-                onChange={(e) => onUpdateImageFilters(selectedImageId, { grayscale: parseInt(e.target.value, 10) })}
-                className="w-full h-2 bg-base-300 rounded-lg appearance-none cursor-pointer"
-              />
+              <div className="flex items-center gap-1.5">
+                <span className="text-[10px] text-base-content/50 w-7">None</span>
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  step="5"
+                  value={selectedImage.filters?.grayscale || 0}
+                  onChange={(e) => onUpdateImageFilters(selectedImageId, { grayscale: parseInt(e.target.value, 10) })}
+                  className="flex-1"
+                />
+                <span className="text-[10px] text-base-content/50 w-6 text-right">Full</span>
+              </div>
             </div>
 
             <div className="space-y-1">
@@ -718,15 +738,19 @@ export default memo(function MediaTab({
                 <label className="text-xs font-medium text-base-content/70">Sepia</label>
                 <span className="text-xs text-base-content/60">{selectedImage.filters?.sepia || 0}%</span>
               </div>
-              <input
-                type="range"
-                min="0"
-                max="100"
-                step="5"
-                value={selectedImage.filters?.sepia || 0}
-                onChange={(e) => onUpdateImageFilters(selectedImageId, { sepia: parseInt(e.target.value, 10) })}
-                className="w-full h-2 bg-base-300 rounded-lg appearance-none cursor-pointer"
-              />
+              <div className="flex items-center gap-1.5">
+                <span className="text-[10px] text-base-content/50 w-7">None</span>
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  step="5"
+                  value={selectedImage.filters?.sepia || 0}
+                  onChange={(e) => onUpdateImageFilters(selectedImageId, { sepia: parseInt(e.target.value, 10) })}
+                  className="flex-1"
+                />
+                <span className="text-[10px] text-base-content/50 w-6 text-right">Full</span>
+              </div>
             </div>
 
             <div className="space-y-1">
@@ -734,15 +758,19 @@ export default memo(function MediaTab({
                 <label className="text-xs font-medium text-base-content/70">Blur</label>
                 <span className="text-xs text-base-content/60">{selectedImage.filters?.blur || 0}px</span>
               </div>
-              <input
-                type="range"
-                min="0"
-                max="10"
-                step="0.5"
-                value={selectedImage.filters?.blur || 0}
-                onChange={(e) => onUpdateImageFilters(selectedImageId, { blur: parseFloat(e.target.value) })}
-                className="w-full h-2 bg-base-300 rounded-lg appearance-none cursor-pointer"
-              />
+              <div className="flex items-center gap-1.5">
+                <span className="text-[10px] text-base-content/50 w-7">Sharp</span>
+                <input
+                  type="range"
+                  min="0"
+                  max="10"
+                  step="0.5"
+                  value={selectedImage.filters?.blur || 0}
+                  onChange={(e) => onUpdateImageFilters(selectedImageId, { blur: parseFloat(e.target.value) })}
+                  className="flex-1"
+                />
+                <span className="text-[10px] text-base-content/50 w-7 text-right">Blurry</span>
+              </div>
             </div>
 
             <div className="space-y-1">
@@ -750,15 +778,19 @@ export default memo(function MediaTab({
                 <label className="text-xs font-medium text-base-content/70">Contrast</label>
                 <span className="text-xs text-base-content/60">{selectedImage.filters?.contrast || 100}%</span>
               </div>
-              <input
-                type="range"
-                min="50"
-                max="150"
-                step="5"
-                value={selectedImage.filters?.contrast || 100}
-                onChange={(e) => onUpdateImageFilters(selectedImageId, { contrast: parseInt(e.target.value, 10) })}
-                className="w-full h-2 bg-base-300 rounded-lg appearance-none cursor-pointer"
-              />
+              <div className="flex items-center gap-1.5">
+                <span className="text-[10px] text-base-content/50 w-6">Low</span>
+                <input
+                  type="range"
+                  min="50"
+                  max="150"
+                  step="5"
+                  value={selectedImage.filters?.contrast || 100}
+                  onChange={(e) => onUpdateImageFilters(selectedImageId, { contrast: parseInt(e.target.value, 10) })}
+                  className="flex-1"
+                />
+                <span className="text-[10px] text-base-content/50 w-6 text-right">High</span>
+              </div>
             </div>
 
             <div className="space-y-1">
@@ -766,15 +798,19 @@ export default memo(function MediaTab({
                 <label className="text-xs font-medium text-base-content/70">Brightness</label>
                 <span className="text-xs text-base-content/60">{selectedImage.filters?.brightness || 100}%</span>
               </div>
-              <input
-                type="range"
-                min="50"
-                max="150"
-                step="5"
-                value={selectedImage.filters?.brightness || 100}
-                onChange={(e) => onUpdateImageFilters(selectedImageId, { brightness: parseInt(e.target.value, 10) })}
-                className="w-full h-2 bg-base-300 rounded-lg appearance-none cursor-pointer"
-              />
+              <div className="flex items-center gap-1.5">
+                <span className="text-[10px] text-base-content/50 w-6">Dark</span>
+                <input
+                  type="range"
+                  min="50"
+                  max="150"
+                  step="5"
+                  value={selectedImage.filters?.brightness || 100}
+                  onChange={(e) => onUpdateImageFilters(selectedImageId, { brightness: parseInt(e.target.value, 10) })}
+                  className="flex-1"
+                />
+                <span className="text-[10px] text-base-content/50 w-7 text-right">Bright</span>
+              </div>
             </div>
           </div>
         </CollapsibleSection>
