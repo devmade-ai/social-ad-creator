@@ -83,7 +83,7 @@ export default memo(function PlatformPreview({ selectedPlatform, onPlatformChang
           <span className="text-xs font-semibold text-base-content">
             {parentGroup.name} — {format.name}
           </span>
-          <span className="text-[10px] text-base-content/40 font-medium">
+          <span className="text-[10px] text-base-content/50 font-medium">
             {format.recommendedFormat?.toUpperCase() || 'PNG'}
             {format.maxFileSize ? ` · ${format.maxFileSize}` : ''}
           </span>
@@ -159,7 +159,7 @@ export default memo(function PlatformPreview({ selectedPlatform, onPlatformChang
                   aria-label={`${isCatExpanded ? 'Collapse' : 'Expand'} ${categoryLabels[category] || category}`}
                   className="w-full flex items-center justify-between py-1 hover:bg-base-200 rounded transition-colors"
                 >
-                  <span className="text-[10px] text-base-content/40 uppercase tracking-wide font-medium flex items-center gap-1">
+                  <span className="text-[10px] text-base-content/50 uppercase tracking-wide font-medium flex items-center gap-1">
                     <ChevronIcon expanded={isCatExpanded} />
                     {categoryLabels[category] || category}
                   </span>
@@ -197,7 +197,7 @@ export default memo(function PlatformPreview({ selectedPlatform, onPlatformChang
                               {group.name}
                             </span>
                             {hasOneFormat && (
-                              <span className="text-[10px] text-base-content/40">
+                              <span className="text-[10px] text-base-content/50">
                                 {group.formats[0].width} × {group.formats[0].height}
                               </span>
                             )}

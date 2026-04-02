@@ -70,16 +70,12 @@ export default function BurgerMenu({ items, open, onToggle, onClose, children })
         </svg>
       </button>
 
+      {/* Backdrop is rendered by the parent (MobileLayout) OUTSIDE the header
+          stacking context so it can cover the full viewport. The header's
+          backdrop-blur-sm creates a stacking context that traps fixed children. */}
+
       {open && (
         <>
-          {/* Backdrop — z-40 (menu backdrop layer).
-              cursor-pointer required for iOS Safari — empty divs don't
-              receive click events without it. */}
-          <div
-            className="fixed inset-0 z-40 cursor-pointer"
-            onClick={onClose}
-          />
-
           <nav
             ref={menuRef}
             id={menuId}

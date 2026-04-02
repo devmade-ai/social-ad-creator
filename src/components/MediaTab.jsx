@@ -308,7 +308,7 @@ export default memo(function MediaTab({
           >
             <div className="py-2">
               <svg
-                className="w-8 h-8 mx-auto text-base-content/40 mb-2"
+                className="w-8 h-8 mx-auto text-base-content/50 mb-2"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -321,7 +321,7 @@ export default memo(function MediaTab({
                 />
               </svg>
               <p className="text-sm text-base-content/70 font-medium">Drop image or click to upload</p>
-              <p className="text-xs text-base-content/40 mt-1">
+              <p className="text-xs text-base-content/50 mt-1">
                 {images.length === 0 ? 'Add images to your library' : `${images.length} image${images.length !== 1 ? 's' : ''} in library`}
               </p>
             </div>
@@ -332,7 +332,7 @@ export default memo(function MediaTab({
           {images.length > 0 && (
             <div className="space-y-2">
               <label className="block text-xs font-medium text-base-content/70">
-                Select Image <span className="text-base-content/40 font-normal">(click to edit)</span>
+                Select Image <span className="text-base-content/50 font-normal">(click to edit)</span>
               </label>
               <div className="grid grid-cols-4 gap-1.5">
                 {images.map((img) => {
@@ -542,7 +542,7 @@ export default memo(function MediaTab({
                   <label className="block text-xs font-medium text-base-content/70">Type</label>
                   {/* Basic & Linear Gradients */}
                   <div className="space-y-1.5">
-                    <span className="text-[10px] text-base-content/40 uppercase tracking-wide">Basic & Gradients</span>
+                    <span className="text-[10px] text-base-content/50 uppercase tracking-wide">Basic & Gradients</span>
                     <div className="grid grid-cols-5 gap-1">
                       {overlayTypes.filter(t => t.category === 'basic' || t.category === 'linear').map((t) => (
                         <button
@@ -562,7 +562,7 @@ export default memo(function MediaTab({
                   </div>
                   {/* Radial */}
                   <div className="space-y-1.5">
-                    <span className="text-[10px] text-base-content/40 uppercase tracking-wide">Circular</span>
+                    <span className="text-[10px] text-base-content/50 uppercase tracking-wide">Circular</span>
                     <div className="grid grid-cols-4 gap-1">
                       {overlayTypes.filter(t => t.category === 'radial').map((t) => (
                         <button
@@ -582,7 +582,7 @@ export default memo(function MediaTab({
                   </div>
                   {/* Effects & Textures */}
                   <div className="space-y-1.5">
-                    <span className="text-[10px] text-base-content/40 uppercase tracking-wide">Effects</span>
+                    <span className="text-[10px] text-base-content/50 uppercase tracking-wide">Effects</span>
                     <div className="grid grid-cols-4 gap-1">
                       {overlayTypes.filter(t => t.category === 'effect' || t.category === 'texture').map((t) => (
                         <button
@@ -602,7 +602,7 @@ export default memo(function MediaTab({
                   </div>
                   {/* Blend Modes */}
                   <div className="space-y-1.5">
-                    <span className="text-[10px] text-base-content/40 uppercase tracking-wide">Blending</span>
+                    <span className="text-[10px] text-base-content/50 uppercase tracking-wide">Blending</span>
                     <div className="grid grid-cols-4 gap-1">
                       {overlayTypes.filter(t => t.category === 'blend').map((t) => (
                         <button
@@ -789,7 +789,7 @@ export default memo(function MediaTab({
               onClick={() => logoInputRef.current?.click()}
             >
               <svg
-                className="w-8 h-8 mx-auto text-base-content/40 mb-2"
+                className="w-8 h-8 mx-auto text-base-content/50 mb-2"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -802,7 +802,7 @@ export default memo(function MediaTab({
                 />
               </svg>
               <p className="text-sm text-base-content/60">Click to upload logo</p>
-              <p className="text-xs text-base-content/40 mt-1">Optional</p>
+              <p className="text-xs text-base-content/50 mt-1">Optional</p>
               <input
                 ref={logoInputRef}
                 type="file"

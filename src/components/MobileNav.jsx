@@ -74,9 +74,8 @@ export default memo(function MobileNav({ activeTab, sheetOpen, onTabChange }) {
     >
       <div className="flex items-center justify-around">
         {tabs.map((tab) => {
-          // Show active indicator even when sheet is closed so user knows which
-          // tab will open on next tap. Only the icon scale effect is tied to sheetOpen.
-          const isActive = activeTab === tab.id
+          // Only highlight tab when sheet is expanded — otherwise no tab appears active.
+          const isActive = activeTab === tab.id && sheetOpen
           return (
             <button
               key={tab.id}
@@ -85,7 +84,7 @@ export default memo(function MobileNav({ activeTab, sheetOpen, onTabChange }) {
                 isActive ? 'text-primary' : 'text-base-content/70'
               }`}
             >
-              <span className={isActive && sheetOpen ? 'scale-110 transition-transform' : 'transition-transform'} aria-hidden="true">
+              <span className={isActive ? 'scale-110 transition-transform' : 'transition-transform'} aria-hidden="true">
                 {tab.icon}
               </span>
               <span className={`text-[10px] mt-0.5 font-medium truncate ${isActive ? 'text-primary' : ''}`}>

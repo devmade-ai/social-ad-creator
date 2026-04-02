@@ -137,7 +137,7 @@ function ThemePreviewContent({ preset, activeVariant }) {
         const isActive = activeVariant === variant
         return (
           <div key={variant} className={`flex items-center gap-1.5 px-1.5 py-1 rounded ${isActive ? 'bg-primary/15' : ''}`}>
-            <span className="text-[8px] text-base-content/40 w-7 shrink-0">{variant === 'light' ? 'Light' : 'Dark'}</span>
+            <span className="text-[8px] text-base-content/50 w-7 shrink-0">{variant === 'light' ? 'Light' : 'Dark'}</span>
             <div className="flex gap-1">
               <div className="w-5 h-5 rounded-full shadow-sm border border-black/10" style={{ backgroundColor: colors.primary }} />
               <div className="w-5 h-5 rounded-full shadow-sm border border-black/10" style={{ backgroundColor: colors.secondary }} />
@@ -339,7 +339,7 @@ export default memo(function TemplatesTab({
               <LookSwatch preset={activeLookPreset} isActive={true} theme={theme} />
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-primary">{activeLookPreset.name}</p>
-                <p className="text-xs text-primary/70 truncate">{activeLookPreset.description}</p>
+                <p className="text-xs text-base-content/70 truncate">{activeLookPreset.description}</p>
               </div>
             </div>
           )}
@@ -466,7 +466,7 @@ export default memo(function TemplatesTab({
         <div className="space-y-2 pt-3 border-t border-base-200">
           <div className="flex items-center justify-between">
             <label className="text-xs font-medium text-base-content/70">Custom Colors</label>
-            {!isCustomTheme && <span className="text-[10px] text-base-content/40">(Edit to customize)</span>}
+            {!isCustomTheme && <span className="text-[10px] text-base-content/50">(Edit to customize)</span>}
           </div>
           <div className="space-y-2">
             <ColorInput

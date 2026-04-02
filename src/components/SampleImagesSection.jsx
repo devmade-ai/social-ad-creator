@@ -221,7 +221,7 @@ export default function SampleImagesSection({ images, onAddImage, selectedCell, 
               }}
             />
             <div
-              className="w-full h-full bg-base-200 items-center justify-center text-base-content/40 text-[9px] text-center p-0.5"
+              className="w-full h-full bg-base-200 items-center justify-center text-base-content/50 text-[9px] text-center p-0.5"
               style={{ display: 'none' }}
             >
               {sample.name}

@@ -101,7 +101,7 @@ function TextElementEditor({
         <button
           onClick={() => onTextChange(cellIndex, element.id, { visible: !isVisible })}
           className={`w-8 h-8 sm:w-7 sm:h-7 rounded-md flex items-center justify-center text-xs shrink-0 active:scale-90 ${
-            isVisible ? 'bg-success/10 text-success' : 'bg-base-200 text-base-content/40'
+            isVisible ? 'bg-success/10 text-success' : 'bg-base-200 text-base-content/50'
           }`}
           title={isVisible ? 'Visible - click to hide' : 'Hidden - click to show'}
         >
@@ -109,7 +109,7 @@ function TextElementEditor({
         </button>
 
         {/* Label */}
-        <span className={`text-sm flex-1 min-w-0 ${isVisible ? 'text-base-content' : 'text-base-content/40'}`}>
+        <span className={`text-sm flex-1 min-w-0 ${isVisible ? 'text-base-content' : 'text-base-content/50'}`}>
           {element.label}
         </span>
 
@@ -117,7 +117,7 @@ function TextElementEditor({
         {layerState.content && (
           <button
             onClick={() => onTextChange(cellIndex, element.id, { content: '' })}
-            className="w-8 h-8 sm:w-7 sm:h-7 rounded flex items-center justify-center text-base-content/40 hover:text-error hover:bg-error/10 active:bg-error/20 transition-colors"
+            className="w-8 h-8 sm:w-7 sm:h-7 rounded flex items-center justify-center text-base-content/50 hover:text-error hover:bg-error/10 active:bg-error/20 transition-colors"
             title="Clear text"
           >
             <CloseIcon />
@@ -294,7 +294,7 @@ export default memo(function ContentTab({
       </div>
 
       {/* Subtitle for mode explanation (#13) */}
-      <p className="text-[10px] text-base-content/40 -mt-1">
+      <p className="text-[10px] text-base-content/50 -mt-1">
         {textMode === 'structured'
           ? 'Select a cell, then fill in title, tagline, body, and more'
           : 'Write anything in each cell, your way'}

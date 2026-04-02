@@ -232,7 +232,7 @@ export default memo(function StyleTab({
                           { key: 'blend', label: 'Blending' },
                         ].map(({ key, label }) => (
                           <div key={key} className="space-y-1">
-                            <span className="text-[9px] text-base-content/40 uppercase tracking-wide">{label}</span>
+                            <span className="text-[9px] text-base-content/50 uppercase tracking-wide">{label}</span>
                             <div className="grid grid-cols-3 gap-1">
                               {overlayTypesByCategory[key].map((t) => (
                                 <OverlayTypeButton
@@ -300,7 +300,7 @@ export default memo(function StyleTab({
           <div className="space-y-2 p-3 bg-base-200 rounded-lg">
             <div className="flex items-center justify-between">
               <span className="text-xs font-medium text-base-content/70">Outer Frame</span>
-              <span className="text-[10px] text-base-content/40">
+              <span className="text-[10px] text-base-content/50">
                 % of spacing used as border
               </span>
             </div>

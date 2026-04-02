@@ -165,7 +165,7 @@ export default function AIPromptHelper({ theme }) {
             </button>
           ))}
         </div>
-        <p className="text-[10px] text-base-content/40">
+        <p className="text-[10px] text-base-content/50">
           {purpose === 'hero' ? 'Clean focal point for featured images' : 'Subtle details, good for text overlays'}
         </p>
       </div>
@@ -224,7 +224,7 @@ export default function AIPromptHelper({ theme }) {
               <span>From Style tab</span>
             </div>
           ) : (
-            <p className="text-[10px] text-base-content/40">
+            <p className="text-[10px] text-base-content/50">
               Select a theme in the Style tab, or switch to Custom
             </p>
           )
@@ -243,7 +243,7 @@ export default function AIPromptHelper({ theme }) {
       <div className="space-y-1.5">
         <div className="flex justify-between items-center">
           <label className="block text-xs font-medium text-base-content/70">Generated Prompt</label>
-          <span className="text-[10px] text-base-content/40">Updates as you change options</span>
+          <span className="text-[10px] text-base-content/50">Updates as you change options</span>
         </div>
         <div className="relative">
           <div className="w-full px-3 py-2 text-xs bg-base-200 border border-base-300 rounded-lg text-base-content/70 max-h-24 overflow-y-auto">
