@@ -12,6 +12,7 @@ import { useMemo, memo } from 'react'
 import CollapsibleSection from './CollapsibleSection'
 import ConfirmButton from './ConfirmButton'
 import MiniCellGrid from './MiniCellGrid'
+import PageDots from './PageDots'
 import { platforms } from '../config/platforms'
 import { defaultState } from '../hooks/useAdState'
 import { MIN_SIZE, MAX_SIZE, getMaxSize, cellToSection, getFirstCellOfSection } from '../utils/layoutHelpers'
@@ -626,35 +627,15 @@ export default memo(function LayoutTab({
       {/* Pages Section — add, duplicate, reorder, delete pages */}
       <CollapsibleSection title="Pages" defaultExpanded={false}>
         <div className="space-y-3">
-          {/* Page thumbnails */}
+          {/* Page thumbnails — reuses shared PageDots component (validated colors, ARIA, 44px touch targets) */}
           {pages.length > 1 && (
-            <div className="flex gap-1.5 overflow-x-auto scrollbar-thin pb-1">
-              {pages.map((_, index) => {
-                const pageState = getPageState ? getPageState(index) : null
-                const bgColor = pageState?.theme?.primary || '#1a1a2e'
-                const isActive = index === activePage
-                return (
-                  <button
-                    key={index}
-                    onClick={() => onSetActivePage(index)}
-                    className={`relative shrink-0 w-10 h-10 rounded-md overflow-hidden border-2 transition-all hover:scale-110 active:scale-95 ${
-                      isActive
-                        ? 'border-primary ring-1 ring-primary/30'
-                        : 'border-base-300 hover:border-base-300'
-                    }`}
-                    title={`Page ${index + 1}`}
-                  >
-                    <div
-                      className="absolute inset-0 flex items-center justify-center"
-                      style={{ backgroundColor: bgColor }}
-                    >
-                      <span className={`text-[8px] font-bold ${isActive ? 'text-white' : 'text-white/70'}`}>
-                        {index + 1}
-                      </span>
-                    </div>
-                  </button>
-                )
-              })}
+            <div className="overflow-x-auto scrollbar-thin pb-1">
+              <PageDots
+                pages={pages}
+                activePage={activePage}
+                getPageState={getPageState}
+                onSetActivePage={onSetActivePage}
+              />
             </div>
           )}
 
