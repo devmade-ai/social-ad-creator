@@ -34,13 +34,14 @@ The header bar contains:
 
 ## Context Bar
 
-A sticky bar below the tab navigation with three sections:
+A compact sticky bar below the tab navigation for quick selection:
 
 | Section | Description |
 |---------|-------------|
-| **Pages** | Page thumbnails with add, duplicate, move, and delete controls |
+| **Page Selector** | Page thumbnails for switching between pages (visible when 2+ pages exist) |
 | **Cell Selector** | Miniature layout grid showing cells — click to select a cell for editing |
-| **Undo/Redo** | Undo (`Ctrl+Z` / `Cmd+Z`) and Redo (`Ctrl+Y` / `Ctrl+Shift+Z`) buttons |
+
+Undo/Redo buttons are in the **header** for constant visibility. Page management controls (add, duplicate, reorder, delete) are in the **Structure tab**.
 
 The selected cell in the Context Bar affects controls in Media, Content, and Style tabs.
 
@@ -246,14 +247,21 @@ Per-cell text editors with independent content per cell. Each cell gets its own 
 
 ### Structure Tab
 
-Fine-tune your grid structure.
+Fine-tune your grid structure and manage pages.
 
-#### Structure
+#### Grid
 - **Layout Type:** Full Bleed (single cell), Rows, or Columns
 - **Interactive Grid:** Click and drag dividers to resize sections
 - **Add/Remove:** Add sections, insert before/after, add subdivisions within sections
 - **Reorder:** Move rows up/down or columns left/right to rearrange sections
 - Click on a section or cell in the grid to select it
+
+#### Pages
+- **Add Page:** Create a new blank page
+- **Duplicate Page:** Copy the current page with all its content
+- **Reorder:** Move pages up/down (or left/right) to rearrange
+- **Delete Page:** Remove a page (requires confirmation)
+- Page thumbnails show the current page's theme color for quick identification
 
 **Note:** Text alignment controls are in the Content tab, not here.
 
@@ -296,15 +304,15 @@ Create multi-page documents like books, stories, or presentations.
 
 ### Managing Pages
 
-All page controls are in the **Context Bar** (Pages section on the left):
+Page management controls are in the **Structure tab** (Pages section):
 
 | Action | How |
 | ------ | --- |
-| **Add page** | Click the + button |
+| **Add page** | Click the + button in Structure tab |
 | **Duplicate page** | Click the copy icon (visible when 2+ pages) |
-| **Reorder** | Use the left/right arrow buttons |
+| **Reorder** | Use the up/down arrow buttons |
 | **Delete page** | Click the trash icon and confirm |
-| **Switch page** | Click a page thumbnail |
+| **Switch page** | Click a page thumbnail in the Context Bar or Structure tab |
 
 Each page has its own images, layout, text, overlays, padding, and frames. Theme, fonts, platform, and logo are shared across all pages.
 

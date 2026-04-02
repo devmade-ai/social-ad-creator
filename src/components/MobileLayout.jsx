@@ -12,6 +12,7 @@ import EmptyStateGuide from './EmptyStateGuide'
 import BottomSheet from './BottomSheet'
 import MobileNav from './MobileNav'
 import BurgerMenu from './BurgerMenu'
+import UndoRedoButtons from './UndoRedoButtons'
 import ThemeList from './ThemeList'
 import { lightThemes, darkThemes } from '../config/daisyuiThemes'
 import { ICON_HELP, ICON_INSTALL, ICON_UPDATE, ICON_REFRESH, ICON_READER, ICON_SAVE, ICON_KEYBOARD } from '../config/menuIcons'
@@ -78,15 +79,11 @@ export default function MobileLayout({
   isExporting,
   cancelExportRef,
   setIsExporting,
-  // Page state
+  // Page state (selection only — management moved to Structure tab)
   pages,
   pageCount,
   hasMultiplePages,
   setActivePage,
-  addPage,
-  duplicatePage,
-  removePage,
-  movePage,
   getPageState,
   // Platform / export
   setPlatform,
@@ -172,6 +169,8 @@ export default function MobileLayout({
             <h1 className="text-base font-display font-bold tracking-tight bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">CanvaGrid</h1>
             <span className="px-1 py-0.5 text-[8px] font-semibold uppercase tracking-wide bg-warning/10 text-warning rounded">Preview</span>
           </div>
+          {/* Undo/Redo — moved to header for constant visibility */}
+          <UndoRedoButtons undo={undo} redo={redo} canUndo={canUndo} canRedo={canRedo} size="md" />
           <BurgerMenu
             open={showMobileMenu}
             onToggle={() => { const opening = !showMobileMenu; setShowMobileMenu(opening); if (opening) closeMobileSheet() }}
@@ -207,12 +206,12 @@ export default function MobileLayout({
 
       {/* Compact context bar — hidden when bottom sheet is open to maximize canvas space */}
       {!mobileSheetOpen && (
-        <ContextBar
-          layout={state.layout} cellImages={state.cellImages} selectedCell={safeSelectedCell} onSelectCell={setSelectedCell} platform={state.platform}
-          undo={undo} redo={redo} canUndo={canUndo} canRedo={canRedo}
-          pages={pages} activePage={state.activePage} onSetActivePage={setActivePage}
-          onAddPage={addPage} onDuplicatePage={duplicatePage} onRemovePage={removePage} onMovePage={movePage} getPageState={getPageState}
-        />
+        <ErrorBoundary title="Selection bar error" message="Failed to render selection controls.">
+          <ContextBar
+            layout={state.layout} cellImages={state.cellImages} selectedCell={safeSelectedCell} onSelectCell={setSelectedCell} platform={state.platform}
+            pages={pages} activePage={state.activePage} onSetActivePage={setActivePage} getPageState={getPageState}
+          />
+        </ErrorBoundary>
       )}
 
       {/* Canvas — fills remaining space, edge-to-edge */}

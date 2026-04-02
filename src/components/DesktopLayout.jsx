@@ -6,6 +6,10 @@ import AdCanvas from './AdCanvas'
 import ThemeSelector from './ThemeSelector'
 import PlatformPreview from './PlatformPreview'
 import ExportButtons from './ExportButtons'
+import ContextBar from './ContextBar'
+import EmptyStateGuide from './EmptyStateGuide'
+import QuickActionsBar from './QuickActionsBar'
+import UndoRedoButtons from './UndoRedoButtons'
 
 // Requirement: Consistent header button styling across desktop layout.
 // Approach: Extract repeated className pattern to a small component.
@@ -18,9 +22,6 @@ function HeaderButton({ onClick, title, children }) {
     </button>
   )
 }
-import ContextBar from './ContextBar'
-import EmptyStateGuide from './EmptyStateGuide'
-import QuickActionsBar from './QuickActionsBar'
 
 export default function DesktopLayout({
   // Refs
@@ -40,14 +41,10 @@ export default function DesktopLayout({
   isExporting,
   cancelExportRef,
   setIsExporting,
-  // Page state
+  // Page state (selection only — management is in LayoutTab via tabContent)
   pages,
   pageCount,
   setActivePage,
-  addPage,
-  duplicatePage,
-  removePage,
-  movePage,
   getPageState,
   // Platform / export
   setPlatform,
@@ -98,7 +95,10 @@ export default function DesktopLayout({
             <h1 className="text-lg font-display font-bold tracking-tight bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">CanvaGrid</h1>
             <span className="px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide bg-warning/10 text-warning rounded">Research Preview</span>
           </div>
-          <div className="flex flex-wrap justify-center sm:justify-end gap-1.5">
+          <div className="flex flex-wrap justify-center sm:justify-end gap-1.5 items-center">
+            {/* Undo/Redo — moved to header for constant visibility */}
+            <UndoRedoButtons undo={undo} redo={redo} canUndo={canUndo} canRedo={canRedo} size="sm" />
+            <div className="w-px h-5 bg-base-300" />
             <HeaderButton onClick={() => setIsReaderMode(true)} title="Reader mode">
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
               <span className="hidden sm:inline">View</span>
@@ -160,12 +160,12 @@ export default function DesktopLayout({
         </div>
       </nav>
 
-      <ContextBar
-        layout={state.layout} cellImages={state.cellImages} selectedCell={safeSelectedCell} onSelectCell={setSelectedCell} platform={state.platform}
-        undo={undo} redo={redo} canUndo={canUndo} canRedo={canRedo}
-        pages={pages} activePage={state.activePage} onSetActivePage={setActivePage}
-        onAddPage={addPage} onDuplicatePage={duplicatePage} onRemovePage={removePage} onMovePage={movePage} getPageState={getPageState}
-      />
+      <ErrorBoundary title="Selection bar error" message="Failed to render selection controls.">
+        <ContextBar
+          layout={state.layout} cellImages={state.cellImages} selectedCell={safeSelectedCell} onSelectCell={setSelectedCell} platform={state.platform}
+          pages={pages} activePage={state.activePage} onSetActivePage={setActivePage} getPageState={getPageState}
+        />
+      </ErrorBoundary>
 
       {/* Desktop-only path: always >= 1024px, no responsive prefixes needed */}
       <div className="flex flex-row items-stretch">

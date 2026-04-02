@@ -1,7 +1,6 @@
 import { memo, useMemo } from 'react'
 import { getAspectRatio } from '../config/platforms'
 import { normalizeStructure } from '../utils/cellUtils'
-import ConfirmButton from './ConfirmButton'
 
 // Compact cell grid for global cell selection.
 // Requirement: Pre-compute cell mapping to avoid mutable cellIndex during render.
@@ -9,20 +8,21 @@ import ConfirmButton from './ConfirmButton'
 // Alternatives:
 //   - Mutable let cellIndex = 0 in render: Rejected — side effect during render,
 //     breaks under React strict mode double-rendering or concurrent features.
+// Requirement: Remove redundant normalizeStructure call — use memoized version only.
+// Previous code called normalizeStructure twice (once in render, once in useMemo).
 function CellGrid({ layout, cellImages = {}, selectedCell, onSelectCell, platform }) {
   const { type, structure } = layout
   const isFullbleed = type === 'fullbleed'
   const isRows = type === 'rows'
 
-  const normalizedStructure = normalizeStructure(type, structure)
-
   const aspectRatio = getAspectRatio(platform)
 
-  const sectionCellMap = useMemo(() => {
+  // Memoize both the normalized structure and the cell mapping in one pass.
+  const { normalizedStructure, sectionCellMap } = useMemo(() => {
+    const normalized = normalizeStructure(type, structure)
     const grouped = new Map()
     let idx = 0
-    const src = normalizeStructure(type, structure)
-    src.forEach((section, sectionIndex) => {
+    normalized.forEach((section, sectionIndex) => {
       const subdivisions = section.subdivisions || 1
       const subSizes = section.subSizes || Array(subdivisions).fill(100 / subdivisions)
       const cells = []
@@ -32,7 +32,7 @@ function CellGrid({ layout, cellImages = {}, selectedCell, onSelectCell, platfor
       }
       grouped.set(sectionIndex, cells)
     })
-    return grouped
+    return { normalizedStructure: normalized, sectionCellMap: grouped }
   }, [type, structure])
 
   return (
@@ -91,14 +91,23 @@ function CellGrid({ layout, cellImages = {}, selectedCell, onSelectCell, platfor
   )
 }
 
-// Compact page thumbnail for context bar
+// Validate hex color to prevent CSS injection via theme values.
+const HEX_COLOR_RE = /^#[0-9a-fA-F]{3,8}$/
+function safeColor(color, fallback = '#1a1a2e') {
+  return color && HEX_COLOR_RE.test(color) ? color : fallback
+}
+
+// Compact page thumbnail for context bar.
+// Touch targets: w-11 h-11 (44px) on mobile, w-8 h-8 on desktop.
 function PageDot({ pageState, isActive, onClick, index }) {
-  const bgColor = pageState?.theme?.primary || '#1a1a2e'
+  const bgColor = safeColor(pageState?.theme?.primary)
 
   return (
     <button
       onClick={onClick}
-      className={`relative shrink-0 w-10 h-10 sm:w-8 sm:h-8 rounded-md overflow-hidden border-2 transition-all hover:scale-110 active:scale-95 ${
+      aria-label={`Switch to page ${index + 1}`}
+      aria-current={isActive ? 'page' : undefined}
+      className={`relative shrink-0 w-11 h-11 sm:w-8 sm:h-8 rounded-md overflow-hidden border-2 transition-all hover:scale-110 active:scale-95 ${
         isActive
           ? 'border-primary ring-1 ring-primary/30'
           : 'border-base-300 hover:border-base-300'
@@ -139,6 +148,12 @@ const PageDots = memo(function PageDots({ pages, activePage, getPageState, onSet
   )
 })
 
+// Requirement: Consolidated single-row bar for page selection + cell selection.
+// Approach: Page dots and cell grid sit side by side in one compact row.
+//   Undo/redo moved to header. Page management (add/delete/reorder) moved to Structure tab.
+// Alternatives:
+//   - Separate page and cell rows: Rejected — wasted vertical space, especially on mobile.
+//   - Keep page actions inline: Rejected — cluttered the bar, actions belong in Structure tab.
 export default memo(function ContextBar({
   // Cell
   layout,
@@ -146,250 +161,55 @@ export default memo(function ContextBar({
   selectedCell,
   onSelectCell,
   platform,
-  // Undo/Redo
-  undo,
-  redo,
-  canUndo,
-  canRedo,
-  // Pages
+  // Pages (selection only — management moved to Structure tab)
   pages = [null],
   activePage = 0,
   onSetActivePage,
-  onAddPage,
-  onDuplicatePage,
-  onRemovePage,
-  onMovePage,
   getPageState,
 }) {
-  const pageCount = pages.length
-  const hasMultiplePages = pageCount > 1
+  const hasMultiplePages = (pages?.length || 1) > 1
 
   const totalCells = useMemo(() => {
     const structure = layout.structure || [{ size: 100, subdivisions: 1, subSizes: [100] }]
     return structure.reduce((total, section) => total + (section.subdivisions || 1), 0)
   }, [layout.structure])
 
-  const hasUndoRedo = canUndo || canRedo
-
-  // Requirement: Collapse to single row on mobile when only 1 page to save vertical space.
-  // Approach: Pages row only renders on mobile when hasMultiplePages; single-page shows
-  //   cell grid + add page + undo/redo in one row. Undo/redo hidden when both disabled.
-  // Alternatives:
-  //   - Always show two rows: Rejected — wastes ~40px on mobile for the most common case (1 page)
-  //   - Hide undo/redo entirely: Rejected — they should appear once user makes changes
   return (
     <div className="bg-base-100/90 backdrop-blur-sm border-b border-base-300/60 px-3 sm:px-4 py-1.5 sticky z-20" style={{ top: 'var(--tab-nav-height, 41px)' }}>
-      {/* Desktop: single row always. Mobile: one row (1 page) or two rows (multi-page) */}
-      <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-3">
-        {/* Pages row — hidden on mobile when single page, always shown on desktop */}
+      <div className="flex items-center gap-2 sm:gap-3">
+        {/* Page selector — only shown when multiple pages exist */}
         {hasMultiplePages && (
-          <div className="flex items-center gap-1.5 sm:hidden min-w-0">
-            {/* Page thumbnails - scrollable */}
-            <div className="flex-1 min-w-0 overflow-x-auto scrollbar-thin">
-              <PageDots
-                pages={pages}
-                activePage={activePage}
-                getPageState={getPageState}
-                onSetActivePage={onSetActivePage}
-              />
+          <>
+            <div className="flex items-center gap-1.5 min-w-0">
+              <span className="text-[10px] text-base-content/50 uppercase tracking-wide shrink-0 hidden sm:inline">Page</span>
+              <div className="overflow-x-auto scrollbar-thin">
+                <PageDots
+                  pages={pages}
+                  activePage={activePage}
+                  getPageState={getPageState}
+                  onSetActivePage={onSetActivePage}
+                />
+              </div>
             </div>
-
-            {/* Page actions — 44px touch targets for mobile (this block is sm:hidden) */}
-            <div className="flex items-center gap-0.5 shrink-0">
-              <button
-                onClick={() => onMovePage(activePage, activePage - 1)}
-                disabled={activePage === 0}
-                title="Move page left"
-                className="w-11 h-11 rounded flex items-center justify-center text-base-content/60 hover:bg-base-300 active:bg-base-200 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                </svg>
-              </button>
-              <button
-                onClick={() => onMovePage(activePage, activePage + 1)}
-                disabled={activePage === pageCount - 1}
-                title="Move page right"
-                className="w-11 h-11 rounded flex items-center justify-center text-base-content/60 hover:bg-base-300 active:bg-base-200 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </button>
-              <button
-                onClick={onDuplicatePage}
-                title="Duplicate page"
-                className="w-11 h-11 rounded flex items-center justify-center text-base-content/60 hover:bg-base-300 active:bg-base-200 transition-colors"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                </svg>
-              </button>
-              <button
-                onClick={onAddPage}
-                title="Add new page"
-                className="w-11 h-11 rounded flex items-center justify-center text-primary hover:bg-primary/10 active:bg-primary/20 transition-colors"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                </svg>
-              </button>
-              <ConfirmButton
-                onConfirm={() => onRemovePage(activePage)}
-                confirmLabel={`Delete page ${activePage + 1}?`}
-                disabled={pageCount <= 1}
-                title="Remove current page"
-                className="w-11 h-11 rounded flex items-center justify-center text-error hover:bg-error/10 active:bg-error/20 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                </svg>
-              </ConfirmButton>
-            </div>
-          </div>
+            <div className="w-px h-6 bg-base-300 shrink-0" />
+          </>
         )}
 
-        {/* Desktop pages row (always visible on desktop) */}
-        <div className="hidden sm:flex items-center gap-1.5 sm:flex-1 min-w-0">
-          <span className="text-[10px] text-base-content/50 uppercase tracking-wide shrink-0">Pages</span>
-
-          <div className="flex-1 min-w-0 overflow-x-auto scrollbar-thin">
-            <PageDots
-              pages={pages}
-              activePage={activePage}
-              getPageState={getPageState}
-              onSetActivePage={onSetActivePage}
-            />
-          </div>
-
-          <div className="flex items-center gap-0.5 shrink-0">
-            {hasMultiplePages && (
-              <>
-                <button
-                  onClick={() => onMovePage(activePage, activePage - 1)}
-                  disabled={activePage === 0}
-                  title="Move page left"
-                  className="w-7 h-7 rounded flex items-center justify-center text-base-content/60 hover:bg-base-300 active:bg-base-200 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-                >
-                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                  </svg>
-                </button>
-                <button
-                  onClick={() => onMovePage(activePage, activePage + 1)}
-                  disabled={activePage === pageCount - 1}
-                  title="Move page right"
-                  className="w-7 h-7 rounded flex items-center justify-center text-base-content/60 hover:bg-base-300 active:bg-base-200 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-                >
-                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
-                </button>
-              </>
-            )}
-            {hasMultiplePages && (
-              <button
-                onClick={onDuplicatePage}
-                title="Duplicate page"
-                className="w-7 h-7 rounded flex items-center justify-center text-base-content/60 hover:bg-base-300 active:bg-base-200 transition-colors"
-              >
-                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                </svg>
-              </button>
-            )}
-            <button
-              onClick={onAddPage}
-              title="Add new page"
-              className="w-7 h-7 rounded flex items-center justify-center text-primary hover:bg-primary/10 active:bg-primary/20 transition-colors"
-            >
-              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-              </svg>
-            </button>
-            {hasMultiplePages && (
-              <ConfirmButton
-                onConfirm={() => onRemovePage(activePage)}
-                confirmLabel={`Delete page ${activePage + 1}?`}
-                disabled={pageCount <= 1}
-                title="Remove current page"
-                className="w-7 h-7 rounded flex items-center justify-center text-error hover:bg-error/10 active:bg-error/20 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-              >
-                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                </svg>
-              </ConfirmButton>
-            )}
-          </div>
-        </div>
-
-        {/* Divider - only on desktop */}
-        <div className="w-px h-6 bg-base-300 shrink-0 hidden sm:block" />
-
-        {/* Cell selector + add page (single page mobile) + undo/redo */}
-        <div className="flex items-center gap-2 sm:contents">
-          {/* Cell selector - miniature layout grid */}
-          <div className="flex items-center gap-1.5 flex-1 min-w-0 sm:justify-center">
-            <span className="text-[10px] text-base-content/50 uppercase tracking-wide hidden sm:inline">Cell</span>
-            <CellGrid
-              layout={layout}
-              cellImages={cellImages}
-              selectedCell={selectedCell}
-              onSelectCell={onSelectCell}
-              platform={platform}
-            />
-            {totalCells > 1 && (
-              <span className="text-xs font-medium text-base-content/70">
-                {selectedCell + 1}
-              </span>
-            )}
-          </div>
-
-          {/* Add page button — only on mobile single-page (multi-page has it in the pages row above) */}
-          {!hasMultiplePages && (
-            <button
-              onClick={onAddPage}
-              title="Add new page"
-              className="w-11 h-11 sm:hidden rounded flex items-center justify-center text-primary hover:bg-primary/10 active:bg-primary/20 transition-colors shrink-0"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-              </svg>
-            </button>
+        {/* Cell selector */}
+        <div className="flex items-center gap-1.5 min-w-0">
+          <span className="text-[10px] text-base-content/50 uppercase tracking-wide shrink-0 hidden sm:inline">Cell</span>
+          <CellGrid
+            layout={layout}
+            cellImages={cellImages}
+            selectedCell={selectedCell}
+            onSelectCell={onSelectCell}
+            platform={platform}
+          />
+          {totalCells > 1 && (
+            <span className="text-xs font-medium text-base-content/70">
+              {selectedCell + 1}
+            </span>
           )}
-
-          {/* Divider — hidden on mobile when undo/redo is hidden */}
-          <div className={`w-px h-6 bg-base-300 shrink-0 ${!hasUndoRedo ? 'hidden sm:block' : ''}`} />
-
-          {/* Undo/Redo — hidden on mobile when both disabled, always shown on desktop */}
-          <div className={`flex items-center gap-1 sm:gap-0.5 sm:flex-1 sm:min-w-0 sm:justify-end shrink-0 ${!hasUndoRedo ? 'hidden sm:flex' : ''}`}>
-            <button
-              onClick={undo}
-              disabled={!canUndo}
-              title="Undo (Ctrl+Z)"
-              aria-label="Undo"
-              className={`p-2.5 sm:p-1.5 rounded-lg transition-all ${
-                canUndo
-                  ? 'text-base-content hover:bg-base-200 active:scale-95'
-                  : 'text-base-content/30 cursor-not-allowed'
-              }`}
-            >
-              <span className="text-base sm:text-sm">&#x21B6;</span>
-            </button>
-            <button
-              onClick={redo}
-              disabled={!canRedo}
-              title="Redo (Ctrl+Y)"
-              aria-label="Redo"
-              className={`p-2.5 sm:p-1.5 rounded-lg transition-all ${
-                canRedo
-                  ? 'text-base-content hover:bg-base-200 active:scale-95'
-                  : 'text-base-content/30 cursor-not-allowed'
-              }`}
-            >
-              <span className="text-base sm:text-sm">&#x21B7;</span>
-            </button>
-          </div>
         </div>
       </div>
     </div>
