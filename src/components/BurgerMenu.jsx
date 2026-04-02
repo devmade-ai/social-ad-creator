@@ -13,6 +13,7 @@
 import { useRef, useEffect, useId } from 'react'
 import { debugLog } from '../utils/debugLog'
 import { useDisclosureFocus } from '../hooks/useDisclosureFocus'
+import { useFocusTrap } from '../hooks/useFocusTrap'
 
 export default function BurgerMenu({ items, open, onToggle, onClose, children }) {
   const menuId = useId()
@@ -29,6 +30,11 @@ export default function BurgerMenu({ items, open, onToggle, onClose, children })
   }, [open])
 
   useDisclosureFocus(open, { triggerRef, contentRef: menuRef, selector: 'button, a' })
+
+  // Trap focus inside menu when open — Tab/Shift+Tab cycles within menu items.
+  // Requirement: Keyboard users should not be able to Tab to background elements
+  //   while the menu is open. Matches modal focus trap pattern (SaveLoadModal, etc.).
+  useFocusTrap(menuRef, open)
 
   // Keyboard navigation: Escape closes, Arrow keys move through items.
   // Matches ThemeSelector keyboard pattern for consistent disclosure UX.

@@ -407,7 +407,7 @@ Run these tests after making changes to ensure nothing is broken.
 | 2 | Click "Download as PDF" | Export buttons | PDF file downloads |
 | 3 | Open the PDF | File system | Image is sharp, text readable, correct dimensions |
 | 4 | Check file size | File system | Reasonable size (not bloated — should be under 1MB for simple designs) |
-| 5 | Add a second page | Context Bar → Pages | 2 pages exist |
+| 5 | Add a second page | Structure tab → Pages | 2 pages exist |
 | 6 | Click "Download as PDF" | Export buttons | PDF has 2 pages |
 
 ### E6: Platform Search Filter

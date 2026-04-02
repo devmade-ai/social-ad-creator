@@ -8,20 +8,21 @@ import { normalizeStructure } from '../utils/cellUtils'
 // Alternatives:
 //   - Mutable let cellIndex = 0 in render: Rejected — side effect during render,
 //     breaks under React strict mode double-rendering or concurrent features.
+// Requirement: Remove redundant normalizeStructure call — use memoized version only.
+// Previous code called normalizeStructure twice (once in render, once in useMemo).
 function CellGrid({ layout, cellImages = {}, selectedCell, onSelectCell, platform }) {
   const { type, structure } = layout
   const isFullbleed = type === 'fullbleed'
   const isRows = type === 'rows'
 
-  const normalizedStructure = normalizeStructure(type, structure)
-
   const aspectRatio = getAspectRatio(platform)
 
-  const sectionCellMap = useMemo(() => {
+  // Memoize both the normalized structure and the cell mapping in one pass.
+  const { normalizedStructure, sectionCellMap } = useMemo(() => {
+    const normalized = normalizeStructure(type, structure)
     const grouped = new Map()
     let idx = 0
-    const src = normalizeStructure(type, structure)
-    src.forEach((section, sectionIndex) => {
+    normalized.forEach((section, sectionIndex) => {
       const subdivisions = section.subdivisions || 1
       const subSizes = section.subSizes || Array(subdivisions).fill(100 / subdivisions)
       const cells = []
@@ -31,7 +32,7 @@ function CellGrid({ layout, cellImages = {}, selectedCell, onSelectCell, platfor
       }
       grouped.set(sectionIndex, cells)
     })
-    return grouped
+    return { normalizedStructure: normalized, sectionCellMap: grouped }
   }, [type, structure])
 
   return (
@@ -90,14 +91,23 @@ function CellGrid({ layout, cellImages = {}, selectedCell, onSelectCell, platfor
   )
 }
 
-// Compact page thumbnail for context bar
+// Validate hex color to prevent CSS injection via theme values.
+const HEX_COLOR_RE = /^#[0-9a-fA-F]{3,8}$/
+function safeColor(color, fallback = '#1a1a2e') {
+  return color && HEX_COLOR_RE.test(color) ? color : fallback
+}
+
+// Compact page thumbnail for context bar.
+// Touch targets: w-11 h-11 (44px) on mobile, w-8 h-8 on desktop.
 function PageDot({ pageState, isActive, onClick, index }) {
-  const bgColor = pageState?.theme?.primary || '#1a1a2e'
+  const bgColor = safeColor(pageState?.theme?.primary)
 
   return (
     <button
       onClick={onClick}
-      className={`relative shrink-0 w-10 h-10 sm:w-8 sm:h-8 rounded-md overflow-hidden border-2 transition-all hover:scale-110 active:scale-95 ${
+      aria-label={`Switch to page ${index + 1}`}
+      aria-current={isActive ? 'page' : undefined}
+      className={`relative shrink-0 w-11 h-11 sm:w-8 sm:h-8 rounded-md overflow-hidden border-2 transition-all hover:scale-110 active:scale-95 ${
         isActive
           ? 'border-primary ring-1 ring-primary/30'
           : 'border-base-300 hover:border-base-300'

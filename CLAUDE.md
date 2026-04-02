@@ -478,7 +478,7 @@ Tab descriptions (workflow-based organization):
 - **Presets** - Start here: Platform selection (canvas size), layout presets (with aspect ratio filtering), color themes, and visual looks
 - **Media** - Sample images, upload images to library, assign to cells, per-image overlay & filters, logo
 - **Content** - Write text, set visibility, cell assignment, alignment, color, size
-- **Structure** - Fine-tune grid structure (section sizes, subdivisions, reorder)
+- **Structure** - Fine-tune grid structure (section sizes, subdivisions, reorder) and manage pages (add, duplicate, reorder, delete)
 - **Style** - Typography, per-cell overlay, spacing, frames
 
 ## Tech Stack
@@ -535,8 +535,9 @@ src/
 │   ├── KeyboardShortcutsOverlay.jsx # Keyboard shortcuts modal
 │   ├── EmptyStateGuide.jsx    # Empty canvas guidance (below canvas on mobile, overlay on desktop)
 │   ├── QuickActionsBar.jsx    # Cell quick-action shortcuts (Image, Text, Style)
-│   ├── BurgerMenu.jsx         # Disclosure-pattern dropdown menu (WAI-ARIA, children slot for theme section)
-│   ├── BottomSheet.jsx        # Touch-draggable bottom sheet for mobile tab content (3 snap points)
+│   ├── UndoRedoButtons.jsx    # Shared undo/redo buttons (used in both mobile + desktop headers)
+│   ├── BurgerMenu.jsx         # Disclosure-pattern dropdown menu (WAI-ARIA, focus trap, children slot for theme section)
+│   ├── BottomSheet.jsx        # Touch-draggable bottom sheet for mobile tab content (3 snap points, reduced-motion support)
 │   ├── MobileNav.jsx          # Fixed bottom navigation bar for mobile (6 tabs incl. Export)
 │   ├── ReaderMode.jsx         # Full-screen reader view with page navigation
 │   ├── MobileLayout.jsx       # Mobile-specific layout container (header, canvas, sheet, nav)

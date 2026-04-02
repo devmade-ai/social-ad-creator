@@ -12,6 +12,7 @@ import EmptyStateGuide from './EmptyStateGuide'
 import BottomSheet from './BottomSheet'
 import MobileNav from './MobileNav'
 import BurgerMenu from './BurgerMenu'
+import UndoRedoButtons from './UndoRedoButtons'
 import ThemeList from './ThemeList'
 import { lightThemes, darkThemes } from '../config/daisyuiThemes'
 import { ICON_HELP, ICON_INSTALL, ICON_UPDATE, ICON_REFRESH, ICON_READER, ICON_SAVE, ICON_KEYBOARD } from '../config/menuIcons'
@@ -169,34 +170,7 @@ export default function MobileLayout({
             <span className="px-1 py-0.5 text-[8px] font-semibold uppercase tracking-wide bg-warning/10 text-warning rounded">Preview</span>
           </div>
           {/* Undo/Redo — moved to header for constant visibility */}
-          <div className="flex items-center gap-0.5">
-            <button
-              onClick={undo}
-              disabled={!canUndo}
-              title="Undo"
-              aria-label="Undo"
-              className={`p-2 rounded-lg transition-all ${
-                canUndo
-                  ? 'text-base-content hover:bg-base-200 active:scale-95'
-                  : 'text-base-content/20 cursor-not-allowed'
-              }`}
-            >
-              <span className="text-base">&#x21B6;</span>
-            </button>
-            <button
-              onClick={redo}
-              disabled={!canRedo}
-              title="Redo"
-              aria-label="Redo"
-              className={`p-2 rounded-lg transition-all ${
-                canRedo
-                  ? 'text-base-content hover:bg-base-200 active:scale-95'
-                  : 'text-base-content/20 cursor-not-allowed'
-              }`}
-            >
-              <span className="text-base">&#x21B7;</span>
-            </button>
-          </div>
+          <UndoRedoButtons undo={undo} redo={redo} canUndo={canUndo} canRedo={canRedo} size="md" />
           <BurgerMenu
             open={showMobileMenu}
             onToggle={() => { const opening = !showMobileMenu; setShowMobileMenu(opening); if (opening) closeMobileSheet() }}
@@ -232,10 +206,12 @@ export default function MobileLayout({
 
       {/* Compact context bar — hidden when bottom sheet is open to maximize canvas space */}
       {!mobileSheetOpen && (
-        <ContextBar
-          layout={state.layout} cellImages={state.cellImages} selectedCell={safeSelectedCell} onSelectCell={setSelectedCell} platform={state.platform}
-          pages={pages} activePage={state.activePage} onSetActivePage={setActivePage} getPageState={getPageState}
-        />
+        <ErrorBoundary title="Selection bar error" message="Failed to render selection controls.">
+          <ContextBar
+            layout={state.layout} cellImages={state.cellImages} selectedCell={safeSelectedCell} onSelectCell={setSelectedCell} platform={state.platform}
+            pages={pages} activePage={state.activePage} onSetActivePage={setActivePage} getPageState={getPageState}
+          />
+        </ErrorBoundary>
       )}
 
       {/* Canvas — fills remaining space, edge-to-edge */}

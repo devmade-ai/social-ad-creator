@@ -31,6 +31,7 @@ import { useOnlineStatus } from './hooks/useOnlineStatus'
 import { platforms, findPlatformGroup } from './config/platforms'
 import { fonts } from './config/fonts'
 import { normalizeStructure } from './utils/cellUtils'
+import { debugLog } from './utils/debugLog'
 
 // Swipe threshold for page navigation on mobile (px)
 const SWIPE_THRESHOLD = 50
@@ -200,7 +201,7 @@ function App() {
     applyStylePreset, applyLayoutPreset,
     undo, redo, canUndo, canRedo,
     saveDesign, loadDesign, getSavedDesigns, deleteDesign,
-    setActivePage, addPage, duplicatePage, removePage, movePage, getPageCount, getPageState,
+    setActivePage, addPage, duplicatePage, removePage, movePage, getPageState,
     setTextMode, addFreeformBlock, updateFreeformBlock, removeFreeformBlock, moveFreeformBlock,
   } = useAdState()
 
@@ -257,6 +258,7 @@ function App() {
   const closeMobileSheet = useCallback(() => {
     setMobileSheetOpen(false)
     setSheetSnap(0)
+    debugLog('ui', 'sheet-close', null, 'debug')
   }, [])
 
   // Long-press on canvas cell → show context menu (mobile only)
@@ -274,6 +276,7 @@ function App() {
     if (tabId === activeSection && mobileSheetOpen) {
       closeMobileSheet()
     } else {
+      debugLog('ui', 'tab-change', { from: activeSection, to: tabId }, 'debug')
       setActiveSection(tabId)
       setMobileSheetOpen(true)
       // BottomSheet auto-open effect handles snap=0 → SNAP_HALF
@@ -297,8 +300,8 @@ function App() {
       e.preventDefault()
       // Read from ref to avoid stale closure on rapid successive swipes
       const { activePage, pageCount: pc, setActivePage: goTo } = keyboardRef.current
-      if (dx > 0 && activePage > 0) goTo(activePage - 1)
-      else if (dx < 0 && activePage < pc - 1) goTo(activePage + 1)
+      if (dx > 0 && activePage > 0) { debugLog('ui', 'page-navigate', { to: activePage - 1, source: 'swipe' }, 'debug'); goTo(activePage - 1) }
+      else if (dx < 0 && activePage < pc - 1) { debugLog('ui', 'page-navigate', { to: activePage + 1, source: 'swipe' }, 'debug'); goTo(activePage + 1) }
     }
   }, [])
 
@@ -319,6 +322,7 @@ function App() {
       if (!e.ctrlKey && !e.metaKey && !e.altKey) {
         const tabMap = { '1': 'templates', '2': 'media', '3': 'content', '4': 'layout', '5': 'style' }
         if (tabMap[e.key]) {
+          debugLog('ui', 'tab-change', { to: tabMap[e.key], source: 'keyboard' }, 'debug')
           setActiveSection(tabMap[e.key])
           if (isMobile) setMobileSheetOpen(true)
         }
@@ -328,8 +332,8 @@ function App() {
       if (e.key === 'Escape' && showMobileMenu) { e.preventDefault(); setShowMobileMenu(false); return }
 
       if (isReaderMode) {
-        if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); if (activePage > 0) setActivePage(activePage - 1) }
-        if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { e.preventDefault(); if (activePage < pageCount - 1) setActivePage(activePage + 1) }
+        if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); if (activePage > 0) { debugLog('ui', 'page-navigate', { to: activePage - 1, source: 'keyboard' }, 'debug'); setActivePage(activePage - 1) } }
+        if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { e.preventDefault(); if (activePage < pageCount - 1) { debugLog('ui', 'page-navigate', { to: activePage + 1, source: 'keyboard' }, 'debug'); setActivePage(activePage + 1) } }
         if (e.key === 'Escape') { e.preventDefault(); setIsReaderMode(false) }
       }
     }
@@ -545,6 +549,8 @@ function App() {
       addImage, removeImage, updateImage, updateImageFilters, updateImagePosition, updateImageOverlay, setCellImage,
       setLogo, setLogoPosition, setLogoSize, setText, setLayout, setFonts, setPadding, setFrame,
       setTextMode, addFreeformBlock, updateFreeformBlock, removeFreeformBlock, moveFreeformBlock, setSelectedCell, loadAllFonts,
+      // Platform conditional (isMobile determines whether TemplatesTab gets platform change handler)
+      isMobile, setPlatform, imageAspectRatio,
       // Page management (for LayoutTab)
       pages, setActivePage, addPage, duplicatePage, removePage, movePage, getPageState])
 
