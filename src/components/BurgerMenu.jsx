@@ -4,40 +4,50 @@
 //   (File/Edit/View). Screen readers enter forms mode, suppress normal nav keys,
 //   and expect arrow-key navigation. A burger nav is a disclosure — a list of
 //   actions revealed by a toggle.
+// Ref: glow-props burger menu implementation — same disclosure pattern, same z-index
+//   scale, same focus management. Adapted from vanilla JS to React.
 // Alternatives:
 //   - role="menu" pattern: Rejected — wrong ARIA semantics for navigation
 //   - Slide-out drawer: Rejected — needs animation lib, fights with bottom nav
 //   - Headless UI Disclosure: Viable — adds dependency for a single component
-import { useState, useRef, useCallback, useEffect, useId } from 'react'
+import { useRef, useEffect, useId } from 'react'
+import { debugLog } from '../utils/debugLog'
+import { useDisclosureFocus } from '../hooks/useDisclosureFocus'
 
-export default function BurgerMenu({ items, open, onToggle, onClose }) {
+export default function BurgerMenu({ items, open, onToggle, onClose, children }) {
   const menuId = useId()
   const triggerRef = useRef(null)
   const menuRef = useRef(null)
-  const hasBeenOpenRef = useRef(false)
+  const hasLoggedRef = useRef(false)
 
   const visibleItems = items.filter((item) => item.visible !== false)
 
-  // Focus management: focus first item on open, return to trigger on close.
-  // hasBeenOpenRef prevents stealing focus on initial mount (open starts false).
+  // Log menu state transitions for debug pill visibility.
   useEffect(() => {
-    if (open) {
-      hasBeenOpenRef.current = true
-      const rafId = requestAnimationFrame(() => {
-        const firstItem = menuRef.current?.querySelector('button')
-        firstItem?.focus()
-      })
-      return () => cancelAnimationFrame(rafId)
-    } else if (hasBeenOpenRef.current) {
-      triggerRef.current?.focus()
-    }
+    if (open) { hasLoggedRef.current = true; debugLog('burger-menu', 'opened') }
+    else if (hasLoggedRef.current) debugLog('burger-menu', 'closed')
   }, [open])
 
-  // Escape key closes menu
+  useDisclosureFocus(open, { triggerRef, contentRef: menuRef, selector: 'button, a' })
+
+  // Keyboard navigation: Escape closes, Arrow keys move through items.
+  // Matches ThemeSelector keyboard pattern for consistent disclosure UX.
   useEffect(() => {
     if (!open) return
     const handleKeyDown = (e) => {
-      if (e.key === 'Escape') { e.preventDefault(); onClose() }
+      if (e.key === 'Escape') { e.preventDefault(); onClose(); return }
+      if (e.key === 'ArrowDown' || e.key === 'ArrowUp' || e.key === 'Home' || e.key === 'End') {
+        e.preventDefault()
+        const buttons = Array.from(menuRef.current?.querySelectorAll('button') || [])
+        if (buttons.length === 0) return
+        const currentIndex = buttons.indexOf(document.activeElement)
+        let nextIndex
+        if (e.key === 'ArrowDown') nextIndex = currentIndex < buttons.length - 1 ? currentIndex + 1 : 0
+        else if (e.key === 'ArrowUp') nextIndex = currentIndex > 0 ? currentIndex - 1 : buttons.length - 1
+        else if (e.key === 'Home') nextIndex = 0
+        else if (e.key === 'End') nextIndex = buttons.length - 1
+        buttons[nextIndex]?.focus()
+      }
     }
     document.addEventListener('keydown', handleKeyDown)
     return () => document.removeEventListener('keydown', handleKeyDown)
@@ -76,27 +86,25 @@ export default function BurgerMenu({ items, open, onToggle, onClose }) {
             aria-label="More options"
             className="absolute right-3 top-full mt-1 z-50
                        bg-base-100 rounded-xl shadow-lg
-                       border border-base-300 py-1 min-w-[180px]
-                       max-w-[calc(100vw-2rem)] overflow-hidden overscroll-contain"
+                       border border-base-300 py-1 min-w-[200px]
+                       max-w-[calc(100vw-2rem)] max-h-[calc(100dvh-4rem)]
+                       overflow-y-auto overscroll-contain"
           >
             <ul className="list-none m-0 p-0">
-              {visibleItems.map((item) => (
-                <li key={item.label}>
+              {visibleItems.map((item, i) => (
+                <li key={item.label || `sep-${i}`}>
                   <button
                     type="button"
                     onClick={() => {
-                      // Close menu first regardless of whether action succeeds.
-                      // If item.action() throws, the menu must still close —
-                      // otherwise the user is stuck with an open menu and no
-                      // way to recover except tapping the backdrop.
                       try { item.action() } catch (e) { console.error('Menu action failed:', e) }
                       onClose()
                     }}
                     className={`w-full flex items-center gap-3 px-4 py-3 text-sm transition-colors
                       outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset
+                      min-h-11
                       ${item.highlight
                         ? `${item.highlightColor || 'text-primary'} hover:bg-primary/5`
-                        : 'text-base-content hover:bg-base-300'
+                        : 'text-base-content hover:bg-base-200'
                       }`}
                   >
                     <svg className="w-4 h-4 shrink-0" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -107,6 +115,7 @@ export default function BurgerMenu({ items, open, onToggle, onClose }) {
                 </li>
               ))}
             </ul>
+            {children}
           </nav>
         </>
       )}

@@ -297,7 +297,7 @@ These footers are required on every commit. No exceptions.
 - **Mobile breakpoint:** `useIsMobile` hook uses `matchMedia('(max-width: 1023px)')` — matches Tailwind `lg` breakpoint. App.jsx conditionally renders entirely different layouts for mobile vs desktop. When modifying layout/UI in App.jsx, always check both code paths.
 - **BottomSheet snap points:** closed (0), half (50vh), full (85vh). Uses `transform: translateY()` for GPU-composited animation (no layout reflow). During drag, DOM updated directly via refs — React state only updates on snap (touchend). Sheet state resets when switching tabs. Props: `snapPoint`/`onSnapChange` (discrete snap values, not continuous height).
 - **Z-index scale:** Canvas internals 0-10, sticky headers 20, sheets/drawers 30, mobile nav 40, menu backdrop 40, menu dropdown 50, modals 60, toasts/tooltips 70, debug 80. All values use Tailwind arbitrary syntax `z-[60]` for non-standard tiers. DebugPill uses inline `zIndex: 80`.
-- **Burger menu:** `BurgerMenu.jsx` uses WAI-ARIA disclosure pattern (not `role="menu"`). Has `cursor-pointer` on backdrop (iOS Safari fix), `hasBeenOpenRef` focus guard, `overscroll-contain`, `useId()` for `aria-controls`, Escape key handler. State managed in App.jsx, rendered in MobileLayout.
+- **Burger menu:** `BurgerMenu.jsx` uses WAI-ARIA disclosure pattern (not `role="menu"`). Has `cursor-pointer` on backdrop (iOS Safari fix), `hasBeenOpenRef` focus guard, `overscroll-contain`, `useId()` for `aria-controls`, Escape key handler, `max-h-[calc(100dvh-4rem)] overflow-y-auto` for short viewports. State managed in App.jsx, rendered in MobileLayout. Accepts `children` prop for the theme section (`MenuThemeSection` in MobileLayout) — dark/light toggle as plain text button + always-visible scrollable theme list with checkmark indicators. Matches glow-props burger menu pattern. Menu stays open on toggle and theme selection (children don't call `onClose`).
 - **Sister project reference:** `devmade-ai/glow-props` shares the same CLAUDE.md scaffolding (process, principles, standards). Its `Suggested Implementations` section documents PWA patterns, debug system, and icon generation that were adopted here. Check it for future cross-pollination: `https://github.com/devmade-ai/glow-props/blob/main/CLAUDE.md`
 
 ### REMINDER: READ AND FOLLOW THE FUCKING AI NOTES EVERY TIME
@@ -409,7 +409,9 @@ Core features working:
 - Per-cell structured text (guided mode):
   - Each cell has its own text elements: title, tagline, bodyHeading, bodyText, cta, footnote
   - Text elements organized in groups: Title+Tagline, Body, CTA, Footnote
-- Theme system with 19 color themes (each with light and dark variants) and custom colors
+- Theme system with 19 canvas design themes (each with light and dark variants) and custom colors
+  - Canvas design themes (themes.js): 19 presets for content styling — applied via inline styles
+  - App UI themes (daisyuiThemes.js): 16 DaisyUI themes (8 light + 8 dark) — controls app chrome
 - Overlay system with 26 effects:
   - Basic: Solid color
   - Linear gradients: 8 directions (↑↓←→ and diagonals)
@@ -462,7 +464,7 @@ Sidebar (tab content) | Main (platform selector + canvas + export)
 Fixed viewport with edge-to-edge canvas. Tab content lives in a touch-draggable BottomSheet with three snap points (closed/half/full). Navigation via fixed MobileNav bar at bottom.
 
 ```
-Compact Header (ThemeSelector + hamburger overflow menu: Save, View, Install, Help, Shortcuts)
+Compact Header (grid icon + app name [gradient] + burger menu: Help, Install, Update, Refresh, Reader, Save, Shortcuts + dark/light toggle + theme list)
 Platform Info Strip (current format name + dimensions)
 Canvas (edge-to-edge, swipe left/right for page navigation)
 ContextBar (cell grid + page thumbnails + undo/redo)
@@ -524,7 +526,8 @@ src/
 │   ├── AlignmentPicker.jsx    # Reusable alignment button group
 │   ├── ColorPicker.jsx        # Theme-aware color picker for text elements
 │   ├── ThemeColorPicker.jsx   # Theme color swatch picker (primary/secondary/accent/neutrals)
-│   ├── ThemeSelector.jsx      # DaisyUI theme picker (per-mode light/dark theme selection)
+│   ├── ThemeSelector.jsx      # DaisyUI theme picker for desktop/reader (disclosure dropdown)
+│   ├── ThemeList.jsx          # Shared theme list UI (checkmark + name + description)
 │   ├── MiniCellGrid.jsx       # Compact cell grid for ContextBar
 │   ├── Toast.jsx              # Toast notification system (ToastProvider + useToast hook)
 │   ├── ConfirmButton.jsx      # Inline confirmation replacing browser confirm()
@@ -532,7 +535,7 @@ src/
 │   ├── KeyboardShortcutsOverlay.jsx # Keyboard shortcuts modal
 │   ├── EmptyStateGuide.jsx    # Empty canvas guidance (below canvas on mobile, overlay on desktop)
 │   ├── QuickActionsBar.jsx    # Cell quick-action shortcuts (Image, Text, Style)
-│   ├── BurgerMenu.jsx         # Disclosure-pattern dropdown menu (WAI-ARIA, iOS Safari fixes)
+│   ├── BurgerMenu.jsx         # Disclosure-pattern dropdown menu (WAI-ARIA, children slot for theme section)
 │   ├── BottomSheet.jsx        # Touch-draggable bottom sheet for mobile tab content (3 snap points)
 │   ├── MobileNav.jsx          # Fixed bottom navigation bar for mobile (6 tabs incl. Export)
 │   ├── ReaderMode.jsx         # Full-screen reader view with page navigation
@@ -549,6 +552,7 @@ src/
 │   ├── fonts.ts          # 24 Google Fonts (FontEntry interface)
 │   ├── textDefaults.ts   # Default text layer state (TextLayer, FreeformBlock interfaces)
 │   ├── daisyuiThemes.js  # DaisyUI theme catalog (8 light + 8 dark, meta colors, defaults)
+│   ├── menuIcons.js      # SVG path constants for burger menu and desktop header icons
 │   └── alignment.jsx     # Alignment icon components and option arrays
 ├── hooks/
 │   ├── useAdState.js     # Central state (multi-page, per-cell text, freeformText, layout)
@@ -558,7 +562,8 @@ src/
 │   ├── useFocusTrap.js   # Focus trap for modals (Tab/Shift+Tab boundary wrapping)
 │   ├── useIsMobile.js    # matchMedia hook: viewport < 1024px (Tailwind lg breakpoint)
 │   ├── usePWAInstall.js  # PWA install prompt state
-│   └── usePWAUpdate.js   # PWA update detection state
+│   ├── usePWAUpdate.js   # PWA update detection state
+│   └── useDisclosureFocus.js # Shared focus management for disclosure-pattern components
 ├── utils/
 │   ├── cellUtils.js      # Cell counting, shifting, swapping, cleanup utilities
 │   ├── designStorage.js  # IndexedDB wrapper for design persistence
