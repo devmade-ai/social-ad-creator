@@ -140,7 +140,7 @@ export default function SampleImagesSection({ images, onAddImage, selectedCell, 
         <p className="text-xs text-error">{manifestError}</p>
         <button
           onClick={loadManifest}
-          className="px-3 py-1 text-xs rounded-lg bg-base-200 hover:bg-base-300 text-base-content/70"
+          className="btn btn-ghost btn-xs"
         >
           Try again
         </button>
@@ -169,10 +169,8 @@ export default function SampleImagesSection({ images, onAddImage, selectedCell, 
           >
             <button
               onClick={() => handleCategoryChange('all')}
-              className={`px-2.5 py-1 text-xs rounded-lg font-medium whitespace-nowrap flex-shrink-0 ${
-                activeCategory === 'all'
-                  ? 'bg-primary text-primary-content shadow-sm'
-                  : 'bg-base-200 text-base-content/70 hover:bg-base-300'
+              className={`btn btn-xs whitespace-nowrap flex-shrink-0 ${
+                activeCategory === 'all' ? 'btn-primary' : 'btn-ghost'
               }`}
             >
               All
@@ -181,10 +179,8 @@ export default function SampleImagesSection({ images, onAddImage, selectedCell, 
               <button
                 key={cat.id}
                 onClick={() => handleCategoryChange(cat.id)}
-                className={`px-2.5 py-1 text-xs rounded-lg font-medium whitespace-nowrap flex-shrink-0 ${
-                  activeCategory === cat.id
-                    ? 'bg-primary text-primary-content shadow-sm'
-                    : 'bg-base-200 text-base-content/70 hover:bg-base-300'
+                className={`btn btn-xs whitespace-nowrap flex-shrink-0 ${
+                  activeCategory === cat.id ? 'btn-primary' : 'btn-ghost'
                 }`}
               >
                 {cat.name}
@@ -245,7 +241,7 @@ export default function SampleImagesSection({ images, onAddImage, selectedCell, 
           <button
             onClick={() => setPage((p) => Math.max(0, p - 1))}
             disabled={page === 0}
-            className="px-2 py-1 text-xs rounded-lg font-medium bg-base-200 text-base-content/70 hover:bg-base-300 disabled:opacity-30 disabled:pointer-events-none"
+            className="btn btn-ghost btn-xs"
           >
             Prev
           </button>
@@ -255,7 +251,7 @@ export default function SampleImagesSection({ images, onAddImage, selectedCell, 
           <button
             onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
             disabled={page >= totalPages - 1}
-            className="px-2 py-1 text-xs rounded-lg font-medium bg-base-200 text-base-content/70 hover:bg-base-300 disabled:opacity-30 disabled:pointer-events-none"
+            className="btn btn-ghost btn-xs"
           >
             Next
           </button>

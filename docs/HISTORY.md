@@ -2,6 +2,17 @@
 
 ## 2026-04-02
 
+### Migrate buttons to DaisyUI btn component
+
+- **150+ buttons** across 20+ components migrated from hand-rolled Tailwind to DaisyUI `btn` classes.
+- **Primary CTAs** → `btn btn-primary btn-sm` (SaveLoadModal, TutorialModal, InstallInstructionsModal, ErrorBoundary, EmptyStateGuide, ExportButtons)
+- **Ghost/secondary** → `btn btn-ghost btn-sm` (header buttons, undo/redo, quick actions, pagination)
+- **Toggle segments** → `btn btn-xs btn-primary/btn-ghost` conditional (TextStyleControls, AlignmentPicker, ExportButtons format/quality, TemplatesTab categories, SampleImages categories, LogoUploader position/size)
+- **Icon-only** → `btn btn-ghost btn-square btn-xs` (ContentTab visibility/style/delete, FreeformEditor style/delete, UndoRedoButtons)
+- **Destructive** → `btn btn-error btn-xs` (ConfirmButton, MediaTab delete, LogoUploader remove)
+- **LayoutTab** refactored from `btnBase` + manual classes to DaisyUI `btn btn-ghost btn-sm` constants
+- Bundle size decreased from 1308 KiB to 1302 KiB (verbose class strings → short DaisyUI classes)
+
 ### Fix invisible low-contrast tinted backgrounds on dark themes
 
 - **Root cause** — `bg-primary/10`, `bg-secondary/15`, `bg-error/10`, etc. (10-20% opacity tints) are invisible on dark themes where the base background is near-black. ~45 instances across 16 component files.

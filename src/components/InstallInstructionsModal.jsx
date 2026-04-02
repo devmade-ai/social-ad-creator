@@ -94,7 +94,7 @@ export default memo(function InstallInstructionsModal({ isOpen, onClose, instruc
         {/* Close button */}
         <button
           onClick={onClose}
-          className="mt-4 w-full py-2 px-4 bg-primary text-primary-content rounded-lg font-medium hover:bg-primary/80 transition-colors"
+          className="btn btn-primary w-full mt-4"
         >
           Got it
         </button>

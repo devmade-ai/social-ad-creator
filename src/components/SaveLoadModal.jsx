@@ -160,7 +160,7 @@ export default function SaveLoadModal({ isOpen, onClose, onSave, onLoad, onDelet
               <button
                 onClick={handleSave}
                 disabled={loading}
-                className="w-full px-4 py-2.5 rounded-lg bg-primary text-primary-content font-medium hover:bg-primary/80 active:scale-[0.98] disabled:opacity-50 transition-all"
+                className="btn btn-primary w-full"
               >
                 {loading ? 'Saving...' : 'Save Design'}
               </button>

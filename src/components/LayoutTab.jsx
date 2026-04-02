@@ -23,16 +23,13 @@ const layoutTypes = [
   { id: 'columns', name: 'Cols', icon: '|||' },
 ]
 
-// Shared button style constants — uses bg-base-200/300 for guaranteed contrast
-// on all DaisyUI themes. Colored text provides semantic meaning without
-// relying on low-opacity tinted backgrounds that vanish on dark themes.
-const btnBase = 'px-3 py-2 text-sm rounded-lg font-medium'
-const btnAction = `${btnBase} bg-base-200 text-primary hover:bg-base-300`
-const btnSecondary = `${btnBase} bg-base-200 text-secondary hover:bg-base-300`
-const btnDisabled = `${btnBase} bg-base-200 text-base-content/30 cursor-not-allowed`
-const btnSecondaryDisabled = `${btnBase} bg-base-200 text-base-content/30 cursor-not-allowed`
-const btnDelete = `${btnBase} bg-base-200 text-error hover:bg-base-300`
-const btnSnap = `${btnBase} bg-base-200 text-success hover:bg-base-300`
+// Shared button style constants — DaisyUI btn-ghost with colored text for semantics
+const btnAction = 'btn btn-ghost btn-sm text-primary'
+const btnSecondary = 'btn btn-ghost btn-sm text-secondary'
+const btnDisabled = 'btn btn-ghost btn-sm btn-disabled text-base-content/30'
+const btnSecondaryDisabled = 'btn btn-ghost btn-sm btn-disabled text-base-content/30'
+const btnDelete = 'btn btn-ghost btn-sm text-error'
+const btnSnap = 'btn btn-ghost btn-sm text-success'
 
 export default memo(function LayoutTab({
   layout,
@@ -787,10 +784,10 @@ export default memo(function LayoutTab({
                   <button
                     onClick={() => swapCells(selectedSectionIndex, selectedSubIndex, selectedSubIndex - 1)}
                     disabled={selectedSubIndex === 0}
-                    className={`flex-1 ${btnBase} ${
+                    className={`flex-1 ${
                       selectedSubIndex === 0
-                        ? 'bg-base-200 text-base-content/30 cursor-not-allowed'
-                        : 'bg-base-200 text-secondary hover:bg-base-300'
+                        ? btnSecondaryDisabled
+                        : btnSecondary
                     }`}
                   >
                     {isRows ? 'Move Left' : 'Move Up'}
@@ -798,10 +795,10 @@ export default memo(function LayoutTab({
                   <button
                     onClick={() => swapCells(selectedSectionIndex, selectedSubIndex, selectedSubIndex + 1)}
                     disabled={selectedSubIndex === (selectedSection.subdivisions || 1) - 1}
-                    className={`flex-1 ${btnBase} ${
+                    className={`flex-1 ${
                       selectedSubIndex === (selectedSection.subdivisions || 1) - 1
-                        ? 'bg-base-200 text-base-content/30 cursor-not-allowed'
-                        : 'bg-base-200 text-secondary hover:bg-base-300'
+                        ? btnSecondaryDisabled
+                        : btnSecondary
                     }`}
                   >
                     {isRows ? 'Move Right' : 'Move Down'}
@@ -815,10 +812,10 @@ export default memo(function LayoutTab({
                   <button
                     onClick={() => moveCellToSection(selectedSectionIndex, selectedSubIndex, selectedSectionIndex - 1)}
                     disabled={!canMoveCellToSection(-1)}
-                    className={`flex-1 ${btnBase} ${
+                    className={`flex-1 ${
                       !canMoveCellToSection(-1)
-                        ? 'bg-base-200 text-base-content/30 cursor-not-allowed'
-                        : 'bg-base-200 text-secondary hover:bg-base-300'
+                        ? btnSecondaryDisabled
+                        : btnSecondary
                     }`}
                   >
                     {getMoveSectionLabel(-1)}
@@ -826,10 +823,10 @@ export default memo(function LayoutTab({
                   <button
                     onClick={() => moveCellToSection(selectedSectionIndex, selectedSubIndex, selectedSectionIndex + 1)}
                     disabled={!canMoveCellToSection(1)}
-                    className={`flex-1 ${btnBase} ${
+                    className={`flex-1 ${
                       !canMoveCellToSection(1)
-                        ? 'bg-base-200 text-base-content/30 cursor-not-allowed'
-                        : 'bg-base-200 text-secondary hover:bg-base-300'
+                        ? btnSecondaryDisabled
+                        : btnSecondary
                     }`}
                   >
                     {getMoveSectionLabel(1)}

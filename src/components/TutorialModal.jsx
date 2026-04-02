@@ -276,7 +276,7 @@ export default memo(function TutorialModal({ isOpen, onClose }) {
             {!isFirst && (
               <button
                 onClick={() => setCurrentStep(currentStep - 1)}
-                className="px-4 py-2 text-sm font-medium rounded-lg bg-base-200 text-base-content/70 hover:bg-base-300 transition-colors"
+                className="btn btn-ghost btn-sm"
               >
                 Back
               </button>
@@ -284,14 +284,14 @@ export default memo(function TutorialModal({ isOpen, onClose }) {
             {isLast ? (
               <button
                 onClick={onClose}
-                className="px-4 py-2 text-sm font-medium rounded-lg bg-primary text-primary-content hover:bg-primary/80 transition-colors"
+                className="btn btn-primary btn-sm"
               >
                 Get Started
               </button>
             ) : (
               <button
                 onClick={() => setCurrentStep(currentStep + 1)}
-                className="px-4 py-2 text-sm font-medium rounded-lg bg-primary text-primary-content hover:bg-primary/80 transition-colors"
+                className="btn btn-primary btn-sm"
               >
                 Next
               </button>

@@ -52,10 +52,10 @@ export default function TextStyleControls({ value, onChange, theme }) {
               key={size.id}
               onClick={() => onChange({ size: size.id })}
               title={`Size ${size.name}`}
-              className={`w-8 h-7 sm:w-7 sm:h-6 text-[11px] sm:text-[10px] active:scale-90 font-medium rounded ${
+              className={`btn btn-xs btn-square ${
                 value.size === size.id
-                  ? 'bg-primary text-primary-content'
-                  : 'bg-base-200 text-base-content/70 hover:bg-base-300'
+                  ? 'btn-primary'
+                  : 'btn-ghost'
               }`}
             >
               {size.name}
@@ -67,7 +67,7 @@ export default function TextStyleControls({ value, onChange, theme }) {
           <button
             onClick={() => onChange({ bold: !value.bold })}
             title="Bold"
-            className={`w-9 h-7 sm:w-7 sm:h-6 text-[11px] sm:text-[10px] active:scale-90 font-bold rounded ${
+            className={`btn btn-xs btn-square font-bold ${
               value.bold
                 ? 'bg-primary text-primary-content'
                 : 'bg-base-200 text-base-content/70 hover:bg-base-300'
@@ -78,7 +78,7 @@ export default function TextStyleControls({ value, onChange, theme }) {
           <button
             onClick={() => onChange({ italic: !value.italic })}
             title="Italic"
-            className={`w-9 h-7 sm:w-7 sm:h-6 text-[11px] sm:text-[10px] active:scale-90 italic rounded ${
+            className={`btn btn-xs btn-square italic ${
               value.italic
                 ? 'bg-primary text-primary-content'
                 : 'bg-base-200 text-base-content/70 hover:bg-base-300'
@@ -98,10 +98,10 @@ export default function TextStyleControls({ value, onChange, theme }) {
               key={opt.id}
               onClick={() => onChange({ letterSpacing: opt.id })}
               title={opt.name}
-              className={`px-2.5 h-7 sm:px-2 sm:h-6 text-[11px] sm:text-[10px] active:scale-90 rounded ${
+              className={`btn btn-xs ${
                 value.letterSpacing === opt.id
-                  ? 'bg-primary text-primary-content'
-                  : 'bg-base-200 text-base-content/70 hover:bg-base-300'
+                  ? 'btn-primary'
+                  : 'btn-ghost'
               }`}
             >
               {opt.name}
@@ -117,7 +117,7 @@ export default function TextStyleControls({ value, onChange, theme }) {
           <button
             onClick={() => onChange({ spacerAbove: ((value.spacerAbove || 0) + 1) % 3 })}
             title={`Spacer above: ${['None', 'Small', 'Large'][value.spacerAbove || 0]}`}
-            className={`flex items-center gap-1 px-2 h-7 sm:h-6 text-[11px] sm:text-[10px] active:scale-90 rounded ${
+            className={`btn btn-xs gap-1 ${
               (value.spacerAbove || 0) > 0
                 ? 'bg-primary text-primary-content'
                 : 'bg-base-200 text-base-content/70 hover:bg-base-300'
@@ -128,7 +128,7 @@ export default function TextStyleControls({ value, onChange, theme }) {
           <button
             onClick={() => onChange({ lineAbove: !value.lineAbove })}
             title={`Line above: ${value.lineAbove ? 'On' : 'Off'}`}
-            className={`flex items-center gap-1 px-2 h-7 sm:h-6 text-[11px] sm:text-[10px] active:scale-90 rounded ${
+            className={`btn btn-xs gap-1 ${
               value.lineAbove
                 ? 'bg-primary text-primary-content'
                 : 'bg-base-200 text-base-content/70 hover:bg-base-300'
@@ -146,7 +146,7 @@ export default function TextStyleControls({ value, onChange, theme }) {
           <button
             onClick={() => onChange({ spacerBelow: ((value.spacerBelow || 0) + 1) % 3 })}
             title={`Spacer below: ${['None', 'Small', 'Large'][value.spacerBelow || 0]}`}
-            className={`flex items-center gap-1 px-2 h-7 sm:h-6 text-[11px] sm:text-[10px] active:scale-90 rounded ${
+            className={`btn btn-xs gap-1 ${
               (value.spacerBelow || 0) > 0
                 ? 'bg-primary text-primary-content'
                 : 'bg-base-200 text-base-content/70 hover:bg-base-300'
@@ -157,7 +157,7 @@ export default function TextStyleControls({ value, onChange, theme }) {
           <button
             onClick={() => onChange({ lineBelow: !value.lineBelow })}
             title={`Line below: ${value.lineBelow ? 'On' : 'Off'}`}
-            className={`flex items-center gap-1 px-2 h-7 sm:h-6 text-[11px] sm:text-[10px] active:scale-90 rounded ${
+            className={`btn btn-xs gap-1 ${
               value.lineBelow
                 ? 'bg-primary text-primary-content'
                 : 'bg-base-200 text-base-content/70 hover:bg-base-300'

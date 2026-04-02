@@ -360,7 +360,7 @@ export default memo(function MediaTab({
                           e.stopPropagation()
                           onRemoveImage(img.id)
                         }}
-                        className="absolute -top-1 -right-1 w-5 h-5 bg-error text-error-content rounded-full text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-sm hover:bg-error/80"
+                        className="btn btn-error btn-circle btn-xs absolute -top-1 -right-1 opacity-0 group-hover:opacity-100 transition-opacity shadow-sm"
                         title="Remove from library"
                       >
                         ×
@@ -864,7 +864,7 @@ export default memo(function MediaTab({
                     onLogoChange(null)
                     if (logoInputRef.current) logoInputRef.current.value = ''
                   }}
-                  className="absolute top-2 right-2 bg-error text-error-content rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-error/80 shadow-sm"
+                  className="btn btn-error btn-circle btn-xs absolute top-2 right-2 shadow-sm"
                 >
                   ×
                 </button>

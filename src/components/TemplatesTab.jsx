@@ -243,10 +243,8 @@ export default memo(function TemplatesTab({
                 <button
                   key={ar.id}
                   onClick={() => setAspectRatioFilter(ar.id)}
-                  className={`flex-1 px-2 py-1.5 text-xs rounded-lg font-medium transition-all ${
-                    aspectRatioFilter === ar.id
-                      ? 'bg-primary text-primary-content shadow-sm'
-                      : 'bg-base-200 text-base-content/70 hover:bg-base-300'
+                  className={`btn btn-xs flex-1 ${
+                    aspectRatioFilter === ar.id ? 'btn-primary' : 'btn-ghost'
                   }`}
                 >
                   {ar.name}
@@ -261,20 +259,16 @@ export default memo(function TemplatesTab({
             <div className="flex flex-wrap gap-1.5">
               <button
                 onClick={() => setLayoutCategory('all')}
-                className={`px-2.5 py-1 text-xs rounded-lg font-medium ${
-                  layoutCategory === 'all'
-                    ? 'bg-primary text-primary-content shadow-sm'
-                    : 'bg-base-200 text-base-content/70 hover:bg-base-300'
+                className={`btn btn-xs ${
+                  layoutCategory === 'all' ? 'btn-primary' : 'btn-ghost'
                 }`}
               >
                 All
               </button>
               <button
                 onClick={() => setLayoutCategory('suggested')}
-                className={`px-2.5 py-1 text-xs rounded-lg font-medium ${
-                  layoutCategory === 'suggested'
-                    ? 'bg-primary text-primary-content shadow-sm'
-                    : 'bg-base-200 text-base-content/70 hover:bg-base-300'
+                className={`btn btn-xs ${
+                  layoutCategory === 'suggested' ? 'btn-primary' : 'btn-ghost'
                 }`}
               >
                 Suggested
@@ -283,10 +277,8 @@ export default memo(function TemplatesTab({
                 <button
                   key={cat.id}
                   onClick={() => setLayoutCategory(cat.id)}
-                  className={`px-2.5 py-1 text-xs rounded-lg font-medium ${
-                    layoutCategory === cat.id
-                      ? 'bg-primary text-primary-content shadow-sm'
-                      : 'bg-base-200 text-base-content/70 hover:bg-base-300'
+                  className={`btn btn-xs ${
+                    layoutCategory === cat.id ? 'btn-primary' : 'btn-ghost'
                   }`}
                 >
                   {cat.name}
@@ -402,10 +394,8 @@ export default memo(function TemplatesTab({
             <div className="flex bg-base-200 rounded-lg p-0.5">
               <button
                 onClick={() => onThemeVariantChange?.('light')}
-                className={`flex items-center gap-1.5 px-3 min-h-[44px] text-xs rounded-md font-medium transition-all ${
-                  currentVariant === 'light'
-                    ? 'bg-base-100 text-base-content shadow-sm'
-                    : 'text-base-content/70 hover:text-base-content'
+                className={`btn btn-sm gap-1.5 ${
+                  currentVariant === 'light' ? 'btn-active' : 'btn-ghost'
                 }`}
               >
                 <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
@@ -415,10 +405,8 @@ export default memo(function TemplatesTab({
               </button>
               <button
                 onClick={() => onThemeVariantChange?.('dark')}
-                className={`flex items-center gap-1.5 px-3 min-h-[44px] text-xs rounded-md font-medium transition-all ${
-                  currentVariant === 'dark'
-                    ? 'bg-base-100 text-base-content shadow-sm'
-                    : 'text-base-content/70 hover:text-base-content'
+                className={`btn btn-sm gap-1.5 ${
+                  currentVariant === 'dark' ? 'btn-active' : 'btn-ghost'
                 }`}
               >
                 <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">

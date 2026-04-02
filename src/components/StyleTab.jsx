@@ -17,10 +17,8 @@ function OverlayTypeButton({ type, isActive, onClick }) {
   return (
     <button
       onClick={onClick}
-      className={`px-1.5 py-1 text-[9px] rounded truncate ${
-        isActive
-          ? 'bg-primary text-primary-content'
-          : 'bg-base-200 text-base-content/70 hover:bg-base-300'
+      className={`btn btn-xs truncate ${
+        isActive ? 'btn-primary' : 'btn-ghost'
       }`}
       title={type.name}
       aria-label={`Overlay type: ${type.name}`}

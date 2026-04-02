@@ -13,7 +13,7 @@ import UndoRedoButtons from './UndoRedoButtons'
 
 // Requirement: Consistent header button styling across desktop layout.
 // Approach: Extract repeated className pattern to a small component.
-const HEADER_BTN = 'px-3 py-1.5 text-sm rounded-lg flex items-center gap-1.5 font-medium bg-base-200 text-base-content hover:bg-base-300 active:scale-95 transition-all'
+const HEADER_BTN = 'btn btn-ghost btn-sm gap-1.5'
 
 function HeaderButton({ onClick, title, children }) {
   return (
@@ -120,7 +120,7 @@ export default function DesktopLayout({
               <span className="hidden sm:inline">Refresh</span>
             </HeaderButton>
             {canInstall && (
-              <button onClick={install} title="Install app" className="px-3 py-1.5 text-sm rounded-lg flex items-center gap-1.5 font-medium bg-primary text-primary-content hover:bg-primary/80 active:scale-95 transition-all">
+              <button onClick={install} title="Install app" className="btn btn-primary btn-sm gap-1.5">
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
                 <span>Install</span>
               </button>
@@ -132,7 +132,7 @@ export default function DesktopLayout({
               </HeaderButton>
             )}
             {hasUpdate && (
-              <button onClick={update} title="Update available" className="px-3 py-1.5 text-sm rounded-lg flex items-center gap-1.5 font-medium bg-success text-success-content hover:bg-success/80 active:scale-95 transition-all">
+              <button onClick={update} title="Update available" className="btn btn-success btn-sm gap-1.5">
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
                 <span>Update</span>
               </button>

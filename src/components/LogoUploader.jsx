@@ -114,7 +114,7 @@ export default function LogoUploader({
             />
             <button
               onClick={handleRemove}
-              className="absolute top-1 right-1 bg-error text-error-content rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-error/80"
+              className="btn btn-error btn-circle btn-xs absolute top-1 right-1"
             >
               ×
             </button>
@@ -128,10 +128,8 @@ export default function LogoUploader({
                 <button
                   key={opt.id}
                   onClick={() => onPositionChange(opt.id)}
-                  className={`px-2 py-1 text-xs rounded transition-colors ${
-                    position === opt.id
-                      ? 'bg-primary text-primary-content'
-                      : 'bg-base-200 text-base-content/70 hover:bg-base-300'
+                  className={`btn btn-xs ${
+                    position === opt.id ? 'btn-primary' : 'btn-ghost'
                   }`}
                 >
                   {opt.name}
@@ -148,10 +146,8 @@ export default function LogoUploader({
                 <button
                   key={opt.id}
                   onClick={() => onSizeChange(opt.id)}
-                  className={`flex-1 px-2 py-1 text-xs rounded transition-colors ${
-                    size === opt.id
-                      ? 'bg-primary text-primary-content'
-                      : 'bg-base-200 text-base-content/70 hover:bg-base-300'
+                  className={`btn btn-xs flex-1 ${
+                    size === opt.id ? 'btn-primary' : 'btn-ghost'
                   }`}
                 >
                   {opt.name}

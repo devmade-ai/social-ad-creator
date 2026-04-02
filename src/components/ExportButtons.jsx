@@ -374,7 +374,7 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
           {currentFormat.recommendedFormat && currentFormat.recommendedFormat !== exportFormat && (
             <button
               onClick={() => onExportFormatChange(currentFormat.recommendedFormat)}
-              className="text-[10px] text-primary hover:text-primary/80 transition-colors"
+              className="btn btn-ghost btn-xs text-primary"
             >
               Use recommended ({currentFormat.recommendedFormat.toUpperCase()})
             </button>
@@ -386,10 +386,8 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
               key={opt.id}
               onClick={() => onExportFormatChange(opt.id)}
               title={opt.description}
-              className={`flex-1 px-2 py-2.5 sm:py-1.5 text-xs font-semibold rounded-lg transition-all ${
-                exportFormat === opt.id
-                  ? 'bg-primary text-primary-content shadow-sm'
-                  : 'bg-base-200 text-base-content/70 hover:bg-base-300'
+              className={`btn btn-xs flex-1 ${
+                exportFormat === opt.id ? 'btn-primary' : 'btn-ghost'
               }`}
             >
               {opt.label}
@@ -402,7 +400,7 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
       <button
         onClick={handleExportSingle}
         disabled={isExporting}
-        className="w-full px-4 py-3 text-sm font-semibold text-primary-content bg-primary rounded-xl hover:bg-primary/80 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm hover:shadow-glow active:scale-[0.98] btn-scale"
+        className="btn btn-primary w-full"
       >
         {exportOp === 'single' ? 'Exporting...' : `Download (.${ext})`}
       </button>
@@ -410,7 +408,7 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
       {/* More export options toggle */}
       <button
         onClick={() => setShowMoreOptions(!showMoreOptions)}
-        className="w-full flex items-center justify-center gap-1.5 py-1.5 text-xs font-medium text-base-content/70 hover:text-base-content transition-colors"
+        className="btn btn-ghost btn-xs w-full gap-1.5"
       >
         <span>{showMoreOptions ? 'Fewer options' : 'More export options'}</span>
         <svg
@@ -429,7 +427,7 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
             <button
               onClick={handleExportAllPages}
               disabled={isExporting}
-              className="w-full px-4 py-2.5 text-sm font-medium text-success bg-base-200 rounded-lg hover:bg-base-300 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-[0.98]"
+              className="btn btn-ghost btn-sm w-full text-success"
             >
               {exportOp === 'allPages' && exportProgress
                 ? `Exporting Page ${exportProgress.current}/${exportProgress.total}...`
@@ -443,7 +441,7 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
               <button
                 onClick={handleExportPDF}
                 disabled={isExporting}
-                className="flex-1 px-4 py-2.5 text-sm font-medium text-warning bg-base-200 hover:bg-base-300 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-[0.98]"
+                className="btn btn-ghost btn-sm flex-1 text-warning"
               >
                 {exportOp === 'pdf' && exportProgress
                   ? `Preparing Page ${exportProgress.current}/${exportProgress.total}...`
@@ -454,7 +452,7 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
               <button
                 onClick={() => setShowPdfQuality(!showPdfQuality)}
                 disabled={isExporting}
-                className="px-2.5 py-2.5 text-warning bg-base-200 hover:bg-base-300 border-l border-base-300 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                className="btn btn-ghost btn-sm btn-square text-warning border-l border-base-300 rounded-l-none"
               >
                 <svg width="12" height="12" viewBox="0 0 12 12" fill="none" className={`transition-transform ${showPdfQuality ? 'rotate-180' : ''}`}>
                   <path d="M3 5L6 8L9 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -473,10 +471,8 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
                     <button
                       key={q.id}
                       onClick={() => { setPdfQuality(q.id); setShowPdfQuality(false) }}
-                      className={`flex-1 px-2 py-1.5 text-xs rounded-md transition-colors ${
-                        pdfQuality === q.id
-                          ? 'bg-base-300 text-warning font-semibold'
-                          : 'bg-base-100 text-base-content/70 hover:bg-base-200'
+                      className={`btn btn-xs flex-1 ${
+                        pdfQuality === q.id ? 'btn-warning' : 'btn-ghost'
                       }`}
                     >
                       {q.label}
@@ -491,7 +487,7 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
           <button
             onClick={() => setShowMultiSelect(!showMultiSelect)}
             disabled={isExporting}
-            className="w-full px-4 py-2.5 text-sm font-medium text-primary bg-base-200 rounded-lg hover:bg-base-300 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-[0.98]"
+            className="btn btn-ghost btn-sm w-full text-primary"
           >
             {showMultiSelect ? 'Hide Platforms' : 'Multiple Platforms (ZIP)'}
           </button>
@@ -504,8 +500,8 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
                   {selectedPlatforms.size} of {platforms.length} selected
                 </span>
                 <div className="flex gap-2">
-                  <button onClick={selectAll} className="text-xs text-primary hover:underline">Select All</button>
-                  <button onClick={selectNone} className="text-xs text-base-content/60 hover:underline">Clear</button>
+                  <button onClick={selectAll} className="btn btn-ghost btn-xs text-primary">Select All</button>
+                  <button onClick={selectNone} className="btn btn-ghost btn-xs">Clear</button>
                 </div>
               </div>
 
@@ -520,7 +516,7 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
                     <div key={category} className="space-y-1">
                       <button
                         onClick={() => selectCategory(category)}
-                        className="text-[10px] text-base-content/50 uppercase tracking-wide font-medium hover:text-primary transition-colors"
+                        className="btn btn-ghost btn-xs text-base-content/50 uppercase tracking-wide"
                       >
                         {categoryLabels[category] || category}
                         {someSelected && !allSelected && <span className="ml-1 text-primary">+</span>}
@@ -531,10 +527,8 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
                             key={p.id}
                             onClick={() => togglePlatform(p.id)}
                             title={`${p.width} × ${p.height}`}
-                            className={`px-2 py-0.5 text-xs rounded font-medium transition-all ${
-                              selectedPlatforms.has(p.id)
-                                ? 'bg-primary text-primary-content'
-                                : 'bg-base-100 text-base-content/70 hover:bg-base-200 border border-base-300'
+                            className={`btn btn-xs ${
+                              selectedPlatforms.has(p.id) ? 'btn-primary' : 'btn-outline'
                             }`}
                           >
                             {p.name}
@@ -549,7 +543,7 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
               <button
                 onClick={handleExportMultiple}
                 disabled={isExporting || selectedPlatforms.size === 0}
-                className="w-full px-4 py-2.5 text-sm font-semibold text-primary-content bg-primary rounded-lg hover:bg-primary/80 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                className="btn btn-primary btn-sm w-full"
               >
                 {exportOp === 'multi' && exportProgress
                   ? `Exporting ${exportProgress.current}/${exportProgress.total}...`

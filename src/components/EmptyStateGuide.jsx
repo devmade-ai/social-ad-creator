@@ -18,13 +18,13 @@ export default function EmptyStateGuide({ onNavigate }) {
       <div className="flex gap-2 justify-center">
         <button
           onClick={() => onNavigate('templates')}
-          className="px-3 py-1.5 text-xs font-medium rounded-lg bg-primary text-primary-content hover:bg-primary/80 transition-all"
+          className="btn btn-primary btn-xs"
         >
           Browse Presets
         </button>
         <button
           onClick={() => onNavigate('media')}
-          className="px-3 py-1.5 text-xs font-medium rounded-lg bg-base-200 text-base-content hover:bg-base-300 border border-base-300 transition-all"
+          className="btn btn-outline btn-xs"
         >
           Upload Images
         </button>
