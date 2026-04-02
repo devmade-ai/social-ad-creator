@@ -8,6 +8,15 @@
 - **Flash prevention upgrade** — Inline script in `index.html` now includes an auto-generated color map and updates `<meta name="theme-color">` before first paint (previously only set by `useDarkMode` after React mount).
 - **Zero manual maintenance** — Theme allowlists, hex color maps, and meta tag defaults all generated from a single source. Run `npm run generate-theme-meta` after DaisyUI updates.
 
+### Code quality fixes
+
+- **Extracted PageDots component** — `PageDots.jsx` shared between ContextBar and LayoutTab. Eliminated duplicated page thumbnail implementations that had diverged (ContextBar had hex validation + ARIA, LayoutTab didn't).
+- **Security: hex color validation** — LayoutTab page thumbnails now use `safeColor()` to validate theme color values before injecting into inline styles. Previously used unsanitized `pageState?.theme?.primary`.
+- **Accessibility: ARIA attributes** — LayoutTab page thumbnails now have `aria-label="Switch to page N"` and `aria-current="page"` (previously missing).
+- **Accessibility: touch targets** — LayoutTab page thumbnails bumped from `w-10 h-10` (40px) to `w-11 h-11` (44px) via shared PageDots component, meeting WCAG touch target minimum.
+- **oklch→hex hardened** — Regex now handles optional hue (achromatic colors), alpha channel syntax, and extra whitespace. Extracted to `scripts/oklchToHex.mjs` for testability.
+- **Unit tests** — 16 tests for `oklchToHex` covering black/white/gray, achromatic invariance, optional hue, alpha channel, DaisyUI reference values, out-of-gamut clamping, and invalid input.
+
 ## 2026-04-01
 
 ### Tailwind 4 + DaisyUI 5 migration

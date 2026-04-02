@@ -13,60 +13,11 @@ import { readFileSync, writeFileSync } from 'fs'
 import { resolve, dirname } from 'path'
 import { fileURLToPath } from 'url'
 import { createRequire } from 'module'
+import { oklchToHex } from './oklchToHex.mjs'
 
 const require = createRequire(import.meta.url)
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const rootDir = resolve(__dirname, '..')
-
-// ---------------------------------------------------------------------------
-// 1. oklch → hex conversion (oklab → LMS → linear-sRGB → gamma-sRGB → hex)
-// ---------------------------------------------------------------------------
-
-function oklchToHex(oklchStr) {
-  // Parse "oklch(L% C H)" — L is percentage (0–100), C is chroma, H is hue in degrees
-  const match = oklchStr.match(/oklch\(\s*([\d.]+)%?\s+([\d.]+)\s+([\d.]+)\s*\)/)
-  if (!match) return null
-
-  let L = parseFloat(match[1])
-  const C = parseFloat(match[2])
-  const H = parseFloat(match[3])
-
-  // Normalize L from percentage to 0–1 range
-  if (L > 1) L = L / 100
-
-  // oklch → oklab
-  const hRad = (H * Math.PI) / 180
-  const a = C * Math.cos(hRad)
-  const b = C * Math.sin(hRad)
-
-  // oklab → LMS (cube roots)
-  const l_ = L + 0.3963377774 * a + 0.2158037573 * b
-  const m_ = L - 0.1055613458 * a - 0.0638541728 * b
-  const s_ = L - 0.0894841775 * a - 1.2914855480 * b
-
-  const l = l_ * l_ * l_
-  const m = m_ * m_ * m_
-  const s = s_ * s_ * s_
-
-  // LMS → linear sRGB
-  const lr = +4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s
-  const lg = -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s
-  const lb = -0.0041960863 * l - 0.7034186147 * m + 1.7076147010 * s
-
-  // Gamma correction (linear → sRGB)
-  function gammaCorrect(c) {
-    if (c <= 0.0031308) return 12.92 * c
-    return 1.055 * Math.pow(c, 1 / 2.4) - 0.055
-  }
-
-  // Clamp to 0–255 and convert to hex
-  function toHexByte(c) {
-    const val = Math.round(Math.max(0, Math.min(1, gammaCorrect(c))) * 255)
-    return val.toString(16).padStart(2, '0')
-  }
-
-  return `#${toHexByte(lr)}${toHexByte(lg)}${toHexByte(lb)}`
-}
 
 // ---------------------------------------------------------------------------
 // 2. Read DaisyUI theme objects and extract hex colors
