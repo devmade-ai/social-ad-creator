@@ -160,7 +160,18 @@ export default function MobileLayout({
       {/* z-50 when menu open to layer above BottomSheet (z-30) and MobileNav (z-40) */}
       <header className={`bg-base-100/90 backdrop-blur-sm border-b border-base-300/60 shrink-0 relative ${showMobileMenu ? 'z-50' : ''}`} style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}>
         <div className="flex items-center justify-between px-3 py-2">
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-2">
+            {/* Inline header icon — 2x3 grid pattern using currentColor.
+                Derived from icon.svg but without the purple background/gradients
+                so it adapts to any DaisyUI theme via text color inheritance. */}
+            <svg className="w-6 h-6 text-base-content" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <rect x="2" y="2" width="9" height="5.5" rx="1" opacity="0.9"/>
+              <rect x="13" y="2" width="9" height="5.5" rx="1" opacity="0.4"/>
+              <rect x="2" y="9.25" width="9" height="5.5" rx="1" opacity="0.35"/>
+              <rect x="13" y="9.25" width="9" height="5.5" rx="1" opacity="0.9"/>
+              <rect x="2" y="16.5" width="9" height="5.5" rx="1" opacity="0.6"/>
+              <rect x="13" y="16.5" width="9" height="5.5" rx="1" opacity="0.25"/>
+            </svg>
             <h1 className="text-base font-display font-bold text-base-content tracking-tight">CanvaGrid</h1>
             <span className="px-1 py-0.5 text-[8px] font-semibold uppercase tracking-wide bg-warning/10 text-warning rounded">Preview</span>
           </div>
