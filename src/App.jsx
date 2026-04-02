@@ -180,9 +180,12 @@ function App() {
   const [allFontsLoaded, setAllFontsLoaded] = useState(false)
 
   // Mobile-specific state
+  // Requirement: Open Presets bottom sheet by default so users see it's active on load.
+  // Approach: Initialize mobileSheetOpen=true and sheetSnap=SNAP_HALF for mobile.
+  //   Non-mobile ignores these values (cleared by the isMobile effect below).
   const isMobile = useIsMobile()
-  const [mobileSheetOpen, setMobileSheetOpen] = useState(false)
-  const [sheetSnap, setSheetSnap] = useState(0)
+  const [mobileSheetOpen, setMobileSheetOpen] = useState(true)
+  const [sheetSnap, setSheetSnap] = useState(50)
   const [showMobileMenu, setShowMobileMenu] = useState(false)
   const [cellContextMenu, setCellContextMenu] = useState(null) // { cellIndex, position: { x, y } }
   const swipeRef = useRef({ x: 0, y: 0 })
@@ -500,6 +503,14 @@ function App() {
             cellImages={state.cellImages}
             images={state.images}
             onUpdateImage={updateImage}
+            pages={pages}
+            activePage={state.activePage}
+            onSetActivePage={setActivePage}
+            onAddPage={addPage}
+            onDuplicatePage={duplicatePage}
+            onRemovePage={removePage}
+            onMovePage={movePage}
+            getPageState={getPageState}
           />
         )}
       </ErrorBoundary>
@@ -528,12 +539,14 @@ function App() {
       // Specific state slices (not `state` itself, which is a new object every render)
       state.activeStylePreset, state.layout, state.platform, state.theme, state.images, state.cellImages,
       state.logo, state.logoPosition, state.logoSize, state.text, state.fonts, state.padding, state.frame,
-      state.textMode, state.freeformText,
+      state.textMode, state.freeformText, state.activePage, state.pages,
       // Callbacks (stable refs from useAdState)
       applyStylePreset, applyLayoutPreset, setTheme, setThemePreset, setThemeVariant,
       addImage, removeImage, updateImage, updateImageFilters, updateImagePosition, updateImageOverlay, setCellImage,
       setLogo, setLogoPosition, setLogoSize, setText, setLayout, setFonts, setPadding, setFrame,
-      setTextMode, addFreeformBlock, updateFreeformBlock, removeFreeformBlock, moveFreeformBlock, setSelectedCell, loadAllFonts])
+      setTextMode, addFreeformBlock, updateFreeformBlock, removeFreeformBlock, moveFreeformBlock, setSelectedCell, loadAllFonts,
+      // Page management (for LayoutTab)
+      pages, setActivePage, addPage, duplicatePage, removePage, movePage, getPageState])
 
   // Shared modals — rendered in both mobile and desktop layouts
   const modals = (
@@ -603,10 +616,6 @@ function App() {
         pageCount={pageCount}
         hasMultiplePages={hasMultiplePages}
         setActivePage={setActivePage}
-        addPage={addPage}
-        duplicatePage={duplicatePage}
-        removePage={removePage}
-        movePage={movePage}
         getPageState={getPageState}
         setPlatform={setPlatform}
         setExportFormat={setExportFormat}
@@ -672,10 +681,6 @@ function App() {
       pages={pages}
       pageCount={pageCount}
       setActivePage={setActivePage}
-      addPage={addPage}
-      duplicatePage={duplicatePage}
-      removePage={removePage}
-      movePage={movePage}
       getPageState={getPageState}
       setPlatform={setPlatform}
       setExportFormat={setExportFormat}

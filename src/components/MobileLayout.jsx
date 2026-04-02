@@ -78,15 +78,11 @@ export default function MobileLayout({
   isExporting,
   cancelExportRef,
   setIsExporting,
-  // Page state
+  // Page state (selection only — management moved to Structure tab)
   pages,
   pageCount,
   hasMultiplePages,
   setActivePage,
-  addPage,
-  duplicatePage,
-  removePage,
-  movePage,
   getPageState,
   // Platform / export
   setPlatform,
@@ -172,6 +168,35 @@ export default function MobileLayout({
             <h1 className="text-base font-display font-bold tracking-tight bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">CanvaGrid</h1>
             <span className="px-1 py-0.5 text-[8px] font-semibold uppercase tracking-wide bg-warning/10 text-warning rounded">Preview</span>
           </div>
+          {/* Undo/Redo — moved to header for constant visibility */}
+          <div className="flex items-center gap-0.5">
+            <button
+              onClick={undo}
+              disabled={!canUndo}
+              title="Undo"
+              aria-label="Undo"
+              className={`p-2 rounded-lg transition-all ${
+                canUndo
+                  ? 'text-base-content hover:bg-base-200 active:scale-95'
+                  : 'text-base-content/20 cursor-not-allowed'
+              }`}
+            >
+              <span className="text-base">&#x21B6;</span>
+            </button>
+            <button
+              onClick={redo}
+              disabled={!canRedo}
+              title="Redo"
+              aria-label="Redo"
+              className={`p-2 rounded-lg transition-all ${
+                canRedo
+                  ? 'text-base-content hover:bg-base-200 active:scale-95'
+                  : 'text-base-content/20 cursor-not-allowed'
+              }`}
+            >
+              <span className="text-base">&#x21B7;</span>
+            </button>
+          </div>
           <BurgerMenu
             open={showMobileMenu}
             onToggle={() => { const opening = !showMobileMenu; setShowMobileMenu(opening); if (opening) closeMobileSheet() }}
@@ -209,9 +234,7 @@ export default function MobileLayout({
       {!mobileSheetOpen && (
         <ContextBar
           layout={state.layout} cellImages={state.cellImages} selectedCell={safeSelectedCell} onSelectCell={setSelectedCell} platform={state.platform}
-          undo={undo} redo={redo} canUndo={canUndo} canRedo={canRedo}
-          pages={pages} activePage={state.activePage} onSetActivePage={setActivePage}
-          onAddPage={addPage} onDuplicatePage={duplicatePage} onRemovePage={removePage} onMovePage={movePage} getPageState={getPageState}
+          pages={pages} activePage={state.activePage} onSetActivePage={setActivePage} getPageState={getPageState}
         />
       )}
 

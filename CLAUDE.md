@@ -392,7 +392,7 @@ CanvaGrid - A browser-based visual design tool. Users can upload images, add tex
 Core features working:
 
 - **Multi-page support**: Create multi-page documents (books, stories, presentations)
-  - Pages array with add/duplicate/delete/reorder via ContextBar
+  - Pages array with add/duplicate/delete/reorder via Structure tab
   - Per-page: images, layout, text, overlays, padding, frames
   - Shared across pages: theme, fonts, platform, logo
 - **Reader mode**: Clean full-screen view with page navigation (arrow keys, buttons, dots)
@@ -450,12 +450,12 @@ Core features working:
 
 ### Desktop layout (>= 1024px)
 
-Tabs render as a full-width horizontal nav bar below the header (website header pattern), with underline-style active indicator. Below the tabs is a unified ContextBar containing: cell selector | page management | undo/redo.
+Tabs render as a full-width horizontal nav bar below the header (website header pattern), with underline-style active indicator. Below the tabs is a consolidated ContextBar containing: page selector + cell selector. Undo/redo lives in the header.
 
 ```
-Header (scrolls away)
+Header (scrolls away, includes undo/redo)
 Tab Nav Bar (sticky, full-width, underline active indicator)
-Context Bar: [Cell grid] | [Page thumbnails + actions] | [Undo/Redo]
+Context Bar: [Page thumbnails] | [Cell grid]
 Sidebar (tab content) | Main (platform selector + canvas + export)
 ```
 
@@ -464,15 +464,15 @@ Sidebar (tab content) | Main (platform selector + canvas + export)
 Fixed viewport with edge-to-edge canvas. Tab content lives in a touch-draggable BottomSheet with three snap points (closed/half/full). Navigation via fixed MobileNav bar at bottom.
 
 ```
-Compact Header (grid icon + app name [gradient] + burger menu: Help, Install, Update, Refresh, Reader, Save, Shortcuts + dark/light toggle + theme list)
+Compact Header (grid icon + app name [gradient] + undo/redo + burger menu: Help, Install, Update, Refresh, Reader, Save, Shortcuts + dark/light toggle + theme list)
 Platform Info Strip (current format name + dimensions)
 Canvas (edge-to-edge, swipe left/right for page navigation)
-ContextBar (cell grid + page thumbnails + undo/redo)
-BottomSheet (active tab content, drag to resize)
+ContextBar (page thumbnails + cell grid — consolidated single row)
+BottomSheet (active tab content, drag to resize — Presets opens by default on load)
 MobileNav (fixed bottom: Presets, Media, Content, Structure, Style, Export)
 ```
 
-Export is a dedicated tab on mobile (vs. sidebar section on desktop) containing only download controls — platform selection lives in the Presets tab. Tapping the active tab toggles the bottom sheet open/closed.
+Export is a dedicated tab on mobile (vs. sidebar section on desktop) containing only download controls — platform selection lives in the Presets tab. Tapping the active tab toggles the bottom sheet open/closed. Presets bottom sheet opens by default on load so users see it's active.
 
 Tab descriptions (workflow-based organization):
 - **Presets** - Start here: Platform selection (canvas size), layout presets (with aspect ratio filtering), color themes, and visual looks
@@ -513,9 +513,9 @@ src/
 │   ├── ContentTab.jsx         # Text editing with cell assignment
 │   ├── FreeformEditor.jsx     # Per-cell freeform text block editors (FreeformBlockEditor + FreeformCellEditor)
 │   ├── TextStyleControls.jsx  # Shared text styling toolbar (size, bold, italic, color, alignment, spacing)
-│   ├── LayoutTab.jsx          # Grid structure + cell alignment
+│   ├── LayoutTab.jsx          # Grid structure + cell alignment + page management
 │   ├── StyleTab.jsx           # Typography, overlay, spacing (themes in Presets tab)
-│   ├── ContextBar.jsx         # Sticky bar: cell selector + page management + undo/redo
+│   ├── ContextBar.jsx         # Sticky bar: page selector + cell selector (consolidated single row)
 │   ├── PlatformPreview.jsx    # Platform selector with search filter
 │   ├── ExportButtons.jsx      # Export controls (single, multi-platform, multi-page)
 │   ├── TutorialModal.jsx      # In-app help walkthrough (8 steps covering all tabs)
@@ -697,7 +697,8 @@ Top-level toggle: **Guided** / **Freeform** (state value remains `'structured'` 
 
 ### Structure Tab (formerly Layout)
 Collapsible sections:
-- **Structure** - Layout type (Full/Rows/Columns), interactive grid for editing section/cell sizes, add/remove sections and subdivisions, reorder sections (move up/down for rows, left/right for columns)
+- **Grid** - Layout type (Full/Rows/Columns), interactive grid for editing section/cell sizes, add/remove sections and subdivisions, reorder sections (move up/down for rows, left/right for columns)
+- **Pages** - Add, duplicate, reorder, and delete pages for multi-page documents
 
 ### Style Tab
 Collapsible sections:
