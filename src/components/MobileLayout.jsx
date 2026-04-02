@@ -172,7 +172,7 @@ export default function MobileLayout({
               <rect x="2" y="16.5" width="9" height="5.5" rx="1" opacity="0.6"/>
               <rect x="13" y="16.5" width="9" height="5.5" rx="1" opacity="0.25"/>
             </svg>
-            <h1 className="text-base font-display font-bold text-base-content tracking-tight">CanvaGrid</h1>
+            <h1 className="text-base font-display font-bold tracking-tight bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">CanvaGrid</h1>
             <span className="px-1 py-0.5 text-[8px] font-semibold uppercase tracking-wide bg-warning/10 text-warning rounded">Preview</span>
           </div>
           <BurgerMenu
