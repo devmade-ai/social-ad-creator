@@ -135,7 +135,7 @@ export default function SaveLoadModal({ isOpen, onClose, onSave, onLoad, onDelet
 
         {/* Error banner */}
         {error && (
-          <div className="mx-4 mt-3 px-3 py-2 rounded-lg bg-error/10 border border-error/20 text-sm text-error">
+          <div className="mx-4 mt-3 px-3 py-2 rounded-lg bg-base-200 border border-base-300 text-sm text-error">
             {error}
           </div>
         )}
@@ -206,7 +206,7 @@ export default function SaveLoadModal({ isOpen, onClose, onSave, onLoad, onDelet
                       <ConfirmButton
                         onConfirm={() => handleDelete(design.id)}
                         confirmLabel="Delete?"
-                        className="p-2 rounded-lg opacity-50 sm:opacity-0 group-hover:opacity-100 hover:bg-error/10 active:bg-error/20 text-error transition-all"
+                        className="p-2 rounded-lg opacity-50 sm:opacity-0 group-hover:opacity-100 hover:bg-base-300 active:bg-base-300 text-error transition-all"
                         title="Delete design"
                       >
                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

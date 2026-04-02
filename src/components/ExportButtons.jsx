@@ -429,7 +429,7 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
             <button
               onClick={handleExportAllPages}
               disabled={isExporting}
-              className="w-full px-4 py-2.5 text-sm font-medium text-success bg-success/10 rounded-lg hover:bg-success/10 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-[0.98]"
+              className="w-full px-4 py-2.5 text-sm font-medium text-success bg-base-200 rounded-lg hover:bg-base-300 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-[0.98]"
             >
               {exportOp === 'allPages' && exportProgress
                 ? `Exporting Page ${exportProgress.current}/${exportProgress.total}...`
@@ -443,7 +443,7 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
               <button
                 onClick={handleExportPDF}
                 disabled={isExporting}
-                className="flex-1 px-4 py-2.5 text-sm font-medium text-warning bg-warning/10 hover:bg-warning/10 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-[0.98]"
+                className="flex-1 px-4 py-2.5 text-sm font-medium text-warning bg-base-200 hover:bg-base-300 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-[0.98]"
               >
                 {exportOp === 'pdf' && exportProgress
                   ? `Preparing Page ${exportProgress.current}/${exportProgress.total}...`
@@ -454,7 +454,7 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
               <button
                 onClick={() => setShowPdfQuality(!showPdfQuality)}
                 disabled={isExporting}
-                className="px-2.5 py-2.5 text-warning bg-warning/10 hover:bg-warning/10 border-l border-warning/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                className="px-2.5 py-2.5 text-warning bg-base-200 hover:bg-base-300 border-l border-base-300 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
               >
                 <svg width="12" height="12" viewBox="0 0 12 12" fill="none" className={`transition-transform ${showPdfQuality ? 'rotate-180' : ''}`}>
                   <path d="M3 5L6 8L9 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -475,7 +475,7 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
                       onClick={() => { setPdfQuality(q.id); setShowPdfQuality(false) }}
                       className={`flex-1 px-2 py-1.5 text-xs rounded-md transition-colors ${
                         pdfQuality === q.id
-                          ? 'bg-warning/20 text-warning font-semibold'
+                          ? 'bg-base-300 text-warning font-semibold'
                           : 'bg-base-100 text-base-content/70 hover:bg-base-200'
                       }`}
                     >
@@ -491,7 +491,7 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
           <button
             onClick={() => setShowMultiSelect(!showMultiSelect)}
             disabled={isExporting}
-            className="w-full px-4 py-2.5 text-sm font-medium text-primary bg-primary/10 rounded-lg hover:bg-primary/15 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-[0.98]"
+            className="w-full px-4 py-2.5 text-sm font-medium text-primary bg-base-200 rounded-lg hover:bg-base-300 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-[0.98]"
           >
             {showMultiSelect ? 'Hide Platforms' : 'Multiple Platforms (ZIP)'}
           </button>

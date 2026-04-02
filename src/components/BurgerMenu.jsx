@@ -105,7 +105,7 @@ export default function BurgerMenu({ items, open, onToggle, onClose, children })
                       outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset
                       min-h-11
                       ${item.highlight
-                        ? `${item.highlightColor || 'text-primary'} hover:bg-primary/5`
+                        ? `${item.highlightColor || 'text-primary'} hover:bg-base-200`
                         : 'text-base-content hover:bg-base-200'
                       }`}
                   >

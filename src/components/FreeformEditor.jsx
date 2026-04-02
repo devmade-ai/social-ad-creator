@@ -232,7 +232,7 @@ function FreeformBlockEditor({
         <button
           onClick={() => setShowStyle(!showStyle)}
           className={`w-7 h-7 sm:w-6 sm:h-6 rounded flex items-center justify-center text-xs transition-colors active:scale-90 ${
-            showStyle ? 'bg-primary/10 text-primary' : 'bg-base-200 text-base-content/60 hover:bg-base-300'
+            showStyle ? 'bg-base-300 text-primary' : 'bg-base-200 text-base-content/60 hover:bg-base-300'
           }`}
           title="Block style options"
         >
@@ -246,7 +246,7 @@ function FreeformBlockEditor({
           className={`w-7 h-7 sm:w-6 sm:h-6 rounded flex items-center justify-center text-xs active:scale-90 transition-colors ${
             confirmDelete
               ? 'bg-error text-error-content'
-              : 'bg-base-200 text-base-content/50 hover:text-error hover:bg-error/10'
+              : 'bg-base-200 text-base-content/50 hover:text-error hover:bg-base-300'
           }`}
           title={confirmDelete ? 'Click again to confirm delete' : 'Delete block'}
         >

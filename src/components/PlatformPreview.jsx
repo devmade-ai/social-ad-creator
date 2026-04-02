@@ -186,7 +186,7 @@ export default memo(function PlatformPreview({ selectedPlatform, onPlatformChang
                             aria-label={hasOneFormat ? `Select ${group.name}` : `${isGroupExpanded ? 'Collapse' : 'Expand'} ${group.name}`}
                             className={`w-full flex items-center justify-between py-1 px-2 rounded-lg text-xs font-medium transition-all ${
                               isSelected
-                                ? 'bg-primary/10 text-primary'
+                                ? 'bg-base-300 text-primary'
                                 : 'text-base-content hover:bg-base-300'
                             }`}
                           >

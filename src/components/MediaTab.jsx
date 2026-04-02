@@ -93,7 +93,7 @@ function CellGrid({ layout, cellImages, selectedCell, onSelectCell, platform, hi
                       : isSelected
                       ? 'bg-primary hover:bg-primary/80 text-primary-content ring-2 ring-primary ring-offset-1'
                       : hasImage
-                      ? 'bg-primary/20 hover:bg-primary/30 text-primary'
+                      ? 'bg-base-300 hover:bg-base-200 text-primary'
                       : 'bg-base-200 hover:bg-base-300 text-base-content/60'
                   }`}
                   style={{ flex: `0 0 ${subSize}%` }}

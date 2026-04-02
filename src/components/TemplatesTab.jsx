@@ -136,7 +136,7 @@ function ThemePreviewContent({ preset, activeVariant }) {
         const colors = getThemeVariant(preset, variant)
         const isActive = activeVariant === variant
         return (
-          <div key={variant} className={`flex items-center gap-1.5 px-1.5 py-1 rounded ${isActive ? 'bg-primary/15' : ''}`}>
+          <div key={variant} className={`flex items-center gap-1.5 px-1.5 py-1 rounded ${isActive ? 'bg-base-300' : ''}`}>
             <span className="text-[8px] text-base-content/50 w-7 shrink-0">{variant === 'light' ? 'Light' : 'Dark'}</span>
             <div className="flex gap-1">
               <div className="w-5 h-5 rounded-full shadow-sm border border-black/10" style={{ backgroundColor: colors.primary }} />
@@ -335,7 +335,7 @@ export default memo(function TemplatesTab({
         <div className="space-y-3">
           {/* Active look indicator */}
           {activeLookPreset && (
-            <div className="flex items-center gap-2 px-3 py-2 bg-primary/10 rounded-lg">
+            <div className="flex items-center gap-2 px-3 py-2 bg-base-200 rounded-lg">
               <LookSwatch preset={activeLookPreset} isActive={true} theme={theme} />
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-primary">{activeLookPreset.name}</p>
@@ -359,7 +359,7 @@ export default memo(function TemplatesTab({
                   onClick={() => onSelectStylePreset(preset)}
                   className={`w-full flex flex-col items-center gap-1.5 p-2 rounded-lg transition-all ${
                     activeStylePreset === preset.id
-                      ? 'bg-primary/10 ring-2 ring-primary'
+                      ? 'bg-base-200 ring-2 ring-primary'
                       : 'hover:bg-base-200'
                   }`}
                 >
@@ -444,7 +444,7 @@ export default memo(function TemplatesTab({
                       onClick={() => onThemePresetChange?.(preset.id, currentVariant)}
                       className={`w-full p-2 rounded-lg border-2 transition-all ${
                         theme?.preset === preset.id
-                          ? 'border-primary bg-primary/10 ring-2 ring-primary/20'
+                          ? 'border-primary bg-base-200 ring-2 ring-primary'
                           : 'border-base-300 hover:border-base-300 hover:bg-base-200'
                       }`}
                     >

@@ -93,7 +93,7 @@ export default function DesktopLayout({
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
           <div className="flex items-center justify-center sm:justify-start gap-2">
             <h1 className="text-lg font-display font-bold tracking-tight bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">CanvaGrid</h1>
-            <span className="px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide bg-warning/10 text-warning rounded">Research Preview</span>
+            <span className="px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide bg-base-200 text-warning rounded">Research Preview</span>
           </div>
           <div className="flex flex-wrap justify-center sm:justify-end gap-1.5 items-center">
             {/* Undo/Redo — moved to header for constant visibility */}
@@ -142,7 +142,7 @@ export default function DesktopLayout({
       </header>
 
       {!isOnline && (
-        <div className="bg-warning/10 border-b border-warning/30 px-4 py-2 text-center text-sm text-warning">
+        <div className="bg-base-200 border-b border-base-300 px-4 py-2 text-center text-sm text-warning">
           You're offline. Your work is saved locally, but sample images and fonts may not load.
         </div>
       )}
@@ -152,7 +152,7 @@ export default function DesktopLayout({
         <div className="flex items-center">
           <div className="flex overflow-x-auto scrollbar-thin">
             {sections.map((section) => (
-              <button key={section.id} onClick={() => setActiveSection(section.id)} className={`px-4 py-2.5 text-sm font-medium whitespace-nowrap transition-all border-b-2 ${activeSection === section.id ? 'border-primary text-primary bg-primary/10' : 'border-transparent text-base-content/70 hover:text-base-content hover:border-base-300 hover:bg-base-200'}`}>
+              <button key={section.id} onClick={() => setActiveSection(section.id)} className={`px-4 py-2.5 text-sm font-medium whitespace-nowrap transition-all border-b-2 ${activeSection === section.id ? 'border-primary text-primary bg-base-200' : 'border-transparent text-base-content/70 hover:text-base-content hover:border-base-300 hover:bg-base-200'}`}>
                 {section.label}
               </button>
             ))}

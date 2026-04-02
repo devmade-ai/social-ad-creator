@@ -101,7 +101,7 @@ function TextElementEditor({
         <button
           onClick={() => onTextChange(cellIndex, element.id, { visible: !isVisible })}
           className={`w-8 h-8 sm:w-7 sm:h-7 rounded-md flex items-center justify-center text-xs shrink-0 active:scale-90 ${
-            isVisible ? 'bg-success/10 text-success' : 'bg-base-200 text-base-content/50'
+            isVisible ? 'bg-base-300 text-success' : 'bg-base-200 text-base-content/50'
           }`}
           title={isVisible ? 'Visible - click to hide' : 'Hidden - click to show'}
         >
@@ -117,7 +117,7 @@ function TextElementEditor({
         {layerState.content && (
           <button
             onClick={() => onTextChange(cellIndex, element.id, { content: '' })}
-            className="w-8 h-8 sm:w-7 sm:h-7 rounded flex items-center justify-center text-base-content/50 hover:text-error hover:bg-error/10 active:bg-error/20 transition-colors"
+            className="w-8 h-8 sm:w-7 sm:h-7 rounded flex items-center justify-center text-base-content/50 hover:text-error hover:bg-base-300 active:bg-base-300 transition-colors"
             title="Clear text"
           >
             <CloseIcon />
@@ -128,7 +128,7 @@ function TextElementEditor({
         <button
           onClick={() => setShowStyle(!showStyle)}
           className={`w-8 h-8 sm:w-7 sm:h-7 rounded flex items-center justify-center text-xs transition-colors active:scale-90 ${
-            showStyle ? 'bg-primary/10 text-primary' : 'bg-base-200 text-base-content/60 hover:bg-base-300'
+            showStyle ? 'bg-base-300 text-primary' : 'bg-base-200 text-base-content/60 hover:bg-base-300'
           }`}
           title="Text style options"
         >

@@ -2,6 +2,12 @@
 
 ## 2026-04-02
 
+### Fix invisible low-contrast tinted backgrounds on dark themes
+
+- **Root cause** — `bg-primary/10`, `bg-secondary/15`, `bg-error/10`, etc. (10-20% opacity tints) are invisible on dark themes where the base background is near-black. ~45 instances across 16 component files.
+- **Fix** — Replaced all low-opacity tinted backgrounds on interactive elements with `bg-base-200`/`bg-base-300` (DaisyUI semantic surfaces). Colored text (`text-primary`, `text-error`) carries semantic meaning instead of background color.
+- **Components fixed:** LayoutTab, ExportButtons, ContentTab, FreeformEditor, DesktopLayout, MobileLayout, PlatformPreview, TemplatesTab, MiniCellGrid, MediaTab, SaveLoadModal, BurgerMenu, EmptyStateGuide, ErrorBoundary, InstallInstructionsModal.
+
 ### Migrate form inputs to DaisyUI component classes
 
 - **Range sliders fixed** — Custom CSS targeted wrong pseudo-element (`::-webkit-slider-track` instead of `::-webkit-slider-runnable-track`), making all 15 sliders invisible. Replaced with DaisyUI `.range .range-primary .range-sm` class.
