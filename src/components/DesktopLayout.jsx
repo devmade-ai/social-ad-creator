@@ -83,7 +83,7 @@ export default function DesktopLayout({
       <header className="bg-base-100/80 backdrop-blur-sm border-b border-base-300/60 px-4 py-3">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
           <div className="flex items-center justify-center sm:justify-start gap-2">
-            <h1 className="text-lg font-display font-bold text-base-content tracking-tight">CanvaGrid</h1>
+            <h1 className="text-lg font-display font-bold tracking-tight bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">CanvaGrid</h1>
             <span className="px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide bg-warning/10 text-warning rounded">Research Preview</span>
           </div>
           <div className="flex flex-wrap justify-center sm:justify-end gap-1.5">
