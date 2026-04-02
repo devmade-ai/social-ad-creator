@@ -30,7 +30,7 @@ const ColorInput = memo(function ColorInput({ label, value, onChange }) {
           type="text"
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className="w-full px-2 py-1.5 text-sm text-base-content font-mono border border-base-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-base-100"
+          className="input input-bordered input-sm w-full font-mono"
         />
       </div>
     </div>

@@ -2,6 +2,15 @@
 
 ## 2026-04-02
 
+### Migrate form inputs to DaisyUI component classes
+
+- **Range sliders fixed** — Custom CSS targeted wrong pseudo-element (`::-webkit-slider-track` instead of `::-webkit-slider-runnable-track`), making all 15 sliders invisible. Replaced with DaisyUI `.range .range-primary .range-sm` class.
+- **Checkboxes migrated** — 5 checkboxes in StyleTab replaced from manual `w-4 h-4 text-primary` Tailwind hack to DaisyUI `.checkbox .checkbox-primary .checkbox-sm`.
+- **Select dropdowns migrated** — 2 font selectors in StyleTab replaced from verbose 12-class Tailwind styling to DaisyUI `.select .select-bordered .select-sm`.
+- **Text inputs migrated** — 5 text inputs across 4 files (AIPromptHelper, SaveLoadModal, PlatformPreview, TemplatesTab) replaced with DaisyUI `.input .input-bordered .input-sm`.
+- **Textareas migrated** — 3 textareas across 3 files (AIPromptHelper, ContentTab, FreeformEditor) replaced with DaisyUI `.textarea .textarea-bordered .textarea-sm`.
+- **CSS cleanup** — Removed custom `accent-color` checkbox hack, blanket `transition: all` on form elements, and broken range pseudo-element CSS. Narrowed focus-visible rule to exclude DaisyUI-classed elements (prevents double outline).
+
 ### Auto-generated PWA meta theme-color values
 
 - **Build script** — `scripts/generate-theme-meta.mjs` reads DaisyUI's theme objects (`daisyui/theme/object.js`), converts oklch→hex, and updates `daisyuiThemes.js` and `index.html`. Light themes use `--color-primary` (with per-theme overrides for themes where primary is unrepresentative), dark themes use `--color-base-100`.

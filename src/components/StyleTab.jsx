@@ -123,7 +123,7 @@ export default memo(function StyleTab({
                   }
                   onLayoutChange({ cellBackgrounds: newBgs })
                 }}
-                className="w-4 h-4 text-primary rounded border-base-300 focus:ring-primary"
+                className="checkbox checkbox-primary checkbox-sm"
               />
               <label
                 htmlFor={`bg-custom-${clampedCell}`}
@@ -169,7 +169,7 @@ export default memo(function StyleTab({
                   id={`overlay-enabled-${clampedCell}`}
                   checked={isCellOverlayEnabled(clampedCell)}
                   onChange={(e) => updateCellOverlay(clampedCell, { enabled: e.target.checked })}
-                  className="w-4 h-4 text-primary rounded border-base-300 focus:ring-primary"
+                  className="checkbox checkbox-primary checkbox-sm"
                 />
                 <label
                   htmlFor={`overlay-enabled-${clampedCell}`}
@@ -208,7 +208,7 @@ export default memo(function StyleTab({
                           onLayoutChange({ cellOverlays: newCellOverlays })
                         }
                       }}
-                      className="w-4 h-4 text-primary rounded border-base-300 focus:ring-primary"
+                      className="checkbox checkbox-primary checkbox-sm"
                     />
                     <label
                       htmlFor={`overlay-custom-${clampedCell}`}
@@ -367,7 +367,7 @@ export default memo(function StyleTab({
                       onFrameChange?.({ cellFrames: newCellFrames })
                     }
                   }}
-                  className="w-4 h-4 text-primary rounded border-base-300 focus:ring-primary"
+                  className="checkbox checkbox-primary checkbox-sm"
                 />
                 <label
                   htmlFor={`frame-custom-${clampedCell}`}
@@ -479,7 +479,7 @@ export default memo(function StyleTab({
                       updateCellPadding(clampedCell, null)
                     }
                   }}
-                  className="w-4 h-4 text-primary rounded border-base-300 focus:ring-primary"
+                  className="checkbox checkbox-primary checkbox-sm"
                 />
                 <label
                   htmlFor={`padding-custom-${clampedCell}`}
@@ -525,7 +525,7 @@ export default memo(function StyleTab({
             <select
               value={selectedFonts.title}
               onChange={(e) => onFontsChange({ title: e.target.value })}
-              className="w-full px-3 py-2 text-sm text-base-content border border-base-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-base-100"
+              className="select select-bordered select-sm w-full"
             >
               {fonts.map((font) => (
                 <option key={font.id} value={font.id}>
@@ -540,7 +540,7 @@ export default memo(function StyleTab({
             <select
               value={selectedFonts.body}
               onChange={(e) => onFontsChange({ body: e.target.value })}
-              className="w-full px-3 py-2 text-sm text-base-content border border-base-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-base-100"
+              className="select select-bordered select-sm w-full"
             >
               {fonts.map((font) => (
                 <option key={font.id} value={font.id}>

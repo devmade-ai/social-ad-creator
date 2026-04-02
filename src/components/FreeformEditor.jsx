@@ -273,7 +273,7 @@ function FreeformBlockEditor({
           onBlur={handleBlur}
           placeholder="Type here — focus to see formatting toolbar"
           rows={textareaRows}
-          className="w-full px-3 py-2 text-sm text-base-content border border-base-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-base-100 placeholder-base-content/50 font-mono"
+          className="textarea textarea-bordered textarea-sm w-full font-mono"
           style={{ resize: 'vertical', minHeight: '3rem' }}
         />
       </div>

@@ -154,7 +154,7 @@ export default function SaveLoadModal({ isOpen, onClose, onSave, onLoad, onDelet
                   value={saveName}
                   onChange={(e) => setSaveName(e.target.value)}
                   placeholder="My Design"
-                  className="w-full px-3 py-2.5 rounded-lg bg-base-200 border border-base-300 text-base-content placeholder-base-content/70 focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="input input-bordered w-full"
                 />
               </div>
               <button
@@ -180,7 +180,7 @@ export default function SaveLoadModal({ isOpen, onClose, onSave, onLoad, onDelet
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search designs..."
                   aria-label="Search saved designs"
-                  className="w-full px-3 py-2 rounded-lg bg-base-200 border border-base-300 text-base-content text-sm placeholder-base-content/70 focus:outline-none focus:ring-2 focus:ring-primary mb-2"
+                  className="input input-bordered input-sm w-full mb-2"
                 />
               )}
               {designs.length === 0 ? (

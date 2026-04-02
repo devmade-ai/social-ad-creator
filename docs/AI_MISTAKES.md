@@ -166,4 +166,17 @@ Each wrong assumption led to a commit that didn't solve the actual problem. Thre
 
 ---
 
+## 2026-04 | Custom CSS Instead of DaisyUI Components — Invisible Sliders
+
+**What went wrong:** Custom range slider CSS targeted `::-webkit-slider-track` (wrong pseudo-element) instead of `::-webkit-slider-runnable-track`. Combined with `appearance: none` + `background: transparent`, all 15 sliders were completely invisible. Additionally, all form inputs (checkboxes, selects, text inputs, textareas) used verbose hand-rolled Tailwind classes instead of DaisyUI's built-in component classes, despite the project using DaisyUI 5.
+
+**Why it happened:** When the custom CSS was written, the wrong WebKit pseudo-element name was used and never tested. The broader pattern of hand-rolling form styles rather than using DaisyUI components accumulated over many sessions — each new form element copied the verbose Tailwind pattern from an existing one, never questioning whether DaisyUI had a proper component.
+
+**How to prevent:**
+- **Use DaisyUI component classes for all form inputs.** DaisyUI has `.range`, `.checkbox`, `.input`, `.select`, `.textarea` — use them instead of custom CSS or hand-rolled Tailwind classes.
+- **Never write custom pseudo-element CSS for form inputs** when the framework provides a component class. Browser pseudo-elements have inconsistent names across engines.
+- **When adding new form elements**, check if DaisyUI has a component class first. Reference: `node_modules/daisyui/components/` lists all available components.
+
+---
+
 *Add new entries above this line*

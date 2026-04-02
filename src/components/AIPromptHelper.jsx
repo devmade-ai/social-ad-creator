@@ -102,7 +102,7 @@ export default function AIPromptHelper({ theme }) {
           value={context}
           onChange={(e) => setContext(e.target.value)}
           placeholder="e.g., coffee shop interior, mountain landscape, abstract geometric shapes..."
-          className="w-full px-3 py-2 text-sm text-base-content bg-base-100 placeholder-base-content/50 border border-base-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
+          className="textarea textarea-bordered textarea-sm w-full resize-none"
           rows={2}
         />
       </div>
@@ -234,7 +234,7 @@ export default function AIPromptHelper({ theme }) {
             value={customColors}
             onChange={(e) => setCustomColors(e.target.value)}
             placeholder="e.g., blue and orange, muted earth tones..."
-            className="w-full px-3 py-1.5 text-sm text-base-content bg-base-100 placeholder-base-content/50 border border-base-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+            className="input input-bordered input-sm w-full"
           />
         )}
       </div>

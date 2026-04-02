@@ -65,16 +65,13 @@ body {
   min-height: 100dvh;
 }
 
-/* Smooth transitions for interactive elements */
-button, input, select, textarea {
-  transition: all 0.15s ease;
-}
-
-/* Better focus states - uses DaisyUI primary color */
+/* Focus ring for non-DaisyUI form elements (raw buttons, etc.).
+   DaisyUI components (.checkbox, .input, .select, .textarea, .range)
+   have their own :focus-visible styles — this only catches unstyled elements. */
 button:focus-visible,
-input:focus-visible,
-select:focus-visible,
-textarea:focus-visible {
+input:not(.checkbox):not(.input):not(.range):focus-visible,
+select:not(.select):focus-visible,
+textarea:not(.textarea):focus-visible {
   outline: 2px solid oklch(var(--p));
   outline-offset: 2px;
 }
@@ -98,15 +95,13 @@ textarea:focus-visible {
   background: oklch(var(--bc) / 0.4);
 }
 
-/* Range inputs use DaisyUI's .range component class directly.
-   Custom pseudo-element CSS removed — was targeting wrong pseudo-element
-   (::-webkit-slider-track instead of ::-webkit-slider-runnable-track),
-   causing sliders to be invisible. DaisyUI .range handles all browsers correctly. */
-
-/* Checkbox styling — uses DaisyUI primary */
-input[type="checkbox"] {
-  accent-color: oklch(var(--p));
-}
+/* Form inputs use DaisyUI component classes directly:
+   .range .range-primary — range sliders (was broken custom CSS before)
+   .checkbox .checkbox-primary — checkboxes
+   .input .input-bordered — text inputs
+   .select .select-bordered — dropdowns
+   .textarea .textarea-bordered — textareas
+   No custom pseudo-element or accent-color overrides needed. */
 
 /* Button hover scale effect */
 @utility btn-scale {
