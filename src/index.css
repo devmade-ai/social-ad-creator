@@ -98,7 +98,10 @@ textarea:focus-visible {
   background: oklch(var(--bc) / 0.4);
 }
 
-/* Range input styling — uses DaisyUI primary for thumb */
+/* Range input styling — uses DaisyUI primary for thumb, high-contrast track.
+   Requirement: Sliders must be clearly visible in both light and dark themes.
+   Approach: Track uses base-content at 25% opacity for consistent contrast against
+     any background. Thumb uses primary color with a visible border ring. */
 input[type="range"] {
   -webkit-appearance: none;
   appearance: none;
@@ -107,9 +110,10 @@ input[type="range"] {
 }
 
 input[type="range"]::-webkit-slider-track {
-  background: oklch(var(--b3));
+  background: oklch(var(--bc) / 0.2);
   height: 6px;
   border-radius: 3px;
+  border: 1px solid oklch(var(--bc) / 0.1);
 }
 
 input[type="range"]::-webkit-slider-thumb {
@@ -119,15 +123,16 @@ input[type="range"]::-webkit-slider-thumb {
   height: 16px;
   border-radius: 50%;
   background: oklch(var(--p));
-  border: 2px solid oklch(var(--b1));
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-  margin-top: -5px;
+  border: 2px solid oklch(var(--pc));
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3), 0 0 0 1px oklch(var(--bc) / 0.1);
+  margin-top: -6px;
 }
 
 input[type="range"]::-moz-range-track {
-  background: oklch(var(--b3));
+  background: oklch(var(--bc) / 0.2);
   height: 6px;
   border-radius: 3px;
+  border: 1px solid oklch(var(--bc) / 0.1);
 }
 
 input[type="range"]::-moz-range-thumb {
@@ -135,8 +140,8 @@ input[type="range"]::-moz-range-thumb {
   height: 14px;
   border-radius: 50%;
   background: oklch(var(--p));
-  border: 2px solid oklch(var(--b1));
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  border: 2px solid oklch(var(--pc));
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3), 0 0 0 1px oklch(var(--bc) / 0.1);
 }
 
 /* Checkbox styling — uses DaisyUI primary */

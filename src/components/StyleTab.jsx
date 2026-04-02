@@ -265,17 +265,21 @@ export default memo(function StyleTab({
                             {getCellOverlayConfig(clampedCell)?.opacity ?? 50}%
                           </span>
                         </div>
-                        <input
-                          type="range"
-                          min="0"
-                          max="100"
-                          step="5"
-                          value={getCellOverlayConfig(clampedCell)?.opacity ?? 50}
-                          onChange={(e) =>
-                            updateCellOverlay(clampedCell, { opacity: parseInt(e.target.value, 10) })
-                          }
-                          className="w-full h-2 bg-base-300 rounded-lg appearance-none cursor-pointer"
-                        />
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-[10px] text-base-content/50 w-7">None</span>
+                          <input
+                            type="range"
+                            min="0"
+                            max="100"
+                            step="5"
+                            value={getCellOverlayConfig(clampedCell)?.opacity ?? 50}
+                            onChange={(e) =>
+                              updateCellOverlay(clampedCell, { opacity: parseInt(e.target.value, 10) })
+                            }
+                            className="flex-1"
+                          />
+                          <span className="text-[10px] text-base-content/50 w-6 text-right">Full</span>
+                        </div>
                       </div>
                     </div>
                   )}
@@ -312,15 +316,19 @@ export default memo(function StyleTab({
                   {frame.outer?.percent || 0}%
                 </span>
               </div>
-              <input
-                type="range"
-                min="0"
-                max="100"
-                step="10"
-                value={frame.outer?.percent || 0}
-                onChange={(e) => onFrameChange?.({ outer: { ...frame.outer, percent: parseInt(e.target.value, 10) } })}
-                className="w-full h-2 bg-base-300 rounded-lg appearance-none cursor-pointer"
-              />
+              <div className="flex items-center gap-1.5">
+                <span className="text-[10px] text-base-content/50 w-7">None</span>
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  step="10"
+                  value={frame.outer?.percent || 0}
+                  onChange={(e) => onFrameChange?.({ outer: { ...frame.outer, percent: parseInt(e.target.value, 10) } })}
+                  className="flex-1"
+                />
+                <span className="text-[10px] text-base-content/50 w-6 text-right">Full</span>
+              </div>
             </div>
 
             {(frame.outer?.percent || 0) > 0 && (
@@ -378,24 +386,28 @@ export default memo(function StyleTab({
                         {frame.cellFrames[clampedCell]?.percent || 0}%
                       </span>
                     </div>
-                    <input
-                      type="range"
-                      min="0"
-                      max="100"
-                      step="10"
-                      value={frame.cellFrames[clampedCell]?.percent || 0}
-                      onChange={(e) => {
-                        const newCellFrames = {
-                          ...frame.cellFrames,
-                          [clampedCell]: {
-                            ...frame.cellFrames[clampedCell],
-                            percent: parseInt(e.target.value, 10),
-                          },
-                        }
-                        onFrameChange?.({ cellFrames: newCellFrames })
-                      }}
-                      className="w-full h-2 bg-base-300 rounded-lg appearance-none cursor-pointer"
-                    />
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-[10px] text-base-content/50 w-7">None</span>
+                      <input
+                        type="range"
+                        min="0"
+                        max="100"
+                        step="10"
+                        value={frame.cellFrames[clampedCell]?.percent || 0}
+                        onChange={(e) => {
+                          const newCellFrames = {
+                            ...frame.cellFrames,
+                            [clampedCell]: {
+                              ...frame.cellFrames[clampedCell],
+                              percent: parseInt(e.target.value, 10),
+                            },
+                          }
+                          onFrameChange?.({ cellFrames: newCellFrames })
+                        }}
+                        className="flex-1"
+                      />
+                      <span className="text-[10px] text-base-content/50 w-6 text-right">Full</span>
+                    </div>
                   </div>
 
                   <div className="space-y-1.5">
@@ -431,15 +443,19 @@ export default memo(function StyleTab({
               <label className="text-xs font-medium text-base-content/70">Overall Spacing</label>
               <span className="text-xs text-base-content/60">{padding.global}px</span>
             </div>
-            <input
-              type="range"
-              min="0"
-              max="60"
-              step="5"
-              value={padding.global}
-              onChange={(e) => onPaddingChange?.({ global: parseInt(e.target.value, 10) })}
-              className="w-full h-2 bg-base-300 rounded-lg appearance-none cursor-pointer"
-            />
+            <div className="flex items-center gap-1.5">
+              <span className="text-[10px] text-base-content/50 w-7">None</span>
+              <input
+                type="range"
+                min="0"
+                max="60"
+                step="5"
+                value={padding.global}
+                onChange={(e) => onPaddingChange?.({ global: parseInt(e.target.value, 10) })}
+                className="flex-1"
+              />
+              <span className="text-[10px] text-base-content/50 w-6 text-right">Wide</span>
+            </div>
           </div>
 
           {/* Per-cell padding */}
@@ -481,15 +497,19 @@ export default memo(function StyleTab({
                       {getCellPaddingValue(clampedCell)}px
                     </span>
                   </div>
-                  <input
-                    type="range"
-                    min="0"
-                    max="60"
-                    step="5"
-                    value={getCellPaddingValue(clampedCell)}
-                    onChange={(e) => updateCellPadding(clampedCell, parseInt(e.target.value, 10))}
-                    className="w-full h-2 bg-base-300 rounded-lg appearance-none cursor-pointer"
-                  />
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[10px] text-base-content/50 w-7">None</span>
+                    <input
+                      type="range"
+                      min="0"
+                      max="60"
+                      step="5"
+                      value={getCellPaddingValue(clampedCell)}
+                      onChange={(e) => updateCellPadding(clampedCell, parseInt(e.target.value, 10))}
+                      className="flex-1"
+                    />
+                    <span className="text-[10px] text-base-content/50 w-6 text-right">Wide</span>
+                  </div>
                 </div>
               )}
             </div>
