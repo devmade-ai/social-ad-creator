@@ -750,7 +750,7 @@ export default memo(function LayoutTab({
                 onSelectCell={onSelectCell}
                 platform={platform}
                 cellImages={cellImages}
-                size="large"
+                size="medium"
               />
             </div>
             {type !== 'fullbleed' && selectedSection && (

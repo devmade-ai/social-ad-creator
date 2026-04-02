@@ -18,7 +18,7 @@ export default memo(function MiniCellGrid({
   // Display
   platform,
   cellsWithContent,      // Set of cell indices with content (ContentTab freeform)
-  size = 'small',        // 'small' | 'large' | 'contextbar'
+  size = 'small',        // 'small' | 'medium' | 'large' | 'contextbar'
   mode = 'default',      // 'default' (StyleTab-style) | 'content' (ContentTab-style)
 }) {
   const { type, structure } = layout
@@ -33,9 +33,9 @@ export default memo(function MiniCellGrid({
   // Approach: 'contextbar' size uses responsive w-16/sm:w-12 with aspectRatio (no fixed height),
   //   matching the original ContextBar CellGrid. Other sizes use fixed pixel dimensions.
   const isContextbar = size === 'contextbar'
-  const gridWidth = size === 'large' ? 120 : 64
-  const fontSize = size === 'large' ? 'text-[11px] sm:text-[10px]' : 'text-[9px] sm:text-[8px]'
-  const minCellH = isContextbar ? 'min-h-[10px]' : size === 'large' ? 'min-h-[28px] sm:min-h-[24px]' : 'min-h-[16px] sm:min-h-[14px]'
+  const gridWidth = size === 'large' ? 120 : size === 'medium' ? 88 : 64
+  const fontSize = size === 'large' ? 'text-[11px] sm:text-[10px]' : size === 'medium' ? 'text-[10px] sm:text-[9px]' : 'text-[9px] sm:text-[8px]'
+  const minCellH = isContextbar ? 'min-h-[10px]' : size === 'large' ? 'min-h-[28px] sm:min-h-[24px]' : size === 'medium' ? 'min-h-[20px] sm:min-h-[18px]' : 'min-h-[16px] sm:min-h-[14px]'
 
   // Pre-compute cell mapping grouped by section to avoid mutable cellIndex during render
   const sectionCellMap = useMemo(() => {
@@ -122,12 +122,12 @@ export default memo(function MiniCellGrid({
   return (
     <div
       className={`flex overflow-hidden border border-base-300 rounded ${
-        isContextbar ? 'w-16 sm:w-12' : size === 'large' ? 'w-[120px]' : ''
+        isContextbar ? 'w-16 sm:w-12' : size === 'large' ? 'w-[120px]' : size === 'medium' ? 'w-[88px]' : ''
       }`}
       style={{
-        ...(!isContextbar && size !== 'large' ? { width: `${gridWidth}px` } : {}),
-        ...(!isContextbar && size !== 'large' ? { height: `${gridWidth / aspectRatio}px` } : {}),
-        aspectRatio: isContextbar || size === 'large' ? `${aspectRatio}` : undefined,
+        ...(size === 'small' ? { width: `${gridWidth}px` } : {}),
+        ...(size === 'small' ? { height: `${gridWidth / aspectRatio}px` } : {}),
+        aspectRatio: size !== 'small' ? `${aspectRatio}` : undefined,
         flexDirection: isRows || isFullbleed ? 'column' : 'row',
       }}
     >

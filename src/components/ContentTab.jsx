@@ -309,7 +309,7 @@ export default memo(function ContentTab({
             onSelectCell={setSelectedCell}
             platform={platform}
             cellsWithContent={cellsWithContent}
-            size="large"
+            size="medium"
             mode="content"
           />
         </div>
