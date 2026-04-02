@@ -79,7 +79,8 @@ export default function BurgerMenu({ items, open, onToggle, onClose, children })
             className="absolute right-3 top-full mt-1 z-50
                        bg-base-100 rounded-xl shadow-lg
                        border border-base-300 py-1 min-w-[200px]
-                       max-w-[calc(100vw-2rem)] overflow-hidden overscroll-contain"
+                       max-w-[calc(100vw-2rem)] max-h-[calc(100dvh-4rem)]
+                       overflow-y-auto overscroll-contain"
           >
             <ul className="list-none m-0 p-0">
               {visibleItems.map((item, i) => (
