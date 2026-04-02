@@ -276,7 +276,7 @@ export default memo(function StyleTab({
                             onChange={(e) =>
                               updateCellOverlay(clampedCell, { opacity: parseInt(e.target.value, 10) })
                             }
-                            className="flex-1"
+                            className="range range-primary range-sm flex-1"
                           />
                           <span className="text-[10px] text-base-content/50 w-6 text-right">Full</span>
                         </div>
@@ -325,7 +325,7 @@ export default memo(function StyleTab({
                   step="10"
                   value={frame.outer?.percent || 0}
                   onChange={(e) => onFrameChange?.({ outer: { ...frame.outer, percent: parseInt(e.target.value, 10) } })}
-                  className="flex-1"
+                  className="range range-primary range-sm flex-1"
                 />
                 <span className="text-[10px] text-base-content/50 w-6 text-right">Full</span>
               </div>
@@ -404,7 +404,7 @@ export default memo(function StyleTab({
                           }
                           onFrameChange?.({ cellFrames: newCellFrames })
                         }}
-                        className="flex-1"
+                        className="range range-primary range-sm flex-1"
                       />
                       <span className="text-[10px] text-base-content/50 w-6 text-right">Full</span>
                     </div>
@@ -452,7 +452,7 @@ export default memo(function StyleTab({
                 step="5"
                 value={padding.global}
                 onChange={(e) => onPaddingChange?.({ global: parseInt(e.target.value, 10) })}
-                className="flex-1"
+                className="range range-primary range-sm flex-1"
               />
               <span className="text-[10px] text-base-content/50 w-6 text-right">Wide</span>
             </div>
@@ -506,7 +506,7 @@ export default memo(function StyleTab({
                       step="5"
                       value={getCellPaddingValue(clampedCell)}
                       onChange={(e) => updateCellPadding(clampedCell, parseInt(e.target.value, 10))}
-                      className="flex-1"
+                      className="range range-primary range-sm flex-1"
                     />
                     <span className="text-[10px] text-base-content/50 w-6 text-right">Wide</span>
                   </div>

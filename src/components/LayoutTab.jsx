@@ -853,7 +853,7 @@ export default memo(function LayoutTab({
                       step="5"
                       value={selectedSection.subSizes?.[selectedSubIndex] || 50}
                       onChange={(e) => updateSubSize(selectedSectionIndex, selectedSubIndex, Number(e.target.value))}
-                      className="flex-1"
+                      className="range range-primary range-sm flex-1"
                     />
                     <span className="text-[10px] text-base-content/50 w-7 text-right">Large</span>
                   </div>
@@ -953,7 +953,7 @@ export default memo(function LayoutTab({
                       step="5"
                       value={selectedSection.size}
                       onChange={(e) => updateSectionSize(selectedSectionIndex, Number(e.target.value))}
-                      className="flex-1"
+                      className="range range-primary range-sm flex-1"
                     />
                     <span className="text-[10px] text-base-content/50 w-7 text-right">Large</span>
                   </div>

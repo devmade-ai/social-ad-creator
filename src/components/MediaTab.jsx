@@ -473,7 +473,7 @@ export default memo(function MediaTab({
                         max="100"
                         value={selectedImage.position?.x ?? 50}
                         onChange={(e) => onUpdateImagePosition(selectedImageId, { x: parseInt(e.target.value) })}
-                        className="flex-1 accent-primary"
+                        className="range range-primary range-sm flex-1"
                       />
                       <span className="text-[10px] text-base-content/50 w-7 text-right">Right</span>
                     </div>
@@ -491,7 +491,7 @@ export default memo(function MediaTab({
                         max="100"
                         value={selectedImage.position?.y ?? 50}
                         onChange={(e) => onUpdateImagePosition(selectedImageId, { y: parseInt(e.target.value) })}
-                        className="flex-1 accent-primary"
+                        className="range range-primary range-sm flex-1"
                       />
                       <span className="text-[10px] text-base-content/50 w-7 text-right">Btm</span>
                     </div>
@@ -694,7 +694,7 @@ export default memo(function MediaTab({
                       step="5"
                       value={selectedImage.overlay?.opacity ?? 0}
                       onChange={(e) => onUpdateImageOverlay(selectedImageId, { opacity: parseInt(e.target.value, 10) })}
-                      className="flex-1"
+                      className="range range-primary range-sm flex-1"
                     />
                     <span className="text-[10px] text-base-content/50 w-6 text-right">Full</span>
                   </div>
@@ -727,7 +727,7 @@ export default memo(function MediaTab({
                   step="5"
                   value={selectedImage.filters?.grayscale || 0}
                   onChange={(e) => onUpdateImageFilters(selectedImageId, { grayscale: parseInt(e.target.value, 10) })}
-                  className="flex-1"
+                  className="range range-primary range-sm flex-1"
                 />
                 <span className="text-[10px] text-base-content/50 w-6 text-right">Full</span>
               </div>
@@ -747,7 +747,7 @@ export default memo(function MediaTab({
                   step="5"
                   value={selectedImage.filters?.sepia || 0}
                   onChange={(e) => onUpdateImageFilters(selectedImageId, { sepia: parseInt(e.target.value, 10) })}
-                  className="flex-1"
+                  className="range range-primary range-sm flex-1"
                 />
                 <span className="text-[10px] text-base-content/50 w-6 text-right">Full</span>
               </div>
@@ -767,7 +767,7 @@ export default memo(function MediaTab({
                   step="0.5"
                   value={selectedImage.filters?.blur || 0}
                   onChange={(e) => onUpdateImageFilters(selectedImageId, { blur: parseFloat(e.target.value) })}
-                  className="flex-1"
+                  className="range range-primary range-sm flex-1"
                 />
                 <span className="text-[10px] text-base-content/50 w-7 text-right">Blurry</span>
               </div>
@@ -787,7 +787,7 @@ export default memo(function MediaTab({
                   step="5"
                   value={selectedImage.filters?.contrast || 100}
                   onChange={(e) => onUpdateImageFilters(selectedImageId, { contrast: parseInt(e.target.value, 10) })}
-                  className="flex-1"
+                  className="range range-primary range-sm flex-1"
                 />
                 <span className="text-[10px] text-base-content/50 w-6 text-right">High</span>
               </div>
@@ -807,7 +807,7 @@ export default memo(function MediaTab({
                   step="5"
                   value={selectedImage.filters?.brightness || 100}
                   onChange={(e) => onUpdateImageFilters(selectedImageId, { brightness: parseInt(e.target.value, 10) })}
-                  className="flex-1"
+                  className="range range-primary range-sm flex-1"
                 />
                 <span className="text-[10px] text-base-content/50 w-7 text-right">Bright</span>
               </div>
