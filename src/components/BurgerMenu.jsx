@@ -11,35 +11,43 @@
 //   - Slide-out drawer: Rejected — needs animation lib, fights with bottom nav
 //   - Headless UI Disclosure: Viable — adds dependency for a single component
 import { useRef, useEffect, useId } from 'react'
+import { debugLog } from '../utils/debugLog'
+import { useDisclosureFocus } from '../hooks/useDisclosureFocus'
 
 export default function BurgerMenu({ items, open, onToggle, onClose, children }) {
   const menuId = useId()
   const triggerRef = useRef(null)
   const menuRef = useRef(null)
-  const hasBeenOpenRef = useRef(false)
+  const hasLoggedRef = useRef(false)
 
   const visibleItems = items.filter((item) => item.visible !== false)
 
-  // Focus management: focus first item on open, return to trigger on close.
-  // hasBeenOpenRef prevents stealing focus on initial mount (open starts false).
+  // Log menu state transitions for debug pill visibility.
   useEffect(() => {
-    if (open) {
-      hasBeenOpenRef.current = true
-      const rafId = requestAnimationFrame(() => {
-        const firstItem = menuRef.current?.querySelector('button, a')
-        firstItem?.focus()
-      })
-      return () => cancelAnimationFrame(rafId)
-    } else if (hasBeenOpenRef.current) {
-      triggerRef.current?.focus()
-    }
+    if (open) { hasLoggedRef.current = true; debugLog('burger-menu', 'opened') }
+    else if (hasLoggedRef.current) debugLog('burger-menu', 'closed')
   }, [open])
 
-  // Escape key closes menu
+  useDisclosureFocus(open, { triggerRef, contentRef: menuRef, selector: 'button, a' })
+
+  // Keyboard navigation: Escape closes, Arrow keys move through items.
+  // Matches ThemeSelector keyboard pattern for consistent disclosure UX.
   useEffect(() => {
     if (!open) return
     const handleKeyDown = (e) => {
-      if (e.key === 'Escape') { e.preventDefault(); onClose() }
+      if (e.key === 'Escape') { e.preventDefault(); onClose(); return }
+      if (e.key === 'ArrowDown' || e.key === 'ArrowUp' || e.key === 'Home' || e.key === 'End') {
+        e.preventDefault()
+        const buttons = Array.from(menuRef.current?.querySelectorAll('button') || [])
+        if (buttons.length === 0) return
+        const currentIndex = buttons.indexOf(document.activeElement)
+        let nextIndex
+        if (e.key === 'ArrowDown') nextIndex = currentIndex < buttons.length - 1 ? currentIndex + 1 : 0
+        else if (e.key === 'ArrowUp') nextIndex = currentIndex > 0 ? currentIndex - 1 : buttons.length - 1
+        else if (e.key === 'Home') nextIndex = 0
+        else if (e.key === 'End') nextIndex = buttons.length - 1
+        buttons[nextIndex]?.focus()
+      }
     }
     document.addEventListener('keydown', handleKeyDown)
     return () => document.removeEventListener('keydown', handleKeyDown)

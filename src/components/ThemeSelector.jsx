@@ -9,6 +9,8 @@
 //   - role="menu" pattern: Rejected — wrong ARIA semantics (see BurgerMenu.jsx comment).
 import { useState, useRef, useEffect, useId, useCallback } from 'react'
 import { lightThemes, darkThemes } from '../config/daisyuiThemes'
+import { useDisclosureFocus } from '../hooks/useDisclosureFocus'
+import ThemeList from './ThemeList'
 
 export default function ThemeSelector({
   isDark,
@@ -22,7 +24,6 @@ export default function ThemeSelector({
   const dropdownId = useId()
   const triggerRef = useRef(null)
   const listRef = useRef(null)
-  const hasBeenOpenRef = useRef(false)
 
   const themes = isDark ? darkThemes : lightThemes
   const currentTheme = isDark ? darkTheme : lightTheme
@@ -37,20 +38,7 @@ export default function ThemeSelector({
     setIsOpen(false)
   }, [isDark])
 
-  // Focus management: focus first item on open, return to trigger on close.
-  // hasBeenOpenRef prevents stealing focus on initial mount.
-  useEffect(() => {
-    if (isOpen) {
-      hasBeenOpenRef.current = true
-      const rafId = requestAnimationFrame(() => {
-        const firstBtn = listRef.current?.querySelector('button')
-        firstBtn?.focus()
-      })
-      return () => cancelAnimationFrame(rafId)
-    } else if (hasBeenOpenRef.current) {
-      triggerRef.current?.focus()
-    }
-  }, [isOpen])
+  useDisclosureFocus(isOpen, { triggerRef, contentRef: listRef, selector: 'button' })
 
   // Close on outside click
   // Requirement: mousedown (not click) prevents race condition where click
@@ -129,33 +117,12 @@ export default function ThemeSelector({
           <div className="px-3 py-1.5 text-xs font-semibold text-base-content/50 uppercase tracking-wide border-b border-base-200">
             {isDark ? 'Dark' : 'Light'} themes
           </div>
-          <div className="py-1 max-h-64 overflow-y-auto overscroll-contain">
-            {themes.map((theme) => (
-              <button
-                key={theme.id}
-                type="button"
-                onClick={() => {
-                  setTheme(theme.id)
-                  close()
-                }}
-                className={`w-full text-left px-3 py-3 text-sm flex items-center justify-between gap-2 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset ${
-                  currentTheme === theme.id
-                    ? 'bg-primary/10 text-primary font-medium'
-                    : 'text-base-content hover:bg-base-200'
-                }`}
-              >
-                <div>
-                  <div className="font-medium">{theme.name}</div>
-                  <div className="text-xs text-base-content/50">{theme.description}</div>
-                </div>
-                {currentTheme === theme.id && (
-                  <svg className="w-4 h-4 shrink-0 text-primary" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                )}
-              </button>
-            ))}
-          </div>
+          <ThemeList
+            themes={themes}
+            currentTheme={currentTheme}
+            onSelect={(id) => { setTheme(id); close() }}
+            className="py-1 max-h-64 overflow-y-auto overscroll-contain"
+          />
         </div>
       )}
     </div>

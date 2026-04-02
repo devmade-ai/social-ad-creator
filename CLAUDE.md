@@ -409,7 +409,9 @@ Core features working:
 - Per-cell structured text (guided mode):
   - Each cell has its own text elements: title, tagline, bodyHeading, bodyText, cta, footnote
   - Text elements organized in groups: Title+Tagline, Body, CTA, Footnote
-- Theme system with 19 color themes (each with light and dark variants) and custom colors
+- Theme system with 19 canvas design themes (each with light and dark variants) and custom colors
+  - Canvas design themes (themes.js): 19 presets for content styling — applied via inline styles
+  - App UI themes (daisyuiThemes.js): 16 DaisyUI themes (8 light + 8 dark) — controls app chrome
 - Overlay system with 26 effects:
   - Basic: Solid color
   - Linear gradients: 8 directions (↑↓←→ and diagonals)
@@ -524,7 +526,8 @@ src/
 │   ├── AlignmentPicker.jsx    # Reusable alignment button group
 │   ├── ColorPicker.jsx        # Theme-aware color picker for text elements
 │   ├── ThemeColorPicker.jsx   # Theme color swatch picker (primary/secondary/accent/neutrals)
-│   ├── ThemeSelector.jsx      # DaisyUI theme picker (per-mode light/dark theme selection)
+│   ├── ThemeSelector.jsx      # DaisyUI theme picker for desktop/reader (disclosure dropdown)
+│   ├── ThemeList.jsx          # Shared theme list UI (checkmark + name + description)
 │   ├── MiniCellGrid.jsx       # Compact cell grid for ContextBar
 │   ├── Toast.jsx              # Toast notification system (ToastProvider + useToast hook)
 │   ├── ConfirmButton.jsx      # Inline confirmation replacing browser confirm()
@@ -549,6 +552,7 @@ src/
 │   ├── fonts.ts          # 24 Google Fonts (FontEntry interface)
 │   ├── textDefaults.ts   # Default text layer state (TextLayer, FreeformBlock interfaces)
 │   ├── daisyuiThemes.js  # DaisyUI theme catalog (8 light + 8 dark, meta colors, defaults)
+│   ├── menuIcons.js      # SVG path constants for burger menu and desktop header icons
 │   └── alignment.jsx     # Alignment icon components and option arrays
 ├── hooks/
 │   ├── useAdState.js     # Central state (multi-page, per-cell text, freeformText, layout)
@@ -558,7 +562,8 @@ src/
 │   ├── useFocusTrap.js   # Focus trap for modals (Tab/Shift+Tab boundary wrapping)
 │   ├── useIsMobile.js    # matchMedia hook: viewport < 1024px (Tailwind lg breakpoint)
 │   ├── usePWAInstall.js  # PWA install prompt state
-│   └── usePWAUpdate.js   # PWA update detection state
+│   ├── usePWAUpdate.js   # PWA update detection state
+│   └── useDisclosureFocus.js # Shared focus management for disclosure-pattern components
 ├── utils/
 │   ├── cellUtils.js      # Cell counting, shifting, swapping, cleanup utilities
 │   ├── designStorage.js  # IndexedDB wrapper for design persistence
