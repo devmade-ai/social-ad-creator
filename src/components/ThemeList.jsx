@@ -22,7 +22,7 @@ export default function ThemeList({ themes, currentTheme, onSelect, className = 
         >
           <span className={`text-primary text-xs ${currentTheme === theme.id ? '' : 'invisible'}`} aria-hidden="true">&#10003;</span>
           <span>{theme.name}</span>
-          <span className="ml-auto text-xs text-base-content/40">{theme.description}</span>
+          <span className="ml-auto text-xs text-base-content/50">{theme.description}</span>
         </button>
       ))}
     </div>

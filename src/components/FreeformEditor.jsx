@@ -246,7 +246,7 @@ function FreeformBlockEditor({
           className={`w-7 h-7 sm:w-6 sm:h-6 rounded flex items-center justify-center text-xs active:scale-90 transition-colors ${
             confirmDelete
               ? 'bg-error text-error-content'
-              : 'bg-base-200 text-base-content/40 hover:text-error hover:bg-error/10'
+              : 'bg-base-200 text-base-content/50 hover:text-error hover:bg-error/10'
           }`}
           title={confirmDelete ? 'Click again to confirm delete' : 'Delete block'}
         >

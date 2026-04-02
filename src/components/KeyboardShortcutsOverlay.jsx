@@ -48,7 +48,7 @@ export default function KeyboardShortcutsOverlay({ onClose }) {
             </div>
           ))}
           <div className="pt-2 border-t border-base-200 mt-2">
-            <p className="text-[10px] text-base-content/40 font-medium uppercase tracking-wide mb-2">Reader Mode</p>
+            <p className="text-[10px] text-base-content/50 font-medium uppercase tracking-wide mb-2">Reader Mode</p>
             {[
               ['← →', 'Previous / Next page'],
               ['Esc', 'Exit reader mode'],

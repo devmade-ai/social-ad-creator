@@ -78,7 +78,7 @@ function CellGrid({ layout, cellImages = {}, selectedCell, onSelectCell, platfor
                   onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSelectCell(currentCellIndex) } }}
                   title={`Cell ${currentCellIndex + 1}`}
                 >
-                  <span className={`text-[9px] sm:text-[8px] font-medium leading-none ${isSelected ? 'text-primary-content' : hasImage ? 'text-primary' : 'text-base-content/40'}`}>
+                  <span className={`text-[9px] sm:text-[8px] font-medium leading-none ${isSelected ? 'text-primary-content' : hasImage ? 'text-primary' : 'text-base-content/50'}`}>
                     {currentCellIndex + 1}
                   </span>
                 </div>
@@ -251,7 +251,7 @@ export default memo(function ContextBar({
 
         {/* Desktop pages row (always visible on desktop) */}
         <div className="hidden sm:flex items-center gap-1.5 sm:flex-1 min-w-0">
-          <span className="text-[10px] text-base-content/40 uppercase tracking-wide shrink-0">Pages</span>
+          <span className="text-[10px] text-base-content/50 uppercase tracking-wide shrink-0">Pages</span>
 
           <div className="flex-1 min-w-0 overflow-x-auto scrollbar-thin">
             <PageDots
@@ -330,7 +330,7 @@ export default memo(function ContextBar({
         <div className="flex items-center gap-2 sm:contents">
           {/* Cell selector - miniature layout grid */}
           <div className="flex items-center gap-1.5 flex-1 min-w-0 sm:justify-center">
-            <span className="text-[10px] text-base-content/40 uppercase tracking-wide hidden sm:inline">Cell</span>
+            <span className="text-[10px] text-base-content/50 uppercase tracking-wide hidden sm:inline">Cell</span>
             <CellGrid
               layout={layout}
               cellImages={cellImages}

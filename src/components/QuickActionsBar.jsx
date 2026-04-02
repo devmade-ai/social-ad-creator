@@ -7,7 +7,7 @@
 export default function QuickActionsBar({ selectedCell, onNavigate }) {
   return (
     <div className="mt-2 flex items-center justify-center gap-1.5">
-      <span className="text-[10px] text-base-content/40 mr-1">Cell {selectedCell + 1}:</span>
+      <span className="text-[10px] text-base-content/50 mr-1">Cell {selectedCell + 1}:</span>
       <button
         onClick={() => onNavigate('media')}
         className="px-2 py-1 text-[11px] font-medium rounded-md text-base-content/70 hover:text-base-content hover:bg-base-300 transition-all flex items-center gap-1"

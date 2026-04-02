@@ -33,7 +33,7 @@ export default memo(function CollapsibleSection({
         <span className="text-sm font-medium text-base-content flex items-center gap-2 min-w-0">
           <span className="shrink-0">{title}</span>
           {!isExpanded && subtitle && (
-            <span className="text-[10px] text-base-content/40 font-normal truncate">— {subtitle}</span>
+            <span className="text-[10px] text-base-content/50 font-normal truncate">— {subtitle}</span>
           )}
         </span>
         <svg

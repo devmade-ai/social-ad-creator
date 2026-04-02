@@ -24,7 +24,7 @@ const layoutTypes = [
 // Shared button style constants to reduce repetition
 const btnBase = 'px-3 py-2 text-sm rounded-lg font-medium'
 const btnAction = `${btnBase} bg-primary/15 text-primary hover:bg-primary/20`
-const btnDisabled = `${btnBase} bg-primary/15 text-primary/40 cursor-not-allowed`
+const btnDisabled = `${btnBase} bg-primary/15 text-base-content/50 cursor-not-allowed`
 const btnDelete = `${btnBase} bg-error/10 text-error hover:bg-error/20`
 const btnSnap = `${btnBase} bg-success/10 text-success hover:bg-success/20`
 
@@ -640,7 +640,7 @@ export default memo(function LayoutTab({
           {/* Cell Selector */}
           <div className="space-y-3">
             <label className="block text-xs font-medium text-base-content/70 text-center">
-              Select Cell <span className="text-base-content/40 font-normal">(to configure)</span>
+              Select Cell <span className="text-base-content/50 font-normal">(to configure)</span>
             </label>
             <div className="flex justify-center">
               <MiniCellGrid
@@ -672,7 +672,7 @@ export default memo(function LayoutTab({
                     ? `${isRows ? 'Column' : 'Row'} ${selectedSubIndex + 1}`
                     : 'Cell'}
                 </span>
-                <span className="text-xs text-secondary/70">
+                <span className="text-xs text-base-content/70">
                   {selectedSection.subdivisions || 1} {selectedSection.subdivisions > 1 ? (isRows ? 'columns' : 'rows') : 'cell'} in {sectionLabel.toLowerCase()} {selectedSectionIndex + 1}
                 </span>
               </div>
@@ -703,7 +703,7 @@ export default memo(function LayoutTab({
                     disabled={selectedSubIndex === 0}
                     className={`flex-1 ${btnBase} ${
                       selectedSubIndex === 0
-                        ? 'bg-secondary/15 text-secondary/40 cursor-not-allowed'
+                        ? 'bg-secondary/15 text-base-content/50 cursor-not-allowed'
                         : 'bg-secondary/15 text-secondary hover:bg-secondary/20'
                     }`}
                   >
@@ -714,7 +714,7 @@ export default memo(function LayoutTab({
                     disabled={selectedSubIndex === (selectedSection.subdivisions || 1) - 1}
                     className={`flex-1 ${btnBase} ${
                       selectedSubIndex === (selectedSection.subdivisions || 1) - 1
-                        ? 'bg-secondary/15 text-secondary/40 cursor-not-allowed'
+                        ? 'bg-secondary/15 text-base-content/50 cursor-not-allowed'
                         : 'bg-secondary/15 text-secondary hover:bg-secondary/20'
                     }`}
                   >
@@ -731,7 +731,7 @@ export default memo(function LayoutTab({
                     disabled={!canMoveCellToSection(-1)}
                     className={`flex-1 ${btnBase} ${
                       !canMoveCellToSection(-1)
-                        ? 'bg-secondary/15 text-secondary/40 cursor-not-allowed'
+                        ? 'bg-secondary/15 text-base-content/50 cursor-not-allowed'
                         : 'bg-secondary/15 text-secondary hover:bg-secondary/20'
                     }`}
                   >
@@ -742,7 +742,7 @@ export default memo(function LayoutTab({
                     disabled={!canMoveCellToSection(1)}
                     className={`flex-1 ${btnBase} ${
                       !canMoveCellToSection(1)
-                        ? 'bg-secondary/15 text-secondary/40 cursor-not-allowed'
+                        ? 'bg-secondary/15 text-base-content/50 cursor-not-allowed'
                         : 'bg-secondary/15 text-secondary hover:bg-secondary/20'
                     }`}
                   >
@@ -756,7 +756,7 @@ export default memo(function LayoutTab({
                 <div>
                   <label className="block text-xs text-secondary mb-2 font-medium">
                     {isRows ? 'Cell Width' : 'Cell Height'}{' '}
-                    <span className="font-normal text-secondary/70">
+                    <span className="font-normal text-base-content/70">
                       ({MIN_SIZE}–{getMaxSize(selectedSection.subdivisions || 2)}%)
                     </span>
                   </label>
@@ -807,7 +807,7 @@ export default memo(function LayoutTab({
                 <span className="text-sm font-medium text-primary">
                   {sectionLabel} {selectedSectionIndex + 1}
                 </span>
-                <span className="text-xs text-primary/70">
+                <span className="text-xs text-base-content/70">
                   {structure.length} {isRows ? 'rows' : 'columns'}
                 </span>
               </div>
@@ -855,7 +855,7 @@ export default memo(function LayoutTab({
                 <div>
                   <label className="block text-xs text-primary mb-2 font-medium">
                     {isRows ? 'Row Height' : 'Col Width'}{' '}
-                    <span className="font-normal text-primary/70">
+                    <span className="font-normal text-base-content/70">
                       ({MIN_SIZE}–{getMaxSize(structure.length)}%)
                     </span>
                   </label>

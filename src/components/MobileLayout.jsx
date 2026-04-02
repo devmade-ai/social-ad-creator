@@ -48,7 +48,7 @@ function MenuThemeSection({ isDark, toggleDarkMode, lightTheme, darkTheme, setLi
       <hr className="my-1 border-base-300" />
       {/* Section header — updates to reflect which mode's themes are shown */}
       <div className="px-4 pt-2 pb-1">
-        <span className="text-xs font-semibold uppercase tracking-wider text-base-content/40">
+        <span className="text-xs font-semibold uppercase tracking-wider text-base-content/50">
           {isDark ? 'Dark themes' : 'Light themes'}
         </span>
       </div>
@@ -143,7 +143,18 @@ export default function MobileLayout({
       {/* Mobile header — compact with app name + burger menu only.
           Requirement: Move Save + ThemeSelector into burger menu for cleaner header.
           Ref: glow-props Suggested Implementations → Standard Menu Items. */}
-      {/* z-50 when menu open to layer above BottomSheet (z-30) and MobileNav (z-40) */}
+      {/* Burger menu backdrop — rendered OUTSIDE the header because the header's
+          backdrop-blur-sm creates a stacking context that traps fixed children.
+          z-[45] sits between MobileNav (z-40) and the header+menu (z-50). */}
+      {showMobileMenu && (
+        <div
+          className="fixed inset-0 z-[45] cursor-pointer"
+          onClick={() => setShowMobileMenu(false)}
+          aria-hidden="true"
+        />
+      )}
+
+      {/* z-50 when menu open to layer above backdrop (z-45) and MobileNav (z-40) */}
       <header className={`bg-base-100/90 backdrop-blur-sm border-b border-base-300/60 shrink-0 relative ${showMobileMenu ? 'z-50' : ''}`} style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}>
         <div className="flex items-center justify-between px-3 py-2">
           <div className="flex items-center gap-2">
@@ -237,7 +248,7 @@ export default function MobileLayout({
             <span className="font-medium text-base-content/70">
               {platformGroup?.name || 'Platform'} — {platform.name}
             </span>
-            <span className="text-base-content/40">
+            <span className="text-base-content/50">
               {platform.width} × {platform.height}
             </span>
           </button>

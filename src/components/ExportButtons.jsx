@@ -520,7 +520,7 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
                     <div key={category} className="space-y-1">
                       <button
                         onClick={() => selectCategory(category)}
-                        className="text-[10px] text-base-content/40 uppercase tracking-wide font-medium hover:text-primary transition-colors"
+                        className="text-[10px] text-base-content/50 uppercase tracking-wide font-medium hover:text-primary transition-colors"
                       >
                         {categoryLabels[category] || category}
                         {someSelected && !allSelected && <span className="ml-1 text-primary">+</span>}
