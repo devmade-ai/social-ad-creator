@@ -18,7 +18,7 @@ export default memo(function MiniCellGrid({
   // Display
   platform,
   cellsWithContent,      // Set of cell indices with content (ContentTab freeform)
-  size = 'small',        // 'small' | 'large'
+  size = 'small',        // 'small' | 'large' | 'contextbar'
   mode = 'default',      // 'default' (StyleTab-style) | 'content' (ContentTab-style)
 }) {
   const { type, structure } = layout
@@ -29,9 +29,13 @@ export default memo(function MiniCellGrid({
 
   const aspectRatio = getAspectRatio(platform)
 
+  // Requirement: Consolidate ContextBar's inline CellGrid into MiniCellGrid.
+  // Approach: 'contextbar' size uses responsive w-16/sm:w-12 with aspectRatio (no fixed height),
+  //   matching the original ContextBar CellGrid. Other sizes use fixed pixel dimensions.
+  const isContextbar = size === 'contextbar'
   const gridWidth = size === 'large' ? 120 : 64
   const fontSize = size === 'large' ? 'text-[11px] sm:text-[10px]' : 'text-[9px] sm:text-[8px]'
-  const minCellH = size === 'large' ? 'min-h-[28px] sm:min-h-[24px]' : 'min-h-[16px] sm:min-h-[14px]'
+  const minCellH = isContextbar ? 'min-h-[10px]' : size === 'large' ? 'min-h-[28px] sm:min-h-[24px]' : 'min-h-[16px] sm:min-h-[14px]'
 
   // Pre-compute cell mapping grouped by section to avoid mutable cellIndex during render
   const sectionCellMap = useMemo(() => {
@@ -56,6 +60,19 @@ export default memo(function MiniCellGrid({
     const isSelected = selectedCell === currentCellIndex
     const hasImage = !!cellImages[currentCellIndex]
     const hasContent = cellsWithContent?.has(currentCellIndex)
+
+    // ContextBar style: numbers only, compact font with font-medium
+    if (isContextbar) {
+      let bgClass
+      if (isSelected) bgClass = 'bg-primary hover:bg-primary/80'
+      else if (hasImage) bgClass = 'bg-primary/15 hover:bg-primary/20'
+      else bgClass = 'bg-base-200 hover:bg-base-300'
+      const textClass = isSelected ? 'text-primary-content' : hasImage ? 'text-primary' : 'text-base-content/50'
+      return {
+        bgClass,
+        content: <span className={`text-[9px] sm:text-[8px] font-medium leading-none ${textClass}`}>{currentCellIndex + 1}</span>,
+      }
+    }
 
     if (mode === 'content') {
       // ContentTab style: selected > hasContent > hasImage > default
@@ -104,11 +121,13 @@ export default memo(function MiniCellGrid({
 
   return (
     <div
-      className={`flex overflow-hidden border border-base-300 rounded ${size === 'large' ? 'w-[120px]' : ''}`}
+      className={`flex overflow-hidden border border-base-300 rounded ${
+        isContextbar ? 'w-16 sm:w-12' : size === 'large' ? 'w-[120px]' : ''
+      }`}
       style={{
-        ...(size !== 'large' ? { width: `${gridWidth}px` } : {}),
-        ...(size === 'large' ? {} : { height: `${gridWidth / aspectRatio}px` }),
-        aspectRatio: size === 'large' ? `${aspectRatio}` : undefined,
+        ...(!isContextbar && size !== 'large' ? { width: `${gridWidth}px` } : {}),
+        ...(!isContextbar && size !== 'large' ? { height: `${gridWidth / aspectRatio}px` } : {}),
+        aspectRatio: isContextbar || size === 'large' ? `${aspectRatio}` : undefined,
         flexDirection: isRows || isFullbleed ? 'column' : 'row',
       }}
     >

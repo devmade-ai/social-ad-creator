@@ -1,95 +1,5 @@
 import { memo, useMemo } from 'react'
-import { getAspectRatio } from '../config/platforms'
-import { normalizeStructure } from '../utils/cellUtils'
-
-// Compact cell grid for global cell selection.
-// Requirement: Pre-compute cell mapping to avoid mutable cellIndex during render.
-// Approach: useMemo builds a Map of sectionIndex → cells[], used during render.
-// Alternatives:
-//   - Mutable let cellIndex = 0 in render: Rejected — side effect during render,
-//     breaks under React strict mode double-rendering or concurrent features.
-// Requirement: Remove redundant normalizeStructure call — use memoized version only.
-// Previous code called normalizeStructure twice (once in render, once in useMemo).
-function CellGrid({ layout, cellImages = {}, selectedCell, onSelectCell, platform }) {
-  const { type, structure } = layout
-  const isFullbleed = type === 'fullbleed'
-  const isRows = type === 'rows'
-
-  const aspectRatio = getAspectRatio(platform)
-
-  // Memoize both the normalized structure and the cell mapping in one pass.
-  const { normalizedStructure, sectionCellMap } = useMemo(() => {
-    const normalized = normalizeStructure(type, structure)
-    const grouped = new Map()
-    let idx = 0
-    normalized.forEach((section, sectionIndex) => {
-      const subdivisions = section.subdivisions || 1
-      const subSizes = section.subSizes || Array(subdivisions).fill(100 / subdivisions)
-      const cells = []
-      for (let subIndex = 0; subIndex < subdivisions; subIndex++) {
-        cells.push({ cellIndex: idx, subSize: subSizes[subIndex] })
-        idx++
-      }
-      grouped.set(sectionIndex, cells)
-    })
-    return { normalizedStructure: normalized, sectionCellMap: grouped }
-  }, [type, structure])
-
-  return (
-    <div
-      className="flex overflow-hidden border border-base-300 rounded w-16 sm:w-12"
-      style={{
-        aspectRatio: `${aspectRatio}`,
-        flexDirection: isRows || isFullbleed ? 'column' : 'row',
-      }}
-    >
-      {normalizedStructure.map((section, sectionIndex) => {
-        const sectionSize = section.size || 100 / normalizedStructure.length
-        const sectionCells = sectionCellMap.get(sectionIndex) || []
-
-        return (
-          <div
-            key={`section-${sectionIndex}`}
-            className={`flex ${isRows || isFullbleed ? 'flex-row' : 'flex-col'}`}
-            style={{ flex: `1 1 ${sectionSize}%` }}
-          >
-            {sectionCells.map(({ cellIndex: currentCellIndex, subSize }) => {
-              const hasImage = !!cellImages[currentCellIndex]
-              const isSelected = selectedCell === currentCellIndex
-
-              let bgClass
-              if (isSelected) {
-                bgClass = 'bg-primary hover:bg-primary/80'
-              } else if (hasImage) {
-                bgClass = 'bg-primary/15 hover:bg-primary/20'
-              } else {
-                bgClass = 'bg-base-200 hover:bg-base-300'
-              }
-
-              return (
-                <div
-                  key={`cell-${currentCellIndex}`}
-                  role="button"
-                  tabIndex={0}
-                  aria-label={`Cell ${currentCellIndex + 1}`}
-                  className={`relative cursor-pointer transition-colors min-h-[10px] ${bgClass} flex items-center justify-center active:opacity-70`}
-                  style={{ flex: `1 1 ${subSize}%` }}
-                  onClick={() => onSelectCell(currentCellIndex)}
-                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSelectCell(currentCellIndex) } }}
-                  title={`Cell ${currentCellIndex + 1}`}
-                >
-                  <span className={`text-[9px] sm:text-[8px] font-medium leading-none ${isSelected ? 'text-primary-content' : hasImage ? 'text-primary' : 'text-base-content/50'}`}>
-                    {currentCellIndex + 1}
-                  </span>
-                </div>
-              )
-            })}
-          </div>
-        )
-      })}
-    </div>
-  )
-}
+import MiniCellGrid from './MiniCellGrid'
 
 // Validate hex color to prevent CSS injection via theme values.
 const HEX_COLOR_RE = /^#[0-9a-fA-F]{3,8}$/
@@ -198,12 +108,13 @@ export default memo(function ContextBar({
         {/* Cell selector */}
         <div className="flex items-center gap-1.5 min-w-0">
           <span className="text-[10px] text-base-content/50 uppercase tracking-wide shrink-0 hidden sm:inline">Cell</span>
-          <CellGrid
+          <MiniCellGrid
             layout={layout}
             cellImages={cellImages}
             selectedCell={selectedCell}
             onSelectCell={onSelectCell}
             platform={platform}
+            size="contextbar"
           />
           {totalCells > 1 && (
             <span className="text-xs font-medium text-base-content/70">

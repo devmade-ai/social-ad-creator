@@ -623,6 +623,97 @@ export default memo(function LayoutTab({
     <div className="space-y-3">
       <h3 className="text-sm font-semibold text-base-content">Structure</h3>
 
+      {/* Pages Section — add, duplicate, reorder, delete pages */}
+      <CollapsibleSection title="Pages" defaultExpanded={false}>
+        <div className="space-y-3">
+          {/* Page thumbnails */}
+          {pages.length > 1 && (
+            <div className="flex gap-1.5 overflow-x-auto scrollbar-thin pb-1">
+              {pages.map((_, index) => {
+                const pageState = getPageState ? getPageState(index) : null
+                const bgColor = pageState?.theme?.primary || '#1a1a2e'
+                const isActive = index === activePage
+                return (
+                  <button
+                    key={index}
+                    onClick={() => onSetActivePage(index)}
+                    className={`relative shrink-0 w-10 h-10 rounded-md overflow-hidden border-2 transition-all hover:scale-110 active:scale-95 ${
+                      isActive
+                        ? 'border-primary ring-1 ring-primary/30'
+                        : 'border-base-300 hover:border-base-300'
+                    }`}
+                    title={`Page ${index + 1}`}
+                  >
+                    <div
+                      className="absolute inset-0 flex items-center justify-center"
+                      style={{ backgroundColor: bgColor }}
+                    >
+                      <span className={`text-[8px] font-bold ${isActive ? 'text-white' : 'text-white/70'}`}>
+                        {index + 1}
+                      </span>
+                    </div>
+                  </button>
+                )
+              })}
+            </div>
+          )}
+
+          {/* Page actions */}
+          <div className="flex flex-wrap gap-1.5">
+            <button
+              onClick={onAddPage}
+              className="flex-1 px-3 py-2 text-sm rounded-lg font-medium bg-primary/15 text-primary hover:bg-primary/20"
+            >
+              + Add Page
+            </button>
+            {pages.length > 1 && (
+              <button
+                onClick={onDuplicatePage}
+                className="flex-1 px-3 py-2 text-sm rounded-lg font-medium bg-base-200 text-base-content/70 hover:bg-base-300"
+              >
+                Duplicate
+              </button>
+            )}
+          </div>
+
+          {/* Move & delete — only when multiple pages */}
+          {pages.length > 1 && (
+            <div className="flex flex-wrap gap-1.5">
+              <button
+                onClick={() => onMovePage(activePage, activePage - 1)}
+                disabled={activePage === 0}
+                className={`flex-1 ${activePage === 0 ? btnDisabled : btnAction}`}
+              >
+                ← Move Left
+              </button>
+              <button
+                onClick={() => onMovePage(activePage, activePage + 1)}
+                disabled={activePage === pages.length - 1}
+                className={`flex-1 ${activePage === pages.length - 1 ? btnDisabled : btnAction}`}
+              >
+                Move Right →
+              </button>
+            </div>
+          )}
+
+          {pages.length > 1 && (
+            <ConfirmButton
+              onConfirm={() => onRemovePage(activePage)}
+              confirmLabel={`Delete page ${activePage + 1}?`}
+              className={`w-full ${btnDelete}`}
+            >
+              Delete Page {activePage + 1}
+            </ConfirmButton>
+          )}
+
+          {pages.length <= 1 && (
+            <p className="text-xs text-base-content/50 text-center">
+              Add pages to create multi-page documents, books, or presentations.
+            </p>
+          )}
+        </div>
+      </CollapsibleSection>
+
       {/* Grid Section */}
       <CollapsibleSection title="Grid" defaultExpanded={true}>
         <div className="space-y-4">
@@ -918,96 +1009,6 @@ export default memo(function LayoutTab({
         </div>
       </CollapsibleSection>
 
-      {/* Pages Section — add, duplicate, reorder, delete pages */}
-      <CollapsibleSection title="Pages" defaultExpanded={true}>
-        <div className="space-y-3">
-          {/* Page thumbnails */}
-          {pages.length > 1 && (
-            <div className="flex gap-1.5 overflow-x-auto scrollbar-thin pb-1">
-              {pages.map((_, index) => {
-                const pageState = getPageState ? getPageState(index) : null
-                const bgColor = pageState?.theme?.primary || '#1a1a2e'
-                const isActive = index === activePage
-                return (
-                  <button
-                    key={index}
-                    onClick={() => onSetActivePage(index)}
-                    className={`relative shrink-0 w-10 h-10 rounded-md overflow-hidden border-2 transition-all hover:scale-110 active:scale-95 ${
-                      isActive
-                        ? 'border-primary ring-1 ring-primary/30'
-                        : 'border-base-300 hover:border-base-300'
-                    }`}
-                    title={`Page ${index + 1}`}
-                  >
-                    <div
-                      className="absolute inset-0 flex items-center justify-center"
-                      style={{ backgroundColor: bgColor }}
-                    >
-                      <span className={`text-[8px] font-bold ${isActive ? 'text-white' : 'text-white/70'}`}>
-                        {index + 1}
-                      </span>
-                    </div>
-                  </button>
-                )
-              })}
-            </div>
-          )}
-
-          {/* Page actions */}
-          <div className="flex flex-wrap gap-1.5">
-            <button
-              onClick={onAddPage}
-              className="flex-1 px-3 py-2 text-sm rounded-lg font-medium bg-primary/15 text-primary hover:bg-primary/20"
-            >
-              + Add Page
-            </button>
-            {pages.length > 1 && (
-              <button
-                onClick={onDuplicatePage}
-                className="flex-1 px-3 py-2 text-sm rounded-lg font-medium bg-base-200 text-base-content/70 hover:bg-base-300"
-              >
-                Duplicate
-              </button>
-            )}
-          </div>
-
-          {/* Move & delete — only when multiple pages */}
-          {pages.length > 1 && (
-            <div className="flex flex-wrap gap-1.5">
-              <button
-                onClick={() => onMovePage(activePage, activePage - 1)}
-                disabled={activePage === 0}
-                className={`flex-1 ${activePage === 0 ? btnDisabled : btnAction}`}
-              >
-                ← Move Left
-              </button>
-              <button
-                onClick={() => onMovePage(activePage, activePage + 1)}
-                disabled={activePage === pages.length - 1}
-                className={`flex-1 ${activePage === pages.length - 1 ? btnDisabled : btnAction}`}
-              >
-                Move Right →
-              </button>
-            </div>
-          )}
-
-          {pages.length > 1 && (
-            <ConfirmButton
-              onConfirm={() => onRemovePage(activePage)}
-              confirmLabel={`Delete page ${activePage + 1}?`}
-              className={`w-full ${btnDelete}`}
-            >
-              Delete Page {activePage + 1}
-            </ConfirmButton>
-          )}
-
-          {pages.length <= 1 && (
-            <p className="text-xs text-base-content/50 text-center">
-              Add pages to create multi-page documents, books, or presentations.
-            </p>
-          )}
-        </div>
-      </CollapsibleSection>
     </div>
   )
 })
