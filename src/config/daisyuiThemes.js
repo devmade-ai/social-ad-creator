@@ -26,7 +26,7 @@ export const themeCombos = [
   },
 ]
 
-export const DEFAULT_COMBO = 'mono'
+export const DEFAULT_COMBO = 'luxe'
 
 // Look up meta theme-color for a given theme ID.
 // Falls back to neutral values if theme not found.

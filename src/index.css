@@ -5,7 +5,7 @@
 @import "tailwindcss";
 
 @plugin "daisyui" {
-  themes: lofi --default, black --prefersdark, fantasy, luxury;
+  themes: fantasy --default, luxury --prefersdark, lofi, black;
 }
 
 /* Requirement: Tailwind dark: variant must work alongside DaisyUI data-theme.

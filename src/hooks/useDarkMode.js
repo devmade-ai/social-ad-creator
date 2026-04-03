@@ -32,23 +32,6 @@ function validCombo(id) {
   return comboIds.has(id) ? id : DEFAULT_COMBO
 }
 
-// One-time migration from old independent theme keys to combo key.
-// If user had lightTheme/darkTheme but no themeCombo, infer the combo
-// from their dark theme (luxury → luxe, anything else → mono).
-// Runs once on module load; cleans up old keys.
-function migrateOldThemeKeys() {
-  try {
-    if (localStorage.getItem('themeCombo') !== null) return
-    const oldDark = localStorage.getItem('darkTheme')
-    if (oldDark === null) return
-    const combo = oldDark === 'luxury' ? 'luxe' : 'mono'
-    localStorage.setItem('themeCombo', combo)
-    localStorage.removeItem('lightTheme')
-    localStorage.removeItem('darkTheme')
-  } catch { /* sandboxed/disabled storage */ }
-}
-migrateOldThemeKeys()
-
 export function useDarkMode() {
   const [isDark, setIsDark] = useState(() => {
     const stored = safeStorageGet('darkMode')

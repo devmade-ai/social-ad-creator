@@ -31,7 +31,7 @@ const COMBOS = [
   { id: 'luxe', name: 'Luxe', description: 'Rich & elegant', light: 'fantasy', dark: 'luxury' },
 ]
 
-const DEFAULT_COMBO = 'mono'
+const DEFAULT_COMBO = 'luxe'
 
 // Per-theme color key overrides. Default: dark → base-100, light → primary.
 // Some light themes have primary colors that don't represent the theme feel.
