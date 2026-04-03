@@ -392,17 +392,23 @@ function App() {
       if (!platform.width || !platform.height) return 1
       return Math.min(maxWidth / platform.width, maxHeight / platform.height, 1)
     }
-    // Mobile: use container dimensions (flex-1 fills available space)
-    // Desktop: use container width + 70% viewport height
+    // Mobile: use container dimensions, reduced by bottom sheet when open.
+    // Desktop: use container width + 70% viewport height.
+    // Requirement: Canvas auto-scales to fit visible area above bottom sheet
+    //   so it's never hidden behind the sheet and doesn't need scrolling.
+    // Alternatives:
+    //   - overflow-y-auto + paddingBottom on canvas container: Rejected — ResizeObserver
+    //     picks up the padding change, recalculates scale, causes dimension flicker,
+    //     and scroll only worked on initial load (not on subsequent sheet opens).
     const maxWidth = isMobile
       ? Math.max(containerWidth - 8, 200)
       : Math.max(containerWidth - 32, 200)
     const maxHeight = isMobile
-      ? Math.max(containerHeight - 8, 200)
+      ? Math.max(containerHeight - (mobileSheetOpen ? (sheetSnap / 100) * windowHeight : 0) - 8, 200)
       : windowHeight * 0.7
     if (!platform.width || !platform.height) return 1
     return Math.min(maxWidth / platform.width, maxHeight / platform.height, 1)
-  }, [platform, containerWidth, containerHeight, isMobile, isReaderMode, windowHeight, hasMultiplePages])
+  }, [platform, containerWidth, containerHeight, isMobile, isReaderMode, windowHeight, hasMultiplePages, mobileSheetOpen, sheetSnap])
 
   const isCanvasEmpty = useMemo(() => {
     const hasImages = state.images && state.images.length > 0
