@@ -22,6 +22,11 @@ export const SNAP_FULL = 80
 // Easing curve for snap animations — extracted for consistency.
 const SHEET_EASING = 'cubic-bezier(0.32, 0.72, 0, 1)'
 
+// How far (vh) past a snap point the user must drag to commit to the next snap.
+// Used for direction-aware thresholds: SNAP + SNAP_THRESHOLD when dragging up,
+// SNAP - SNAP_THRESHOLD when dragging down.
+const SNAP_THRESHOLD = 5
+
 // Convert a snap value (vh) to a translateY value.
 // Sheet is full-size (SNAP_FULL vh); translateY slides it down to show less.
 // snap=SNAP_FULL → translateY(0), snap=SNAP_HALF → translateY(35vh), snap=0 → translateY(85vh)
@@ -138,13 +143,13 @@ export default function BottomSheet({ isOpen, onClose, children, snapPoint, onSn
     let targetSnap
     if (draggingUp) {
       // Thresholds: 5vh past the snap you're leaving
-      if (currentVh > SNAP_HALF + 5) targetSnap = SNAP_FULL
-      else if (currentVh > SNAP_CLOSED + 5) targetSnap = SNAP_HALF
+      if (currentVh > SNAP_HALF + SNAP_THRESHOLD) targetSnap = SNAP_FULL
+      else if (currentVh > SNAP_CLOSED + SNAP_THRESHOLD) targetSnap = SNAP_HALF
       else targetSnap = SNAP_CLOSED
     } else {
       // Dragging down
-      if (currentVh < SNAP_HALF - 5) targetSnap = SNAP_CLOSED
-      else if (currentVh < SNAP_FULL - 5) targetSnap = SNAP_HALF
+      if (currentVh < SNAP_HALF - SNAP_THRESHOLD) targetSnap = SNAP_CLOSED
+      else if (currentVh < SNAP_FULL - SNAP_THRESHOLD) targetSnap = SNAP_HALF
       else targetSnap = SNAP_FULL
     }
 
