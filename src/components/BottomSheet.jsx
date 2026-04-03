@@ -16,7 +16,7 @@ import { useRef, useEffect, useCallback } from 'react'
 //     bundle weight for a simple gesture.
 
 export const SNAP_CLOSED = 0
-export const SNAP_HALF = 40
+export const SNAP_HALF = 45
 export const SNAP_FULL = 80
 
 // Easing curve for snap animations — extracted for consistency.
@@ -107,23 +107,42 @@ export default function BottomSheet({ isOpen, onClose, children, snapPoint, onSn
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen])
 
+  // Determine if a touch started inside scrollable content (vs drag handle).
+  // Content-area drags only become sheet drags when scrolled to top and pulling down.
   const handleTouchStart = useCallback((e) => {
+    const inContent = contentRef.current?.contains(e.target)
     dragRef.current = {
       startY: e.touches[0].clientY,
       startTranslateVh: currentTranslateRef.current,
       startSnapVh: SNAP_FULL - currentTranslateRef.current,
-      isDragging: true,
+      isDragging: !inContent, // drag handle: immediate drag
+      inContent,
+      promoted: false, // content touch promoted to sheet drag
     }
-    // Disable transition during drag for instant response
-    if (sheetRef.current) sheetRef.current.style.transition = 'none'
+    if (!inContent && sheetRef.current) sheetRef.current.style.transition = 'none'
   }, [])
 
   const handleTouchMove = useCallback((e) => {
-    if (!dragRef.current.isDragging) return
-    const deltaY = e.touches[0].clientY - dragRef.current.startY
+    const drag = dragRef.current
+    // Content-area touch: promote to sheet drag if scrolled to top and pulling down
+    if (drag.inContent && !drag.promoted) {
+      const scrollTop = contentRef.current?.scrollTop ?? 0
+      const deltaY = e.touches[0].clientY - drag.startY
+      if (scrollTop <= 0 && deltaY > 0) {
+        // Promote: start dragging the sheet from current position
+        drag.promoted = true
+        drag.isDragging = true
+        drag.startY = e.touches[0].clientY
+        drag.startTranslateVh = currentTranslateRef.current
+        if (sheetRef.current) sheetRef.current.style.transition = 'none'
+      }
+      if (!drag.isDragging) return
+    }
+    if (!drag.isDragging) return
+    const deltaY = e.touches[0].clientY - drag.startY
     const deltaVh = (deltaY / window.innerHeight) * 100
     // Clamp: 0 = fully visible (SNAP_FULL), SNAP_FULL = fully hidden
-    const newTranslate = Math.min(SNAP_FULL, Math.max(0, dragRef.current.startTranslateVh + deltaVh))
+    const newTranslate = Math.min(SNAP_FULL, Math.max(0, drag.startTranslateVh + deltaVh))
     applyTransform(newTranslate, false)
   }, [applyTransform])
 
@@ -184,14 +203,14 @@ export default function BottomSheet({ isOpen, onClose, children, snapPoint, onSn
         // Start off-screen; useEffect will animate in
         transform: `translateY(${SNAP_FULL}vh)`,
       }}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+      onTouchCancel={handleTouchCancel}
     >
       {/* Drag handle — py-4 for 44px+ touch zone (handle itself is 4px tall) */}
       <div
         className="flex justify-center py-4 cursor-grab active:cursor-grabbing shrink-0 touch-none"
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
-        onTouchCancel={handleTouchCancel}
       >
         <div className="w-10 h-1 bg-base-300 rounded-full" />
       </div>
