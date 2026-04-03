@@ -58,7 +58,7 @@ export default memo(function ContextBar({
             selectedCell={selectedCell}
             onSelectCell={onSelectCell}
             platform={platform}
-            fixedHeight="s"
+            fixedHeight="m"
           />
           {totalCells > 1 && (
             <span className="text-xs font-medium text-base-content/70">
