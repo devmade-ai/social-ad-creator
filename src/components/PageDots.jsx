@@ -13,8 +13,9 @@ function safeColor(color, fallback = '#1a1a2e') {
 }
 
 // Compact page thumbnail.
-// Touch targets: w-11 h-11 (44px) on mobile to meet WCAG minimum, w-8 h-8 on desktop.
-function PageDot({ pageState, isActive, onClick, index }) {
+// When size is provided (px), uses inline styles for exact height matching with MiniCellGrid.
+// When size is null, falls back to responsive Tailwind classes (44px mobile, 32px desktop).
+function PageDot({ pageState, isActive, onClick, index, size }) {
   const bgColor = safeColor(pageState?.theme?.primary)
 
   return (
@@ -22,11 +23,14 @@ function PageDot({ pageState, isActive, onClick, index }) {
       onClick={onClick}
       aria-label={`Switch to page ${index + 1}`}
       aria-current={isActive ? 'page' : undefined}
-      className={`relative shrink-0 w-11 h-11 sm:w-8 sm:h-8 rounded-md overflow-hidden border-2 transition-all hover:scale-110 active:scale-95 ${
+      className={`relative shrink-0 rounded-md overflow-hidden border-2 transition-all hover:scale-110 active:scale-95 ${
+        !size ? 'w-11 h-11 sm:w-8 sm:h-8' : ''
+      } ${
         isActive
           ? 'border-primary ring-1 ring-primary/30'
           : 'border-base-300 hover:border-base-300'
       }`}
+      style={size ? { width: size, height: size } : undefined}
       title={`Page ${index + 1}`}
     >
       <div
@@ -42,7 +46,7 @@ function PageDot({ pageState, isActive, onClick, index }) {
 }
 
 // Memoize page state lookups to avoid calling getPageState() for every page on every render.
-const PageDots = memo(function PageDots({ pages, activePage, getPageState, onSetActivePage }) {
+const PageDots = memo(function PageDots({ pages, activePage, getPageState, onSetActivePage, size = null }) {
   const pageStates = useMemo(
     () => pages.map((_, i) => (getPageState ? getPageState(i) : null)),
     [pages, getPageState]
@@ -57,6 +61,7 @@ const PageDots = memo(function PageDots({ pages, activePage, getPageState, onSet
           isActive={index === activePage}
           onClick={() => onSetActivePage(index)}
           index={index}
+          size={size}
         />
       ))}
     </div>

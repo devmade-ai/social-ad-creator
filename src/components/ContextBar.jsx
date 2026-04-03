@@ -1,5 +1,5 @@
 import { memo, useMemo } from 'react'
-import MiniCellGrid from './MiniCellGrid'
+import MiniCellGrid, { FIXED_HEIGHTS } from './MiniCellGrid'
 import PageDots from './PageDots'
 
 // Requirement: Consolidated single-row bar for page selection + cell selection.
@@ -42,6 +42,7 @@ export default memo(function ContextBar({
                   activePage={activePage}
                   getPageState={getPageState}
                   onSetActivePage={onSetActivePage}
+                  size={FIXED_HEIGHTS.m}
                 />
               </div>
             </div>

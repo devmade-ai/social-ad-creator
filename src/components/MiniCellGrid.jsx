@@ -17,7 +17,7 @@ import { normalizeStructure } from '../utils/cellUtils'
 //     the correct layout proportions.
 //   - Device-based toggle: Rejected — the issue is context (horizontal bar vs vertical panel),
 //     not device type. Let each consumer choose the right mode.
-const FIXED_HEIGHTS = { s: 44, m: 64, l: 88 }
+export const FIXED_HEIGHTS = { s: 44, m: 64, l: 88 }
 
 export default memo(function MiniCellGrid({
   layout,
