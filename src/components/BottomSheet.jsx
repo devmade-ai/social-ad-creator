@@ -129,7 +129,7 @@ export default function BottomSheet({ isOpen, onClose, children, snapPoint, onSn
     const currentVh = SNAP_FULL - currentTranslateRef.current // visible height in vh
     if (currentVh < 30) {
       onClose()
-    } else if (currentVh < 65) {
+    } else if (currentVh < 50) {
       onSnapChange(SNAP_HALF)
       applyTransform(snapToTranslateY(SNAP_HALF), true)
     } else {
