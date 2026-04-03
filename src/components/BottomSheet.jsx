@@ -22,6 +22,11 @@ export const SNAP_FULL = 80
 // Easing curve for snap animations — extracted for consistency.
 const SHEET_EASING = 'cubic-bezier(0.32, 0.72, 0, 1)'
 
+// How far (vh) past a snap point the user must drag to commit to the next snap.
+// Used for direction-aware thresholds: SNAP + SNAP_THRESHOLD when dragging up,
+// SNAP - SNAP_THRESHOLD when dragging down.
+const SNAP_THRESHOLD = 5
+
 // Convert a snap value (vh) to a translateY value.
 // Sheet is full-size (SNAP_FULL vh); translateY slides it down to show less.
 // snap=SNAP_FULL → translateY(0), snap=SNAP_HALF → translateY(35vh), snap=0 → translateY(85vh)
@@ -106,6 +111,7 @@ export default function BottomSheet({ isOpen, onClose, children, snapPoint, onSn
     dragRef.current = {
       startY: e.touches[0].clientY,
       startTranslateVh: currentTranslateRef.current,
+      startSnapVh: SNAP_FULL - currentTranslateRef.current,
       isDragging: true,
     }
     // Disable transition during drag for instant response
@@ -121,20 +127,37 @@ export default function BottomSheet({ isOpen, onClose, children, snapPoint, onSn
     applyTransform(newTranslate, false)
   }, [applyTransform])
 
-  // Snap to nearest point based on current drag position.
-  // Shared by touchend and touchcancel to prevent sheet freezing mid-drag
-  // if touch is interrupted (e.g., system notification, incoming call).
+  // Snap to nearest point based on drag direction and position.
+  // Requirement: Direction-aware thresholds — 5vh past the snap you're leaving.
+  // Approach: Compare current position to starting snap to determine drag direction,
+  //   then use asymmetric thresholds so a small committed gesture snaps quickly.
+  // Alternatives:
+  //   - Single midpoint thresholds: Rejected — same distance needed regardless of
+  //     intent, feels sluggish when user clearly commits to a direction.
   const snapToNearest = useCallback(() => {
     dragRef.current.isDragging = false
     const currentVh = SNAP_FULL - currentTranslateRef.current // visible height in vh
-    if (currentVh < 30) {
-      onClose()
-    } else if (currentVh < 50) {
-      onSnapChange(SNAP_HALF)
-      applyTransform(snapToTranslateY(SNAP_HALF), true)
+    const startVh = dragRef.current.startSnapVh
+    const draggingUp = currentVh > startVh
+
+    let targetSnap
+    if (draggingUp) {
+      // Thresholds: 5vh past the snap you're leaving
+      if (currentVh > SNAP_HALF + SNAP_THRESHOLD) targetSnap = SNAP_FULL
+      else if (currentVh > SNAP_CLOSED + SNAP_THRESHOLD) targetSnap = SNAP_HALF
+      else targetSnap = SNAP_CLOSED
     } else {
-      onSnapChange(SNAP_FULL)
-      applyTransform(snapToTranslateY(SNAP_FULL), true)
+      // Dragging down
+      if (currentVh < SNAP_HALF - SNAP_THRESHOLD) targetSnap = SNAP_CLOSED
+      else if (currentVh < SNAP_FULL - SNAP_THRESHOLD) targetSnap = SNAP_HALF
+      else targetSnap = SNAP_FULL
+    }
+
+    if (targetSnap === SNAP_CLOSED) {
+      onClose()
+    } else {
+      onSnapChange(targetSnap)
+      applyTransform(snapToTranslateY(targetSnap), true)
     }
   }, [onClose, onSnapChange, applyTransform])
 

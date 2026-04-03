@@ -27,6 +27,7 @@ import KeyboardShortcutsOverlay from './components/KeyboardShortcutsOverlay'
 import ReaderMode from './components/ReaderMode'
 import MobileLayout from './components/MobileLayout'
 import DesktopLayout from './components/DesktopLayout'
+import { SNAP_HALF } from './components/BottomSheet'
 import { useOnlineStatus } from './hooks/useOnlineStatus'
 import { platforms, findPlatformGroup } from './config/platforms'
 import { fonts } from './config/fonts'
@@ -186,7 +187,7 @@ function App() {
   //   Non-mobile ignores these values (cleared by the isMobile effect below).
   const isMobile = useIsMobile()
   const [mobileSheetOpen, setMobileSheetOpen] = useState(true)
-  const [sheetSnap, setSheetSnap] = useState(50)
+  const [sheetSnap, setSheetSnap] = useState(SNAP_HALF)
   const [showMobileMenu, setShowMobileMenu] = useState(false)
   const [cellContextMenu, setCellContextMenu] = useState(null) // { cellIndex, position: { x, y } }
   const swipeRef = useRef({ x: 0, y: 0 })
