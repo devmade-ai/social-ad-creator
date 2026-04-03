@@ -124,16 +124,29 @@ export default function BottomSheet({ isOpen, onClose, children, snapPoint, onSn
 
   const handleTouchMove = useCallback((e) => {
     const drag = dragRef.current
-    // Content-area touch: promote to sheet drag if scrolled to top and pulling down
+    // Content-area touch: promote to sheet drag when at scroll boundary.
+    // Requirement: Drag down when scrolled to top closes/shrinks sheet;
+    //   drag up when scrolled to bottom expands sheet.
+    // Approach: Check scroll position + drag direction to decide promotion.
+    // Alternatives:
+    //   - Only promote on drag-down: Rejected — users expect drag-up on content
+    //     to expand the sheet when there's nothing left to scroll.
     if (drag.inContent && !drag.promoted) {
-      const scrollTop = contentRef.current?.scrollTop ?? 0
+      const el = contentRef.current
+      const scrollTop = el?.scrollTop ?? 0
       const deltaY = e.touches[0].clientY - drag.startY
-      if (scrollTop <= 0 && deltaY > 0) {
+      // At top and pulling down → shrink/close sheet
+      const atTopPullingDown = scrollTop <= 0 && deltaY > 0
+      // At bottom and pulling up → expand sheet
+      const atBottom = el ? (el.scrollTop + el.clientHeight >= el.scrollHeight - 1) : false
+      const atBottomPullingUp = atBottom && deltaY < 0
+      if (atTopPullingDown || atBottomPullingUp) {
         // Promote: start dragging the sheet from current position
         drag.promoted = true
         drag.isDragging = true
         drag.startY = e.touches[0].clientY
         drag.startTranslateVh = currentTranslateRef.current
+        drag.startSnapVh = SNAP_FULL - currentTranslateRef.current
         if (sheetRef.current) sheetRef.current.style.transition = 'none'
       }
       if (!drag.isDragging) return
