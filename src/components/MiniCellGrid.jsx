@@ -9,7 +9,7 @@ import { getAspectRatio } from '../config/platforms'
 import { normalizeStructure } from '../utils/cellUtils'
 
 // Requirement: Fixed-height sizing mode for horizontal contexts (ContextBar).
-// Approach: fixedHeight prop caps the grid height (s=32px, m=44px, l=56px) and derives
+// Approach: fixedHeight prop caps the grid height (s=44px, m=64px, l=88px) and derives
 //   width from height × aspectRatio. This prevents tall portrait formats (9:16) from
 //   blowing out the ContextBar height (was 114px for Stories).
 // Alternatives:
@@ -17,7 +17,7 @@ import { normalizeStructure } from '../utils/cellUtils'
 //     the correct layout proportions.
 //   - Device-based toggle: Rejected — the issue is context (horizontal bar vs vertical panel),
 //     not device type. Let each consumer choose the right mode.
-const FIXED_HEIGHTS = { s: 32, m: 44, l: 56 }
+const FIXED_HEIGHTS = { s: 44, m: 64, l: 88 }
 
 export default memo(function MiniCellGrid({
   layout,
