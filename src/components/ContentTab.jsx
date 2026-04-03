@@ -314,7 +314,7 @@ export default memo(function ContentTab({
           />
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium text-base-content">
+          <p className="text-sm font-medium text-primary">
             Cell {activeCell + 1}
             {cellPositionLabel && (
               <span className="text-base-content/60 font-normal"> ({cellPositionLabel})</span>
