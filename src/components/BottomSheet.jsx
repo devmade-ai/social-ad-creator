@@ -16,7 +16,7 @@ import { useRef, useEffect, useCallback } from 'react'
 //     bundle weight for a simple gesture.
 
 export const SNAP_CLOSED = 0
-export const SNAP_HALF = 40
+export const SNAP_HALF = 45
 export const SNAP_FULL = 80
 
 // Easing curve for snap animations — extracted for consistency.
