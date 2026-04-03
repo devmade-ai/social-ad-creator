@@ -652,7 +652,7 @@ export default memo(function LayoutTab({
             {pages.length > 1 && (
               <button
                 onClick={onDuplicatePage}
-                className="flex-1 px-3 py-2 text-sm rounded-lg font-medium bg-base-200 text-base-content/70 hover:bg-base-300"
+                className={`flex-1 ${btnAction}`}
               >
                 Duplicate
               </button>
@@ -855,7 +855,7 @@ export default memo(function LayoutTab({
                       step="5"
                       value={selectedSection.subSizes?.[selectedSubIndex] || 50}
                       onChange={(e) => updateSubSize(selectedSectionIndex, selectedSubIndex, Number(e.target.value))}
-                      className="range range-primary range-sm flex-1"
+                      className="range range-secondary range-sm flex-1"
                     />
                     <span className="text-[10px] text-base-content/50 w-7 text-right">Large</span>
                   </div>
@@ -879,7 +879,7 @@ export default memo(function LayoutTab({
                   onClick={() => removeCell(selectedSectionIndex, selectedSubIndex)}
                   className={`w-full ${btnDelete}`}
                 >
-                  Delete {isRows ? 'Cell' : 'Cell'}
+                  Delete Cell
                 </button>
               )}
             </div>
@@ -987,7 +987,7 @@ export default memo(function LayoutTab({
 
           <button
             onClick={handleReset}
-            className="w-full px-3 py-2.5 text-sm bg-base-200 text-base-content/70 hover:bg-base-300 rounded-lg font-medium"
+            className={`w-full ${btnSecondary}`}
           >
             Reset to Default
           </button>
