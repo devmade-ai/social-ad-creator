@@ -35,13 +35,20 @@
             : window.matchMedia('(prefers-color-scheme: dark)').matches;
           var root = document.documentElement;
           if (isDark) root.classList.add('dark');
-          // Combo-based theme resolution
-          var combos = { mono: { light: 'lofi', dark: 'black' }, luxe: { light: 'fantasy', dark: 'luxury' } };
-          var comboId = localStorage.getItem('themeCombo') || 'mono';
+          // Combo-based theme resolution (with migration from old lightTheme/darkTheme keys)
+          var combos = {"mono":{"light":"lofi","dark":"black"},"luxe":{"light":"fantasy","dark":"luxury"}};
+          var comboId = localStorage.getItem('themeCombo');
+          if (!comboId && localStorage.getItem('darkTheme')) {
+            comboId = localStorage.getItem('darkTheme') === 'luxury' ? 'luxe' : 'mono';
+            localStorage.setItem('themeCombo', comboId);
+            localStorage.removeItem('lightTheme');
+            localStorage.removeItem('darkTheme');
+          }
+          comboId = comboId || 'mono';
           var combo = combos[comboId] || combos.mono;
           var theme = isDark ? combo.dark : combo.light;
           root.setAttribute('data-theme', theme);
-          var metaColors = {"lofi":"#ebebeb","black":"#000000","fantasy":"#6e0b75","luxury":"#09090b"};
+          var metaColors = {"lofi":"#ebebeb","black":"#000000","fantasy":"#6d0076","luxury":"#09090b"};
           var mc = metaColors[theme] || '#808080';
           document.querySelectorAll('meta[name="theme-color"]').forEach(function(m) { m.setAttribute('content', mc); });
         } catch(e) {}

@@ -21,7 +21,7 @@ export const themeCombos = [
     id: 'luxe',
     name: 'Luxe',
     description: 'Rich & elegant',
-    light: { id: 'fantasy', metaColor: '#6e0b75' },
+    light: { id: 'fantasy', metaColor: '#6d0076' },
     dark: { id: 'luxury', metaColor: '#09090b' },
   },
 ]

@@ -21,12 +21,13 @@ A vibrant, creative design system for makers who want their ads to *pop*.
 
 ### DaisyUI Themes
 
-The UI chrome uses **DaisyUI 5** with 16 curated themes (8 light, 8 dark). Users independently select a theme for each mode via the `ThemeSelector` dropdown in the header. Colors adapt automatically via `data-theme` attribute on `<html>`.
+The UI chrome uses **DaisyUI 5** with 2 theme combos. Users pick a combo (Mono or Luxe) that pairs a light + dark theme; the dark/light toggle switches between them. Colors adapt automatically via `data-theme` attribute on `<html>`.
 
-**Light themes:** Lo-Fi (default), Nord, Emerald, Cupcake, Garden, Autumn, Pastel, Caramel
-**Dark themes:** Black (default), Night, Forest, Dracula, Dim, Synthwave, Luxury, Coffee
+**Combos:**
+- **Mono** — Lo-Fi (light) + Black (dark) — clean & minimal
+- **Luxe** — Fantasy (light) + Luxury (dark) — rich & elegant
 
-Theme catalog is defined in `src/config/daisyuiThemes.js`. Registered in `src/index.css` via `@plugin "daisyui"`.
+Theme combos are defined in `src/config/daisyuiThemes.js`. Registered in `src/index.css` via `@plugin "daisyui"`.
 
 The 19 content themes in `src/config/themes.js` are for the **design canvas** — they use inline styles and are completely separate from the DaisyUI UI chrome.
 
@@ -351,13 +352,13 @@ transition: transform 200ms cubic-bezier(0.34, 1.56, 0.64, 1);
 
 ## Dark Mode
 
-DaisyUI handles light/dark automatically via `data-theme`. Users pick independent themes per mode.
+DaisyUI handles light/dark automatically via `data-theme`. Users pick a combo (Mono or Luxe); toggling dark/light switches between the paired themes.
 
 ### Key Principles
 
 1. **DaisyUI themes handle colors** — no manual dark: class pairs needed
 2. **Dual-layer theming** — `.dark` class for Tailwind utilities + `data-theme` for DaisyUI
-3. **16 curated themes** — 8 light + 8 dark, independently selectable
+3. **2 theme combos** — Mono (lofi/black) and Luxe (fantasy/luxury)
 
 ### Background Hierarchy
 
