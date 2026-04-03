@@ -19,10 +19,8 @@ export default function ReaderMode({
   setIsReaderMode,
   isDark,
   toggleDarkMode,
-  lightTheme,
-  darkTheme,
-  setLightTheme,
-  setDarkTheme,
+  comboId,
+  setCombo,
 }) {
   return (
     <div className="h-[100dvh] flex flex-col bg-base-200">
@@ -34,7 +32,7 @@ export default function ReaderMode({
             <span className="hidden sm:inline">Back to Editor</span>
           </button>
           {hasMultiplePages && <span className="text-sm font-medium text-base-content/70">{state.activePage + 1} / {pageCount}</span>}
-          <ThemeSelector isDark={isDark} toggleDarkMode={toggleDarkMode} lightTheme={lightTheme} darkTheme={darkTheme} setLightTheme={setLightTheme} setDarkTheme={setDarkTheme} />
+          <ThemeSelector isDark={isDark} toggleDarkMode={toggleDarkMode} comboId={comboId} setCombo={setCombo} />
         </div>
       </header>
       <main className="flex-1 flex flex-col items-center justify-center px-2 py-1 sm:px-4 sm:py-2 min-h-0">

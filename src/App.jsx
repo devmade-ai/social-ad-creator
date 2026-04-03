@@ -174,7 +174,7 @@ function App() {
   const [showSaveLoadModal, setShowSaveLoadModal] = useState(false)
   const [isReaderMode, setIsReaderMode] = useState(false)
   const [selectedCell, setSelectedCell] = useState(0)
-  const { isDark, toggle: toggleDarkMode, lightTheme, darkTheme, setLightTheme, setDarkTheme } = useDarkMode()
+  const { isDark, toggle: toggleDarkMode, comboId, setCombo } = useDarkMode()
   const { canInstall, install, showManualInstructions, getInstallInstructions, isInstalled } = usePWAInstall()
   const { hasUpdate, update } = usePWAUpdate()
   const isOnline = useOnlineStatus()
@@ -599,10 +599,8 @@ function App() {
         setIsReaderMode={setIsReaderMode}
         isDark={isDark}
         toggleDarkMode={toggleDarkMode}
-        lightTheme={lightTheme}
-        darkTheme={darkTheme}
-        setLightTheme={setLightTheme}
-        setDarkTheme={setDarkTheme}
+        comboId={comboId}
+        setCombo={setCombo}
       />
     )
   }
@@ -652,10 +650,8 @@ function App() {
         setIsReaderMode={setIsReaderMode}
         isDark={isDark}
         toggleDarkMode={toggleDarkMode}
-        lightTheme={lightTheme}
-        darkTheme={darkTheme}
-        setLightTheme={setLightTheme}
-        setDarkTheme={setDarkTheme}
+        comboId={comboId}
+        setCombo={setCombo}
         canInstall={canInstall}
         install={install}
         hasUpdate={hasUpdate}
@@ -711,10 +707,8 @@ function App() {
       setIsReaderMode={setIsReaderMode}
       isDark={isDark}
       toggleDarkMode={toggleDarkMode}
-      lightTheme={lightTheme}
-      darkTheme={darkTheme}
-      setLightTheme={setLightTheme}
-      setDarkTheme={setDarkTheme}
+      comboId={comboId}
+      setCombo={setCombo}
       canInstall={canInstall}
       install={install}
       showManualInstructions={showManualInstructions}
