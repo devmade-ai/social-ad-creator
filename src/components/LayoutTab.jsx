@@ -11,7 +11,7 @@
 import { useMemo, memo } from 'react'
 import CollapsibleSection from './CollapsibleSection'
 import ConfirmButton from './ConfirmButton'
-import MiniCellGrid from './MiniCellGrid'
+import MiniCellGrid, { FIXED_HEIGHTS } from './MiniCellGrid'
 import PageDots from './PageDots'
 import { platforms } from '../config/platforms'
 import { defaultState } from '../hooks/useAdState'
@@ -628,7 +628,7 @@ export default memo(function LayoutTab({
       {/* Pages Section — add, duplicate, reorder, delete pages */}
       <CollapsibleSection title="Pages" defaultExpanded={false}>
         <div className="space-y-3">
-          {/* Page thumbnails — reuses shared PageDots component (validated colors, ARIA, 44px touch targets) */}
+          {/* Page thumbnails — reuses shared PageDots component (validated colors, ARIA, sized to match MiniCellGrid) */}
           {pages.length > 1 && (
             <div className="overflow-x-auto scrollbar-thin pb-1">
               <PageDots
@@ -636,6 +636,7 @@ export default memo(function LayoutTab({
                 activePage={activePage}
                 getPageState={getPageState}
                 onSetActivePage={onSetActivePage}
+                size={FIXED_HEIGHTS.m}
               />
             </div>
           )}
@@ -732,7 +733,7 @@ export default memo(function LayoutTab({
                 onSelectCell={onSelectCell}
                 platform={platform}
                 cellImages={cellImages}
-                size="medium"
+                fixedHeight="m"
               />
             </div>
             {type !== 'fullbleed' && selectedSection && (

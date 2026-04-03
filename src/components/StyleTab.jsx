@@ -7,7 +7,6 @@
 import { useMemo, memo } from 'react'
 import CollapsibleSection from './CollapsibleSection'
 import ThemeColorPicker from './ThemeColorPicker'
-import MiniCellGrid from './MiniCellGrid'
 import { countCells } from '../utils/cellUtils'
 import { fonts } from '../config/fonts'
 import { overlayTypesByCategory } from '../config/layouts'

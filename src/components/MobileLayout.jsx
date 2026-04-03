@@ -214,10 +214,11 @@ export default function MobileLayout({
         </ErrorBoundary>
       )}
 
-      {/* Canvas — fills remaining space, edge-to-edge */}
+      {/* Canvas — fills remaining space, scrollable when bottom sheet covers it */}
       <main
         ref={previewContainerRef}
-        className="flex-1 min-h-0 flex items-start justify-center relative bg-gradient-to-br from-base-200 to-base-100"
+        className="flex-1 min-h-0 flex items-start justify-center relative bg-gradient-to-br from-base-200 to-base-100 overflow-y-auto"
+        style={mobileSheetOpen ? { paddingBottom: `${sheetSnap}vh` } : undefined}
         onTouchStart={hasMultiplePages ? handleCanvasTouchStart : undefined}
         onTouchEnd={hasMultiplePages ? handleCanvasTouchEnd : undefined}
       >
