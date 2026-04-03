@@ -13,7 +13,7 @@ import UndoRedoButtons from './UndoRedoButtons'
 
 // Requirement: Consistent header button styling across desktop layout.
 // Approach: Extract repeated className pattern to a small component.
-const HEADER_BTN = 'px-3 py-1.5 text-sm rounded-lg flex items-center gap-1.5 font-medium bg-base-200 text-base-content hover:bg-base-300 active:scale-95 transition-all'
+const HEADER_BTN = 'btn btn-ghost btn-sm gap-1.5'
 
 function HeaderButton({ onClick, title, children }) {
   return (
@@ -93,7 +93,7 @@ export default function DesktopLayout({
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
           <div className="flex items-center justify-center sm:justify-start gap-2">
             <h1 className="text-lg font-display font-bold tracking-tight bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">CanvaGrid</h1>
-            <span className="px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide bg-warning/10 text-warning rounded">Research Preview</span>
+            <span className="px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide bg-base-200 text-warning rounded">Research Preview</span>
           </div>
           <div className="flex flex-wrap justify-center sm:justify-end gap-1.5 items-center">
             {/* Undo/Redo — moved to header for constant visibility */}
@@ -120,7 +120,7 @@ export default function DesktopLayout({
               <span className="hidden sm:inline">Refresh</span>
             </HeaderButton>
             {canInstall && (
-              <button onClick={install} title="Install app" className="px-3 py-1.5 text-sm rounded-lg flex items-center gap-1.5 font-medium bg-primary text-primary-content hover:bg-primary/80 active:scale-95 transition-all">
+              <button onClick={install} title="Install app" className="btn btn-primary btn-sm gap-1.5">
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
                 <span>Install</span>
               </button>
@@ -132,7 +132,7 @@ export default function DesktopLayout({
               </HeaderButton>
             )}
             {hasUpdate && (
-              <button onClick={update} title="Update available" className="px-3 py-1.5 text-sm rounded-lg flex items-center gap-1.5 font-medium bg-success text-success-content hover:bg-success/80 active:scale-95 transition-all">
+              <button onClick={update} title="Update available" className="btn btn-success btn-sm gap-1.5">
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
                 <span>Update</span>
               </button>
@@ -142,7 +142,7 @@ export default function DesktopLayout({
       </header>
 
       {!isOnline && (
-        <div className="bg-warning/10 border-b border-warning/30 px-4 py-2 text-center text-sm text-warning">
+        <div className="bg-base-200 border-b border-base-300 px-4 py-2 text-center text-sm text-warning">
           You're offline. Your work is saved locally, but sample images and fonts may not load.
         </div>
       )}
@@ -152,7 +152,7 @@ export default function DesktopLayout({
         <div className="flex items-center">
           <div className="flex overflow-x-auto scrollbar-thin">
             {sections.map((section) => (
-              <button key={section.id} onClick={() => setActiveSection(section.id)} className={`px-4 py-2.5 text-sm font-medium whitespace-nowrap transition-all border-b-2 ${activeSection === section.id ? 'border-primary text-primary bg-primary/10' : 'border-transparent text-base-content/70 hover:text-base-content hover:border-base-300 hover:bg-base-200'}`}>
+              <button key={section.id} onClick={() => setActiveSection(section.id)} className={`px-4 py-2.5 text-sm font-medium whitespace-nowrap transition-all border-b-2 ${activeSection === section.id ? 'border-primary text-primary bg-base-200' : 'border-transparent text-base-content/70 hover:text-base-content hover:border-base-300 hover:bg-base-200'}`}>
                 {section.label}
               </button>
             ))}

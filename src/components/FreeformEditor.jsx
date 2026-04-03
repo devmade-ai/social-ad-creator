@@ -107,7 +107,7 @@ function MarkdownToolbar({ textareaRef, content, onContentChange }) {
               type="button"
               onClick={() => applyFormat(fmt)}
               title={fmt.title}
-              className="px-2.5 py-1.5 sm:px-2 sm:py-1 text-[12px] sm:text-[11px] font-medium rounded text-base-content/70 hover:bg-base-300 hover:text-base-content active:bg-base-200 transition-colors shrink-0"
+              className="btn btn-ghost btn-xs shrink-0"
               style={fmt.style ? { textDecoration: fmt.style === 'line-through' ? 'line-through' : undefined, fontStyle: fmt.style === 'italic' ? 'italic' : undefined } : undefined}
             >
               {fmt.label}
@@ -209,7 +209,7 @@ function FreeformBlockEditor({
             <button
               onClick={() => onMoveBlock(cellIndex, block.id, -1)}
               disabled={index === 0}
-              className="w-7 h-7 sm:w-6 sm:h-6 rounded flex items-center justify-center text-xs active:scale-90 disabled:opacity-30 bg-base-200 text-base-content/70 hover:bg-base-300 disabled:hover:bg-base-200"
+              className="btn btn-ghost btn-square btn-xs"
               title="Move up"
             >
               <ChevronUpIcon />
@@ -218,7 +218,7 @@ function FreeformBlockEditor({
             <button
               onClick={() => onMoveBlock(cellIndex, block.id, 1)}
               disabled={index === total - 1}
-              className="w-7 h-7 sm:w-6 sm:h-6 rounded flex items-center justify-center text-xs active:scale-90 disabled:opacity-30 bg-base-200 text-base-content/70 hover:bg-base-300 disabled:hover:bg-base-200"
+              className="btn btn-ghost btn-square btn-xs"
               title="Move down"
             >
               <ChevronDownIcon />
@@ -231,8 +231,8 @@ function FreeformBlockEditor({
         {/* Style toggle */}
         <button
           onClick={() => setShowStyle(!showStyle)}
-          className={`w-7 h-7 sm:w-6 sm:h-6 rounded flex items-center justify-center text-xs transition-colors active:scale-90 ${
-            showStyle ? 'bg-primary/10 text-primary' : 'bg-base-200 text-base-content/60 hover:bg-base-300'
+          className={`btn btn-ghost btn-square btn-xs ${
+            showStyle ? 'text-primary' : 'text-base-content/60'
           }`}
           title="Block style options"
         >
@@ -243,10 +243,8 @@ function FreeformBlockEditor({
         <button
           onClick={handleDelete}
           onBlur={handleDeleteBlur}
-          className={`w-7 h-7 sm:w-6 sm:h-6 rounded flex items-center justify-center text-xs active:scale-90 transition-colors ${
-            confirmDelete
-              ? 'bg-error text-error-content'
-              : 'bg-base-200 text-base-content/50 hover:text-error hover:bg-error/10'
+          className={`btn btn-square btn-xs ${
+            confirmDelete ? 'btn-error' : 'btn-ghost text-base-content/50 hover:text-error'
           }`}
           title={confirmDelete ? 'Click again to confirm delete' : 'Delete block'}
         >
@@ -273,7 +271,7 @@ function FreeformBlockEditor({
           onBlur={handleBlur}
           placeholder="Type here — focus to see formatting toolbar"
           rows={textareaRows}
-          className="w-full px-3 py-2 text-sm text-base-content border border-base-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-base-100 placeholder-base-content/50 font-mono"
+          className="textarea textarea-bordered textarea-sm w-full font-mono"
           style={{ resize: 'vertical', minHeight: '3rem' }}
         />
       </div>

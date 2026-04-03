@@ -65,16 +65,13 @@ body {
   min-height: 100dvh;
 }
 
-/* Smooth transitions for interactive elements */
-button, input, select, textarea {
-  transition: all 0.15s ease;
-}
-
-/* Better focus states - uses DaisyUI primary color */
+/* Focus ring for non-DaisyUI form elements (raw buttons, etc.).
+   DaisyUI components (.checkbox, .input, .select, .textarea, .range)
+   have their own :focus-visible styles — this only catches unstyled elements. */
 button:focus-visible,
-input:focus-visible,
-select:focus-visible,
-textarea:focus-visible {
+input:not(.checkbox):not(.input):not(.range):focus-visible,
+select:not(.select):focus-visible,
+textarea:not(.textarea):focus-visible {
   outline: 2px solid oklch(var(--p));
   outline-offset: 2px;
 }
@@ -98,56 +95,13 @@ textarea:focus-visible {
   background: oklch(var(--bc) / 0.4);
 }
 
-/* Range input styling — uses DaisyUI primary for thumb, high-contrast track.
-   Requirement: Sliders must be clearly visible in both light and dark themes.
-   Approach: Track uses base-content at 25% opacity for consistent contrast against
-     any background. Thumb uses primary color with a visible border ring. */
-input[type="range"] {
-  -webkit-appearance: none;
-  appearance: none;
-  background: transparent;
-  cursor: pointer;
-}
-
-input[type="range"]::-webkit-slider-track {
-  background: oklch(var(--bc) / 0.2);
-  height: 6px;
-  border-radius: 3px;
-  border: 1px solid oklch(var(--bc) / 0.1);
-}
-
-input[type="range"]::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: oklch(var(--p));
-  border: 2px solid oklch(var(--pc));
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3), 0 0 0 1px oklch(var(--bc) / 0.1);
-  margin-top: -6px;
-}
-
-input[type="range"]::-moz-range-track {
-  background: oklch(var(--bc) / 0.2);
-  height: 6px;
-  border-radius: 3px;
-  border: 1px solid oklch(var(--bc) / 0.1);
-}
-
-input[type="range"]::-moz-range-thumb {
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  background: oklch(var(--p));
-  border: 2px solid oklch(var(--pc));
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3), 0 0 0 1px oklch(var(--bc) / 0.1);
-}
-
-/* Checkbox styling — uses DaisyUI primary */
-input[type="checkbox"] {
-  accent-color: oklch(var(--p));
-}
+/* Form inputs use DaisyUI component classes directly:
+   .range .range-primary — range sliders (was broken custom CSS before)
+   .checkbox .checkbox-primary — checkboxes
+   .input .input-bordered — text inputs
+   .select .select-bordered — dropdowns
+   .textarea .textarea-bordered — textareas
+   No custom pseudo-element or accent-color overrides needed. */
 
 /* Button hover scale effect */
 @utility btn-scale {
@@ -196,16 +150,11 @@ input[type="checkbox"] {
   animation: cell-select-flash 0.6s ease-out forwards;
 }
 
-/* Mobile: larger range input thumb for easier touch interaction (24px visual, meets 44px target with track area) */
+/* Mobile: larger range input thumb for easier touch interaction.
+   DaisyUI .range-sm on mobile gets overridden to .range-md equivalent. */
 @media (max-width: 1023px) {
-  input[type="range"]::-webkit-slider-thumb {
-    width: 24px;
-    height: 24px;
-    margin-top: -9px;
-  }
-  input[type="range"]::-moz-range-thumb {
-    width: 22px;
-    height: 22px;
+  .range {
+    --range-thumb-size: calc(var(--size-selector, .25rem) * 6);
   }
 }
 

@@ -135,7 +135,7 @@ export default function SaveLoadModal({ isOpen, onClose, onSave, onLoad, onDelet
 
         {/* Error banner */}
         {error && (
-          <div className="mx-4 mt-3 px-3 py-2 rounded-lg bg-error/10 border border-error/20 text-sm text-error">
+          <div className="mx-4 mt-3 px-3 py-2 rounded-lg bg-base-200 border border-base-300 text-sm text-error">
             {error}
           </div>
         )}
@@ -154,13 +154,13 @@ export default function SaveLoadModal({ isOpen, onClose, onSave, onLoad, onDelet
                   value={saveName}
                   onChange={(e) => setSaveName(e.target.value)}
                   placeholder="My Design"
-                  className="w-full px-3 py-2.5 rounded-lg bg-base-200 border border-base-300 text-base-content placeholder-base-content/70 focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="input input-bordered w-full"
                 />
               </div>
               <button
                 onClick={handleSave}
                 disabled={loading}
-                className="w-full px-4 py-2.5 rounded-lg bg-primary text-primary-content font-medium hover:bg-primary/80 active:scale-[0.98] disabled:opacity-50 transition-all"
+                className="btn btn-primary w-full"
               >
                 {loading ? 'Saving...' : 'Save Design'}
               </button>
@@ -180,7 +180,7 @@ export default function SaveLoadModal({ isOpen, onClose, onSave, onLoad, onDelet
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search designs..."
                   aria-label="Search saved designs"
-                  className="w-full px-3 py-2 rounded-lg bg-base-200 border border-base-300 text-base-content text-sm placeholder-base-content/70 focus:outline-none focus:ring-2 focus:ring-primary mb-2"
+                  className="input input-bordered input-sm w-full mb-2"
                 />
               )}
               {designs.length === 0 ? (
@@ -206,7 +206,7 @@ export default function SaveLoadModal({ isOpen, onClose, onSave, onLoad, onDelet
                       <ConfirmButton
                         onConfirm={() => handleDelete(design.id)}
                         confirmLabel="Delete?"
-                        className="p-2 rounded-lg opacity-50 sm:opacity-0 group-hover:opacity-100 hover:bg-error/10 active:bg-error/20 text-error transition-all"
+                        className="p-2 rounded-lg opacity-50 sm:opacity-0 group-hover:opacity-100 hover:bg-base-300 active:bg-base-300 text-error transition-all"
                         title="Delete design"
                       >
                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

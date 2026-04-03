@@ -167,7 +167,7 @@ export default function MobileLayout({
               <rect x="13" y="16.5" width="9" height="5.5" rx="1" opacity="0.25"/>
             </svg>
             <h1 className="text-base font-display font-bold tracking-tight bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">CanvaGrid</h1>
-            <span className="px-1 py-0.5 text-[8px] font-semibold uppercase tracking-wide bg-warning/10 text-warning rounded">Preview</span>
+            <span className="px-1 py-0.5 text-[8px] font-semibold uppercase tracking-wide bg-base-200 text-warning rounded">Preview</span>
           </div>
           {/* Undo/Redo — moved to header for constant visibility */}
           <UndoRedoButtons undo={undo} redo={redo} canUndo={canUndo} canRedo={canRedo} size="md" />
@@ -191,14 +191,14 @@ export default function MobileLayout({
       </header>
 
       {!isOnline && (
-        <div className="bg-warning/10 border-b border-warning/30 px-3 py-1.5 text-center text-xs text-warning shrink-0">
+        <div className="bg-base-200 border-b border-base-300 px-3 py-1.5 text-center text-xs text-warning shrink-0">
           Offline — work saved locally
         </div>
       )}
 
       {/* Update banner — always visible so users can update even if menu is unreachable */}
       {hasUpdate && (
-        <button onClick={update} className="w-full bg-success/10 border-b border-success/30 px-3 py-2 flex items-center justify-center gap-2 text-xs font-medium text-success shrink-0 active:bg-success/20 transition-colors">
+        <button onClick={update} className="w-full bg-base-200 border-b border-base-300 px-3 py-2 flex items-center justify-center gap-2 text-xs font-medium text-success shrink-0 active:bg-base-300 transition-colors">
           <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
           Update available — tap to refresh
         </button>

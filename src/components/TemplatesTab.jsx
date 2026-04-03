@@ -30,7 +30,7 @@ const ColorInput = memo(function ColorInput({ label, value, onChange }) {
           type="text"
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className="w-full px-2 py-1.5 text-sm text-base-content font-mono border border-base-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-base-100"
+          className="input input-bordered input-sm w-full font-mono"
         />
       </div>
     </div>
@@ -136,7 +136,7 @@ function ThemePreviewContent({ preset, activeVariant }) {
         const colors = getThemeVariant(preset, variant)
         const isActive = activeVariant === variant
         return (
-          <div key={variant} className={`flex items-center gap-1.5 px-1.5 py-1 rounded ${isActive ? 'bg-primary/15' : ''}`}>
+          <div key={variant} className={`flex items-center gap-1.5 px-1.5 py-1 rounded ${isActive ? 'bg-base-300' : ''}`}>
             <span className="text-[8px] text-base-content/50 w-7 shrink-0">{variant === 'light' ? 'Light' : 'Dark'}</span>
             <div className="flex gap-1">
               <div className="w-5 h-5 rounded-full shadow-sm border border-black/10" style={{ backgroundColor: colors.primary }} />
@@ -243,10 +243,8 @@ export default memo(function TemplatesTab({
                 <button
                   key={ar.id}
                   onClick={() => setAspectRatioFilter(ar.id)}
-                  className={`flex-1 px-2 py-1.5 text-xs rounded-lg font-medium transition-all ${
-                    aspectRatioFilter === ar.id
-                      ? 'bg-primary text-primary-content shadow-sm'
-                      : 'bg-base-200 text-base-content/70 hover:bg-base-300'
+                  className={`btn btn-xs flex-1 ${
+                    aspectRatioFilter === ar.id ? 'btn-primary' : 'btn-ghost'
                   }`}
                 >
                   {ar.name}
@@ -261,20 +259,16 @@ export default memo(function TemplatesTab({
             <div className="flex flex-wrap gap-1.5">
               <button
                 onClick={() => setLayoutCategory('all')}
-                className={`px-2.5 py-1 text-xs rounded-lg font-medium ${
-                  layoutCategory === 'all'
-                    ? 'bg-primary text-primary-content shadow-sm'
-                    : 'bg-base-200 text-base-content/70 hover:bg-base-300'
+                className={`btn btn-xs ${
+                  layoutCategory === 'all' ? 'btn-primary' : 'btn-ghost'
                 }`}
               >
                 All
               </button>
               <button
                 onClick={() => setLayoutCategory('suggested')}
-                className={`px-2.5 py-1 text-xs rounded-lg font-medium ${
-                  layoutCategory === 'suggested'
-                    ? 'bg-primary text-primary-content shadow-sm'
-                    : 'bg-base-200 text-base-content/70 hover:bg-base-300'
+                className={`btn btn-xs ${
+                  layoutCategory === 'suggested' ? 'btn-primary' : 'btn-ghost'
                 }`}
               >
                 Suggested
@@ -283,10 +277,8 @@ export default memo(function TemplatesTab({
                 <button
                   key={cat.id}
                   onClick={() => setLayoutCategory(cat.id)}
-                  className={`px-2.5 py-1 text-xs rounded-lg font-medium ${
-                    layoutCategory === cat.id
-                      ? 'bg-primary text-primary-content shadow-sm'
-                      : 'bg-base-200 text-base-content/70 hover:bg-base-300'
+                  className={`btn btn-xs ${
+                    layoutCategory === cat.id ? 'btn-primary' : 'btn-ghost'
                   }`}
                 >
                   {cat.name}
@@ -335,7 +327,7 @@ export default memo(function TemplatesTab({
         <div className="space-y-3">
           {/* Active look indicator */}
           {activeLookPreset && (
-            <div className="flex items-center gap-2 px-3 py-2 bg-primary/10 rounded-lg">
+            <div className="flex items-center gap-2 px-3 py-2 bg-base-200 rounded-lg">
               <LookSwatch preset={activeLookPreset} isActive={true} theme={theme} />
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-primary">{activeLookPreset.name}</p>
@@ -359,7 +351,7 @@ export default memo(function TemplatesTab({
                   onClick={() => onSelectStylePreset(preset)}
                   className={`w-full flex flex-col items-center gap-1.5 p-2 rounded-lg transition-all ${
                     activeStylePreset === preset.id
-                      ? 'bg-primary/10 ring-2 ring-primary'
+                      ? 'bg-base-200 ring-2 ring-primary'
                       : 'hover:bg-base-200'
                   }`}
                 >
@@ -402,10 +394,8 @@ export default memo(function TemplatesTab({
             <div className="flex bg-base-200 rounded-lg p-0.5">
               <button
                 onClick={() => onThemeVariantChange?.('light')}
-                className={`flex items-center gap-1.5 px-3 min-h-[44px] text-xs rounded-md font-medium transition-all ${
-                  currentVariant === 'light'
-                    ? 'bg-base-100 text-base-content shadow-sm'
-                    : 'text-base-content/70 hover:text-base-content'
+                className={`btn btn-sm gap-1.5 ${
+                  currentVariant === 'light' ? 'btn-active' : 'btn-ghost'
                 }`}
               >
                 <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
@@ -415,10 +405,8 @@ export default memo(function TemplatesTab({
               </button>
               <button
                 onClick={() => onThemeVariantChange?.('dark')}
-                className={`flex items-center gap-1.5 px-3 min-h-[44px] text-xs rounded-md font-medium transition-all ${
-                  currentVariant === 'dark'
-                    ? 'bg-base-100 text-base-content shadow-sm'
-                    : 'text-base-content/70 hover:text-base-content'
+                className={`btn btn-sm gap-1.5 ${
+                  currentVariant === 'dark' ? 'btn-active' : 'btn-ghost'
                 }`}
               >
                 <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
@@ -444,7 +432,7 @@ export default memo(function TemplatesTab({
                       onClick={() => onThemePresetChange?.(preset.id, currentVariant)}
                       className={`w-full p-2 rounded-lg border-2 transition-all ${
                         theme?.preset === preset.id
-                          ? 'border-primary bg-primary/10 ring-2 ring-primary/20'
+                          ? 'border-primary bg-base-200 ring-2 ring-primary'
                           : 'border-base-300 hover:border-base-300 hover:bg-base-200'
                       }`}
                     >

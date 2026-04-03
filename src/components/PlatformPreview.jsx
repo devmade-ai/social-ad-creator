@@ -126,7 +126,7 @@ export default memo(function PlatformPreview({ selectedPlatform, onPlatformChang
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search platforms..."
             aria-label="Search platforms"
-            className="w-full px-3 py-2 text-xs rounded-lg bg-base-200 border border-base-300 text-base-content placeholder-base-content/50 focus:outline-none focus:ring-2 focus:ring-primary"
+            className="input input-bordered input-xs w-full"
           />
         </div>
         <div className="space-y-1">
@@ -186,7 +186,7 @@ export default memo(function PlatformPreview({ selectedPlatform, onPlatformChang
                             aria-label={hasOneFormat ? `Select ${group.name}` : `${isGroupExpanded ? 'Collapse' : 'Expand'} ${group.name}`}
                             className={`w-full flex items-center justify-between py-1 px-2 rounded-lg text-xs font-medium transition-all ${
                               isSelected
-                                ? 'bg-primary/10 text-primary'
+                                ? 'bg-base-300 text-primary'
                                 : 'text-base-content hover:bg-base-300'
                             }`}
                           >

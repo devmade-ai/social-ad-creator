@@ -29,7 +29,7 @@ export default memo(function InstallInstructionsModal({ isOpen, onClose, instruc
 
         {/* Header */}
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+          <div className="w-10 h-10 bg-base-200 rounded-lg flex items-center justify-center">
             <svg className="w-5 h-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
             </svg>
@@ -48,7 +48,7 @@ export default memo(function InstallInstructionsModal({ isOpen, onClose, instruc
           <ol className="space-y-2">
             {instructions.steps.map((step, index) => (
               <li key={index} className="flex gap-3 text-sm">
-                <span className="flex-shrink-0 w-6 h-6 bg-primary/10 text-primary rounded-full flex items-center justify-center text-xs font-medium">
+                <span className="flex-shrink-0 w-6 h-6 bg-base-200 text-primary rounded-full flex items-center justify-center text-xs font-medium">
                   {index + 1}
                 </span>
                 <span className="text-base-content pt-0.5">{step}</span>
@@ -59,7 +59,7 @@ export default memo(function InstallInstructionsModal({ isOpen, onClose, instruc
 
         {/* Note if present */}
         {instructions.note && (
-          <div className="bg-warning/10 border border-warning/30 rounded-lg p-3 mb-4">
+          <div className="bg-base-200 border border-base-300 rounded-lg p-3 mb-4">
             <p className="text-xs text-warning">
               <strong>Note:</strong> {instructions.note}
             </p>
@@ -94,7 +94,7 @@ export default memo(function InstallInstructionsModal({ isOpen, onClose, instruc
         {/* Close button */}
         <button
           onClick={onClose}
-          className="mt-4 w-full py-2 px-4 bg-primary text-primary-content rounded-lg font-medium hover:bg-primary/80 transition-colors"
+          className="btn btn-primary w-full mt-4"
         >
           Got it
         </button>

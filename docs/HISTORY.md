@@ -2,6 +2,32 @@
 
 ## 2026-04-02
 
+### Migrate buttons to DaisyUI btn component
+
+- **150+ buttons** across 20+ components migrated from hand-rolled Tailwind to DaisyUI `btn` classes.
+- **Primary CTAs** → `btn btn-primary btn-sm` (SaveLoadModal, TutorialModal, InstallInstructionsModal, ErrorBoundary, EmptyStateGuide, ExportButtons)
+- **Ghost/secondary** → `btn btn-ghost btn-sm` (header buttons, undo/redo, quick actions, pagination)
+- **Toggle segments** → `btn btn-xs btn-primary/btn-ghost` conditional (TextStyleControls, AlignmentPicker, ExportButtons format/quality, TemplatesTab categories, SampleImages categories, LogoUploader position/size)
+- **Icon-only** → `btn btn-ghost btn-square btn-xs` (ContentTab visibility/style/delete, FreeformEditor style/delete, UndoRedoButtons)
+- **Destructive** → `btn btn-error btn-xs` (ConfirmButton, MediaTab delete, LogoUploader remove)
+- **LayoutTab** refactored from `btnBase` + manual classes to DaisyUI `btn btn-ghost btn-sm` constants
+- Bundle size decreased from 1308 KiB to 1302 KiB (verbose class strings → short DaisyUI classes)
+
+### Fix invisible low-contrast tinted backgrounds on dark themes
+
+- **Root cause** — `bg-primary/10`, `bg-secondary/15`, `bg-error/10`, etc. (10-20% opacity tints) are invisible on dark themes where the base background is near-black. ~45 instances across 16 component files.
+- **Fix** — Replaced all low-opacity tinted backgrounds on interactive elements with `bg-base-200`/`bg-base-300` (DaisyUI semantic surfaces). Colored text (`text-primary`, `text-error`) carries semantic meaning instead of background color.
+- **Components fixed:** LayoutTab, ExportButtons, ContentTab, FreeformEditor, DesktopLayout, MobileLayout, PlatformPreview, TemplatesTab, MiniCellGrid, MediaTab, SaveLoadModal, BurgerMenu, EmptyStateGuide, ErrorBoundary, InstallInstructionsModal.
+
+### Migrate form inputs to DaisyUI component classes
+
+- **Range sliders fixed** — Custom CSS targeted wrong pseudo-element (`::-webkit-slider-track` instead of `::-webkit-slider-runnable-track`), making all 15 sliders invisible. Replaced with DaisyUI `.range .range-primary .range-sm` class.
+- **Checkboxes migrated** — 5 checkboxes in StyleTab replaced from manual `w-4 h-4 text-primary` Tailwind hack to DaisyUI `.checkbox .checkbox-primary .checkbox-sm`.
+- **Select dropdowns migrated** — 2 font selectors in StyleTab replaced from verbose 12-class Tailwind styling to DaisyUI `.select .select-bordered .select-sm`.
+- **Text inputs migrated** — 5 text inputs across 4 files (AIPromptHelper, SaveLoadModal, PlatformPreview, TemplatesTab) replaced with DaisyUI `.input .input-bordered .input-sm`.
+- **Textareas migrated** — 3 textareas across 3 files (AIPromptHelper, ContentTab, FreeformEditor) replaced with DaisyUI `.textarea .textarea-bordered .textarea-sm`.
+- **CSS cleanup** — Removed custom `accent-color` checkbox hack, blanket `transition: all` on form elements, and broken range pseudo-element CSS. Narrowed focus-visible rule to exclude DaisyUI-classed elements (prevents double outline).
+
 ### Auto-generated PWA meta theme-color values
 
 - **Build script** — `scripts/generate-theme-meta.mjs` reads DaisyUI's theme objects (`daisyui/theme/object.js`), converts oklch→hex, and updates `daisyuiThemes.js` and `index.html`. Light themes use `--color-primary` (with per-theme overrides for themes where primary is unrepresentative), dark themes use `--color-base-100`.

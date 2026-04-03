@@ -100,8 +100,8 @@ function TextElementEditor({
         {/* Visibility Toggle */}
         <button
           onClick={() => onTextChange(cellIndex, element.id, { visible: !isVisible })}
-          className={`w-8 h-8 sm:w-7 sm:h-7 rounded-md flex items-center justify-center text-xs shrink-0 active:scale-90 ${
-            isVisible ? 'bg-success/10 text-success' : 'bg-base-200 text-base-content/50'
+          className={`btn btn-ghost btn-square btn-sm ${
+            isVisible ? 'text-success' : 'text-base-content/50'
           }`}
           title={isVisible ? 'Visible - click to hide' : 'Hidden - click to show'}
         >
@@ -117,7 +117,7 @@ function TextElementEditor({
         {layerState.content && (
           <button
             onClick={() => onTextChange(cellIndex, element.id, { content: '' })}
-            className="w-8 h-8 sm:w-7 sm:h-7 rounded flex items-center justify-center text-base-content/50 hover:text-error hover:bg-error/10 active:bg-error/20 transition-colors"
+            className="btn btn-ghost btn-square btn-sm text-base-content/50 hover:text-error"
             title="Clear text"
           >
             <CloseIcon />
@@ -127,8 +127,8 @@ function TextElementEditor({
         {/* Style toggle (#2) */}
         <button
           onClick={() => setShowStyle(!showStyle)}
-          className={`w-8 h-8 sm:w-7 sm:h-7 rounded flex items-center justify-center text-xs transition-colors active:scale-90 ${
-            showStyle ? 'bg-primary/10 text-primary' : 'bg-base-200 text-base-content/60 hover:bg-base-300'
+          className={`btn btn-ghost btn-square btn-sm ${
+            showStyle ? 'text-primary' : 'text-base-content/60'
           }`}
           title="Text style options"
         >
@@ -157,7 +157,7 @@ function TextElementEditor({
           onFocus={handleFocus}
           placeholder={element.placeholder}
           rows={textareaRows}
-          className="w-full px-3 py-2 text-sm text-base-content border border-base-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-base-100 placeholder-base-content/50"
+          className="textarea textarea-bordered textarea-sm w-full"
           style={{ resize: 'vertical', minHeight: '2.5rem' }}
         />
       </div>

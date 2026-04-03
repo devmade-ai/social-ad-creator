@@ -166,4 +166,47 @@ Each wrong assumption led to a commit that didn't solve the actual problem. Thre
 
 ---
 
+## 2026-04 | Custom CSS Instead of DaisyUI Components — Invisible Sliders
+
+**What went wrong:** Custom range slider CSS targeted `::-webkit-slider-track` (wrong pseudo-element) instead of `::-webkit-slider-runnable-track`. Combined with `appearance: none` + `background: transparent`, all 15 sliders were completely invisible. Additionally, all form inputs (checkboxes, selects, text inputs, textareas) used verbose hand-rolled Tailwind classes instead of DaisyUI's built-in component classes, despite the project using DaisyUI 5.
+
+**Why it happened:** When the custom CSS was written, the wrong WebKit pseudo-element name was used and never tested. The broader pattern of hand-rolling form styles rather than using DaisyUI components accumulated over many sessions — each new form element copied the verbose Tailwind pattern from an existing one, never questioning whether DaisyUI had a proper component.
+
+**How to prevent:**
+- **Use DaisyUI component classes for all form inputs.** DaisyUI has `.range`, `.checkbox`, `.input`, `.select`, `.textarea` — use them instead of custom CSS or hand-rolled Tailwind classes.
+- **Never write custom pseudo-element CSS for form inputs** when the framework provides a component class. Browser pseudo-elements have inconsistent names across engines.
+- **When adding new form elements**, check if DaisyUI has a component class first. Reference: `node_modules/daisyui/components/` lists all available components.
+
+---
+
+## 2026-04 | Low-Opacity Tinted Backgrounds Invisible on Dark Themes
+
+**What went wrong:** Buttons, toggles, active states, banners, and cell indicators used `bg-primary/10`, `bg-secondary/15`, `bg-error/10`, `bg-success/10`, `bg-warning/10` etc. — 10-20% opacity tints of theme colors. On dark themes (especially `black` where the base background is near-black), these tints produce essentially zero visible contrast. All interactive elements looked disabled/invisible.
+
+**Why it happened:** The pattern was copied from light-theme-focused design where a subtle colored tint on a white background creates a visible pastel. On dark backgrounds, 10% of any color on near-black is still near-black. The pattern spread virally — each new component copied the approach from existing ones without testing on dark themes.
+
+**Scope:** ~45 instances across 16 component files. Buttons, active tab states, cell grid indicators, status banners, icon backgrounds, error alerts, preset selection states — all affected.
+
+**How to prevent:**
+- **Never use `bg-{color}/{low-opacity}` for interactive elements.** Use `bg-base-200` or `bg-base-300` for backgrounds — these are DaisyUI semantic surfaces guaranteed to contrast with `bg-base-100` on ALL themes.
+- **Use colored text (`text-primary`, `text-error`, etc.) for semantic meaning** — text color carries the semantic signal, background provides the contrast surface.
+- **Pattern:** `bg-base-200 text-primary hover:bg-base-300` (works on all themes) instead of `bg-primary/15 text-primary hover:bg-primary/20` (invisible on dark themes).
+- **Acceptable uses of `bg-{color}/{opacity}`:** hover-only states on containers (`hover:bg-primary/10` on drop zones), and full-opacity buttons with content color text (`bg-primary text-primary-content hover:bg-primary/80`).
+- **When reviewing PRs or code, flag any `bg-{semantic-color}/\d+` that isn't hover-only or full-opacity.**
+
+---
+
+## 2026-04 | Deflecting Instead of Fixing — "Not a Regression"
+
+**What went wrong:** When user reported the disabled-looking UI, the AI's first response was to explain it wasn't caused by recent changes and ask if it looked different before. This wasted time and frustrated the user. The correct response was to immediately investigate and fix the contrast issue.
+
+**Why it happened:** Defensive instinct to protect recent work from blame instead of focusing on solving the problem.
+
+**How to prevent:**
+- When a user reports a visual bug, **fix it**. Don't explain why it's not your fault.
+- The question "was it like this before?" is irrelevant — the user is looking at broken UI right now.
+- Understand your purpose: solve problems, not defend your work.
+
+---
+
 *Add new entries above this line*

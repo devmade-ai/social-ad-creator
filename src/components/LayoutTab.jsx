@@ -23,12 +23,13 @@ const layoutTypes = [
   { id: 'columns', name: 'Cols', icon: '|||' },
 ]
 
-// Shared button style constants to reduce repetition
-const btnBase = 'px-3 py-2 text-sm rounded-lg font-medium'
-const btnAction = `${btnBase} bg-primary/15 text-primary hover:bg-primary/20`
-const btnDisabled = `${btnBase} bg-primary/15 text-base-content/50 cursor-not-allowed`
-const btnDelete = `${btnBase} bg-error/10 text-error hover:bg-error/20`
-const btnSnap = `${btnBase} bg-success/10 text-success hover:bg-success/20`
+// Shared button style constants — DaisyUI btn-ghost with colored text for semantics
+const btnAction = 'btn btn-ghost btn-sm text-primary'
+const btnSecondary = 'btn btn-ghost btn-sm text-secondary'
+const btnDisabled = 'btn btn-ghost btn-sm btn-disabled text-base-content/30'
+const btnSecondaryDisabled = 'btn btn-ghost btn-sm btn-disabled text-base-content/30'
+const btnDelete = 'btn btn-ghost btn-sm text-error'
+const btnSnap = 'btn btn-ghost btn-sm text-success'
 
 export default memo(function LayoutTab({
   layout,
@@ -643,7 +644,7 @@ export default memo(function LayoutTab({
           <div className="flex flex-wrap gap-1.5">
             <button
               onClick={onAddPage}
-              className="flex-1 px-3 py-2 text-sm rounded-lg font-medium bg-primary/15 text-primary hover:bg-primary/20"
+              className={`flex-1 ${btnAction}`}
             >
               + Add Page
             </button>
@@ -747,7 +748,7 @@ export default memo(function LayoutTab({
 
           {/* Cell Controls (subdivision within a section) — shown first for direct manipulation */}
           {type !== 'fullbleed' && selectedSection && (
-            <div className="space-y-4 p-4 bg-secondary/15 rounded-xl">
+            <div className="space-y-4 p-4 bg-base-200 rounded-xl">
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium text-secondary">
                   {hasSubdivisions
@@ -764,13 +765,13 @@ export default memo(function LayoutTab({
                 <div className="flex gap-2">
                   <button
                     onClick={() => insertCell(selectedSectionIndex, selectedSubIndex)}
-                    className={`flex-1 ${btnBase} bg-secondary/15 text-secondary hover:bg-secondary/20`}
+                    className={`flex-1 ${btnSecondary}`}
                   >
                     + {isRows ? 'Cell Left' : 'Cell Above'}
                   </button>
                   <button
                     onClick={() => insertCell(selectedSectionIndex, selectedSubIndex + 1)}
-                    className={`flex-1 ${btnBase} bg-secondary/15 text-secondary hover:bg-secondary/20`}
+                    className={`flex-1 ${btnSecondary}`}
                   >
                     + {isRows ? 'Cell Right' : 'Cell Below'}
                   </button>
@@ -783,10 +784,10 @@ export default memo(function LayoutTab({
                   <button
                     onClick={() => swapCells(selectedSectionIndex, selectedSubIndex, selectedSubIndex - 1)}
                     disabled={selectedSubIndex === 0}
-                    className={`flex-1 ${btnBase} ${
+                    className={`flex-1 ${
                       selectedSubIndex === 0
-                        ? 'bg-secondary/15 text-base-content/50 cursor-not-allowed'
-                        : 'bg-secondary/15 text-secondary hover:bg-secondary/20'
+                        ? btnSecondaryDisabled
+                        : btnSecondary
                     }`}
                   >
                     {isRows ? 'Move Left' : 'Move Up'}
@@ -794,10 +795,10 @@ export default memo(function LayoutTab({
                   <button
                     onClick={() => swapCells(selectedSectionIndex, selectedSubIndex, selectedSubIndex + 1)}
                     disabled={selectedSubIndex === (selectedSection.subdivisions || 1) - 1}
-                    className={`flex-1 ${btnBase} ${
+                    className={`flex-1 ${
                       selectedSubIndex === (selectedSection.subdivisions || 1) - 1
-                        ? 'bg-secondary/15 text-base-content/50 cursor-not-allowed'
-                        : 'bg-secondary/15 text-secondary hover:bg-secondary/20'
+                        ? btnSecondaryDisabled
+                        : btnSecondary
                     }`}
                   >
                     {isRows ? 'Move Right' : 'Move Down'}
@@ -811,10 +812,10 @@ export default memo(function LayoutTab({
                   <button
                     onClick={() => moveCellToSection(selectedSectionIndex, selectedSubIndex, selectedSectionIndex - 1)}
                     disabled={!canMoveCellToSection(-1)}
-                    className={`flex-1 ${btnBase} ${
+                    className={`flex-1 ${
                       !canMoveCellToSection(-1)
-                        ? 'bg-secondary/15 text-base-content/50 cursor-not-allowed'
-                        : 'bg-secondary/15 text-secondary hover:bg-secondary/20'
+                        ? btnSecondaryDisabled
+                        : btnSecondary
                     }`}
                   >
                     {getMoveSectionLabel(-1)}
@@ -822,10 +823,10 @@ export default memo(function LayoutTab({
                   <button
                     onClick={() => moveCellToSection(selectedSectionIndex, selectedSubIndex, selectedSectionIndex + 1)}
                     disabled={!canMoveCellToSection(1)}
-                    className={`flex-1 ${btnBase} ${
+                    className={`flex-1 ${
                       !canMoveCellToSection(1)
-                        ? 'bg-secondary/15 text-base-content/50 cursor-not-allowed'
-                        : 'bg-secondary/15 text-secondary hover:bg-secondary/20'
+                        ? btnSecondaryDisabled
+                        : btnSecondary
                     }`}
                   >
                     {getMoveSectionLabel(1)}
@@ -853,7 +854,7 @@ export default memo(function LayoutTab({
                       step="5"
                       value={selectedSection.subSizes?.[selectedSubIndex] || 50}
                       onChange={(e) => updateSubSize(selectedSectionIndex, selectedSubIndex, Number(e.target.value))}
-                      className="flex-1"
+                      className="range range-primary range-sm flex-1"
                     />
                     <span className="text-[10px] text-base-content/50 w-7 text-right">Large</span>
                   </div>
@@ -875,7 +876,7 @@ export default memo(function LayoutTab({
               {hasSubdivisions && (
                 <button
                   onClick={() => removeCell(selectedSectionIndex, selectedSubIndex)}
-                  className={`w-full ${btnBase} bg-error/10 text-error hover:bg-error/20`}
+                  className={`w-full ${btnDelete}`}
                 >
                   Delete {isRows ? 'Cell' : 'Cell'}
                 </button>
@@ -885,7 +886,7 @@ export default memo(function LayoutTab({
 
           {/* Section Controls (Row or Column) */}
           {type !== 'fullbleed' && selectedSection && (
-            <div className="space-y-4 p-4 bg-primary/10 rounded-xl">
+            <div className="space-y-4 p-4 bg-base-200 rounded-xl">
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium text-primary">
                   {sectionLabel} {selectedSectionIndex + 1}
@@ -953,7 +954,7 @@ export default memo(function LayoutTab({
                       step="5"
                       value={selectedSection.size}
                       onChange={(e) => updateSectionSize(selectedSectionIndex, Number(e.target.value))}
-                      className="flex-1"
+                      className="range range-primary range-sm flex-1"
                     />
                     <span className="text-[10px] text-base-content/50 w-7 text-right">Large</span>
                   </div>

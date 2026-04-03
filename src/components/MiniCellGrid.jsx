@@ -65,7 +65,7 @@ export default memo(function MiniCellGrid({
     if (isContextbar) {
       let bgClass
       if (isSelected) bgClass = 'bg-primary hover:bg-primary/80'
-      else if (hasImage) bgClass = 'bg-primary/15 hover:bg-primary/20'
+      else if (hasImage) bgClass = 'bg-base-300 hover:bg-base-200'
       else bgClass = 'bg-base-200 hover:bg-base-300'
       const textClass = isSelected ? 'text-primary-content' : hasImage ? 'text-primary' : 'text-base-content/50'
       return {
@@ -84,13 +84,13 @@ export default memo(function MiniCellGrid({
       }
       if (hasContent) {
         return {
-          bgClass: 'bg-primary/15 hover:bg-primary/20',
+          bgClass: 'bg-base-300 hover:bg-base-200',
           content: <span className={`text-primary ${fontSize}`}>{currentCellIndex + 1}</span>,
         }
       }
       if (hasImage) {
         return {
-          bgClass: 'bg-primary/20 hover:bg-primary/30',
+          bgClass: 'bg-base-300 hover:bg-base-200',
           content: <span className={`text-primary ${fontSize}`}>📷</span>,
         }
       }
@@ -109,7 +109,7 @@ export default memo(function MiniCellGrid({
     }
     if (hasImage) {
       return {
-        bgClass: 'bg-primary/15 hover:bg-primary/20',
+        bgClass: 'bg-base-300 hover:bg-base-200',
         content: <span className="text-primary text-[10px]">📷</span>,
       }
     }

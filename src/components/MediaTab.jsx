@@ -93,7 +93,7 @@ function CellGrid({ layout, cellImages, selectedCell, onSelectCell, platform, hi
                       : isSelected
                       ? 'bg-primary hover:bg-primary/80 text-primary-content ring-2 ring-primary ring-offset-1'
                       : hasImage
-                      ? 'bg-primary/20 hover:bg-primary/30 text-primary'
+                      ? 'bg-base-300 hover:bg-base-200 text-primary'
                       : 'bg-base-200 hover:bg-base-300 text-base-content/60'
                   }`}
                   style={{ flex: `0 0 ${subSize}%` }}
@@ -360,7 +360,7 @@ export default memo(function MediaTab({
                           e.stopPropagation()
                           onRemoveImage(img.id)
                         }}
-                        className="absolute -top-1 -right-1 w-5 h-5 bg-error text-error-content rounded-full text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-sm hover:bg-error/80"
+                        className="btn btn-error btn-circle btn-xs absolute -top-1 -right-1 opacity-0 group-hover:opacity-100 transition-opacity shadow-sm"
                         title="Remove from library"
                       >
                         ×
@@ -473,7 +473,7 @@ export default memo(function MediaTab({
                         max="100"
                         value={selectedImage.position?.x ?? 50}
                         onChange={(e) => onUpdateImagePosition(selectedImageId, { x: parseInt(e.target.value) })}
-                        className="flex-1 accent-primary"
+                        className="range range-primary range-sm flex-1"
                       />
                       <span className="text-[10px] text-base-content/50 w-7 text-right">Right</span>
                     </div>
@@ -491,7 +491,7 @@ export default memo(function MediaTab({
                         max="100"
                         value={selectedImage.position?.y ?? 50}
                         onChange={(e) => onUpdateImagePosition(selectedImageId, { y: parseInt(e.target.value) })}
-                        className="flex-1 accent-primary"
+                        className="range range-primary range-sm flex-1"
                       />
                       <span className="text-[10px] text-base-content/50 w-7 text-right">Btm</span>
                     </div>
@@ -694,7 +694,7 @@ export default memo(function MediaTab({
                       step="5"
                       value={selectedImage.overlay?.opacity ?? 0}
                       onChange={(e) => onUpdateImageOverlay(selectedImageId, { opacity: parseInt(e.target.value, 10) })}
-                      className="flex-1"
+                      className="range range-primary range-sm flex-1"
                     />
                     <span className="text-[10px] text-base-content/50 w-6 text-right">Full</span>
                   </div>
@@ -727,7 +727,7 @@ export default memo(function MediaTab({
                   step="5"
                   value={selectedImage.filters?.grayscale || 0}
                   onChange={(e) => onUpdateImageFilters(selectedImageId, { grayscale: parseInt(e.target.value, 10) })}
-                  className="flex-1"
+                  className="range range-primary range-sm flex-1"
                 />
                 <span className="text-[10px] text-base-content/50 w-6 text-right">Full</span>
               </div>
@@ -747,7 +747,7 @@ export default memo(function MediaTab({
                   step="5"
                   value={selectedImage.filters?.sepia || 0}
                   onChange={(e) => onUpdateImageFilters(selectedImageId, { sepia: parseInt(e.target.value, 10) })}
-                  className="flex-1"
+                  className="range range-primary range-sm flex-1"
                 />
                 <span className="text-[10px] text-base-content/50 w-6 text-right">Full</span>
               </div>
@@ -767,7 +767,7 @@ export default memo(function MediaTab({
                   step="0.5"
                   value={selectedImage.filters?.blur || 0}
                   onChange={(e) => onUpdateImageFilters(selectedImageId, { blur: parseFloat(e.target.value) })}
-                  className="flex-1"
+                  className="range range-primary range-sm flex-1"
                 />
                 <span className="text-[10px] text-base-content/50 w-7 text-right">Blurry</span>
               </div>
@@ -787,7 +787,7 @@ export default memo(function MediaTab({
                   step="5"
                   value={selectedImage.filters?.contrast || 100}
                   onChange={(e) => onUpdateImageFilters(selectedImageId, { contrast: parseInt(e.target.value, 10) })}
-                  className="flex-1"
+                  className="range range-primary range-sm flex-1"
                 />
                 <span className="text-[10px] text-base-content/50 w-6 text-right">High</span>
               </div>
@@ -807,7 +807,7 @@ export default memo(function MediaTab({
                   step="5"
                   value={selectedImage.filters?.brightness || 100}
                   onChange={(e) => onUpdateImageFilters(selectedImageId, { brightness: parseInt(e.target.value, 10) })}
-                  className="flex-1"
+                  className="range range-primary range-sm flex-1"
                 />
                 <span className="text-[10px] text-base-content/50 w-7 text-right">Bright</span>
               </div>
@@ -864,7 +864,7 @@ export default memo(function MediaTab({
                     onLogoChange(null)
                     if (logoInputRef.current) logoInputRef.current.value = ''
                   }}
-                  className="absolute top-2 right-2 bg-error text-error-content rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-error/80 shadow-sm"
+                  className="btn btn-error btn-circle btn-xs absolute top-2 right-2 shadow-sm"
                 >
                   ×
                 </button>

@@ -41,13 +41,13 @@ export default function ConfirmButton({
       <div className="flex items-center gap-1">
         <button
           onClick={handleClick}
-          className={confirmClassName || 'px-2 py-1 text-xs font-medium rounded-md bg-error text-error-content hover:bg-error/80 active:scale-95 transition-all'}
+          className={confirmClassName || 'btn btn-error btn-xs'}
         >
           {confirmLabel}
         </button>
         <button
           onClick={(e) => { e.stopPropagation(); setConfirming(false) }}
-          className="px-2 py-1 text-xs font-medium rounded-md bg-base-300 text-base-content/70 hover:bg-base-200 transition-all"
+          className="btn btn-ghost btn-xs"
         >
           Cancel
         </button>
