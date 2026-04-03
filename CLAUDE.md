@@ -530,7 +530,7 @@ src/
 │   ├── ThemeColorPicker.jsx   # Theme color swatch picker (primary/secondary/accent/neutrals)
 │   ├── ThemeSelector.jsx      # DaisyUI theme picker for desktop/reader (disclosure dropdown)
 │   ├── ThemeList.jsx          # Shared theme list UI (checkmark + name + description)
-│   ├── MiniCellGrid.jsx       # Compact cell grid for ContextBar
+│   ├── MiniCellGrid.jsx       # Compact cell grid (two sizing modes: fixed-width for panels, fixed-height s/m/l for bars)
 │   ├── PageDots.jsx           # Shared page thumbnails (ContextBar + Structure tab)
 │   ├── Toast.jsx              # Toast notification system (ToastProvider + useToast hook)
 │   ├── ConfirmButton.jsx      # Inline confirmation replacing browser confirm()

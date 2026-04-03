@@ -8,6 +8,17 @@ import { useMemo, memo } from 'react'
 import { getAspectRatio } from '../config/platforms'
 import { normalizeStructure } from '../utils/cellUtils'
 
+// Requirement: Fixed-height sizing mode for horizontal contexts (ContextBar).
+// Approach: fixedHeight prop caps the grid height (s=32px, m=44px, l=56px) and derives
+//   width from height × aspectRatio. This prevents tall portrait formats (9:16) from
+//   blowing out the ContextBar height (was 114px for Stories).
+// Alternatives:
+//   - max-height + overflow:hidden on ContextBar: Rejected — clips content, doesn't show
+//     the correct layout proportions.
+//   - Device-based toggle: Rejected — the issue is context (horizontal bar vs vertical panel),
+//     not device type. Let each consumer choose the right mode.
+const FIXED_HEIGHTS = { s: 32, m: 44, l: 56 }
+
 export default memo(function MiniCellGrid({
   layout,
   // Cell data
@@ -18,7 +29,8 @@ export default memo(function MiniCellGrid({
   // Display
   platform,
   cellsWithContent,      // Set of cell indices with content (ContentTab freeform)
-  size = 'small',        // 'small' | 'medium' | 'large' | 'contextbar'
+  size = 'small',        // 'small' | 'medium' | 'large' — fixed-width mode (height from aspect ratio)
+  fixedHeight = null,    // 's' | 'm' | 'l' — fixed-height mode (width from aspect ratio)
   mode = 'default',      // 'default' (StyleTab-style) | 'content' (ContentTab-style)
 }) {
   const { type, structure } = layout
@@ -29,13 +41,22 @@ export default memo(function MiniCellGrid({
 
   const aspectRatio = getAspectRatio(platform)
 
-  // Requirement: Consolidate ContextBar's inline CellGrid into MiniCellGrid.
-  // Approach: 'contextbar' size uses responsive w-16/sm:w-12 with aspectRatio (no fixed height),
-  //   matching the original ContextBar CellGrid. Other sizes use fixed pixel dimensions.
-  const isContextbar = size === 'contextbar'
-  const gridWidth = size === 'large' ? 120 : size === 'medium' ? 88 : 64
-  const fontSize = size === 'large' ? 'text-[11px] sm:text-[10px]' : size === 'medium' ? 'text-[10px] sm:text-[9px]' : 'text-[9px] sm:text-[8px]'
-  const minCellH = isContextbar ? 'min-h-[10px]' : size === 'large' ? 'min-h-[28px] sm:min-h-[24px]' : size === 'medium' ? 'min-h-[20px] sm:min-h-[18px]' : 'min-h-[16px] sm:min-h-[14px]'
+  // Two sizing modes:
+  // 1. fixedHeight (s/m/l): height is fixed, width = height × aspectRatio.
+  //    Best for horizontal bars where vertical space is constrained.
+  // 2. size (small/medium/large): width is fixed, height = width / aspectRatio.
+  //    Best for vertical panels where width is constrained.
+  const isFixedHeight = fixedHeight && FIXED_HEIGHTS[fixedHeight]
+  const gridHeight = isFixedHeight ? FIXED_HEIGHTS[fixedHeight] : null
+  const gridWidth = isFixedHeight
+    ? Math.round(gridHeight * aspectRatio)
+    : size === 'large' ? 120 : size === 'medium' ? 88 : 64
+  const fontSize = isFixedHeight
+    ? (fixedHeight === 'l' ? 'text-[11px]' : fixedHeight === 'm' ? 'text-[10px]' : 'text-[9px]')
+    : size === 'large' ? 'text-[11px] sm:text-[10px]' : size === 'medium' ? 'text-[10px] sm:text-[9px]' : 'text-[9px] sm:text-[8px]'
+  const minCellH = isFixedHeight
+    ? (fixedHeight === 'l' ? 'min-h-[12px]' : fixedHeight === 'm' ? 'min-h-[10px]' : 'min-h-[8px]')
+    : size === 'large' ? 'min-h-[28px] sm:min-h-[24px]' : size === 'medium' ? 'min-h-[20px] sm:min-h-[18px]' : 'min-h-[16px] sm:min-h-[14px]'
 
   // Pre-compute cell mapping grouped by section to avoid mutable cellIndex during render
   const sectionCellMap = useMemo(() => {
@@ -60,19 +81,6 @@ export default memo(function MiniCellGrid({
     const isSelected = selectedCell === currentCellIndex
     const hasImage = !!cellImages[currentCellIndex]
     const hasContent = cellsWithContent?.has(currentCellIndex)
-
-    // ContextBar style: numbers only, compact font with font-medium
-    if (isContextbar) {
-      let bgClass
-      if (isSelected) bgClass = 'bg-primary hover:bg-primary/80'
-      else if (hasImage) bgClass = 'bg-base-300 hover:bg-base-200'
-      else bgClass = 'bg-base-200 hover:bg-base-300'
-      const textClass = isSelected ? 'text-primary-content' : hasImage ? 'text-primary' : 'text-base-content/50'
-      return {
-        bgClass,
-        content: <span className={`text-[9px] sm:text-[8px] font-medium leading-none ${textClass}`}>{currentCellIndex + 1}</span>,
-      }
-    }
 
     if (mode === 'content') {
       // ContentTab style: selected > hasContent > hasImage > default
@@ -100,34 +108,31 @@ export default memo(function MiniCellGrid({
       }
     }
 
-    // Default/StyleTab style: selected > hasImage > default
+    // Default style: selected > hasImage > default
     if (isSelected) {
       return {
         bgClass: 'bg-primary hover:bg-primary/80',
-        content: <span className="text-primary-content text-[10px]">✓</span>,
+        content: <span className={`text-primary-content ${fontSize}`}>✓</span>,
       }
     }
     if (hasImage) {
       return {
         bgClass: 'bg-base-300 hover:bg-base-200',
-        content: <span className="text-primary text-[10px]">📷</span>,
+        content: <span className={`text-primary ${fontSize}`}>📷</span>,
       }
     }
     return {
       bgClass: 'bg-base-200 hover:bg-base-300',
-      content: <span className="text-base-content/60 text-[10px]">{currentCellIndex + 1}</span>,
+      content: <span className={`text-base-content/60 ${fontSize}`}>{currentCellIndex + 1}</span>,
     }
   }
 
   return (
     <div
-      className={`flex overflow-hidden border border-base-300 rounded ${
-        isContextbar ? 'w-16 sm:w-12' : size === 'large' ? 'w-[120px]' : size === 'medium' ? 'w-[88px]' : ''
-      }`}
+      className="flex overflow-hidden border border-base-300 rounded"
       style={{
-        ...(size === 'small' ? { width: `${gridWidth}px` } : {}),
-        ...(size === 'small' ? { height: `${gridWidth / aspectRatio}px` } : {}),
-        aspectRatio: size !== 'small' ? `${aspectRatio}` : undefined,
+        width: `${gridWidth}px`,
+        height: isFixedHeight ? `${gridHeight}px` : `${gridWidth / aspectRatio}px`,
         flexDirection: isRows || isFullbleed ? 'column' : 'row',
       }}
     >
