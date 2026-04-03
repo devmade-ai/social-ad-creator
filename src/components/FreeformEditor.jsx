@@ -107,7 +107,7 @@ function MarkdownToolbar({ textareaRef, content, onContentChange }) {
               type="button"
               onClick={() => applyFormat(fmt)}
               title={fmt.title}
-              className="px-2.5 py-1.5 sm:px-2 sm:py-1 text-[12px] sm:text-[11px] font-medium rounded text-base-content/70 hover:bg-base-300 hover:text-base-content active:bg-base-200 transition-colors shrink-0"
+              className="btn btn-ghost btn-xs shrink-0"
               style={fmt.style ? { textDecoration: fmt.style === 'line-through' ? 'line-through' : undefined, fontStyle: fmt.style === 'italic' ? 'italic' : undefined } : undefined}
             >
               {fmt.label}
@@ -209,7 +209,7 @@ function FreeformBlockEditor({
             <button
               onClick={() => onMoveBlock(cellIndex, block.id, -1)}
               disabled={index === 0}
-              className="w-7 h-7 sm:w-6 sm:h-6 rounded flex items-center justify-center text-xs active:scale-90 disabled:opacity-30 bg-base-200 text-base-content/70 hover:bg-base-300 disabled:hover:bg-base-200"
+              className="btn btn-ghost btn-square btn-xs"
               title="Move up"
             >
               <ChevronUpIcon />
@@ -218,7 +218,7 @@ function FreeformBlockEditor({
             <button
               onClick={() => onMoveBlock(cellIndex, block.id, 1)}
               disabled={index === total - 1}
-              className="w-7 h-7 sm:w-6 sm:h-6 rounded flex items-center justify-center text-xs active:scale-90 disabled:opacity-30 bg-base-200 text-base-content/70 hover:bg-base-300 disabled:hover:bg-base-200"
+              className="btn btn-ghost btn-square btn-xs"
               title="Move down"
             >
               <ChevronDownIcon />
