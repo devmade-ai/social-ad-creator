@@ -473,38 +473,26 @@ Run these tests after making changes to ensure nothing is broken.
 | 2 | Reload the page | Browser | Mode persists (same light/dark state) |
 | 3 | Open the same URL in another tab | New tab | Same mode is active (cross-tab sync) |
 
-### TH2: Select a Theme Per Mode
+### TH2: Select a Theme Combo
 
-**Scenario:** Users can independently choose themes for light and dark mode.
+**Scenario:** Users can choose between theme combos (Mono and Luxe).
 
 | Step | Action | Where | Expected |
 |------|--------|-------|----------|
-| 1 | Click the theme name/chevron next to the sun/moon | Header ThemeSelector | Dropdown opens showing 8 themes for current mode |
-| 2 | Click a different theme (e.g. "Emerald") | Dropdown list | UI colors change immediately, checkmark moves to selected theme |
-| 3 | Close dropdown and toggle to other mode | ThemeSelector | Other mode's previously selected theme loads (not the one you just picked) |
-| 4 | Open dropdown in the other mode | ThemeSelector | Shows 8 themes for this mode, different list than the first mode |
-| 5 | Select a theme, reload the page | Browser | Both mode selections persist independently |
+| 1 | Click "Luxe" button next to the sun/moon | Header ThemeSelector | UI colors change immediately to fantasy (light) or luxury (dark) theme |
+| 2 | Toggle dark/light mode | ThemeSelector | Switches between the combo's paired themes (e.g. fantasy ↔ luxury) |
+| 3 | Click "Mono" button | ThemeSelector | UI switches back to lofi (light) or black (dark) theme |
+| 4 | Select a combo, reload the page | Browser | Combo selection persists |
 
-### TH3: Invalid Theme Recovery
+### TH3: Invalid Combo Recovery
 
 **Scenario:** Manually corrupting localStorage doesn't break the app.
 
 | Step | Action | Where | Expected |
 |------|--------|-------|----------|
 | 1 | Open DevTools console | Browser | Console ready |
-| 2 | Run: `localStorage.setItem('lightTheme', 'garbage')` | Console | Value set |
-| 3 | Reload the page | Browser | App loads with default theme (lofi), not unstyled |
-
-### TH4: Keyboard Navigation
-
-**Scenario:** Theme dropdown is fully keyboard-accessible.
-
-| Step | Action | Where | Expected |
-|------|--------|-------|----------|
-| 1 | Tab to the theme name button and press Enter | Header | Dropdown opens, first item focused |
-| 2 | Press ArrowDown twice | Dropdown | Focus moves down through items |
-| 3 | Press Enter on a theme | Dropdown | Theme applied, dropdown closes, focus returns to trigger |
-| 4 | Re-open dropdown and press Escape | Dropdown | Dropdown closes, focus returns to trigger |
+| 2 | Run: `localStorage.setItem('themeCombo', 'garbage')` | Console | Value set |
+| 3 | Reload the page | Browser | App loads with default combo (Mono/lofi), not unstyled |
 
 ---
 

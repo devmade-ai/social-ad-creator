@@ -5,24 +5,29 @@ Compact context summary for session continuity. Rewrite at session end.
 ---
 
 ## Worked on
-MiniCellGrid fixed-height sizing mode for ContextBar height control.
+Replace 16 independent DaisyUI themes with 2 combo presets (Mono/Luxe).
 
 ## Accomplished
 
-### MiniCellGrid fixed-height mode
-1. **Added `fixedHeight` prop** (`'s'`=32px, `'m'`=44px, `'l'`=56px) — new sizing mode where height is fixed and width is derived from `height * aspectRatio`. Solves portrait formats (9:16 Stories/TikTok) blowing out ContextBar to 114px+ tall.
-2. **Updated ContextBar** — uses `fixedHeight="s"` instead of old `size="contextbar"` mode.
-3. **Removed `size="contextbar"`** — no longer needed, replaced by `fixedHeight` mode.
-4. **Cleaned up dead import** — removed unused `MiniCellGrid` import from StyleTab.
-5. **Default mode uses `fontSize` variable** — previously hardcoded `text-[10px]`, now scales with size/fixedHeight selection.
+### Theme combo system
+1. **Replaced independent theme selection with combos** — 2 combos: Mono (lofi/black), Luxe (fantasy/luxury). User picks a combo; dark/light toggle switches between paired themes.
+2. **Simplified ThemeSelector** — From dropdown with scrollable list to inline button group (sun/moon + Mono + Luxe). Deleted ThemeList.jsx.
+3. **Updated useDarkMode hook** — Single `comboId` state replaces separate `lightTheme`/`darkTheme`. localStorage key: `themeCombo`.
+4. **Added localStorage migration** — Old `lightTheme`/`darkTheme` keys migrated to `themeCombo` on first load (both in index.html flash prevention + useDarkMode hook).
+5. **Reduced DaisyUI themes** — index.css: 16 → 4 themes (lofi, black, fantasy, luxury).
+6. **Ran generate-theme-meta** — Corrected fantasy metaColor from guessed `#6e0b75` to actual `#6d0076`.
+7. **Updated all docs** — CLAUDE.md, README.md, STYLE_GUIDE.md, USER_GUIDE.md, TESTING_GUIDE.md, HISTORY.md, TODO.md, TutorialModal.jsx, SESSION_NOTES.md.
 
 ## Current state
 
-- **Working** — On branch `claude/drag-handle-height-3hzBt`
+- **Working** — On branch `claude/theme-combo-options-gA7c2`
 - Build passes
 
 ## Key context
 
-- **Two sizing modes:** `size` (small/medium/large) = fixed width, height from aspect ratio. `fixedHeight` (s/m/l) = fixed height, width from aspect ratio. Consumers pick based on context (horizontal bar vs vertical panel).
-- **ContextBar uses `fixedHeight="s"` (32px)** — predictable height regardless of platform aspect ratio.
-- **Tab panels (ContentTab, LayoutTab) still use `size="medium"`** — vertical scroll handles tall grids fine.
+- **Two combos:** Mono (lofi/black) = clean & minimal. Luxe (fantasy/luxury) = rich & elegant.
+- **localStorage keys:** `darkMode` (bool) + `themeCombo` (id). Old keys `lightTheme`/`darkTheme` auto-migrated.
+- **Props flow:** App.jsx → layouts: `isDark`, `toggleDarkMode`, `comboId`, `setCombo` (4 values, down from 6).
+- **Removed:** ThemeList.jsx, useDisclosureFocus import from ThemeSelector, all 12 removed theme registrations from index.css.
+- **TODO item removed:** "Split useDarkMode hook" — no longer needed with simpler combo state.
+- **TODO item updated:** "React Context for theme values" — prop count reduced from 8/24 to 4/12.

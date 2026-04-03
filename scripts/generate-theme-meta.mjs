@@ -25,42 +25,18 @@ const rootDir = resolve(__dirname, '..')
 
 const daisyuiThemes = require('daisyui/theme/object.js').default
 
-// Curated theme list — order matters (determines UI display order).
-// To add/remove themes, edit these arrays and re-run.
-const LIGHT_THEME_IDS = ['nord', 'lofi', 'emerald', 'cupcake', 'garden', 'autumn', 'pastel', 'caramellatte']
-const DARK_THEME_IDS = ['night', 'black', 'forest', 'dracula', 'dim', 'synthwave', 'luxury', 'coffee']
+// Combo definitions — each combo pairs a light and dark theme.
+const COMBOS = [
+  { id: 'mono', name: 'Mono', description: 'Clean & minimal', light: 'lofi', dark: 'black' },
+  { id: 'luxe', name: 'Luxe', description: 'Rich & elegant', light: 'fantasy', dark: 'luxury' },
+]
 
-// Display names and descriptions — must match daisyuiThemes.js
-const THEME_META = {
-  nord: { name: 'Nord', description: 'Cool blue-gray' },
-  lofi: { name: 'Lo-Fi', description: 'Minimal mono' },
-  emerald: { name: 'Emerald', description: 'Fresh green' },
-  cupcake: { name: 'Cupcake', description: 'Soft pastels' },
-  garden: { name: 'Garden', description: 'Warm green' },
-  autumn: { name: 'Autumn', description: 'Earthy warm' },
-  pastel: { name: 'Pastel', description: 'Soft muted' },
-  caramellatte: { name: 'Caramel', description: 'Warm brown' },
-  night: { name: 'Night', description: 'Deep blue' },
-  black: { name: 'Black', description: 'True OLED' },
-  forest: { name: 'Forest', description: 'Deep green' },
-  dracula: { name: 'Dracula', description: 'Bold purple' },
-  dim: { name: 'Dim', description: 'Muted warm' },
-  synthwave: { name: 'Synthwave', description: 'Neon retro' },
-  luxury: { name: 'Luxury', description: 'Dark gold' },
-  coffee: { name: 'Coffee', description: 'Dark roast' },
-}
-
-const DEFAULT_LIGHT = 'lofi'
-const DEFAULT_DARK = 'black'
+const DEFAULT_COMBO = 'luxe'
 
 // Per-theme color key overrides. Default: dark → base-100, light → primary.
-// Some light themes have primary colors that don't represent the theme feel
-// (e.g. lofi primary is near-black, garden primary is hot pink, caramellatte
-// primary is pure black). Override those to use a more representative color.
+// Some light themes have primary colors that don't represent the theme feel.
 const COLOR_KEY_OVERRIDES = {
   lofi: '--color-base-300',        // Monochrome theme — neutral gray > near-black primary
-  garden: '--color-base-300',      // Theme feel is warm green — primary is pink accent
-  caramellatte: '--color-base-300', // Theme feel is warm brown — primary is pure black
 }
 
 function getHexForTheme(id) {
@@ -83,64 +59,64 @@ function getHexForTheme(id) {
 // 3. Generate all hex values
 // ---------------------------------------------------------------------------
 
-const lightEntries = LIGHT_THEME_IDS.map(id => ({
-  id,
-  ...THEME_META[id],
-  metaColor: getHexForTheme(id),
+const comboEntries = COMBOS.map(combo => ({
+  ...combo,
+  lightMeta: getHexForTheme(combo.light),
+  darkMeta: getHexForTheme(combo.dark),
 }))
 
-const darkEntries = DARK_THEME_IDS.map(id => ({
-  id,
-  ...THEME_META[id],
-  metaColor: getHexForTheme(id),
-}))
-
-const defaultLightHex = getHexForTheme(DEFAULT_LIGHT)
-const defaultDarkHex = getHexForTheme(DEFAULT_DARK)
+const defaultCombo = comboEntries.find(c => c.id === DEFAULT_COMBO)
 
 console.log('Generated meta theme-colors:')
-console.log('Light themes:')
-lightEntries.forEach(e => console.log(`  ${e.id}: ${e.metaColor}`))
-console.log('Dark themes:')
-darkEntries.forEach(e => console.log(`  ${e.id}: ${e.metaColor}`))
-console.log(`Defaults: light=${defaultLightHex}, dark=${defaultDarkHex}`)
+comboEntries.forEach(c => {
+  console.log(`  ${c.id}: light=${c.light} (${c.lightMeta}), dark=${c.dark} (${c.darkMeta})`)
+})
+console.log(`Default combo: ${DEFAULT_COMBO}`)
 
 // ---------------------------------------------------------------------------
 // 4. Update daisyuiThemes.js
 // ---------------------------------------------------------------------------
 
-function generateThemeEntry(entry) {
-  return `  { id: '${entry.id}', name: '${entry.name}', description: '${entry.description}', metaColor: '${entry.metaColor}' },`
+function generateComboEntry(entry) {
+  return `  {
+    id: '${entry.id}',
+    name: '${entry.name}',
+    description: '${entry.description}',
+    light: { id: '${entry.light}', metaColor: '${entry.lightMeta}' },
+    dark: { id: '${entry.dark}', metaColor: '${entry.darkMeta}' },
+  },`
 }
 
-const themeFileContent = `// Requirement: Independent per-mode DaisyUI theme selection.
-// Approach: Curated lists of light and dark themes with metadata for UI and PWA theming.
-//   Each mode remembers its own theme choice via localStorage.
+const themeFileContent = `// Requirement: Paired theme combos for simplified DaisyUI theme selection.
+// Approach: Two curated combos (Mono + Luxe), each pairing a light and dark theme.
+//   User picks a combo; dark/light toggle switches between the combo's themes.
 // Alternatives:
-//   - Paired combos (glow-props pattern): Rejected — user wants independent selection.
-//   - All 30+ DaisyUI themes: Rejected — too many, some are novelty. Curated for quality.
+//   - Independent per-mode selection (16 themes): Rejected — too many choices, simplified to combos.
+//   - Single theme with no combo: Rejected — user wants at least two visual options.
 
 // Meta theme-color for PWA status bar — matches each theme's primary or base color.
 // AUTO-GENERATED by scripts/generate-theme-meta.mjs from DaisyUI oklch values.
 // Do not edit metaColor values manually — run the script after DaisyUI updates.
 
-export const lightThemes = [
-${lightEntries.map(generateThemeEntry).join('\n')}
+export const themeCombos = [
+${comboEntries.map(generateComboEntry).join('\n')}
 ]
 
-export const darkThemes = [
-${darkEntries.map(generateThemeEntry).join('\n')}
-]
-
-export const DEFAULT_LIGHT_THEME = '${DEFAULT_LIGHT}'
-export const DEFAULT_DARK_THEME = '${DEFAULT_DARK}'
+export const DEFAULT_COMBO = '${DEFAULT_COMBO}'
 
 // Look up meta theme-color for a given theme ID.
 // Falls back to neutral values if theme not found.
 export function getMetaColor(themeId) {
-  const all = [...lightThemes, ...darkThemes]
-  const found = all.find(t => t.id === themeId)
-  return found?.metaColor ?? '#808080'
+  for (const combo of themeCombos) {
+    if (combo.light.id === themeId) return combo.light.metaColor
+    if (combo.dark.id === themeId) return combo.dark.metaColor
+  }
+  return '#808080'
+}
+
+// Look up combo by ID — returns combo object or default combo.
+export function getCombo(comboId) {
+  return themeCombos.find(c => c.id === comboId) || themeCombos[0]
 }
 `
 
@@ -153,61 +129,42 @@ console.log('\n✓ Updated src/config/daisyuiThemes.js')
 
 let html = readFileSync(resolve(rootDir, 'index.html'), 'utf-8')
 
-// Update meta theme-color tags
+// Update meta theme-color tags — use default combo's light/dark meta colors
 html = html.replace(
   /(<meta name="theme-color" content=")([^"]+)(" media="\(prefers-color-scheme: light\)")/,
-  `$1${defaultLightHex}$3`
+  `$1${defaultCombo.lightMeta}$3`
 )
 html = html.replace(
   /(<meta name="theme-color" content=")([^"]+)(" media="\(prefers-color-scheme: dark\)")/,
-  `$1${defaultDarkHex}$3`
+  `$1${defaultCombo.darkMeta}$3`
 )
 
-// Update comment with default theme hex values
-html = html.replace(
-  /Light = lofi \([^)]+\), Dark = black \([^)]+\)/,
-  `Light = lofi (${defaultLightHex}), Dark = black (${defaultDarkHex})`
-)
+// Update inline combo map in flash-prevention script
+const comboMap = {}
+comboEntries.forEach(c => { comboMap[c.id] = { light: c.light, dark: c.dark } })
+const comboMapStr = JSON.stringify(comboMap).replace(/"/g, "'").replace(/'/g, "'")
 
-// Update inline allowlists in flash-prevention script
-const lightList = LIGHT_THEME_IDS.map(id => `'${id}'`).join(',')
-const darkList = DARK_THEME_IDS.map(id => `'${id}'`).join(',')
-html = html.replace(
-  /var light = \[[^\]]+\];/,
-  `var light = [${lightList}];`
-)
-html = html.replace(
-  /var dark = \[[^\]]+\];/,
-  `var dark = [${darkList}];`
-)
-
-// Update meta theme-color map in flash-prevention script (add if not present)
-// Build inline color map for the flash-prevention script
+// Update meta color map
 const allColorMap = {}
-lightEntries.forEach(e => { allColorMap[e.id] = e.metaColor })
-darkEntries.forEach(e => { allColorMap[e.id] = e.metaColor })
-
+comboEntries.forEach(c => {
+  allColorMap[c.light] = c.lightMeta
+  allColorMap[c.dark] = c.darkMeta
+})
 const colorMapStr = JSON.stringify(allColorMap)
 
-// Check if there's already a meta color map in the inline script
+// Replace the combo map line
+if (html.includes('var combos =')) {
+  html = html.replace(
+    /var combos = [^;]+;/,
+    `var combos = ${JSON.stringify(comboMap)};`
+  )
+}
+
+// Replace the meta color map
 if (html.includes('var metaColors =')) {
   html = html.replace(
     /var metaColors = [^;]+;/,
     `var metaColors = ${colorMapStr};`
-  )
-  // Also update the fallback color after the map
-  html = html.replace(
-    /var mc = metaColors\[theme\] \|\| '[^']+';/,
-    `var mc = metaColors[theme] || '#808080';`
-  )
-} else {
-  // Insert meta color update into the flash-prevention script, before the closing catch
-  html = html.replace(
-    "root.setAttribute('data-theme', theme);",
-    `root.setAttribute('data-theme', theme);
-          var metaColors = ${colorMapStr};
-          var mc = metaColors[theme] || '#808080';
-          document.querySelectorAll('meta[name="theme-color"]').forEach(function(m) { m.setAttribute('content', mc); });`
   )
 }
 

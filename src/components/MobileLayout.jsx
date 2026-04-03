@@ -13,30 +13,20 @@ import BottomSheet from './BottomSheet'
 import MobileNav from './MobileNav'
 import BurgerMenu from './BurgerMenu'
 import UndoRedoButtons from './UndoRedoButtons'
-import ThemeList from './ThemeList'
-import { lightThemes, darkThemes } from '../config/daisyuiThemes'
+import { themeCombos } from '../config/daisyuiThemes'
 import { ICON_HELP, ICON_INSTALL, ICON_UPDATE, ICON_REFRESH, ICON_READER, ICON_SAVE, ICON_KEYBOARD } from '../config/menuIcons'
 
-// Requirement: Dark mode toggle + per-mode theme picker inside burger menu.
-// Ref: glow-props burger menu implementation — dark/light toggle as plain text item,
-//   theme list always visible (not collapsed) with section header, checkmark indicator,
-//   name + description, max-h scrollable. Menu stays open on toggle and theme selection.
+// Requirement: Dark mode toggle + combo theme picker inside burger menu.
 // Approach: Rendered as BurgerMenu children (below action items, separated by <hr>).
-//   Toggle is a plain button matching other menu items. Theme list is always visible
-//   with a "Light themes" / "Dark themes" section header above.
+//   Toggle is a plain button. Combo list shows 2 options with checkmark indicator.
 // Alternatives:
-//   - ToggleSwitch widget on dark mode row: Rejected — glow-props uses plain text label.
-//   - Collapsed/expandable theme list: Rejected — glow-props shows themes always visible.
+//   - Independent per-mode theme list: Rejected — simplified to combos.
 //   - Separate ThemeSelector in header: Rejected — clutters mobile header.
-function MenuThemeSection({ isDark, toggleDarkMode, lightTheme, darkTheme, setLightTheme, setDarkTheme }) {
-  const themes = isDark ? darkThemes : lightThemes
-  const currentTheme = isDark ? darkTheme : lightTheme
-  const setTheme = isDark ? setDarkTheme : setLightTheme
-
+function MenuThemeSection({ isDark, toggleDarkMode, comboId, setCombo }) {
   return (
     <>
       <hr className="my-1 border-base-300" />
-      {/* Dark/Light mode toggle — plain text button, same as glow-props */}
+      {/* Dark/Light mode toggle — plain text button */}
       <button
         type="button"
         onClick={toggleDarkMode}
@@ -47,16 +37,31 @@ function MenuThemeSection({ isDark, toggleDarkMode, lightTheme, darkTheme, setLi
         {isDark ? 'Light mode' : 'Dark mode'}
       </button>
       <hr className="my-1 border-base-300" />
-      {/* Section header — updates to reflect which mode's themes are shown */}
+      {/* Combo section header */}
       <div className="px-4 pt-2 pb-1">
         <span className="text-xs font-semibold uppercase tracking-wider text-base-content/50">
-          {isDark ? 'Dark themes' : 'Light themes'}
+          Theme
         </span>
       </div>
-      {/* Theme list — always visible. No inner scroll container — the parent
-          BurgerMenu nav handles scrolling via max-h-[calc(100dvh-4rem)] overflow-y-auto.
-          Nested scroll containers cause confusing touch behavior on mobile. */}
-      <ThemeList themes={themes} currentTheme={currentTheme} onSelect={setTheme} />
+      {/* Combo list — always visible */}
+      <div>
+        {themeCombos.map((combo) => (
+          <button
+            key={combo.id}
+            type="button"
+            onClick={() => setCombo(combo.id)}
+            className={`w-full text-left px-4 py-2.5 text-sm
+                       flex items-center gap-2 rounded-lg
+                       transition-colors cursor-pointer min-h-11
+                       outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset
+                       ${comboId === combo.id ? 'bg-base-200' : 'hover:bg-base-200'}`}
+          >
+            <span className={`text-primary text-xs ${comboId === combo.id ? '' : 'invisible'}`} aria-hidden="true">&#10003;</span>
+            <span>{combo.name}</span>
+            <span className="ml-auto text-xs text-base-content/50">{combo.description}</span>
+          </button>
+        ))}
+      </div>
     </>
   )
 }
@@ -112,10 +117,8 @@ export default function MobileLayout({
   setIsReaderMode,
   isDark,
   toggleDarkMode,
-  lightTheme,
-  darkTheme,
-  setLightTheme,
-  setDarkTheme,
+  comboId,
+  setCombo,
   canInstall,
   install,
   hasUpdate,
@@ -185,7 +188,7 @@ export default function MobileLayout({
               { label: 'Keyboard Shortcuts', icon: ICON_KEYBOARD, action: () => setShowShortcuts(true) },
             ]}
           >
-            <MenuThemeSection isDark={isDark} toggleDarkMode={toggleDarkMode} lightTheme={lightTheme} darkTheme={darkTheme} setLightTheme={setLightTheme} setDarkTheme={setDarkTheme} />
+            <MenuThemeSection isDark={isDark} toggleDarkMode={toggleDarkMode} comboId={comboId} setCombo={setCombo} />
           </BurgerMenu>
         </div>
       </header>

@@ -1,13 +1,11 @@
-/* Requirement: Tailwind 4 + DaisyUI 5 with independent per-mode theme selection.
+/* Requirement: Tailwind 4 + DaisyUI 5 with combo-based theme selection.
    Approach: CSS-first config replaces tailwind.config.js + postcss.config.js.
-   All 16 curated themes registered here; user picks one light + one dark independently.
+   Two combos: Mono (lofi/black) and Luxe (fantasy/luxury).
    Theme list matches src/config/daisyuiThemes.js catalog. */
 @import "tailwindcss";
 
 @plugin "daisyui" {
-  themes: lofi --default, black --prefersdark,
-          nord, night, emerald, cupcake, garden, autumn, pastel, caramellatte,
-          forest, dracula, dim, synthwave, luxury, coffee;
+  themes: fantasy --default, luxury --prefersdark, lofi, black;
 }
 
 /* Requirement: Tailwind dark: variant must work alongside DaisyUI data-theme.

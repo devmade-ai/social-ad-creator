@@ -101,7 +101,7 @@ npm run preview  # Preview production build
 ## Tech Stack
 
 - Vite 5 + React 18
-- Tailwind CSS 4 + DaisyUI 5 (16 selectable themes)
+- Tailwind CSS 4 + DaisyUI 5 (2 theme combos: Mono + Luxe)
 - html-to-image for rendering
 - JSZip + file-saver for batch export
 - pdf-lib for PDF export

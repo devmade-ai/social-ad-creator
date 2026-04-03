@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026-04-03
+
+### Replace 16 independent themes with 2 combo presets
+
+- **Combo system** — Replaced 16 independently selectable DaisyUI themes (8 light + 8 dark) with 2 curated combos: Mono (lofi/black) and Luxe (fantasy/luxury). Each combo pairs a light and dark theme; dark/light toggle switches between them.
+- **Simpler UI** — ThemeSelector reduced from dropdown with scrollable list to inline button group (sun/moon + Mono + Luxe). Removed ThemeList.jsx component.
+- **localStorage migration** — Old keys `lightTheme`/`darkTheme` replaced by single `themeCombo` key. Old keys gracefully ignored (fall back to default combo).
+- **Reduced bundle** — DaisyUI themes in index.css reduced from 16 to 4 (lofi, black, fantasy, luxury).
+- **Flash prevention** — index.html inline script updated for combo-based theme resolution.
+
 ## 2026-04-02
 
 ### Migrate buttons to DaisyUI btn component
