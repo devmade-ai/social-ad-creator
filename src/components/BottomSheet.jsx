@@ -16,8 +16,8 @@ import { useRef, useEffect, useCallback } from 'react'
 //     bundle weight for a simple gesture.
 
 export const SNAP_CLOSED = 0
-export const SNAP_HALF = 50
-export const SNAP_FULL = 85
+export const SNAP_HALF = 40
+export const SNAP_FULL = 80
 
 // Easing curve for snap animations — extracted for consistency.
 const SHEET_EASING = 'cubic-bezier(0.32, 0.72, 0, 1)'
@@ -129,7 +129,7 @@ export default function BottomSheet({ isOpen, onClose, children, snapPoint, onSn
     const currentVh = SNAP_FULL - currentTranslateRef.current // visible height in vh
     if (currentVh < 30) {
       onClose()
-    } else if (currentVh < 65) {
+    } else if (currentVh < 50) {
       onSnapChange(SNAP_HALF)
       applyTransform(snapToTranslateY(SNAP_HALF), true)
     } else {
