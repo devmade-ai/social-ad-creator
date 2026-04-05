@@ -2,6 +2,14 @@
 
 ## 2026-04-05
 
+### Replace remaining custom patterns with DaisyUI 5 (round 2)
+
+- **Loading spinners → DaisyUI `loading loading-spinner`** — 3 custom `border-2 animate-spin` spinners (SampleImagesSection ×2, App.jsx export overlay) replaced.
+- **Button groups → DaisyUI `join`** — ExportButtons format selector, ThemeSelector mode+combo group, AIPromptHelper purpose/orientation/colors selectors.
+- **AIPromptHelper options → DaisyUI `btn btn-xs`** — 7 style + mood + copy button selectors migrated from hand-rolled `px-2 py-1 rounded-lg`.
+- **BurgerMenu → DaisyUI `menu menu-sm`** — List item styling via DaisyUI menu. Disclosure pattern + keyboard nav unchanged.
+- **MobileNav → DaisyUI `dock dock-sm`** — Bottom navigation with native safe area insets, `dock-active` indicator, `dock-label` text.
+
 ### Replace custom UI components with DaisyUI 5 equivalents
 
 - **4 modals → DaisyUI `modal`** — TutorialModal, SaveLoadModal, InstallInstructionsModal, KeyboardShortcutsOverlay migrated from hand-rolled fixed overlays to native `<dialog>` with DaisyUI `modal` classes. Native focus trapping replaces custom `useFocusTrap` (still used by BurgerMenu).

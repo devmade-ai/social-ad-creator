@@ -1,9 +1,13 @@
 // Requirement: AI image prompt builder UI for generating AI-ready image prompts.
 // Approach: Self-contained component with style/mood/purpose/orientation selectors
 //   that compose into a copy-ready prompt string.
+//   Option selectors use DaisyUI btn classes for consistency with app-wide button styling.
+//   Non-wrapping groups (purpose, orientation, colors) use join for connected borders.
+//   Wrapping groups (style, mood) use flex gap with individual btn items.
 // Alternatives:
+//   - Hand-rolled px-2 py-1 rounded-lg styling: Replaced — DaisyUI btn provides
+//     consistent sizing, focus states, and theme-aware colors.
 //   - Inline in MediaTab: Rejected — adds ~230 lines to an already large file.
-//   - External prompt template system: Rejected — over-engineering for a helper tool.
 import { useState, useMemo, useCallback } from 'react'
 
 const styleOptions = [
@@ -107,7 +111,7 @@ export default function AIPromptHelper({ theme }) {
         />
       </div>
 
-      {/* Style */}
+      {/* Style — wrapping group, individual btn items */}
       <div className="space-y-1.5">
         <label className="block text-xs font-medium text-base-content/70">Style</label>
         <div className="flex flex-wrap gap-1">
@@ -115,10 +119,8 @@ export default function AIPromptHelper({ theme }) {
             <button
               key={opt.id}
               onClick={() => setStyle(opt.id)}
-              className={`px-2 py-1 text-xs rounded-lg font-medium ${
-                style === opt.id
-                  ? 'bg-primary text-primary-content shadow-sm'
-                  : 'bg-base-200 text-base-content/70 hover:bg-base-300'
+              className={`btn btn-xs ${
+                style === opt.id ? 'btn-primary' : 'btn-ghost'
               }`}
             >
               {opt.name}
@@ -127,7 +129,7 @@ export default function AIPromptHelper({ theme }) {
         </div>
       </div>
 
-      {/* Mood */}
+      {/* Mood — wrapping group, individual btn items */}
       <div className="space-y-1.5">
         <label className="block text-xs font-medium text-base-content/70">Mood / Lighting</label>
         <div className="flex flex-wrap gap-1">
@@ -135,10 +137,8 @@ export default function AIPromptHelper({ theme }) {
             <button
               key={opt.id}
               onClick={() => setMood(opt.id)}
-              className={`px-2 py-1 text-xs rounded-lg font-medium ${
-                mood === opt.id
-                  ? 'bg-primary text-primary-content shadow-sm'
-                  : 'bg-base-200 text-base-content/70 hover:bg-base-300'
+              className={`btn btn-xs ${
+                mood === opt.id ? 'btn-primary' : 'btn-ghost'
               }`}
             >
               {opt.name}
@@ -147,18 +147,16 @@ export default function AIPromptHelper({ theme }) {
         </div>
       </div>
 
-      {/* Purpose */}
+      {/* Purpose — 2 items, connected group */}
       <div className="space-y-1.5">
         <label className="block text-xs font-medium text-base-content/70">Image Purpose</label>
-        <div className="flex gap-1.5">
+        <div className="join w-full">
           {purposeOptions.map((opt) => (
             <button
               key={opt.id}
               onClick={() => setPurpose(opt.id)}
-              className={`flex-1 px-2 py-1.5 text-xs rounded-lg font-medium ${
-                purpose === opt.id
-                  ? 'bg-primary text-primary-content shadow-sm'
-                  : 'bg-base-200 text-base-content/70 hover:bg-base-300'
+              className={`btn btn-xs flex-1 join-item ${
+                purpose === opt.id ? 'btn-primary' : 'btn-ghost'
               }`}
             >
               {opt.name}
@@ -170,18 +168,16 @@ export default function AIPromptHelper({ theme }) {
         </p>
       </div>
 
-      {/* Orientation */}
+      {/* Orientation — 3 items, connected group */}
       <div className="space-y-1.5">
         <label className="block text-xs font-medium text-base-content/70">Orientation</label>
-        <div className="flex gap-1">
+        <div className="join w-full">
           {orientationOptions.map((opt) => (
             <button
               key={opt.id}
               onClick={() => setOrientation(opt.id)}
-              className={`flex-1 px-2 py-1.5 text-xs rounded-lg font-medium ${
-                orientation === opt.id
-                  ? 'bg-primary text-primary-content shadow-sm'
-                  : 'bg-base-200 text-base-content/70 hover:bg-base-300'
+              className={`btn btn-xs flex-1 join-item ${
+                orientation === opt.id ? 'btn-primary' : 'btn-ghost'
               }`}
             >
               {opt.name}
@@ -190,26 +186,22 @@ export default function AIPromptHelper({ theme }) {
         </div>
       </div>
 
-      {/* Colors */}
+      {/* Colors — 2 items, connected group */}
       <div className="space-y-1.5">
         <label className="block text-xs font-medium text-base-content/70">Colors (optional)</label>
-        <div className="flex gap-1.5 mb-2">
+        <div className="join w-full mb-2">
           <button
             onClick={() => setUseThemeColors(true)}
-            className={`flex-1 px-2 py-1.5 text-xs rounded-lg font-medium ${
-              useThemeColors
-                ? 'bg-primary text-primary-content shadow-sm'
-                : 'bg-base-200 text-base-content/70 hover:bg-base-300'
+            className={`btn btn-xs flex-1 join-item ${
+              useThemeColors ? 'btn-primary' : 'btn-ghost'
             }`}
           >
             Use Theme
           </button>
           <button
             onClick={() => setUseThemeColors(false)}
-            className={`flex-1 px-2 py-1.5 text-xs rounded-lg font-medium ${
-              !useThemeColors
-                ? 'bg-primary text-primary-content shadow-sm'
-                : 'bg-base-200 text-base-content/70 hover:bg-base-300'
+            className={`btn btn-xs flex-1 join-item ${
+              !useThemeColors ? 'btn-primary' : 'btn-ghost'
             }`}
           >
             Custom
@@ -251,10 +243,8 @@ export default function AIPromptHelper({ theme }) {
           </div>
           <button
             onClick={handleCopy}
-            className={`absolute top-1.5 right-1.5 px-2 py-1 text-[10px] rounded font-medium transition-colors ${
-              copied
-                ? 'bg-success text-success-content'
-                : 'bg-primary text-primary-content hover:bg-primary/80'
+            className={`btn btn-xs absolute top-1.5 right-1.5 ${
+              copied ? 'btn-success' : 'btn-primary'
             }`}
           >
             {copied ? 'Copied!' : 'Copy'}

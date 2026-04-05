@@ -575,7 +575,7 @@ function App() {
   const exportOverlay = isExporting && (
     <div className="absolute inset-0 bg-neutral/80 flex items-center justify-center backdrop-blur-sm z-10">
       <div className="text-center">
-        <div className="inline-block w-8 h-8 border-2 border-primary/30 border-t-primary rounded-full animate-spin mb-3" />
+        <span className="loading loading-spinner loading-md text-primary mb-3" />
         <p className="text-neutral-content font-medium">Exporting...</p>
         <button onClick={() => { cancelExportRef.current = true; setIsExporting(false) }} className="mt-3 px-4 py-1.5 text-sm text-neutral-content/70 hover:text-neutral-content rounded-lg hover:bg-neutral-content/10 transition-colors">Cancel</button>
       </div>

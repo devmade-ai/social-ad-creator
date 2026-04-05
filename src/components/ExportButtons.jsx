@@ -380,13 +380,17 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
             </button>
           )}
         </div>
-        <div className="flex gap-1">
+        {/* Requirement: Grouped format selector buttons.
+            Approach: DaisyUI join component for connected button group.
+            Alternatives:
+              - flex + gap: Replaced — join gives connected borders and semantic grouping. */}
+        <div className="join w-full">
           {FORMAT_OPTIONS.map((opt) => (
             <button
               key={opt.id}
               onClick={() => onExportFormatChange(opt.id)}
               title={opt.description}
-              className={`btn btn-xs flex-1 ${
+              className={`btn btn-xs flex-1 join-item ${
                 exportFormat === opt.id ? 'btn-primary' : 'btn-ghost'
               }`}
             >
