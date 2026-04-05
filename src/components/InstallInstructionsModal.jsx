@@ -4,31 +4,14 @@
 //   - Hand-rolled fixed overlay + backdrop-blur: Replaced — <dialog> provides
 //     native focus trapping, Escape handling, and ::backdrop pseudo-element.
 
-import { memo, useRef, useEffect } from 'react'
+import { memo, useRef } from 'react'
+import { useDialogSync } from '../hooks/useDialogSync'
 
 export default memo(function InstallInstructionsModal({ isOpen, onClose, instructions }) {
   const dialogRef = useRef(null)
 
-  // Sync <dialog> open/close with React isOpen prop
-  useEffect(() => {
-    const dialog = dialogRef.current
-    if (!dialog) return
-
-    if (isOpen && instructions && !dialog.open) {
-      dialog.showModal()
-    } else if (!isOpen && dialog.open) {
-      dialog.close()
-    }
-  }, [isOpen, instructions])
-
-  // Handle native dialog close (Escape key) — sync with React state
-  useEffect(() => {
-    const dialog = dialogRef.current
-    if (!dialog) return
-    const handleClose = () => onClose()
-    dialog.addEventListener('close', handleClose)
-    return () => dialog.removeEventListener('close', handleClose)
-  }, [onClose])
+  // Guard: only sync when instructions data is available
+  const { handleBackdropClick } = useDialogSync(dialogRef, isOpen && !!instructions, onClose)
 
   if (!instructions) return null
 
@@ -36,14 +19,12 @@ export default memo(function InstallInstructionsModal({ isOpen, onClose, instruc
     <dialog
       ref={dialogRef}
       className="modal modal-bottom sm:modal-middle"
-      onClick={(e) => {
-        if (e.target === dialogRef.current) onClose()
-      }}
+      onClick={handleBackdropClick}
     >
       <div className="modal-box max-w-md">
-        {/* Close button */}
         <button
           onClick={onClose}
+          aria-label="Close dialog"
           className="btn btn-sm btn-circle btn-ghost absolute right-4 top-4"
         >
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">

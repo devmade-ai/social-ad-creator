@@ -6,39 +6,27 @@
 //   - Inline help text: Rejected — clutters the UI for non-power users.
 //   - Browser-style menu bar: Rejected — doesn't match the app's minimal design.
 
-import { useRef, useEffect } from 'react'
+import { useRef } from 'react'
+import { useDialogSync } from '../hooks/useDialogSync'
 
 export default function KeyboardShortcutsOverlay({ onClose }) {
   const dialogRef = useRef(null)
 
-  // Open dialog on mount, close on unmount
-  useEffect(() => {
-    const dialog = dialogRef.current
-    if (dialog && !dialog.open) dialog.showModal()
-  }, [])
-
-  // Handle native dialog close (Escape key) — sync with React state
-  useEffect(() => {
-    const dialog = dialogRef.current
-    if (!dialog) return
-    const handleClose = () => onClose()
-    dialog.addEventListener('close', handleClose)
-    return () => dialog.removeEventListener('close', handleClose)
-  }, [onClose])
+  // Always open — component is only rendered when visible
+  const { handleBackdropClick } = useDialogSync(dialogRef, true, onClose)
 
   return (
     <dialog
       ref={dialogRef}
       className="modal modal-bottom sm:modal-middle"
-      onClick={(e) => {
-        if (e.target === dialogRef.current) onClose()
-      }}
+      onClick={handleBackdropClick}
     >
       <div className="modal-box max-w-sm">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-sm font-semibold text-base-content">Keyboard Shortcuts</h3>
           <button
             onClick={onClose}
+            aria-label="Close dialog"
             className="btn btn-sm btn-circle btn-ghost"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

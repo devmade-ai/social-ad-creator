@@ -8,9 +8,10 @@
 //     provides consistent underline-style tab switching with proper ARIA.
 //   - Custom error div: Replaced — DaisyUI alert-error-soft for theme-aware styling.
 
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useCallback, useRef } from 'react'
 import ConfirmButton from './ConfirmButton'
 import { useToast } from './Toast'
+import { useDialogSync } from '../hooks/useDialogSync'
 
 export default function SaveLoadModal({ isOpen, onClose, onSave, onLoad, onDelete, getSavedDesigns }) {
   const { addToast } = useToast()
@@ -30,34 +31,18 @@ export default function SaveLoadModal({ isOpen, onClose, onSave, onLoad, onDelet
     if (activeRef.current) setDesigns(list)
   }, [getSavedDesigns])
 
-  // Sync <dialog> open/close with React isOpen prop.
-  // Native <dialog>.showModal() provides focus trap, Escape key, and ::backdrop.
-  useEffect(() => {
-    const dialog = dialogRef.current
-    if (!dialog) return
+  const handleOpen = useCallback(() => {
+    activeRef.current = true
+    refreshDesigns()
+    setSaveName('')
+    setSearchQuery('')
+    setError(null)
+  }, [refreshDesigns])
 
-    if (isOpen && !dialog.open) {
-      activeRef.current = true
-      dialog.showModal()
-      refreshDesigns()
-      setSaveName('')
-      setSearchQuery('')
-      setError(null)
-    } else if (!isOpen && dialog.open) {
-      dialog.close()
-    }
+  const { handleBackdropClick } = useDialogSync(dialogRef, isOpen, onClose, handleOpen)
 
-    return () => { activeRef.current = false }
-  }, [isOpen, refreshDesigns])
-
-  // Handle native dialog close (Escape key, backdrop click) — sync with React state.
-  useEffect(() => {
-    const dialog = dialogRef.current
-    if (!dialog) return
-    const handleClose = () => onClose()
-    dialog.addEventListener('close', handleClose)
-    return () => dialog.removeEventListener('close', handleClose)
-  }, [onClose])
+  // Cleanup activeRef when modal closes to prevent stale IDB query updates
+  if (!isOpen) activeRef.current = false
 
   const handleSave = async () => {
     setLoading(true)
@@ -117,10 +102,7 @@ export default function SaveLoadModal({ isOpen, onClose, onSave, onLoad, onDelet
     <dialog
       ref={dialogRef}
       className="modal modal-bottom sm:modal-middle"
-      onClick={(e) => {
-        // Close on backdrop click (click on <dialog> itself, not its children)
-        if (e.target === dialogRef.current) onClose()
-      }}
+      onClick={handleBackdropClick}
     >
       <div className="modal-box max-w-md flex flex-col max-h-[80vh]">
         {/* Header */}

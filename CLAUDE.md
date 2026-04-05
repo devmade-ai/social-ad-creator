@@ -569,6 +569,7 @@ src/
 │   ├── useIsMobile.js    # matchMedia hook: viewport < 1024px (Tailwind lg breakpoint)
 │   ├── usePWAInstall.js  # PWA install prompt state
 │   ├── usePWAUpdate.js   # PWA update detection state
+│   ├── useDialogSync.js  # Shared <dialog> open/close sync for DaisyUI modals (4 consumers)
 │   └── useDisclosureFocus.js # Shared focus management for disclosure-pattern components
 ├── utils/
 │   ├── cellUtils.js      # Cell counting, shifting, swapping, cleanup utilities

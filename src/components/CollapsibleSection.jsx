@@ -1,4 +1,4 @@
-import { useRef, memo } from 'react'
+import { memo } from 'react'
 
 /**
  * CollapsibleSection - Reusable collapsible section component for tab content
@@ -27,12 +27,9 @@ export default memo(function CollapsibleSection({
   className = '',
   onExpand,
 }) {
-  const checkboxRef = useRef(null)
-
   return (
     <div className={`collapse collapse-arrow border border-base-300 bg-base-100 ${className}`}>
       <input
-        ref={checkboxRef}
         type="checkbox"
         defaultChecked={defaultExpanded}
         onChange={(e) => {

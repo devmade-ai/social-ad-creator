@@ -4,7 +4,8 @@
 //   - Hand-rolled fixed overlay + backdrop-blur: Replaced — <dialog> provides
 //     native focus trapping, Escape handling, and ::backdrop pseudo-element.
 
-import { useState, useEffect, memo, useRef } from 'react'
+import { useState, useCallback, memo, useRef } from 'react'
+import { useDialogSync } from '../hooks/useDialogSync'
 
 const tutorialSteps = [
   {
@@ -220,27 +221,8 @@ export default memo(function TutorialModal({ isOpen, onClose }) {
   const [currentStep, setCurrentStep] = useState(0)
   const dialogRef = useRef(null)
 
-  // Sync <dialog> open/close with React isOpen prop
-  useEffect(() => {
-    const dialog = dialogRef.current
-    if (!dialog) return
-
-    if (isOpen && !dialog.open) {
-      setCurrentStep(0)
-      dialog.showModal()
-    } else if (!isOpen && dialog.open) {
-      dialog.close()
-    }
-  }, [isOpen])
-
-  // Handle native dialog close (Escape key) — sync with React state
-  useEffect(() => {
-    const dialog = dialogRef.current
-    if (!dialog) return
-    const handleClose = () => onClose()
-    dialog.addEventListener('close', handleClose)
-    return () => dialog.removeEventListener('close', handleClose)
-  }, [onClose])
+  const handleOpen = useCallback(() => setCurrentStep(0), [])
+  const { handleBackdropClick } = useDialogSync(dialogRef, isOpen, onClose, handleOpen)
 
   const step = tutorialSteps[currentStep]
   const isFirst = currentStep === 0
@@ -250,9 +232,7 @@ export default memo(function TutorialModal({ isOpen, onClose }) {
     <dialog
       ref={dialogRef}
       className="modal modal-bottom sm:modal-middle"
-      onClick={(e) => {
-        if (e.target === dialogRef.current) onClose()
-      }}
+      onClick={handleBackdropClick}
     >
       <div className="modal-box max-w-lg flex flex-col max-h-[80vh]">
         {/* Header */}
@@ -263,6 +243,7 @@ export default memo(function TutorialModal({ isOpen, onClose }) {
           </div>
           <button
             onClick={onClose}
+            aria-label="Close dialog"
             className="btn btn-sm btn-circle btn-ghost"
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
