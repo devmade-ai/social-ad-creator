@@ -116,15 +116,17 @@ function DebugPillInner() {
         title="Open debug panel"
       >
         dbg
-        {/* Requirement: At-a-glance error/warning counts on collapsed debug pill.
-            Approach: DaisyUI badge component replaces hand-rolled inline-style spans.
-            Alternatives:
-              - Inline styles with hardcoded colors: Replaced — badges are semantic and consistent. */}
+        {/* DebugPill renders in a separate React root without DaisyUI data-theme,
+            so DaisyUI component classes won't resolve theme colors. Inline styles required. */}
         {errorCount > 0 && (
-          <span className="badge badge-error badge-xs text-error-content">{errorCount}</span>
+          <span style={{ background: '#dc2626', color: '#fff', borderRadius: 8, padding: '0 5px', fontSize: 10 }}>
+            {errorCount}
+          </span>
         )}
         {warnCount > 0 && (
-          <span className="badge badge-warning badge-xs text-warning-content">{warnCount}</span>
+          <span style={{ background: '#d97706', color: '#fff', borderRadius: 8, padding: '0 5px', fontSize: 10 }}>
+            {warnCount}
+          </span>
         )}
       </button>
     )

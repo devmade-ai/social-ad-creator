@@ -8,7 +8,7 @@
 //     provides consistent underline-style tab switching with proper ARIA.
 //   - Custom error div: Replaced — DaisyUI alert-error-soft for theme-aware styling.
 
-import { useState, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import ConfirmButton from './ConfirmButton'
 import { useToast } from './Toast'
 import { useDialogSync } from '../hooks/useDialogSync'
