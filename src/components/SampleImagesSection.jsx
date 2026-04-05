@@ -128,7 +128,7 @@ export default function SampleImagesSection({ images, onAddImage, selectedCell, 
   if (manifestLoading) {
     return (
       <div className="flex items-center justify-center py-6 gap-2">
-        <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+        <span className="loading loading-spinner loading-sm text-primary" />
         <p className="text-xs text-base-content/60">Loading sample images...</p>
       </div>
     )
@@ -224,7 +224,7 @@ export default function SampleImagesSection({ images, onAddImage, selectedCell, 
             </div>
             {loadingSample === sample.id && (
               <div className="absolute inset-0 flex items-center justify-center bg-black/30 rounded-lg">
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                <span className="loading loading-spinner loading-sm text-white" />
               </div>
             )}
           </button>

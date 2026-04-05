@@ -1,15 +1,14 @@
 // Requirement: Global nav menu accessible from mobile header
-// Approach: Disclosure-pattern dropdown with backdrop (WAI-ARIA disclosure, not role="menu")
-// Why disclosure, not role="menu": ARIA menu pattern is for application menus
-//   (File/Edit/View). Screen readers enter forms mode, suppress normal nav keys,
-//   and expect arrow-key navigation. A burger nav is a disclosure — a list of
-//   actions revealed by a toggle.
-// Ref: glow-props burger menu implementation — same disclosure pattern, same z-index
-//   scale, same focus management. Adapted from vanilla JS to React.
+// Approach: Disclosure-pattern dropdown with DaisyUI menu component for list styling.
+//   WAI-ARIA disclosure (not role="menu") because this is a navigation list, not an
+//   application menu (File/Edit/View). DaisyUI menu provides consistent item styling
+//   (padding, hover, border-radius, transitions) while the disclosure pattern handles
+//   open/close, focus trap, and keyboard navigation.
 // Alternatives:
-//   - role="menu" pattern: Rejected — wrong ARIA semantics for navigation
-//   - Slide-out drawer: Rejected — needs animation lib, fights with bottom nav
-//   - Headless UI Disclosure: Viable — adds dependency for a single component
+//   - Hand-rolled ul/li/button styling: Replaced — DaisyUI menu gives theme-aware
+//     hover states, consistent padding, and focus indicators out of the box.
+//   - role="menu" pattern: Rejected — wrong ARIA semantics for navigation.
+//   - DaisyUI dropdown: Rejected — doesn't support children slot or disclosure pattern.
 import { useRef, useEffect, useId } from 'react'
 import { debugLog } from '../utils/debugLog'
 import { useDisclosureFocus } from '../hooks/useDisclosureFocus'
@@ -32,12 +31,9 @@ export default function BurgerMenu({ items, open, onToggle, onClose, children })
   useDisclosureFocus(open, { triggerRef, contentRef: menuRef, selector: 'button, a' })
 
   // Trap focus inside menu when open — Tab/Shift+Tab cycles within menu items.
-  // Requirement: Keyboard users should not be able to Tab to background elements
-  //   while the menu is open. Matches modal focus trap pattern (SaveLoadModal, etc.).
   useFocusTrap(menuRef, open)
 
   // Keyboard navigation: Escape closes, Arrow keys move through items.
-  // Matches ThemeSelector keyboard pattern for consistent disclosure UX.
   useEffect(() => {
     if (!open) return
     const handleKeyDown = (e) => {
@@ -81,45 +77,42 @@ export default function BurgerMenu({ items, open, onToggle, onClose, children })
           backdrop-blur-sm creates a stacking context that traps fixed children. */}
 
       {open && (
-        <>
-          <nav
-            ref={menuRef}
-            id={menuId}
-            aria-label="More options"
-            className="absolute right-3 top-full mt-1 z-50
-                       bg-base-100 rounded-xl shadow-lg
-                       border border-base-300 py-1 min-w-[200px]
-                       max-w-[calc(100vw-2rem)] max-h-[calc(100dvh-4rem)]
-                       overflow-y-auto overscroll-contain"
-          >
-            <ul className="list-none m-0 p-0">
-              {visibleItems.map((item, i) => (
-                <li key={item.label || `sep-${i}`}>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      try { item.action() } catch (e) { console.error('Menu action failed:', e) }
-                      onClose()
-                    }}
-                    className={`w-full flex items-center gap-3 px-4 py-3 text-sm transition-colors
-                      outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset
-                      min-h-11
-                      ${item.highlight
-                        ? `${item.highlightColor || 'text-primary'} hover:bg-base-200`
-                        : 'text-base-content hover:bg-base-200'
-                      }`}
-                  >
-                    <svg className="w-4 h-4 shrink-0" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={item.icon} />
-                    </svg>
-                    {item.label}
-                  </button>
-                </li>
-              ))}
-            </ul>
-            {children}
-          </nav>
-        </>
+        <nav
+          ref={menuRef}
+          id={menuId}
+          aria-label="More options"
+          className="absolute right-3 top-full mt-1 z-50
+                     bg-base-100 rounded-xl shadow-lg
+                     border border-base-300
+                     max-w-[calc(100vw-2rem)] max-h-[calc(100dvh-4rem)]
+                     overflow-y-auto overscroll-contain"
+        >
+          {/* DaisyUI menu component replaces hand-rolled ul/li/button styling */}
+          <ul className="menu menu-sm min-w-[200px]">
+            {visibleItems.map((item, i) => (
+              <li key={item.label || `sep-${i}`}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    try { item.action() } catch (e) { console.error('Menu action failed:', e) }
+                    onClose()
+                  }}
+                  className={`min-h-11 ${
+                    item.highlight
+                      ? item.highlightColor || 'text-primary'
+                      : ''
+                  }`}
+                >
+                  <svg className="w-4 h-4 shrink-0" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={item.icon} />
+                  </svg>
+                  {item.label}
+                </button>
+              </li>
+            ))}
+          </ul>
+          {children}
+        </nav>
       )}
     </>
   )

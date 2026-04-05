@@ -1,12 +1,15 @@
-import { memo } from 'react'
-
 // Requirement: Bottom tab navigation for mobile, replacing top tab nav bar.
-// Approach: Fixed bottom bar with 6 icon+label tabs (5 editing tabs + Export).
-//   44px+ touch targets, safe area padding for home indicator.
+// Approach: DaisyUI dock component for fixed bottom navigation.
+//   Dock handles safe area insets natively (env(safe-area-inset-bottom)),
+//   provides consistent sizing, hover states, and active indicator underline.
 // Alternatives:
+//   - Hand-rolled fixed nav with custom safe area: Replaced — DaisyUI dock gives
+//     fixed positioning, safe area padding, and active state indicator out of the box.
 //   - Top tab bar: Rejected — wastes vertical space, hard to reach on large phones.
 //   - Hamburger menu: Rejected — hides navigation, requires extra tap.
 //   - 5 tabs only (no Export): Rejected — export hidden below canvas when sheet is open.
+
+import { memo } from 'react'
 
 const tabs = [
   {
@@ -67,33 +70,23 @@ const tabs = [
 
 export default memo(function MobileNav({ activeTab, sheetOpen, onTabChange }) {
   return (
-    <nav
-      aria-label="Main navigation"
-      className="fixed bottom-0 left-0 right-0 z-40 bg-base-100/95 backdrop-blur-sm border-t border-base-300/60"
-      style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
-    >
-      <div className="flex items-center justify-around">
-        {tabs.map((tab) => {
-          // Only highlight tab when sheet is expanded — otherwise no tab appears active.
-          const isActive = activeTab === tab.id && sheetOpen
-          return (
-            <button
-              key={tab.id}
-              onClick={() => onTabChange(tab.id)}
-              className={`flex flex-col items-center justify-center py-2 px-1 min-w-0 min-h-11 flex-1 transition-colors ${
-                isActive ? 'text-primary' : 'text-base-content/70'
-              }`}
-            >
-              <span className={isActive ? 'scale-110 transition-transform' : 'transition-transform'} aria-hidden="true">
-                {tab.icon}
-              </span>
-              <span className={`text-[10px] mt-0.5 font-medium truncate ${isActive ? 'text-primary' : ''}`}>
-                {tab.label}
-              </span>
-            </button>
-          )
-        })}
-      </div>
+    <nav aria-label="Main navigation" className="dock dock-sm z-40">
+      {tabs.map((tab) => {
+        // Only highlight tab when sheet is expanded — otherwise no tab appears active.
+        const isActive = activeTab === tab.id && sheetOpen
+        return (
+          <button
+            key={tab.id}
+            onClick={() => onTabChange(tab.id)}
+            className={isActive ? 'dock-active text-primary' : ''}
+          >
+            <span aria-hidden="true">
+              {tab.icon}
+            </span>
+            <span className="dock-label">{tab.label}</span>
+          </button>
+        )
+      })}
     </nav>
   )
 })

@@ -380,13 +380,17 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
             </button>
           )}
         </div>
-        <div className="flex gap-1">
+        {/* Requirement: Grouped format selector buttons.
+            Approach: DaisyUI join component for connected button group.
+            Alternatives:
+              - flex + gap: Replaced — join gives connected borders and semantic grouping. */}
+        <div className="join w-full">
           {FORMAT_OPTIONS.map((opt) => (
             <button
               key={opt.id}
               onClick={() => onExportFormatChange(opt.id)}
               title={opt.description}
-              className={`btn btn-xs flex-1 ${
+              className={`btn btn-xs flex-1 join-item ${
                 exportFormat === opt.id ? 'btn-primary' : 'btn-ghost'
               }`}
             >
@@ -557,12 +561,16 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
       {/* Progress bar - always visible when active */}
       {exportProgress && (
         <div className="space-y-2">
-          <div className="w-full bg-base-300 rounded-full h-1.5 overflow-hidden">
-            <div
-              className="bg-gradient-creative h-1.5 rounded-full transition-all duration-300"
-              style={{ width: `${(exportProgress.current / exportProgress.total) * 100}%` }}
-            />
-          </div>
+          {/* Requirement: Visual export progress feedback.
+              Approach: DaisyUI progress component replaces hand-rolled div-based bar.
+              Alternatives:
+                - Custom div with bg-gradient-creative: Replaced — DaisyUI progress is semantic,
+                  accessible, and theme-aware out of the box. */}
+          <progress
+            className="progress progress-primary w-full"
+            value={exportProgress.current}
+            max={exportProgress.total}
+          />
           <p className="text-sm text-center text-base-content/60">
             Processing: {exportProgress.name}
           </p>

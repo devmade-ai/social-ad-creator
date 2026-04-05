@@ -1,5 +1,28 @@
 # Changelog
 
+## 2026-04-05
+
+### Replace remaining custom patterns with DaisyUI 5 (round 2)
+
+- **Loading spinners → DaisyUI `loading loading-spinner`** — 3 custom `border-2 animate-spin` spinners (SampleImagesSection ×2, App.jsx export overlay) replaced.
+- **Button groups → DaisyUI `join`** — ExportButtons format selector, ThemeSelector mode+combo group, AIPromptHelper purpose/orientation/colors selectors.
+- **AIPromptHelper options → DaisyUI `btn btn-xs`** — 7 style + mood + copy button selectors migrated from hand-rolled `px-2 py-1 rounded-lg`.
+- **BurgerMenu → DaisyUI `menu menu-sm`** — List item styling via DaisyUI menu. Disclosure pattern + keyboard nav unchanged.
+- **MobileNav → DaisyUI `dock dock-sm`** — Bottom navigation with native safe area insets, `dock-active` indicator, `dock-label` text.
+
+### Replace custom UI components with DaisyUI 5 equivalents
+
+- **4 modals → DaisyUI `modal`** — TutorialModal, SaveLoadModal, InstallInstructionsModal, KeyboardShortcutsOverlay migrated from hand-rolled fixed overlays to native `<dialog>` with DaisyUI `modal` classes. Native focus trapping replaces custom `useFocusTrap` (still used by BurgerMenu).
+- **CollapsibleSection → DaisyUI `collapse collapse-arrow`** — Checkbox-controlled with `onExpand` callback and subtitle-when-collapsed CSS.
+- **SaveLoadModal tabs → DaisyUI `tabs tabs-border`** — Proper `role="tablist"` replaces custom underline tabs.
+- **SaveLoadModal error → DaisyUI `alert alert-error alert-soft`** — Theme-aware error banner.
+- **Toast → DaisyUI `toast` + `alert`** — Positioning container + severity styling. Auto-dismiss logic unchanged.
+- **ExportButtons progress → DaisyUI `progress progress-primary`** — Replaces custom div-based bar. Removed `bg-gradient-creative` utility from index.css.
+- **DebugPill badges → DaisyUI `badge`** — `badge-error`/`badge-warning` replace inline-styled spans.
+- **KeyboardShortcutsOverlay → DaisyUI `kbd kbd-sm`** — Consistent key indicator styling + `divider`.
+- **InstallInstructionsModal note → DaisyUI `alert alert-warning alert-soft`** — Theme-aware warning box.
+- **Cleanup** — Removed unused `bg-gradient-creative` utility, updated STYLE_GUIDE.md.
+
 ## 2026-04-03
 
 ### Replace 16 independent themes with 2 combo presets

@@ -25,12 +25,6 @@
   --shadow-glow: 0 0 20px oklch(var(--p) / 0.3);
 }
 
-/* Custom gradient utilities carried forward from old tailwind.config.js.
-   bg-gradient-creative is used in ExportButtons progress bar. */
-@utility bg-gradient-creative {
-  background: linear-gradient(135deg, oklch(var(--p)) 0%, oklch(var(--s)) 50%, oklch(var(--a)) 100%);
-}
-
 /* Native form inputs, selects, scrollbars must match theme.
    Without this, <select>, <input>, <option> dropdowns and default
    scrollbars remain light-themed even when the app is dark. */
@@ -137,6 +131,12 @@ textarea:not(.textarea):focus-visible {
 .freeform-markdown th { font-weight: 600; background: rgba(0,0,0,0.05); }
 .freeform-markdown tr:nth-child(even) { background: rgba(0,0,0,0.03); }
 .freeform-markdown input[type="checkbox"] { margin-right: 0.4em; vertical-align: middle; pointer-events: none; }
+
+/* CollapsibleSection: Hide subtitle text when collapse is expanded.
+   DaisyUI collapse uses a checkbox — when checked (open), subtitle is hidden. */
+.collapse > input[type="checkbox"]:checked ~ .collapse-title .subtitle-when-collapsed {
+  display: none;
+}
 
 /* Canvas cell selection flash — brief outline that fades to nothing */
 @keyframes cell-select-flash {

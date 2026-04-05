@@ -298,8 +298,11 @@ These footers are required on every commit. No exceptions.
   - Never clone sibling repos — use the API instead
 - **Mobile breakpoint:** `useIsMobile` hook uses `matchMedia('(max-width: 1023px)')` — matches Tailwind `lg` breakpoint. App.jsx conditionally renders entirely different layouts for mobile vs desktop. When modifying layout/UI in App.jsx, always check both code paths.
 - **BottomSheet snap points:** closed (0), half (45vh), full (80vh). Uses `transform: translateY()` for GPU-composited animation (no layout reflow). During drag, DOM updated directly via refs — React state only updates on snap (touchend). Sheet state resets when switching tabs. Props: `snapPoint`/`onSnapChange` (discrete snap values, not continuous height).
-- **Z-index scale:** Canvas internals 0-10, sticky headers 20, sheets/drawers 30, mobile nav 40, menu backdrop 40, menu dropdown 50, modals 60, toasts/tooltips 70, debug 80. All values use Tailwind arbitrary syntax `z-[60]` for non-standard tiers. DebugPill uses inline `zIndex: 80`.
-- **Burger menu:** `BurgerMenu.jsx` uses WAI-ARIA disclosure pattern (not `role="menu"`). Has `cursor-pointer` on backdrop (iOS Safari fix), `hasBeenOpenRef` focus guard, `overscroll-contain`, `useId()` for `aria-controls`, Escape key handler, `max-h-[calc(100dvh-4rem)] overflow-y-auto` for short viewports. State managed in App.jsx, rendered in MobileLayout. Accepts `children` prop for the theme section (`MenuThemeSection` in MobileLayout) — dark/light toggle as plain text button + combo list (Mono/Luxe) with checkmark indicators. Menu stays open on toggle and combo selection (children don't call `onClose`).
+- **Z-index scale:** Canvas internals 0-10, sticky headers 20, sheets/drawers 30, mobile nav 40, menu backdrop 40, menu dropdown 50, modals use native `<dialog>` top layer (no z-index needed), toasts `z-[70]`, debug 80. DebugPill uses inline `zIndex: 80`.
+- **Modals use native `<dialog>`:** All 4 modals (TutorialModal, SaveLoadModal, InstallInstructionsModal, KeyboardShortcutsOverlay) use DaisyUI `modal` component with `<dialog>` element. Native focus trapping replaces custom `useFocusTrap` for modals. `useFocusTrap` still used by BurgerMenu. Dialog sync pattern: `useEffect` calls `showModal()`/`close()` based on React `isOpen` prop; `close` event listener syncs back to React state.
+- **DaisyUI component classes for UI chrome:** CollapsibleSection uses `collapse collapse-arrow`, SaveLoadModal uses `tabs tabs-border` + `alert alert-error alert-soft`, Toast uses `toast` (container) + `alert` (item styling), ExportButtons uses `progress progress-primary` + `join` (format selector), KeyboardShortcutsOverlay uses `kbd kbd-sm` + `divider`, DebugPill uses inline styles (separate React root, no theme context), InstallInstructionsModal uses `alert alert-warning alert-soft`, SampleImagesSection/App.jsx use `loading loading-spinner`, ThemeSelector uses `join` (connected button group), AIPromptHelper uses `join` (purpose/orientation/colors), BurgerMenu uses `menu menu-sm` (list styling), MobileNav uses `dock dock-sm` + `dock-active` + `dock-label`.
+- **DaisyUI component classes for form inputs:** All form inputs MUST use DaisyUI component classes — never hand-roll Tailwind classes for inputs. Range: `range range-primary range-sm`. Checkbox: `checkbox checkbox-primary checkbox-sm`. Select: `select select-bordered select-sm`. Input: `input input-bordered input-sm`. Textarea: `textarea textarea-bordered textarea-sm`. Custom pseudo-element CSS for form inputs is forbidden — browser pseudo-element names vary across engines. Check `node_modules/daisyui/components/` for available components before writing custom form styling.
+- **Burger menu:** `BurgerMenu.jsx` uses WAI-ARIA disclosure pattern (not `role="menu"`). DaisyUI `menu menu-sm` provides list item styling. Has `overscroll-contain`, `useId()` for `aria-controls`, Escape key handler, `max-h-[calc(100dvh-4rem)] overflow-y-auto` for short viewports. State managed in App.jsx, rendered in MobileLayout. Accepts `children` prop for the theme section (`MenuThemeSection` in MobileLayout) — dark/light toggle as plain text button + combo list (Mono/Luxe) with checkmark indicators. Menu stays open on toggle and combo selection (children don't call `onClose`).
 - **Sister project reference:** `devmade-ai/glow-props` shares the same CLAUDE.md scaffolding (process, principles, standards). Its `Suggested Implementations` section documents PWA patterns, debug system, and icon generation that were adopted here. Check it for future cross-pollination: `https://github.com/devmade-ai/glow-props/blob/main/CLAUDE.md`
 
 ### REMINDER: READ AND FOLLOW THE FUCKING AI NOTES EVERY TIME
@@ -507,7 +510,7 @@ npm test                 # Run unit tests (Jest)
 src/
 ├── components/     # React components
 │   ├── AdCanvas.jsx           # Core rendering (cell-based layout)
-│   ├── CollapsibleSection.jsx # Reusable collapsible section for tab content
+│   ├── CollapsibleSection.jsx # DaisyUI collapse component wrapper (collapse-arrow, checkbox-controlled)
 │   ├── TemplatesTab.jsx       # Layout presets, themes, and looks
 │   ├── MediaTab.jsx           # Image management hub (upload, assign, overlay, filters, logo)
 │   ├── SampleImagesSection.jsx # CDN sample images gallery with category filtering
@@ -528,19 +531,19 @@ src/
 │   ├── AlignmentPicker.jsx    # Reusable alignment button group
 │   ├── ColorPicker.jsx        # Theme-aware color picker for text elements
 │   ├── ThemeColorPicker.jsx   # Theme color swatch picker (primary/secondary/accent/neutrals)
-│   ├── ThemeSelector.jsx      # DaisyUI theme combo picker for desktop/reader (inline button group)
+│   ├── ThemeSelector.jsx      # DaisyUI theme combo picker (join group: dark/light toggle + Mono/Luxe)
 │   ├── MiniCellGrid.jsx       # Compact cell grid (two sizing modes: fixed-width for panels, fixed-height s/m/l for bars)
 │   ├── PageDots.jsx           # Shared page thumbnails (ContextBar + Structure tab)
-│   ├── Toast.jsx              # Toast notification system (ToastProvider + useToast hook)
+│   ├── Toast.jsx              # Toast notifications (DaisyUI toast container + alert styling)
 │   ├── ConfirmButton.jsx      # Inline confirmation replacing browser confirm()
 │   ├── Tooltip.jsx            # Portal-based tooltip (prevents clipping at container edges)
-│   ├── KeyboardShortcutsOverlay.jsx # Keyboard shortcuts modal
+│   ├── KeyboardShortcutsOverlay.jsx # Keyboard shortcuts modal (DaisyUI modal + kbd)
 │   ├── EmptyStateGuide.jsx    # Empty canvas guidance (below canvas on mobile, overlay on desktop)
 │   ├── QuickActionsBar.jsx    # Cell quick-action shortcuts (Image, Text, Style)
 │   ├── UndoRedoButtons.jsx    # Shared undo/redo buttons (used in both mobile + desktop headers)
-│   ├── BurgerMenu.jsx         # Disclosure-pattern dropdown menu (WAI-ARIA, focus trap, children slot for theme section)
+│   ├── BurgerMenu.jsx         # Disclosure-pattern dropdown (WAI-ARIA, DaisyUI menu, focus trap, children slot)
 │   ├── BottomSheet.jsx        # Touch-draggable bottom sheet for mobile tab content (3 snap points, reduced-motion support)
-│   ├── MobileNav.jsx          # Fixed bottom navigation bar for mobile (6 tabs incl. Export)
+│   ├── MobileNav.jsx          # DaisyUI dock bottom navigation (6 tabs incl. Export, safe area insets)
 │   ├── ReaderMode.jsx         # Full-screen reader view with page navigation
 │   ├── MobileLayout.jsx       # Mobile-specific layout container (header, canvas, sheet, nav)
 │   ├── DesktopLayout.jsx      # Desktop-specific layout container (header, sidebar, main)
@@ -562,10 +565,11 @@ src/
 │   ├── useHistory.js     # Undo/redo history management (shallowEqual skips base64)
 │   ├── useDarkMode.js    # Dark mode + combo-based DaisyUI theme selection
 │   ├── useOnlineStatus.js # Online/offline detection
-│   ├── useFocusTrap.js   # Focus trap for modals (Tab/Shift+Tab boundary wrapping)
+│   ├── useFocusTrap.js   # Focus trap for BurgerMenu (modals use native <dialog> focus trap)
 │   ├── useIsMobile.js    # matchMedia hook: viewport < 1024px (Tailwind lg breakpoint)
 │   ├── usePWAInstall.js  # PWA install prompt state
 │   ├── usePWAUpdate.js   # PWA update detection state
+│   ├── useDialogSync.js  # Shared <dialog> open/close sync for DaisyUI modals (4 consumers)
 │   └── useDisclosureFocus.js # Shared focus management for disclosure-pattern components
 ├── utils/
 │   ├── cellUtils.js      # Cell counting, shifting, swapping, cleanup utilities

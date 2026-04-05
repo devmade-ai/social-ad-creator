@@ -116,6 +116,8 @@ function DebugPillInner() {
         title="Open debug panel"
       >
         dbg
+        {/* DebugPill renders in a separate React root without DaisyUI data-theme,
+            so DaisyUI component classes won't resolve theme colors. Inline styles required. */}
         {errorCount > 0 && (
           <span style={{ background: '#dc2626', color: '#fff', borderRadius: 8, padding: '0 5px', fontSize: 10 }}>
             {errorCount}

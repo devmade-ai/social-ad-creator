@@ -5,29 +5,27 @@ Compact context summary for session continuity. Rewrite at session end.
 ---
 
 ## Worked on
-Replace 16 independent DaisyUI themes with 2 combo presets (Mono/Luxe).
+Replace remaining custom UI patterns with DaisyUI 5 components (second pass).
 
 ## Accomplished
 
-### Theme combo system
-1. **Replaced independent theme selection with combos** — 2 combos: Mono (lofi/black), Luxe (fantasy/luxury). User picks a combo; dark/light toggle switches between paired themes.
-2. **Simplified ThemeSelector** — From dropdown with scrollable list to inline button group (sun/moon + Mono + Luxe). Deleted ThemeList.jsx.
-3. **Updated useDarkMode hook** — Single `comboId` state replaces separate `lightTheme`/`darkTheme`. localStorage key: `themeCombo`.
-4. **Added localStorage migration** — Old `lightTheme`/`darkTheme` keys migrated to `themeCombo` on first load (both in index.html flash prevention + useDarkMode hook).
-5. **Reduced DaisyUI themes** — index.css: 16 → 4 themes (lofi, black, fantasy, luxury).
-6. **Ran generate-theme-meta** — Corrected fantasy metaColor from guessed `#6e0b75` to actual `#6d0076`.
-7. **Updated all docs** — CLAUDE.md, README.md, STYLE_GUIDE.md, USER_GUIDE.md, TESTING_GUIDE.md, HISTORY.md, TODO.md, TutorialModal.jsx, SESSION_NOTES.md.
+### DaisyUI component migration (round 2)
+1. **Loading spinners → DaisyUI `loading loading-spinner`** — SampleImagesSection (2 spinners) + App.jsx export overlay. Replaces hand-rolled `border-2 border-t-transparent animate-spin`.
+2. **ExportButtons format selector → DaisyUI `join`** — Connected button group replaces `flex gap-1`.
+3. **ThemeSelector → DaisyUI `join`** — Mode toggle + combo picker as connected group. Removes manual `rounded-l-lg`/`rounded-r-lg` management.
+4. **AIPromptHelper → DaisyUI `btn` + `join`** — All option selectors migrated from hand-rolled `px-2 py-1 rounded-lg` to `btn btn-xs`. Non-wrapping groups (purpose, orientation, colors) use `join` for connected borders. Copy button uses `btn btn-xs btn-primary/btn-success`.
+5. **BurgerMenu → DaisyUI `menu menu-sm`** — List styling via DaisyUI menu component. Keeps WAI-ARIA disclosure pattern, focus trap, keyboard navigation, and children slot.
+6. **MobileNav → DaisyUI `dock dock-sm`** — Replaces custom fixed nav with DaisyUI dock. Native safe area handling via `env(safe-area-inset-bottom)`. Active state via `dock-active`. Labels via `dock-label`.
 
 ## Current state
 
-- **Working** — On branch `claude/theme-combo-options-gA7c2`
-- Build passes
+- **Working** — On branch `claude/daisyui-tailwind-utilities-cK7x6`
+- Build passes (1079 KiB JS, 133 KiB CSS)
+- All 72 tests pass
 
 ## Key context
 
-- **Two combos:** Mono (lofi/black) = clean & minimal. Luxe (fantasy/luxury) = rich & elegant.
-- **localStorage keys:** `darkMode` (bool) + `themeCombo` (id). Old keys `lightTheme`/`darkTheme` auto-migrated.
-- **Props flow:** App.jsx → layouts: `isDark`, `toggleDarkMode`, `comboId`, `setCombo` (4 values, down from 6).
-- **Removed:** ThemeList.jsx, useDisclosureFocus import from ThemeSelector, all 12 removed theme registrations from index.css.
-- **TODO item removed:** "Split useDarkMode hook" — no longer needed with simpler combo state.
-- **TODO item updated:** "React Context for theme values" — prop count reduced from 8/24 to 4/12.
+- **Dock z-index:** DaisyUI dock uses `z-index: 1` by default. Added `z-40` to match the existing z-index scale (mobile nav = 40).
+- **Menu vs disclosure:** BurgerMenu uses DaisyUI `menu` for styling only. The component still uses WAI-ARIA disclosure pattern (not `role="menu"`), `useFocusTrap`, and custom keyboard navigation.
+- **Join for button groups:** Used in ExportButtons (format), ThemeSelector (mode+combos), AIPromptHelper (purpose, orientation, colors). Not used for wrapping groups (style, mood) — join requires linear, non-wrapping layout.
+- **Loading spinner variants:** `loading-sm` (16px) for inline, `loading-md` (24px) for overlay.
