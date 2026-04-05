@@ -1,5 +1,10 @@
-import { useState, memo, useRef } from 'react'
-import { useFocusTrap } from '../hooks/useFocusTrap'
+// Requirement: In-app help walkthrough for new users.
+// Approach: DaisyUI modal (native <dialog>) with step navigation and dot indicators.
+// Alternatives:
+//   - Hand-rolled fixed overlay + backdrop-blur: Replaced — <dialog> provides
+//     native focus trapping, Escape handling, and ::backdrop pseudo-element.
+
+import { useState, useEffect, memo, useRef } from 'react'
 
 const tutorialSteps = [
   {
@@ -213,34 +218,52 @@ const tutorialSteps = [
 
 export default memo(function TutorialModal({ isOpen, onClose }) {
   const [currentStep, setCurrentStep] = useState(0)
-  const modalRef = useRef(null)
-  useFocusTrap(modalRef, isOpen)
+  const dialogRef = useRef(null)
 
-  if (!isOpen) return null
+  // Sync <dialog> open/close with React isOpen prop
+  useEffect(() => {
+    const dialog = dialogRef.current
+    if (!dialog) return
+
+    if (isOpen && !dialog.open) {
+      setCurrentStep(0)
+      dialog.showModal()
+    } else if (!isOpen && dialog.open) {
+      dialog.close()
+    }
+  }, [isOpen])
+
+  // Handle native dialog close (Escape key) — sync with React state
+  useEffect(() => {
+    const dialog = dialogRef.current
+    if (!dialog) return
+    const handleClose = () => onClose()
+    dialog.addEventListener('close', handleClose)
+    return () => dialog.removeEventListener('close', handleClose)
+  }, [onClose])
 
   const step = tutorialSteps[currentStep]
   const isFirst = currentStep === 0
   const isLast = currentStep === tutorialSteps.length - 1
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
-      {/* Backdrop */}
-      <div
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-        onClick={onClose}
-      />
-
-      {/* Modal */}
-      <div ref={modalRef} className="relative bg-base-100 rounded-2xl shadow-2xl w-full max-w-lg max-h-[80vh] flex flex-col overflow-hidden">
+    <dialog
+      ref={dialogRef}
+      className="modal modal-bottom sm:modal-middle"
+      onClick={(e) => {
+        if (e.target === dialogRef.current) onClose()
+      }}
+    >
+      <div className="modal-box max-w-lg flex flex-col max-h-[80vh]">
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-base-300">
+        <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
-            <span className="text-2xl">{step.icon}</span>
-            <h2 className="text-lg font-semibold text-base-content">{step.title}</h2>
+            <span className="text-2xl">{step?.icon}</span>
+            <h3 className="text-lg font-semibold text-base-content">{step?.title}</h3>
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 flex items-center justify-center rounded-lg text-base-content/70 hover:bg-base-300 transition-colors"
+            className="btn btn-sm btn-circle btn-ghost"
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -249,12 +272,12 @@ export default memo(function TutorialModal({ isOpen, onClose }) {
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto px-5 py-4 text-base-content">
-          {step.content}
+        <div className="flex-1 overflow-y-auto text-base-content">
+          {step?.content}
         </div>
 
         {/* Footer */}
-        <div className="px-5 py-4 border-t border-base-300 flex items-center justify-between">
+        <div className="modal-action justify-between items-center">
           {/* Step indicators */}
           <div className="flex gap-1.5">
             {tutorialSteps.map((_, index) => (
@@ -299,6 +322,6 @@ export default memo(function TutorialModal({ isOpen, onClose }) {
           </div>
         </div>
       </div>
-    </div>
+    </dialog>
   )
 })

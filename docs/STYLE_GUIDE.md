@@ -62,15 +62,6 @@ Use opacity modifiers on DaisyUI tokens instead of hardcoded colors:
 <div class="bg-error/10">Light error background</div>
 ```
 
-### Gradient
-
-```css
-/* The Signature Gradient — uses DaisyUI primary/secondary/accent oklch values */
-@utility bg-gradient-creative {
-  background: linear-gradient(135deg, oklch(var(--p)) 0%, oklch(var(--s)) 50%, oklch(var(--a)) 100%);
-}
-```
-
 ---
 
 ## Typography

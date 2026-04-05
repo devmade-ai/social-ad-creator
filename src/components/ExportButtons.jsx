@@ -557,12 +557,16 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
       {/* Progress bar - always visible when active */}
       {exportProgress && (
         <div className="space-y-2">
-          <div className="w-full bg-base-300 rounded-full h-1.5 overflow-hidden">
-            <div
-              className="bg-gradient-creative h-1.5 rounded-full transition-all duration-300"
-              style={{ width: `${(exportProgress.current / exportProgress.total) * 100}%` }}
-            />
-          </div>
+          {/* Requirement: Visual export progress feedback.
+              Approach: DaisyUI progress component replaces hand-rolled div-based bar.
+              Alternatives:
+                - Custom div with bg-gradient-creative: Replaced — DaisyUI progress is semantic,
+                  accessible, and theme-aware out of the box. */}
+          <progress
+            className="progress progress-primary w-full"
+            value={exportProgress.current}
+            max={exportProgress.total}
+          />
           <p className="text-sm text-center text-base-content/60">
             Processing: {exportProgress.name}
           </p>

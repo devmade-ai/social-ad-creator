@@ -1,5 +1,20 @@
 # Changelog
 
+## 2026-04-05
+
+### Replace custom UI components with DaisyUI 5 equivalents
+
+- **4 modals → DaisyUI `modal`** — TutorialModal, SaveLoadModal, InstallInstructionsModal, KeyboardShortcutsOverlay migrated from hand-rolled fixed overlays to native `<dialog>` with DaisyUI `modal` classes. Native focus trapping replaces custom `useFocusTrap` (still used by BurgerMenu).
+- **CollapsibleSection → DaisyUI `collapse collapse-arrow`** — Checkbox-controlled with `onExpand` callback and subtitle-when-collapsed CSS.
+- **SaveLoadModal tabs → DaisyUI `tabs tabs-border`** — Proper `role="tablist"` replaces custom underline tabs.
+- **SaveLoadModal error → DaisyUI `alert alert-error alert-soft`** — Theme-aware error banner.
+- **Toast → DaisyUI `toast` + `alert`** — Positioning container + severity styling. Auto-dismiss logic unchanged.
+- **ExportButtons progress → DaisyUI `progress progress-primary`** — Replaces custom div-based bar. Removed `bg-gradient-creative` utility from index.css.
+- **DebugPill badges → DaisyUI `badge`** — `badge-error`/`badge-warning` replace inline-styled spans.
+- **KeyboardShortcutsOverlay → DaisyUI `kbd kbd-sm`** — Consistent key indicator styling + `divider`.
+- **InstallInstructionsModal note → DaisyUI `alert alert-warning alert-soft`** — Theme-aware warning box.
+- **Cleanup** — Removed unused `bg-gradient-creative` utility, updated STYLE_GUIDE.md.
+
 ## 2026-04-03
 
 ### Replace 16 independent themes with 2 combo presets

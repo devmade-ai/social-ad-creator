@@ -1,26 +1,50 @@
-import { memo, useRef } from 'react'
-import { useFocusTrap } from '../hooks/useFocusTrap'
+// Requirement: Manual PWA install instructions for browsers that don't support beforeinstallprompt.
+// Approach: DaisyUI modal (native <dialog>) replaces hand-rolled fixed overlay.
+// Alternatives:
+//   - Hand-rolled fixed overlay + backdrop-blur: Replaced — <dialog> provides
+//     native focus trapping, Escape handling, and ::backdrop pseudo-element.
+
+import { memo, useRef, useEffect } from 'react'
 
 export default memo(function InstallInstructionsModal({ isOpen, onClose, instructions }) {
-  const modalRef = useRef(null)
-  useFocusTrap(modalRef, isOpen)
+  const dialogRef = useRef(null)
 
-  if (!isOpen || !instructions) return null
+  // Sync <dialog> open/close with React isOpen prop
+  useEffect(() => {
+    const dialog = dialogRef.current
+    if (!dialog) return
+
+    if (isOpen && instructions && !dialog.open) {
+      dialog.showModal()
+    } else if (!isOpen && dialog.open) {
+      dialog.close()
+    }
+  }, [isOpen, instructions])
+
+  // Handle native dialog close (Escape key) — sync with React state
+  useEffect(() => {
+    const dialog = dialogRef.current
+    if (!dialog) return
+    const handleClose = () => onClose()
+    dialog.addEventListener('close', handleClose)
+    return () => dialog.removeEventListener('close', handleClose)
+  }, [onClose])
+
+  if (!instructions) return null
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
-      {/* Backdrop */}
-      <div
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-        onClick={onClose}
-      />
-
-      {/* Modal */}
-      <div ref={modalRef} className="relative bg-base-100 rounded-xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto p-6 border border-base-300">
+    <dialog
+      ref={dialogRef}
+      className="modal modal-bottom sm:modal-middle"
+      onClick={(e) => {
+        if (e.target === dialogRef.current) onClose()
+      }}
+    >
+      <div className="modal-box max-w-md">
         {/* Close button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-base-content/50 hover:text-base-content/70"
+          className="btn btn-sm btn-circle btn-ghost absolute right-4 top-4"
         >
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -35,7 +59,7 @@ export default memo(function InstallInstructionsModal({ isOpen, onClose, instruc
             </svg>
           </div>
           <div>
-            <h2 className="text-lg font-semibold text-base-content">Install App</h2>
+            <h3 className="text-lg font-semibold text-base-content">Install App</h3>
             <p className="text-sm text-base-content/70">{instructions.browser}</p>
           </div>
         </div>
@@ -57,12 +81,13 @@ export default memo(function InstallInstructionsModal({ isOpen, onClose, instruc
           </ol>
         </div>
 
-        {/* Note if present */}
+        {/* Note if present — DaisyUI alert-soft for theme-aware warning box */}
         {instructions.note && (
-          <div className="bg-base-200 border border-base-300 rounded-lg p-3 mb-4">
-            <p className="text-xs text-warning">
-              <strong>Note:</strong> {instructions.note}
-            </p>
+          <div role="alert" className="alert alert-warning alert-soft text-xs mb-4">
+            <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4.5c-.77-.833-2.694-.833-3.464 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z" />
+            </svg>
+            <span><strong>Note:</strong> {instructions.note}</span>
           </div>
         )}
 
@@ -92,13 +117,15 @@ export default memo(function InstallInstructionsModal({ isOpen, onClose, instruc
         </div>
 
         {/* Close button */}
-        <button
-          onClick={onClose}
-          className="btn btn-primary w-full mt-4"
-        >
-          Got it
-        </button>
+        <div className="modal-action">
+          <button
+            onClick={onClose}
+            className="btn btn-primary w-full"
+          >
+            Got it
+          </button>
+        </div>
       </div>
-    </div>
+    </dialog>
   )
 })

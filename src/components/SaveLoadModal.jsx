@@ -1,12 +1,20 @@
+// Requirement: Save/load/delete designs from IndexedDB via modal dialog.
+// Approach: DaisyUI modal (native <dialog>) + tabs + alert components replace
+//   hand-rolled modal overlay, custom tab buttons, and custom error banner.
+// Alternatives:
+//   - Hand-rolled fixed overlay + backdrop: Replaced — <dialog> provides native
+//     focus trapping, Escape handling, and backdrop via ::backdrop pseudo-element.
+//   - Custom tab buttons with border-bottom: Replaced — DaisyUI tabs-border
+//     provides consistent underline-style tab switching with proper ARIA.
+//   - Custom error div: Replaced — DaisyUI alert-error-soft for theme-aware styling.
+
 import { useState, useEffect, useCallback, useRef } from 'react'
 import ConfirmButton from './ConfirmButton'
 import { useToast } from './Toast'
-import { useFocusTrap } from '../hooks/useFocusTrap'
 
 export default function SaveLoadModal({ isOpen, onClose, onSave, onLoad, onDelete, getSavedDesigns }) {
   const { addToast } = useToast()
-  const modalRef = useRef(null)
-  useFocusTrap(modalRef, isOpen)
+  const dialogRef = useRef(null)
   const [designs, setDesigns] = useState([])
   const [saveName, setSaveName] = useState('')
   const [searchQuery, setSearchQuery] = useState('')
@@ -22,16 +30,34 @@ export default function SaveLoadModal({ isOpen, onClose, onSave, onLoad, onDelet
     if (activeRef.current) setDesigns(list)
   }, [getSavedDesigns])
 
+  // Sync <dialog> open/close with React isOpen prop.
+  // Native <dialog>.showModal() provides focus trap, Escape key, and ::backdrop.
   useEffect(() => {
-    if (isOpen) {
+    const dialog = dialogRef.current
+    if (!dialog) return
+
+    if (isOpen && !dialog.open) {
       activeRef.current = true
+      dialog.showModal()
       refreshDesigns()
       setSaveName('')
       setSearchQuery('')
       setError(null)
+    } else if (!isOpen && dialog.open) {
+      dialog.close()
     }
+
     return () => { activeRef.current = false }
   }, [isOpen, refreshDesigns])
+
+  // Handle native dialog close (Escape key, backdrop click) — sync with React state.
+  useEffect(() => {
+    const dialog = dialogRef.current
+    if (!dialog) return
+    const handleClose = () => onClose()
+    dialog.addEventListener('close', handleClose)
+    return () => dialog.removeEventListener('close', handleClose)
+  }, [onClose])
 
   const handleSave = async () => {
     setLoading(true)
@@ -78,30 +104,32 @@ export default function SaveLoadModal({ isOpen, onClose, onSave, onLoad, onDelet
     return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
   }
 
-  // Focus the first interactive element when modal opens
+  // Focus the save name input when the save tab is active
   const saveInputRef = useRef(null)
   useEffect(() => {
-    if (isOpen) {
-      // Delay focus slightly to ensure DOM is ready after render
+    if (isOpen && activeTab === 'save') {
       const timer = setTimeout(() => saveInputRef.current?.focus(), 50)
       return () => clearTimeout(timer)
     }
-  }, [isOpen])
-
-  if (!isOpen) return null
+  }, [isOpen, activeTab])
 
   return (
-    // Backdrop — click outside modal to close
-    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50" onClick={onClose}>
-      {/* Modal content — stop propagation so clicks inside don't close */}
-      <div ref={modalRef} role="dialog" aria-modal="true" aria-labelledby="save-load-title" className="bg-base-100 rounded-xl shadow-2xl w-full max-w-md max-h-[80vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
+    <dialog
+      ref={dialogRef}
+      className="modal modal-bottom sm:modal-middle"
+      onClick={(e) => {
+        // Close on backdrop click (click on <dialog> itself, not its children)
+        if (e.target === dialogRef.current) onClose()
+      }}
+    >
+      <div className="modal-box max-w-md flex flex-col max-h-[80vh]">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-base-300">
-          <h2 id="save-load-title" className="text-lg font-semibold text-base-content">Saved Designs</h2>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold text-base-content">Saved Designs</h3>
           <button
             onClick={onClose}
             aria-label="Close dialog"
-            className="p-2 rounded-lg hover:bg-base-300 active:bg-base-200 text-base-content/70"
+            className="btn btn-sm btn-circle btn-ghost"
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -109,39 +137,36 @@ export default function SaveLoadModal({ isOpen, onClose, onSave, onLoad, onDelet
           </button>
         </div>
 
-        {/* Tabs */}
-        <div className="flex border-b border-base-300">
+        {/* Tabs — DaisyUI tabs-border replaces custom border-b tab buttons */}
+        <div role="tablist" className="tabs tabs-border mb-4">
           <button
+            role="tab"
+            className={`tab ${activeTab === 'save' ? 'tab-active' : ''}`}
             onClick={() => setActiveTab('save')}
-            className={`flex-1 px-4 py-2.5 text-sm font-medium ${
-              activeTab === 'save'
-                ? 'text-primary border-b-2 border-primary'
-                : 'text-base-content/70 hover:text-base-content'
-            }`}
           >
             Save Current
           </button>
           <button
+            role="tab"
+            className={`tab ${activeTab === 'load' ? 'tab-active' : ''}`}
             onClick={() => setActiveTab('load')}
-            className={`flex-1 px-4 py-2.5 text-sm font-medium ${
-              activeTab === 'load'
-                ? 'text-primary border-b-2 border-primary'
-                : 'text-base-content/70 hover:text-base-content'
-            }`}
           >
             Load ({designs.length})
           </button>
         </div>
 
-        {/* Error banner */}
+        {/* Error banner — DaisyUI alert replaces custom error div */}
         {error && (
-          <div className="mx-4 mt-3 px-3 py-2 rounded-lg bg-base-200 border border-base-300 text-sm text-error">
-            {error}
+          <div role="alert" className="alert alert-error alert-soft text-sm mb-4">
+            <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+            <span>{error}</span>
           </div>
         )}
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto p-4">
+        <div className="flex-1 overflow-y-auto">
           {activeTab === 'save' && (
             <div className="space-y-4">
               <div>
@@ -221,6 +246,6 @@ export default function SaveLoadModal({ isOpen, onClose, onSave, onLoad, onDelet
           )}
         </div>
       </div>
-    </div>
+    </dialog>
   )
 }
