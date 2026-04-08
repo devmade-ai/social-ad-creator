@@ -21,5 +21,5 @@ Future enhancements and ideas for CanvaGrid.
 
 - [ ] **App.jsx stale closure Escape handlers (lines 332-338)** — `useEffect` has `[]` deps but references `showShortcuts`, `showMobileMenu`, `isReaderMode` — always their initial values. Dead code. BurgerMenu handles its own Escape via `useEscapeKey`, modals use native `<dialog>` Escape. Fix: either add proper deps or remove the handlers entirely.
 
-- [ ] **`no-print` utility class + print CSS** — Add `@media print` rules: `.no-print { display: none !important; }`, force white bg/black text, `break-inside: avoid` on sections. canva-grid uses pdf-lib for export, but this prevents garbage output if a user hits Ctrl+P. Near-zero effort. Pattern: glow-props Implementation Patterns → Download as PDF → Print-Friendly CSS.
+- [ ] **Print CSS hardening** — `.no-print { display: none }` rule added. Remaining: force white bg/black text, `break-inside: avoid` on sections. canva-grid uses pdf-lib for export, but this prevents garbage output if a user hits Ctrl+P. Pattern: glow-props Implementation Patterns → Download as PDF → Print-Friendly CSS.
 

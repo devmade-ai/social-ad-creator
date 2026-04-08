@@ -163,6 +163,12 @@ textarea:not(.textarea):focus-visible {
   }
 }
 
+/* Hide UI chrome when printing (Ctrl+P). canva-grid uses pdf-lib for
+   export, but this prevents garbage output if a user prints the page. */
+@media print {
+  .no-print { display: none !important; }
+}
+
 /* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
