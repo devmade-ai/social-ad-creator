@@ -1,12 +1,13 @@
-// Requirement: Floating debug pill for production diagnostics.
-// Approach: Separate React root (survives App crashes), collapsible panel with log + environment tabs.
+// Requirement: Floating debug pill for production diagnostics (alpha phase).
+// Approach: Separate React root in #debug-root (survives App crashes), inline styles (survives
+//   stylesheet failures), 3 tabs (Log, Env, PWA), embed mode skip, report generation via module.
 // Alternatives:
 //   - Render inside App tree: Rejected - crashes in App would kill the debug UI too.
 //   - Browser devtools only: Rejected - not available on mobile or for non-technical users reporting bugs.
 
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { createRoot } from 'react-dom/client'
-import { getEntries, clearEntries, subscribe, debugLog } from '../utils/debugLog'
+import { getEntries, clearEntries, subscribe, debugLog, debugGenerateReport } from '../utils/debugLog'
 
 function formatTime(ts) {
   const d = new Date(ts)
@@ -19,38 +20,50 @@ function formatTime(ts) {
 
 const SEVERITY_COLORS = {
   info: '#60a5fa',
+  success: '#4ade80',
   warn: '#fbbf24',
   error: '#f87171',
   debug: '#a78bfa',
 }
 
-// Clipboard fallback using ClipboardItem Blob (avoids deprecated execCommand).
-// Falls through to textarea+execCommand only as last resort for very old browsers.
-function fallbackCopy(text) {
+// Clipboard with multiple fallbacks — ClipboardItem Blob, writeText, textarea execCommand.
+async function copyToClipboard(text) {
+  // Method 1: ClipboardItem Blob — works where writeText is blocked
   try {
     const blob = new Blob([text], { type: 'text/plain' })
-    navigator.clipboard.write([new ClipboardItem({ 'text/plain': blob })])
-  } catch {
-    // Last resort: deprecated but functional in all browsers
+    await navigator.clipboard.write([new ClipboardItem({ 'text/plain': blob })])
+    return true
+  } catch { /* fall through */ }
+
+  // Method 2: writeText
+  try {
+    await navigator.clipboard.writeText(text)
+    return true
+  } catch { /* fall through */ }
+
+  // Method 3: Textarea fallback for mobile PWA webviews
+  try {
     const ta = document.createElement('textarea')
     ta.value = text
-    ta.style.position = 'fixed'
-    ta.style.left = '-9999px'
+    ta.style.cssText = 'position:fixed;left:-9999px;top:-9999px'
     document.body.appendChild(ta)
     ta.select()
     document.execCommand('copy')
     document.body.removeChild(ta)
-  }
+    return true
+  } catch { return false }
 }
 
 function DebugPillInner() {
   const [expanded, setExpanded] = useState(false)
   const [tab, setTab] = useState('log')
-  const [entries, setEntries] = useState(getEntries)
+  const [entries, setEntries] = useState([])
   const logEndRef = useRef(null)
 
+  // Hydration-safe initialization — sync in useEffect, not useState initializer.
+  // Subscriber replay delivers existing entries immediately on subscribe.
   useEffect(() => {
-    return subscribe((newEntries) => setEntries([...newEntries]))
+    return subscribe((allEntries) => setEntries([...allEntries]))
   }, [])
 
   useEffect(() => {
@@ -63,33 +76,13 @@ function DebugPillInner() {
   const warnCount = entries.filter(e => e.severity === 'warn').length
 
   const copyReport = useCallback(() => {
-    const env = getEnvironmentInfo()
-    const logLines = entries.map(e =>
-      `[${formatTime(e.timestamp)}] [${e.severity}] [${e.source}] ${e.event}${e.details ? ' ' + JSON.stringify(e.details) : ''}`
-    ).join('\n')
-
-    const report = [
-      '=== CanvaGrid Debug Report ===',
-      `Generated: ${new Date().toISOString()}`,
-      '',
-      '--- Environment ---',
-      ...Object.entries(env).map(([k, v]) => `${k}: ${v}`),
-      '',
-      '--- Log ---',
-      logLines || '(empty)',
-    ].join('\n')
-
-    // Clipboard API with Blob fallback for environments where writeText is blocked
-    if (navigator.clipboard?.writeText) {
-      navigator.clipboard.writeText(report).catch(() => {
-        fallbackCopy(report)
-      })
-    } else {
-      fallbackCopy(report)
-    }
-
+    const report = debugGenerateReport()
+    copyToClipboard(report)
     debugLog('debug-pill', 'report-copied', null, 'info')
-  }, [entries])
+  }, [])
+
+  // Embed mode skip — don't show pill when ?embed= is in the URL
+  if (window.location.search.includes('embed=')) return null
 
   if (!expanded) {
     return (
@@ -132,6 +125,16 @@ function DebugPillInner() {
     )
   }
 
+  const tabButtonStyle = (id) => ({
+    background: tab === id ? '#3f3f46' : 'transparent',
+    color: tab === id ? '#fff' : '#a1a1aa',
+    border: 'none',
+    borderRadius: 4,
+    padding: '2px 8px',
+    cursor: 'pointer',
+    fontSize: 11,
+  })
+
   return (
     <div style={{
       position: 'fixed',
@@ -161,33 +164,14 @@ function DebugPillInner() {
         borderBottom: '1px solid #3f3f46',
         flexShrink: 0,
       }}>
-        <button
-          onClick={() => setTab('log')}
-          style={{
-            background: tab === 'log' ? '#3f3f46' : 'transparent',
-            color: tab === 'log' ? '#fff' : '#a1a1aa',
-            border: 'none',
-            borderRadius: 4,
-            padding: '2px 8px',
-            cursor: 'pointer',
-            fontSize: 11,
-          }}
-        >
+        <button onClick={() => setTab('log')} style={tabButtonStyle('log')}>
           Log ({entries.length})
         </button>
-        <button
-          onClick={() => setTab('env')}
-          style={{
-            background: tab === 'env' ? '#3f3f46' : 'transparent',
-            color: tab === 'env' ? '#fff' : '#a1a1aa',
-            border: 'none',
-            borderRadius: 4,
-            padding: '2px 8px',
-            cursor: 'pointer',
-            fontSize: 11,
-          }}
-        >
+        <button onClick={() => setTab('env')} style={tabButtonStyle('env')}>
           Env
+        </button>
+        <button onClick={() => setTab('pwa')} style={tabButtonStyle('pwa')}>
+          PWA
         </button>
         <div style={{ flex: 1 }} />
         <button
@@ -255,9 +239,8 @@ function DebugPillInner() {
         )}
         {tab === 'log' && <div ref={logEndRef} />}
 
-        {tab === 'env' && (
-          <EnvironmentTab />
-        )}
+        {tab === 'env' && <EnvironmentTab />}
+        {tab === 'pwa' && <PWADiagnosticsTab />}
       </div>
     </div>
   )
@@ -265,7 +248,9 @@ function DebugPillInner() {
 
 function getEnvironmentInfo() {
   return {
-    url: window.location.href,
+    // Redact query params to prevent token/UTM leaking
+    url: window.location.origin + window.location.pathname
+      + (window.location.search ? '?[redacted]' : ''),
     userAgent: navigator.userAgent,
     screen: `${screen.width}x${screen.height}`,
     viewport: `${window.innerWidth}x${window.innerHeight}`,
@@ -294,11 +279,157 @@ function EnvironmentTab() {
   )
 }
 
-// Mount into a separate React root so it survives App crashes
+// --- PWA Diagnostics Tab ---
+// Active health checks: HTTPS, SW registration, manifest validation, standalone mode,
+// beforeinstallprompt receipt. Uses monotonic counter for stale-run cancellation.
+const DIAG_STATUS_COLORS = {
+  pass: '#4ade80',
+  fail: '#f87171',
+  warn: '#fbbf24',
+  running: '#a1a1aa',
+}
+
+function PWADiagnosticsTab() {
+  const [results, setResults] = useState([])
+  const [running, setRunning] = useState(false)
+  const runIdRef = useRef(0)
+
+  const runDiagnostics = useCallback(async () => {
+    const currentRun = ++runIdRef.current
+    setRunning(true)
+    setResults([])
+
+    const diags = []
+
+    // Sync checks
+    diags.push({
+      label: 'Protocol',
+      status: location.protocol === 'https:' || location.hostname === 'localhost' ? 'pass' : 'fail',
+      detail: location.protocol,
+    })
+    diags.push({
+      label: 'Network',
+      status: navigator.onLine ? 'pass' : 'warn',
+      detail: navigator.onLine ? 'Online' : 'Offline',
+    })
+    diags.push({
+      label: 'SW Support',
+      status: 'serviceWorker' in navigator ? 'pass' : 'fail',
+      detail: 'serviceWorker' in navigator ? 'Supported' : 'Not supported',
+    })
+
+    // Standalone mode
+    const standalone = window.matchMedia('(display-mode: standalone)').matches
+      || navigator.standalone === true
+    diags.push({
+      label: 'Standalone',
+      status: standalone ? 'pass' : 'warn',
+      detail: String(standalone),
+    })
+
+    // beforeinstallprompt
+    const hasPrompt = !!window.__pwaInstallPrompt
+    diags.push({
+      label: 'Install Prompt',
+      status: hasPrompt ? 'pass' : 'warn',
+      detail: hasPrompt ? 'Captured' : 'Not received',
+    })
+
+    // Stale-run guard for sync results
+    if (runIdRef.current !== currentRun) return
+    setResults([...diags])
+
+    // Async: SW registration
+    if ('serviceWorker' in navigator) {
+      try {
+        const reg = await navigator.serviceWorker.getRegistration('/')
+        const state = reg?.active ? 'active' : reg?.waiting ? 'waiting' : reg?.installing ? 'installing' : 'none'
+        diags.push({ label: 'SW State', status: reg ? 'pass' : 'warn', detail: state })
+      } catch (e) {
+        diags.push({ label: 'SW State', status: 'fail', detail: String(e) })
+      }
+    }
+
+    if (runIdRef.current !== currentRun) return
+    setResults([...diags])
+
+    // Async: Manifest validation
+    const manifestLink = document.querySelector('link[rel="manifest"]')
+    if (manifestLink) {
+      try {
+        const res = await fetch(manifestLink.getAttribute('href') || '/manifest.json')
+        const manifest = await res.json()
+        const hasIcons = manifest.icons?.length > 0
+        const hasName = !!manifest.name
+        diags.push({
+          label: 'Manifest',
+          status: hasIcons && hasName ? 'pass' : 'warn',
+          detail: `name=${manifest.name || 'missing'}, icons=${manifest.icons?.length || 0}`,
+        })
+      } catch {
+        diags.push({ label: 'Manifest', status: 'fail', detail: 'Failed to fetch' })
+      }
+    } else {
+      diags.push({ label: 'Manifest', status: 'fail', detail: 'No <link rel="manifest"> found' })
+    }
+
+    if (runIdRef.current !== currentRun) return
+    setResults([...diags])
+    setRunning(false)
+  }, [])
+
+  // Run diagnostics on mount
+  useEffect(() => { runDiagnostics() }, [runDiagnostics])
+
+  return (
+    <div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+        <span style={{ color: '#a78bfa', fontWeight: 'bold' }}>PWA Diagnostics</span>
+        <button
+          onClick={runDiagnostics}
+          disabled={running}
+          style={{
+            background: 'transparent',
+            color: running ? '#71717a' : '#60a5fa',
+            border: '1px solid #3f3f46',
+            borderRadius: 4,
+            padding: '1px 6px',
+            cursor: running ? 'default' : 'pointer',
+            fontSize: 10,
+          }}
+        >
+          {running ? 'Running...' : 'Re-run'}
+        </button>
+      </div>
+      {results.length === 0 && running && (
+        <div style={{ color: '#71717a', textAlign: 'center', padding: 8 }}>Running checks...</div>
+      )}
+      {results.map((r, i) => (
+        <div key={i} style={{ marginBottom: 3, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <span style={{
+            display: 'inline-block',
+            width: 8,
+            height: 8,
+            borderRadius: '50%',
+            background: DIAG_STATUS_COLORS[r.status] || '#a1a1aa',
+            flexShrink: 0,
+          }} />
+          <span style={{ color: '#e4e4e7' }}>{r.label}:</span>
+          <span style={{ color: '#a1a1aa' }}>{r.detail}</span>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+// Mount into #debug-root — a static div in index.html, separate from App's #root.
+// This ensures the pill survives App crashes.
 export function mountDebugPill() {
-  const container = document.createElement('div')
-  container.id = 'debug-pill-root'
-  document.body.appendChild(container)
+  // Skip pill in embed mode
+  if (window.location.search.includes('embed=')) return
+
+  const container = document.getElementById('debug-root')
+  if (!container) return
   const root = createRoot(container)
   root.render(<DebugPillInner />)
 }
