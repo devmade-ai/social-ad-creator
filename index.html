@@ -92,12 +92,15 @@
         var badge = document.getElementById('debug-pre-error-count');
         if (badge) { badge.textContent = window.__debugErrors.length; badge.style.display = ''; }
       };
-      window.addEventListener('error', function(e) {
+      // Named handlers so debugLog.js can removeEventListener after takeover
+      window.__debugPreErrorHandler = function(e) {
         window.__debugPushError(e.message || 'Unknown error', (e.filename || '') + ':' + (e.lineno || 0));
-      });
-      window.addEventListener('unhandledrejection', function(e) {
+      };
+      window.__debugPreRejectionHandler = function(e) {
         window.__debugPushError('Unhandled rejection: ' + e.reason);
-      });
+      };
+      window.addEventListener('error', window.__debugPreErrorHandler);
+      window.addEventListener('unhandledrejection', window.__debugPreRejectionHandler);
       window.__debugReactMounted = false;
       window.__debugClearLoadTimer = function() {
         window.__debugReactMounted = true;

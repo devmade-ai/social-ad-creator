@@ -335,8 +335,10 @@ function PWADiagnosticsTab() {
       detail: hasPrompt ? 'Captured' : 'Not received',
     })
 
+    const isStale = () => runIdRef.current !== currentRun
+
     // Stale-run guard for sync results
-    if (runIdRef.current !== currentRun) return
+    if (isStale()) { setRunning(false); return }
     setResults([...diags])
 
     // Async: SW registration
@@ -350,7 +352,7 @@ function PWADiagnosticsTab() {
       }
     }
 
-    if (runIdRef.current !== currentRun) return
+    if (isStale()) { setRunning(false); return }
     setResults([...diags])
 
     // Async: Manifest validation
@@ -373,7 +375,7 @@ function PWADiagnosticsTab() {
       diags.push({ label: 'Manifest', status: 'fail', detail: 'No <link rel="manifest"> found' })
     }
 
-    if (runIdRef.current !== currentRun) return
+    if (isStale()) { setRunning(false); return }
     setResults([...diags])
     setRunning(false)
   }, [])

@@ -10,9 +10,9 @@ let entries = []
 let nextId = 1
 const subscribers = new Set()
 
-function notify(entry) {
+function notify() {
   for (const fn of subscribers) {
-    try { fn(entries, entry) } catch (_) { /* subscriber errors shouldn't break logging */ }
+    try { fn(entries) } catch (_) { /* subscriber errors shouldn't break logging */ }
   }
 }
 
@@ -29,7 +29,7 @@ export function debugLog(source, event, details = null, severity = 'info') {
   if (entries.length > MAX_ENTRIES) {
     entries = entries.slice(-MAX_ENTRIES)
   }
-  notify(entry)
+  notify()
 }
 
 export function getEntries() {
@@ -39,7 +39,7 @@ export function getEntries() {
 export function clearEntries() {
   entries = []
   nextId = 1
-  notify(null)
+  notify()
 }
 
 // New subscribers receive existing entries immediately on subscribe —
@@ -47,7 +47,7 @@ export function clearEntries() {
 export function subscribe(fn) {
   subscribers.add(fn)
   if (entries.length > 0) {
-    try { fn(entries, null) } catch (_) { /* ignore replay errors */ }
+    try { fn(entries) } catch (_) { /* ignore replay errors */ }
   }
   return () => subscribers.delete(fn)
 }
@@ -144,12 +144,19 @@ if (!window.__debugLogListenersAttached) {
   })
 }
 
-// --- Replay pre-React errors ---
+// --- Replay pre-React errors and deregister inline handlers ---
 // The inline script in index.html captures errors into window.__debugErrors before
-// this module loads. Replay them into the structured debug log so they appear in the pill.
+// this module loads. Replay them into the structured debug log so they appear in the pill,
+// then remove the inline script's error/rejection listeners to prevent duplicate captures.
 if (window.__debugErrors?.length > 0) {
   for (const err of window.__debugErrors) {
     debugLog('pre-react', err.msg, err.stack ? { stack: err.stack } : null, 'error')
   }
   window.__debugErrors = []
+}
+if (window.__debugPreErrorHandler) {
+  window.removeEventListener('error', window.__debugPreErrorHandler)
+  window.removeEventListener('unhandledrejection', window.__debugPreRejectionHandler)
+  delete window.__debugPreErrorHandler
+  delete window.__debugPreRejectionHandler
 }
