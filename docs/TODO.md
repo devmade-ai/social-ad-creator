@@ -19,5 +19,7 @@ Future enhancements and ideas for CanvaGrid.
 |------|--------|-------------|
 | **Expand unit test coverage** | Low-Medium | Current: 72 tests across 6 files (cellUtils, layoutPresets, stylePresets, canvasRenderers, exportHelpers, oklchToHex). Untested: designStorage.js (IndexedDB ops — needs mock), debugLog.js (circular buffer, pub/sub), layouts.js (toRgba, gradient stops), platforms.js (group structure validation), themes.js (neutral colors, preset integrity, variant resolution, backward compat mapping). |
 
+- [ ] **App.jsx stale closure Escape handlers (lines 332-338)** — `useEffect` has `[]` deps but references `showShortcuts`, `showMobileMenu`, `isReaderMode` — always their initial values. Dead code. BurgerMenu handles its own Escape via `useEscapeKey`, modals use native `<dialog>` Escape. Fix: either add proper deps or remove the handlers entirely.
+
 - [ ] **`no-print` utility class + print CSS** — Add `@media print` rules: `.no-print { display: none !important; }`, force white bg/black text, `break-inside: avoid` on sections. canva-grid uses pdf-lib for export, but this prevents garbage output if a user hits Ctrl+P. Near-zero effort. Pattern: glow-props Implementation Patterns → Download as PDF → Print-Friendly CSS.
 
