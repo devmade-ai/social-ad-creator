@@ -11,6 +11,14 @@
 - **Version footer** — Displays app version from package.json at bottom of dropdown.
 - **Theme toggle icons** — Sun/moon SVG icons on dark/light toggle in MenuThemeSection. Dynamic `aria-label`.
 
+### Keyboard handler cleanup
+
+- **App.jsx** — Removed redundant Escape handlers for shortcuts modal (native `<dialog>` handles it) and burger menu (`useEscapeKey` handles it). Removed reader mode keyboard block (moved to ReaderMode). Simplified `keyboardRef` from 14 values to 8.
+- **ReaderMode** — Now owns its keyboard handling: `useEscapeKey` for exit, `useEffect` for arrow key page navigation with `debugLog`. Previously in App.jsx centralized handler.
+- **MobileLayout** — Stabilized `onClose` callback with `useCallback` to prevent `useEscapeKey` from re-attaching listener every render.
+- **useFocusTrap** — Simplified to pure Tab-trapping (removed redundant initial focus + focus restore, handled by `useDisclosureFocus`).
+- **Print CSS** — Completed `@media print` rules: `.no-print` hide, white bg/black text, `break-inside: avoid`.
+
 ### Rename "Suggested Implementations" → "Implementation Patterns"
 
 Updated all references across CLAUDE.md, docs, scripts, and vite.config.js to match glow-props terminology.

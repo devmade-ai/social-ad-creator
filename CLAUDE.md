@@ -562,7 +562,7 @@ src/
 │   ├── BurgerMenu.jsx         # Disclosure-pattern dropdown (WAI-ARIA, DaisyUI menu, own backdrop, close-then-act, MenuItem interface, version footer)
 │   ├── BottomSheet.jsx        # Touch-draggable bottom sheet for mobile tab content (3 snap points, reduced-motion support)
 │   ├── MobileNav.jsx          # DaisyUI dock bottom navigation (6 tabs incl. Export, safe area insets)
-│   ├── ReaderMode.jsx         # Full-screen reader view with page navigation
+│   ├── ReaderMode.jsx         # Full-screen reader view with page navigation (useEscapeKey + arrow key handler)
 │   ├── MobileLayout.jsx       # Mobile-specific layout container (header, canvas, sheet, nav)
 │   ├── DesktopLayout.jsx      # Desktop-specific layout container (header, sidebar, main)
 │   └── DebugPill.jsx          # Floating debug panel (separate React root, dev only)

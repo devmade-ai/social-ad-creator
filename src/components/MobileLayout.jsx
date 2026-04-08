@@ -4,6 +4,7 @@
 // Alternatives:
 //   - Responsive sidebar: Rejected — scroll-heavy, canvas hidden by controls.
 //   - Tab content above canvas: Rejected — canvas should be primary focus.
+import { useCallback } from 'react'
 import ErrorBoundary from './ErrorBoundary'
 import AdCanvas from './AdCanvas'
 import ContextBar from './ContextBar'
@@ -143,6 +144,11 @@ export default function MobileLayout({
   handleCellLongPress,
   handleCellContextAction,
 }) {
+  // Stable callback for BurgerMenu onClose — prevents useEscapeKey from
+  // re-attaching its listener every render while the menu is open.
+  // setShowMobileMenu is a state setter (identity-stable from useState).
+  const handleMenuClose = useCallback(() => setShowMobileMenu(false), [setShowMobileMenu])
+
   return (
     <div className="h-[100dvh] flex flex-col overflow-hidden bg-base-200">
       {fontsToLoad.map((font) => <link key={font.id} rel="stylesheet" href={font.url} />)}
@@ -173,7 +179,7 @@ export default function MobileLayout({
           <BurgerMenu
             open={showMobileMenu}
             onToggle={() => { const opening = !showMobileMenu; setShowMobileMenu(opening); if (opening) closeMobileSheet() }}
-            onClose={() => setShowMobileMenu(false)}
+            onClose={handleMenuClose}
             version={version}
             items={[
               { label: 'Help & Tutorial', icon: ICON_HELP, action: () => setShowTutorial(true) },
