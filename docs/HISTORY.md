@@ -2,6 +2,22 @@
 
 ## 2026-04-08
 
+### Complete debug system per DEBUG_SYSTEM pattern
+
+- **Console interception** — `console.error`/`console.warn` patched at module load with HMR guard and re-entrancy guard.
+- **Static `#debug-root`** — Replaced dynamic `createElement` with static div in `index.html`.
+- **PWA Diagnostics tab** — Active health checks (HTTPS, SW state, manifest, standalone, install prompt) with stale-run cancellation.
+- **Pre-React inline pill** — `window.__debugPushError()` global, error/rejection capture before bundles load, 20s loading timeout.
+- **URL redaction** — Query params and hash redacted in reports and Env tab.
+- **Subscriber replay** — New subscribers receive existing entries immediately.
+- **DEV-only gating removed** — Debug pill now available in production (alpha phase).
+- **Success severity** — Added to severity union and `SEVERITY_COLORS`.
+- **`debugGenerateReport()`** — Report generation in module, not component.
+- **Embed mode skip** — Pill hidden when `?embed=` in URL.
+- **Duplicate listener deregistration** — Inline script handlers removed after module takeover.
+- **Pre-React error replay** — `window.__debugErrors` replayed into structured log at module load.
+- **ErrorBoundary bridge** — Crashes routed to both `debugLog()` and `__debugPushError()`.
+
 ### Complete BurgerMenu implementation per BURGER_MENU pattern
 
 - **useEscapeKey hook** — Extracted from inline BurgerMenu keydown handler to `src/hooks/useEscapeKey.js`. Reusable by any disclosure component.

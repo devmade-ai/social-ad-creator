@@ -17,6 +17,6 @@ Future enhancements and ideas for CanvaGrid.
 
 | Item | Effort | Description |
 |------|--------|-------------|
-| **Expand unit test coverage** | Low-Medium | Current: 72 tests across 6 files (cellUtils, layoutPresets, stylePresets, canvasRenderers, exportHelpers, oklchToHex). Untested: designStorage.js (IndexedDB ops — needs mock), debugLog.js (circular buffer, pub/sub), layouts.js (toRgba, gradient stops), platforms.js (group structure validation), themes.js (neutral colors, preset integrity, variant resolution, backward compat mapping). |
+| **Expand unit test coverage** | Low-Medium | Current: 72 tests across 6 files (cellUtils, layoutPresets, stylePresets, canvasRenderers, exportHelpers, oklchToHex). Untested: designStorage.js (IndexedDB ops — needs mock), debugLog.js (circular buffer, pub/sub, console interception, subscriber replay, report generation, URL redaction), layouts.js (toRgba, gradient stops), platforms.js (group structure validation), themes.js (neutral colors, preset integrity, variant resolution, backward compat mapping). |
 
 
