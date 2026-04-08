@@ -23,7 +23,6 @@ const SEVERITY_COLORS = {
   success: '#4ade80',
   warn: '#fbbf24',
   error: '#f87171',
-  debug: '#a78bfa',
 }
 
 // Clipboard with multiple fallbacks — ClipboardItem Blob, writeText, textarea execCommand.

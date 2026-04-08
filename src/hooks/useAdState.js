@@ -705,7 +705,7 @@ export function useAdState() {
   }, [setState])
 
   const addPage = useCallback(() => {
-    debugLog('state', 'page-add', null, 'debug')
+    debugLog('state', 'page-add')
     setState((prev) => {
       const pages = prev.pages || [null]
       const currentPageData = extractPageData(prev)
@@ -725,7 +725,7 @@ export function useAdState() {
   }, [setState])
 
   const duplicatePage = useCallback(() => {
-    debugLog('state', 'page-duplicate', null, 'debug')
+    debugLog('state', 'page-duplicate')
     setState((prev) => {
       const pages = prev.pages || [null]
       const currentPageData = extractPageData(prev)
@@ -747,7 +747,7 @@ export function useAdState() {
   }, [setState])
 
   const removePage = useCallback((index) => {
-    debugLog('state', 'page-remove', { index }, 'debug')
+    debugLog('state', 'page-remove', { index })
     setState((prev) => {
       const pages = prev.pages || [null]
       if (pages.length <= 1) return prev // Can't remove last page
@@ -904,7 +904,7 @@ export function useAdState() {
   useEffect(() => {
     if (!migrationRan.current) {
       migrationRan.current = true
-      debugLog('state', 'migration-trigger', null, 'debug')
+      debugLog('state', 'migration-trigger')
       designStorage.migrateFromLocalStorage(migrateTextForStorage)
     }
   }, [])
