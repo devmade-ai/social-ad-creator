@@ -89,8 +89,6 @@
       window.__debugPushError = function(msg, stack) {
         window.__debugErrors.push({ msg: msg, stack: stack, time: Date.now() });
         if (window.__debugErrors.length > 200) window.__debugErrors.shift();
-        var badge = document.getElementById('debug-pre-error-count');
-        if (badge) { badge.textContent = window.__debugErrors.length; badge.style.display = ''; }
       };
       // Named handlers so debugLog.js can removeEventListener after takeover
       window.__debugPreErrorHandler = function(e) {

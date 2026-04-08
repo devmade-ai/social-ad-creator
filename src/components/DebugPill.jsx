@@ -74,10 +74,10 @@ function DebugPillInner() {
   const errorCount = entries.filter(e => e.severity === 'error').length
   const warnCount = entries.filter(e => e.severity === 'warn').length
 
-  const copyReport = useCallback(() => {
+  const copyReport = useCallback(async () => {
     const report = debugGenerateReport()
-    copyToClipboard(report)
-    debugLog('debug-pill', 'report-copied', null, 'info')
+    const ok = await copyToClipboard(report)
+    debugLog('debug-pill', ok ? 'report-copied' : 'report-copy-failed', null, ok ? 'success' : 'warn')
   }, [])
 
   // Embed mode skip — don't show pill when ?embed= is in the URL

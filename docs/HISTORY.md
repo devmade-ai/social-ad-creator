@@ -17,6 +17,7 @@
 - **Duplicate listener deregistration** — Inline script handlers removed after module takeover.
 - **Pre-React error replay** — `window.__debugErrors` replayed into structured log at module load.
 - **ErrorBoundary bridge** — Crashes routed to both `debugLog()` and `__debugPushError()`.
+- **Audit fixes** — Removed dead `debug-pre-error-count` badge reference from inline script, awaited `copyToClipboard` with accurate success/failure logging, fixed `clearEntries` duplicate React key bug by keeping `nextId` monotonic.
 
 ### Complete BurgerMenu implementation per BURGER_MENU pattern
 

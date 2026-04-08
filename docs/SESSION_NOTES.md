@@ -29,11 +29,16 @@ Complete debug system implementation per glow-props DEBUG_SYSTEM.md pattern — 
 15. **notify() simplified** — Removed unused `entry` parameter.
 16. **Unused import removed** — `getEntries` no longer imported in DebugPill.
 
+### Audit fixes (round 3)
+17. **Dead badge code removed** — `debug-pre-error-count` getElementById in inline script referenced a non-existent element.
+18. **copyReport awaited** — `copyToClipboard` is async; now awaited with accurate success/failure log entry using `success`/`warn` severity.
+19. **Monotonic nextId** — `clearEntries` no longer resets `nextId` to 1, preventing duplicate React keys when new entries are added after clear.
+
 ## Current state
 
-- **Branch:** `claude/add-console-interception-JGFQj` — 3 commits, pushed
-- Build passes, no errors
-- All 10 task items complete
+- **Branch:** `claude/add-console-interception-JGFQj` — 6 commits, pushed
+- Build passes, 72 tests pass, no errors
+- All 10 original task items + 3 audit rounds complete
 
 ## Key context
 
