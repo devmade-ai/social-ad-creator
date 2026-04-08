@@ -7,7 +7,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { createRoot } from 'react-dom/client'
-import { getEntries, clearEntries, subscribe, debugLog, debugGenerateReport } from '../utils/debugLog'
+import { clearEntries, subscribe, debugLog, debugGenerateReport } from '../utils/debugLog'
 
 function formatTime(ts) {
   const d = new Date(ts)

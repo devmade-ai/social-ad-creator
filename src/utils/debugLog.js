@@ -101,19 +101,27 @@ export function debugGenerateReport() {
 // Captures React warnings, library errors, and any other console output automatically.
 // Runs at module load time to catch early console calls.
 // HMR guard prevents double-patching during Vite hot reloads.
+// Re-entrancy guard prevents infinite loops if debugLog itself triggers console.error.
 if (!window.__debugConsolePatched) {
   window.__debugConsolePatched = true
   const originalError = console.error
   const originalWarn = console.warn
+  let intercepting = false
 
   console.error = (...args) => {
     originalError.apply(console, args)
-    debugLog('console', args.map(String).join(' '), null, 'error')
+    if (!intercepting) {
+      intercepting = true
+      try { debugLog('console', args.map(String).join(' '), null, 'error') } finally { intercepting = false }
+    }
   }
 
   console.warn = (...args) => {
     originalWarn.apply(console, args)
-    debugLog('console', args.map(String).join(' '), null, 'warn')
+    if (!intercepting) {
+      intercepting = true
+      try { debugLog('console', args.map(String).join(' '), null, 'warn') } finally { intercepting = false }
+    }
   }
 }
 
@@ -134,4 +142,14 @@ if (!window.__debugLogListenersAttached) {
   window.addEventListener('unhandledrejection', (e) => {
     debugLog('global', `Unhandled rejection: ${e.reason}`, null, 'error')
   })
+}
+
+// --- Replay pre-React errors ---
+// The inline script in index.html captures errors into window.__debugErrors before
+// this module loads. Replay them into the structured debug log so they appear in the pill.
+if (window.__debugErrors?.length > 0) {
+  for (const err of window.__debugErrors) {
+    debugLog('pre-react', err.msg, err.stack ? { stack: err.stack } : null, 'error')
+  }
+  window.__debugErrors = []
 }
