@@ -5,27 +5,31 @@ Compact context summary for session continuity. Rewrite at session end.
 ---
 
 ## Worked on
-Replace remaining custom UI patterns with DaisyUI 5 components (second pass).
+Complete BurgerMenu implementation per glow-props BURGER_MENU pattern + cross-project terminology alignment.
 
 ## Accomplished
 
-### DaisyUI component migration (round 2)
-1. **Loading spinners → DaisyUI `loading loading-spinner`** — SampleImagesSection (2 spinners) + App.jsx export overlay. Replaces hand-rolled `border-2 border-t-transparent animate-spin`.
-2. **ExportButtons format selector → DaisyUI `join`** — Connected button group replaces `flex gap-1`.
-3. **ThemeSelector → DaisyUI `join`** — Mode toggle + combo picker as connected group. Removes manual `rounded-l-lg`/`rounded-r-lg` management.
-4. **AIPromptHelper → DaisyUI `btn` + `join`** — All option selectors migrated from hand-rolled `px-2 py-1 rounded-lg` to `btn btn-xs`. Non-wrapping groups (purpose, orientation, colors) use `join` for connected borders. Copy button uses `btn btn-xs btn-primary/btn-success`.
-5. **BurgerMenu → DaisyUI `menu menu-sm`** — List styling via DaisyUI menu component. Keeps WAI-ARIA disclosure pattern, focus trap, keyboard navigation, and children slot.
-6. **MobileNav → DaisyUI `dock dock-sm`** — Replaces custom fixed nav with DaisyUI dock. Native safe area handling via `env(safe-area-inset-bottom)`. Active state via `dock-active`. Labels via `dock-label`.
+### BurgerMenu pattern completion
+1. **useEscapeKey hook** — Extracted from inline keydown handler to `src/hooks/useEscapeKey.js`. Reusable by any disclosure component.
+2. **Backdrop ownership** — Moved from MobileLayout into BurgerMenu. z-40 with `cursor-pointer` for iOS Safari. Parent header keeps conditional z-50 for stacking context.
+3. **MenuItem interface** — `disabled`, `separator`, `destructive`, `external`, `highlight`, `highlightColor`, `iconClass`.
+4. **Close-then-act** — Menu closes first, action fires after 150ms. Errors route through `window.__debugPushError`.
+5. **Version footer** — `version` prop from package.json, displayed at bottom of dropdown.
+6. **Theme toggle icons** — Sun/moon SVG icons + dynamic `aria-label` on dark/light toggle in MenuThemeSection.
+
+### Terminology alignment
+- Renamed all "Suggested Implementations" → "Implementation Patterns" across CLAUDE.md, docs/TODO.md, docs/HISTORY.md, scripts/generate-icons.mjs, vite.config.js.
+- Added "Implementation Patterns (Source of Truth)" section to CLAUDE.md with fetch commands.
 
 ## Current state
 
-- **Working** — On branch `claude/daisyui-tailwind-utilities-cK7x6`
-- Build passes (1079 KiB JS, 133 KiB CSS)
-- All 72 tests pass
+- **Working** — On branch `claude/canvas-grid-component-Pvwsb`
+- Build passes (1080 KiB JS, 133 KiB CSS)
+- 3 commits pushed
 
 ## Key context
 
-- **Dock z-index:** DaisyUI dock uses `z-index: 1` by default. Added `z-40` to match the existing z-index scale (mobile nav = 40).
-- **Menu vs disclosure:** BurgerMenu uses DaisyUI `menu` for styling only. The component still uses WAI-ARIA disclosure pattern (not `role="menu"`), `useFocusTrap`, and custom keyboard navigation.
-- **Join for button groups:** Used in ExportButtons (format), ThemeSelector (mode+combos), AIPromptHelper (purpose, orientation, colors). Not used for wrapping groups (style, mood) — join requires linear, non-wrapping layout.
-- **Loading spinner variants:** `loading-sm` (16px) for inline, `loading-md` (24px) for overlay.
+- **Backdrop stacking:** BurgerMenu owns its backdrop (z-40) inside the header. Header gets z-50 when menu is open because `backdrop-blur-sm` creates a stacking context. Without z-50, the backdrop wouldn't layer above MobileNav (z-40 at page level).
+- **Close-then-act delay:** 150ms setTimeout between `onClose()` and `item.action()`. Prevents visual glitches from menu close animation competing with modal open.
+- **App.jsx stale closures (pre-existing):** Lines 332-338 have Escape handlers inside a `useEffect([], [])` — they reference state variables that are always their initial values. Dead code. BurgerMenu and `<dialog>` native Escape handle these independently.
+- **`no-print` CSS rule:** BurgerMenu has `no-print` class but the `@media print` rule doesn't exist yet. Tracked in docs/TODO.md.

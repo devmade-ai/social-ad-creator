@@ -498,7 +498,28 @@ Run these tests after making changes to ensure nothing is broken.
 
 ## Mobile-Specific Tests
 
-### MOB1: Long-Press Cell Context Menu
+### MOB1: Burger Menu
+
+**Scenario:** Burger menu opens, closes via multiple methods, theme controls work, and version footer displays.
+
+| Step | Action | Where | Expected |
+|------|--------|-------|----------|
+| 1 | Open DevTools and enable mobile view | Browser | Mobile layout active (< 1024px) |
+| 2 | Tap the ⋮ (three-dot) button in header | Header, right side | Menu dropdown opens with backdrop overlay |
+| 3 | Verify menu items | Dropdown | Items: Help & Tutorial, Install App (if installable), Refresh, Reader Mode, Save / Load, Keyboard Shortcuts. Each has an icon. |
+| 4 | Verify version footer | Bottom of dropdown | "v0.1.0" (or current version) in small gray text, right-aligned |
+| 5 | Tap backdrop (outside menu) | Backdrop overlay | Menu closes |
+| 6 | Re-open menu, press Escape | Keyboard | Menu closes, focus returns to ⋮ button |
+| 7 | Re-open menu, tap "Help & Tutorial" | Menu item | Menu closes first, then tutorial modal opens after brief delay |
+| 8 | Re-open menu, verify theme toggle | Below menu items | Sun icon + "Light mode" (if dark) or moon icon + "Dark mode" (if light) |
+| 9 | Tap the dark/light toggle | Theme section | Theme switches, menu stays open |
+| 10 | Tap a theme combo (Mono or Luxe) | Theme section | Combo switches with checkmark indicator, menu stays open |
+| 11 | Use arrow keys to navigate menu items | Keyboard | Focus moves through items, wraps at top/bottom |
+| 12 | Verify all items have 44px touch targets | Visually or DevTools | Each item has `min-height: 44px` (2.75rem) |
+
+---
+
+### MOB2: Long-Press Cell Context Menu
 
 **Scenario:** Long-pressing a cell on mobile opens a context menu for quick tab access.
 
@@ -553,6 +574,7 @@ Quick checks to run after any code change:
 - [ ] PDF export produces sharp, reasonably-sized PDF
 - [ ] Save/Load designs works (save, load, delete)
 - [ ] Platform search filter narrows results correctly
+- [ ] Burger menu: opens/closes, Escape dismisses, backdrop click dismisses, theme toggle works
 - [ ] Long-press cell context menu works on mobile (opens Media/Content/Style)
 - [ ] `npm test` passes (unit tests)
 - [ ] No React warnings in console
