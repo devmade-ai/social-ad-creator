@@ -21,7 +21,7 @@ export default defineConfig({
         background_color: '#000000',
         display: 'standalone',
         // Requirement: Without this, Chrome may skip beforeinstallprompt if it
-        // thinks a native app exists. Ref: glow-props Suggested Implementations.
+        // thinks a native app exists. Ref: glow-props Implementation Patterns.
         prefer_related_applications: false,
         // Requirement: Explicit id prevents Chrome from deriving identity from start_url.
         // Without this, changing start_url would break install identity for existing users.

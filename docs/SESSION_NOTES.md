@@ -5,27 +5,38 @@ Compact context summary for session continuity. Rewrite at session end.
 ---
 
 ## Worked on
-Replace remaining custom UI patterns with DaisyUI 5 components (second pass).
+Complete BurgerMenu implementation per glow-props BURGER_MENU pattern, then full cleanup of all flagged items.
 
 ## Accomplished
 
-### DaisyUI component migration (round 2)
-1. **Loading spinners → DaisyUI `loading loading-spinner`** — SampleImagesSection (2 spinners) + App.jsx export overlay. Replaces hand-rolled `border-2 border-t-transparent animate-spin`.
-2. **ExportButtons format selector → DaisyUI `join`** — Connected button group replaces `flex gap-1`.
-3. **ThemeSelector → DaisyUI `join`** — Mode toggle + combo picker as connected group. Removes manual `rounded-l-lg`/`rounded-r-lg` management.
-4. **AIPromptHelper → DaisyUI `btn` + `join`** — All option selectors migrated from hand-rolled `px-2 py-1 rounded-lg` to `btn btn-xs`. Non-wrapping groups (purpose, orientation, colors) use `join` for connected borders. Copy button uses `btn btn-xs btn-primary/btn-success`.
-5. **BurgerMenu → DaisyUI `menu menu-sm`** — List styling via DaisyUI menu component. Keeps WAI-ARIA disclosure pattern, focus trap, keyboard navigation, and children slot.
-6. **MobileNav → DaisyUI `dock dock-sm`** — Replaces custom fixed nav with DaisyUI dock. Native safe area handling via `env(safe-area-inset-bottom)`. Active state via `dock-active`. Labels via `dock-label`.
+### BurgerMenu pattern completion
+1. **useEscapeKey hook** — Extracted to `src/hooks/useEscapeKey.js`.
+2. **Backdrop ownership** — Moved into BurgerMenu (z-40, cursor-pointer for iOS Safari).
+3. **MenuItem interface** — `disabled`, `separator`, `destructive`, `external`, `highlight`, `highlightColor`, `iconClass`.
+4. **Close-then-act** — 150ms delay, error routing through `__debugPushError`.
+5. **Version footer** — From package.json.
+6. **Theme toggle icons** — Sun/moon SVGs + dynamic `aria-label`.
+
+### Keyboard handler cleanup
+7. **App.jsx** — Removed 3 redundant Escape handlers (shortcuts modal via native `<dialog>`, burger menu via `useEscapeKey`, reader mode moved to ReaderMode). Simplified `keyboardRef` from 14 → 8 values. Note: NOT stale closures — the ref pattern keeps values current.
+8. **ReaderMode** — Now owns its keyboard handling: `useEscapeKey` for exit, arrow key `useEffect` for page navigation.
+9. **MobileLayout** — `onClose` stabilized with `useCallback` to prevent `useEscapeKey` listener re-attachment.
+
+### Hook + CSS cleanup
+10. **useFocusTrap** — Simplified to pure Tab-trapping (focus management handled by `useDisclosureFocus`).
+11. **Print CSS** — Complete `@media print` rules: `.no-print`, white bg/black text, `break-inside: avoid`.
+
+### Cross-project alignment
+12. Renamed all "Suggested Implementations" → "Implementation Patterns" across 6 files.
+13. Added "Implementation Patterns (Source of Truth)" section to CLAUDE.md.
 
 ## Current state
 
-- **Working** — On branch `claude/daisyui-tailwind-utilities-cK7x6`
-- Build passes (1079 KiB JS, 133 KiB CSS)
-- All 72 tests pass
+- **Working** — On branch `claude/canvas-grid-component-Pvwsb`
+- Build passes
 
 ## Key context
 
-- **Dock z-index:** DaisyUI dock uses `z-index: 1` by default. Added `z-40` to match the existing z-index scale (mobile nav = 40).
-- **Menu vs disclosure:** BurgerMenu uses DaisyUI `menu` for styling only. The component still uses WAI-ARIA disclosure pattern (not `role="menu"`), `useFocusTrap`, and custom keyboard navigation.
-- **Join for button groups:** Used in ExportButtons (format), ThemeSelector (mode+combos), AIPromptHelper (purpose, orientation, colors). Not used for wrapping groups (style, mood) — join requires linear, non-wrapping layout.
-- **Loading spinner variants:** `loading-sm` (16px) for inline, `loading-md` (24px) for overlay.
+- **Backdrop stacking:** BurgerMenu owns backdrop (z-40) inside header. Header gets z-50 when open because `backdrop-blur-sm` creates stacking context. Documented in BurgerMenu + MobileLayout comments.
+- **keyboardRef is NOT stale:** App.jsx uses ref pattern (`keyboardRef.current = {...}` on every render) to keep values current in stable `[]`-dep callbacks. This was incorrectly flagged as stale closures earlier in the session.
+- **Reader mode keyboard:** Escape + arrow keys now in ReaderMode component (was App.jsx centralized handler). Component is only mounted when active, so `useEscapeKey(true, ...)` is always enabled.

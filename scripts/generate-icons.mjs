@@ -15,7 +15,7 @@ const svgBuffer = readFileSync(resolve(publicDir, 'icon.svg'))
 // 400 DPI: ~5.5x the default 72 DPI. Sharp rasterizes the SVG at this density
 // before downscaling, so edges are anti-aliased from high-res source data.
 // The 192px PWA icon benefits most — arc and shape edges are noticeably crisper.
-// Ref: glow-props Suggested Implementations → App Icons from SVG Source.
+// Ref: glow-props Implementation Patterns → App Icons from SVG Source.
 const SVG_DENSITY = 400
 
 const sizes = [

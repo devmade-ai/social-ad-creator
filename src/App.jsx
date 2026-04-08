@@ -284,9 +284,11 @@ function App() {
     }
   }, [activeSection, mobileSheetOpen, closeMobileSheet])
 
-  // Ref for values accessed by stable callbacks (swipe, keyboard) to avoid stale closures
-  const keyboardRef = useRef({ undo, redo, isReaderMode, activePage: state.activePage, pageCount, setActivePage, showShortcuts, setShowShortcuts, setActiveSection, setIsReaderMode, isMobile, setMobileSheetOpen, showMobileMenu, setShowMobileMenu })
-  keyboardRef.current = { undo, redo, isReaderMode, activePage: state.activePage, pageCount, setActivePage, showShortcuts, setShowShortcuts, setActiveSection, setIsReaderMode, isMobile, setMobileSheetOpen, showMobileMenu, setShowMobileMenu }
+  // Ref for values accessed by stable callbacks (swipe, keyboard) to avoid stale closures.
+  // Reader mode keyboard handling (Escape + arrow nav) moved to ReaderMode component.
+  // Escape for shortcuts/menu handled by native <dialog> and BurgerMenu's useEscapeKey.
+  const keyboardRef = useRef({ undo, redo, activePage: state.activePage, pageCount, setActivePage, setActiveSection, isMobile, setMobileSheetOpen })
+  keyboardRef.current = { undo, redo, activePage: state.activePage, pageCount, setActivePage, setActiveSection, isMobile, setMobileSheetOpen }
 
   // Swipe between pages on mobile canvas
   const handleCanvasTouchStart = useCallback((e) => {
@@ -312,7 +314,7 @@ function App() {
     const handleKeyDown = (e) => {
       if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return
 
-      const { undo, redo, isReaderMode, activePage, pageCount, setActivePage, showShortcuts, setShowShortcuts, setActiveSection, setIsReaderMode, isMobile, setMobileSheetOpen, showMobileMenu, setShowMobileMenu } = keyboardRef.current
+      const { undo, redo, setActiveSection, isMobile, setMobileSheetOpen } = keyboardRef.current
 
       if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
         if (e.shiftKey) { e.preventDefault(); redo() }
@@ -327,15 +329,6 @@ function App() {
           setActiveSection(tabMap[e.key])
           if (isMobile) setMobileSheetOpen(true)
         }
-      }
-
-      if (e.key === 'Escape' && showShortcuts) { e.preventDefault(); setShowShortcuts(false); return }
-      if (e.key === 'Escape' && showMobileMenu) { e.preventDefault(); setShowMobileMenu(false); return }
-
-      if (isReaderMode) {
-        if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); if (activePage > 0) { debugLog('ui', 'page-navigate', { to: activePage - 1, source: 'keyboard' }, 'debug'); setActivePage(activePage - 1) } }
-        if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { e.preventDefault(); if (activePage < pageCount - 1) { debugLog('ui', 'page-navigate', { to: activePage + 1, source: 'keyboard' }, 'debug'); setActivePage(activePage + 1) } }
-        if (e.key === 'Escape') { e.preventDefault(); setIsReaderMode(false) }
       }
     }
     window.addEventListener('keydown', handleKeyDown)

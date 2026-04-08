@@ -4,6 +4,7 @@
 // Alternatives:
 //   - Responsive sidebar: Rejected — scroll-heavy, canvas hidden by controls.
 //   - Tab content above canvas: Rejected — canvas should be primary focus.
+import { useCallback } from 'react'
 import ErrorBoundary from './ErrorBoundary'
 import AdCanvas from './AdCanvas'
 import ContextBar from './ContextBar'
@@ -14,11 +15,13 @@ import MobileNav from './MobileNav'
 import BurgerMenu from './BurgerMenu'
 import UndoRedoButtons from './UndoRedoButtons'
 import { themeCombos } from '../config/daisyuiThemes'
-import { ICON_HELP, ICON_INSTALL, ICON_UPDATE, ICON_REFRESH, ICON_READER, ICON_SAVE, ICON_KEYBOARD } from '../config/menuIcons'
+import { ICON_HELP, ICON_INSTALL, ICON_UPDATE, ICON_REFRESH, ICON_READER, ICON_SAVE, ICON_KEYBOARD, ICON_SUN, ICON_MOON } from '../config/menuIcons'
+import { version } from '../../package.json'
 
 // Requirement: Dark mode toggle + combo theme picker inside burger menu.
 // Approach: Rendered as BurgerMenu children (below action items, separated by <hr>).
-//   Toggle is a plain button. Combo list shows 2 options with checkmark indicator.
+//   Toggle button with sun/moon icon per BURGER_MENU pattern Theme UI spec.
+//   Combo list shows 2 options with checkmark indicator. Menu stays open during switching.
 // Alternatives:
 //   - Independent per-mode theme list: Rejected — simplified to combos.
 //   - Separate ThemeSelector in header: Rejected — clutters mobile header.
@@ -26,14 +29,19 @@ function MenuThemeSection({ isDark, toggleDarkMode, comboId, setCombo }) {
   return (
     <>
       <hr className="my-1 border-base-300" />
-      {/* Dark/Light mode toggle — plain text button */}
+      {/* Dark/Light mode toggle — icon matches label (sun for "Light mode", moon for "Dark mode").
+          aria-label updates with state per BURGER_MENU pattern. */}
       <button
         type="button"
         onClick={toggleDarkMode}
+        aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
         className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-base-content
                    hover:bg-base-200 transition-colors cursor-pointer min-h-11
                    outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset"
       >
+        <svg className="w-4 h-4 shrink-0" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={isDark ? ICON_SUN : ICON_MOON} />
+        </svg>
         {isDark ? 'Light mode' : 'Dark mode'}
       </button>
       <hr className="my-1 border-base-300" />
@@ -136,25 +144,19 @@ export default function MobileLayout({
   handleCellLongPress,
   handleCellContextAction,
 }) {
+  // Stable callback for BurgerMenu onClose — prevents useEscapeKey from
+  // re-attaching its listener every render while the menu is open.
+  // setShowMobileMenu is a state setter (identity-stable from useState).
+  const handleMenuClose = useCallback(() => setShowMobileMenu(false), [setShowMobileMenu])
+
   return (
     <div className="h-[100dvh] flex flex-col overflow-hidden bg-base-200">
       {fontsToLoad.map((font) => <link key={font.id} rel="stylesheet" href={font.url} />)}
 
       {/* Mobile header — compact with app name + burger menu only.
-          Requirement: Move Save + ThemeSelector into burger menu for cleaner header.
-          Ref: glow-props Suggested Implementations → Standard Menu Items. */}
-      {/* Burger menu backdrop — rendered OUTSIDE the header because the header's
-          backdrop-blur-sm creates a stacking context that traps fixed children.
-          z-[45] sits between MobileNav (z-40) and the header+menu (z-50). */}
-      {showMobileMenu && (
-        <div
-          className="fixed inset-0 z-[45] cursor-pointer"
-          onClick={() => setShowMobileMenu(false)}
-          aria-hidden="true"
-        />
-      )}
-
-      {/* z-50 when menu open to layer above backdrop (z-45) and MobileNav (z-40) */}
+          Backdrop is now owned by BurgerMenu (rendered inside its component).
+          z-50 when menu open so the header stacking context layers above the
+          backdrop (z-40 inside BurgerMenu) and MobileNav (z-40 at page level). */}
       <header className={`bg-base-100/90 backdrop-blur-sm border-b border-base-300/60 shrink-0 relative ${showMobileMenu ? 'z-50' : ''}`} style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}>
         <div className="flex items-center justify-between px-3 py-2">
           <div className="flex items-center gap-2">
@@ -177,12 +179,13 @@ export default function MobileLayout({
           <BurgerMenu
             open={showMobileMenu}
             onToggle={() => { const opening = !showMobileMenu; setShowMobileMenu(opening); if (opening) closeMobileSheet() }}
-            onClose={() => setShowMobileMenu(false)}
+            onClose={handleMenuClose}
+            version={version}
             items={[
               { label: 'Help & Tutorial', icon: ICON_HELP, action: () => setShowTutorial(true) },
               { label: 'Install App', icon: ICON_INSTALL, action: install, visible: canInstall, highlight: true },
               { label: 'Update Available', icon: ICON_UPDATE, action: update, visible: hasUpdate, highlight: true, highlightColor: 'text-success' },
-              { label: 'Refresh', icon: ICON_REFRESH, action: () => window.location.reload() },
+              { label: 'Refresh', icon: ICON_REFRESH, action: () => window.location.reload(), separator: true },
               { label: 'Reader Mode', icon: ICON_READER, action: () => setIsReaderMode(true) },
               { label: 'Save / Load', icon: ICON_SAVE, action: () => setShowSaveLoadModal(true) },
               { label: 'Keyboard Shortcuts', icon: ICON_KEYBOARD, action: () => setShowShortcuts(true) },

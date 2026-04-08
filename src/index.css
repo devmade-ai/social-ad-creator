@@ -163,6 +163,15 @@ textarea:not(.textarea):focus-visible {
   }
 }
 
+/* Print-friendly output (Ctrl+P). canva-grid uses pdf-lib for export,
+   but this prevents garbage output if a user prints the page directly.
+   Pattern: glow-props Implementation Patterns → Download as PDF. */
+@media print {
+  .no-print { display: none !important; }
+  body { background: white !important; color: black !important; }
+  * { break-inside: avoid; }
+}
+
 /* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

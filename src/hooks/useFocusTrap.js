@@ -1,27 +1,18 @@
-// Requirement: Trap focus inside modals so keyboard/screen-reader users can't tab behind.
-// Approach: useEffect captures first/last focusable elements, intercepts Tab/Shift+Tab
-//   at boundaries, and returns focus to previously focused element on unmount.
+// Requirement: Trap Tab/Shift+Tab inside a container so keyboard users can't tab behind it.
+// Approach: Intercepts Tab at first/last focusable boundaries and wraps around.
+//   Only handles Tab trapping — initial focus and focus restore are handled by
+//   useDisclosureFocus (the two hooks complement each other).
 // Alternatives:
 //   - Third-party focus-trap library: Rejected — adds dependency for simple behavior.
-//   - Manual tabIndex management: Rejected — brittle, breaks when modal content changes.
+//   - Manual tabIndex management: Rejected — brittle, breaks when container content changes.
 
-import { useEffect, useRef } from 'react'
+import { useEffect } from 'react'
 
 const FOCUSABLE = 'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])'
 
 export function useFocusTrap(containerRef, isActive = true) {
-  const previouslyFocused = useRef(null)
-
   useEffect(() => {
     if (!isActive || !containerRef.current) return
-
-    previouslyFocused.current = document.activeElement
-
-    // Focus first focusable element in the container
-    const focusable = containerRef.current.querySelectorAll(FOCUSABLE)
-    if (focusable.length > 0) {
-      focusable[0].focus()
-    }
 
     const handleKeyDown = (e) => {
       if (e.key !== 'Tab') return
@@ -45,14 +36,6 @@ export function useFocusTrap(containerRef, isActive = true) {
     }
 
     document.addEventListener('keydown', handleKeyDown)
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown)
-      // Restore focus to previously focused element (may have been removed from DOM)
-      try {
-        if (previouslyFocused.current && previouslyFocused.current.focus) {
-          previouslyFocused.current.focus()
-        }
-      } catch { /* element no longer in DOM */ }
-    }
+    return () => document.removeEventListener('keydown', handleKeyDown)
   }, [isActive, containerRef])
 }

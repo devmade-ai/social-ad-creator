@@ -1,9 +1,14 @@
 // Requirement: Full-screen reader mode for viewing multi-page documents.
 // Approach: Extracted from App.jsx render branch to reduce file size.
+//   Owns its keyboard handling: Escape exits via useEscapeKey, arrow keys navigate pages.
+//   Moved from App.jsx centralized handler to keep component self-contained.
 // Props: all state/callbacks needed for reader UI (back button, page nav, dark mode toggle).
+import { useEffect, useCallback } from 'react'
 import ErrorBoundary from './ErrorBoundary'
 import AdCanvas from './AdCanvas'
 import ThemeSelector from './ThemeSelector'
+import { useEscapeKey } from '../hooks/useEscapeKey'
+import { debugLog } from '../utils/debugLog'
 
 export default function ReaderMode({
   canvasRef,
@@ -22,6 +27,33 @@ export default function ReaderMode({
   comboId,
   setCombo,
 }) {
+  // Escape exits reader mode — component is only mounted when active, so always enabled.
+  const exitReaderMode = useCallback(() => setIsReaderMode(false), [setIsReaderMode])
+  useEscapeKey(true, exitReaderMode)
+
+  // Arrow key page navigation (only when multi-page)
+  useEffect(() => {
+    if (!hasMultiplePages) return
+    const handleKeyDown = (e) => {
+      if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+        e.preventDefault()
+        if (state.activePage > 0) {
+          debugLog('ui', 'page-navigate', { to: state.activePage - 1, source: 'keyboard' }, 'debug')
+          setActivePage(state.activePage - 1)
+        }
+      }
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+        e.preventDefault()
+        if (state.activePage < pageCount - 1) {
+          debugLog('ui', 'page-navigate', { to: state.activePage + 1, source: 'keyboard' }, 'debug')
+          setActivePage(state.activePage + 1)
+        }
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [hasMultiplePages, state.activePage, pageCount, setActivePage])
+
   return (
     <div className="h-[100dvh] flex flex-col bg-base-200">
       {fontsToLoad.map((font) => <link key={font.id} rel="stylesheet" href={font.url} />)}

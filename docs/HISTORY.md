@@ -1,5 +1,28 @@
 # Changelog
 
+## 2026-04-08
+
+### Complete BurgerMenu implementation per BURGER_MENU pattern
+
+- **useEscapeKey hook** — Extracted from inline BurgerMenu keydown handler to `src/hooks/useEscapeKey.js`. Reusable by any disclosure component.
+- **Backdrop ownership** — Moved from MobileLayout into BurgerMenu (z-40, `cursor-pointer` for iOS Safari). Parent header keeps conditional z-50 for stacking context.
+- **MenuItem interface** — Added `disabled`, `separator`, `destructive`, `external`, `highlight`, `highlightColor`, `iconClass` properties.
+- **Close-then-act** — Menu closes first, action executes after 150ms delay. Error routing through `window.__debugPushError`.
+- **Version footer** — Displays app version from package.json at bottom of dropdown.
+- **Theme toggle icons** — Sun/moon SVG icons on dark/light toggle in MenuThemeSection. Dynamic `aria-label`.
+
+### Keyboard handler cleanup
+
+- **App.jsx** — Removed redundant Escape handlers for shortcuts modal (native `<dialog>` handles it) and burger menu (`useEscapeKey` handles it). Removed reader mode keyboard block (moved to ReaderMode). Simplified `keyboardRef` from 14 values to 8.
+- **ReaderMode** — Now owns its keyboard handling: `useEscapeKey` for exit, `useEffect` for arrow key page navigation with `debugLog`. Previously in App.jsx centralized handler.
+- **MobileLayout** — Stabilized `onClose` callback with `useCallback` to prevent `useEscapeKey` from re-attaching listener every render.
+- **useFocusTrap** — Simplified to pure Tab-trapping (removed redundant initial focus + focus restore, handled by `useDisclosureFocus`).
+- **Print CSS** — Completed `@media print` rules: `.no-print` hide, white bg/black text, `break-inside: avoid`.
+
+### Rename "Suggested Implementations" → "Implementation Patterns"
+
+Updated all references across CLAUDE.md, docs, scripts, and vite.config.js to match glow-props terminology.
+
 ## 2026-04-05
 
 ### Replace remaining custom patterns with DaisyUI 5 (round 2)
@@ -109,7 +132,7 @@
 
 ### Dark mode hardening (glow-props alignment)
 
-4 high-priority items from glow-props Suggested Implementations → Theme & Dark Mode:
+4 high-priority items from glow-props Implementation Patterns → Theme & Dark Mode:
 
 - **Cross-tab dark mode sync** — Added `storage` event listener to `useDarkMode.js`. Toggling in one tab now updates all other open tabs.
 - **Dynamic meta theme-color update** — Replaced single static `<meta name="theme-color" content="#7c3aed">` in `index.html` with two media-queried tags (light=#FAFAFA, dark=#0F0F23). Hook updates both via `querySelectorAll` on manual toggle.
@@ -135,7 +158,7 @@ Aligned all 21 z-index values across 11 files to the glow-props canonical scale:
 
 ### Burger menu disclosure pattern (glow-props alignment)
 
-Extracted `BurgerMenu.jsx` from inline MobileLayout code. Applied glow-props Suggested Implementations → Burger Menu pattern:
+Extracted `BurgerMenu.jsx` from inline MobileLayout code. Applied glow-props Implementation Patterns → Burger Menu pattern:
 
 - **Disclosure semantics**: Replaced incorrect `role="menu"`/`role="menuitem"` with `<nav>` + `<ul>/<li>`. ARIA menu pattern causes screen readers to enter forms mode.
 - **`useId()`**: Unique `aria-controls` linking trigger to menu.
