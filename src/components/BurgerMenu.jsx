@@ -60,7 +60,9 @@ export default function BurgerMenu({ items, open, onToggle, onClose, children, v
     return () => { if (timerRef.current) clearTimeout(timerRef.current) }
   }, [])
 
-  // Arrow key + Home/End navigation within menu items
+  // Arrow key + Home/End navigation within menu items.
+  // When focus is outside the button list (idx === -1), ArrowDown goes to first,
+  // ArrowUp goes to last — matching Home/End behavior for consistency.
   const handleMenuKeyDown = useCallback((e) => {
     const btns = menuRef.current?.querySelectorAll('button:not([disabled])')
     if (!btns || btns.length === 0) return
@@ -69,11 +71,11 @@ export default function BurgerMenu({ items, open, onToggle, onClose, children, v
     switch (e.key) {
       case 'ArrowDown':
         e.preventDefault()
-        btns[(idx + 1) % btns.length].focus()
+        btns[idx === -1 ? 0 : (idx + 1) % btns.length].focus()
         break
       case 'ArrowUp':
         e.preventDefault()
-        btns[(idx - 1 + btns.length) % btns.length].focus()
+        btns[idx === -1 ? btns.length - 1 : (idx - 1 + btns.length) % btns.length].focus()
         break
       case 'Home':
         e.preventDefault()

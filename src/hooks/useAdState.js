@@ -810,10 +810,6 @@ export function useAdState() {
     })
   }, [setState])
 
-  const getPageCount = useCallback(() => {
-    return (state.pages || [null]).length
-  }, [state.pages])
-
   const getPageState = useCallback((index) => {
     const pages = state.pages || [null]
     if (index === state.activePage) {
@@ -1039,7 +1035,6 @@ export function useAdState() {
     duplicatePage,
     removePage,
     movePage,
-    getPageCount,
     getPageState,
     setTextMode,
     addFreeformBlock,

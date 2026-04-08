@@ -34,11 +34,19 @@ Complete debug system implementation per glow-props DEBUG_SYSTEM.md pattern — 
 18. **copyReport awaited** — `copyToClipboard` is async; now awaited with accurate success/failure log entry using `success`/`warn` severity.
 19. **Monotonic nextId** — `clearEntries` no longer resets `nextId` to 1, preventing duplicate React keys when new entries are added after clear.
 
+### Full branch audit fixes (round 4)
+20. **BurgerMenu ArrowUp off-by-one** — When no button focused (`idx === -1`), ArrowUp went to `length - 2` instead of last item.
+21. **BottomSheet spurious snapToNearest** — `handleTouchEnd` fired snap logic on non-drag content taps. Added `isDragging` guard.
+22. **Dead `getPageCount`** — Defined in `useAdState` but never called. Removed.
+23. **useDarkMode double-execution** — `comboId` redundant in effect deps. Moved to ref for logging.
+24. **Dead `comboMapStr`** — Built but never used in `generate-theme-meta.mjs`. Removed.
+25. **oklchToHex L=1% boundary** — Regex now captures `%` explicitly instead of `L > 1` heuristic.
+
 ## Current state
 
-- **Branch:** `claude/add-console-interception-JGFQj` — 6 commits, pushed
+- **Branch:** `claude/add-console-interception-JGFQj` — 7 commits, pushed
 - Build passes, 72 tests pass, no errors
-- All 10 original task items + 3 audit rounds complete
+- All 10 original task items + 4 audit rounds complete
 
 ## Key context
 

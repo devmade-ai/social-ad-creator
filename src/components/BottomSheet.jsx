@@ -193,11 +193,15 @@ export default function BottomSheet({ isOpen, onClose, children, snapPoint, onSn
     }
   }, [onClose, onSnapChange, applyTransform])
 
+  // Only snap if a drag actually occurred — content taps that were never promoted
+  // to a sheet drag should not trigger snap logic (avoids unnecessary transitions).
   const handleTouchEnd = useCallback(() => {
+    if (!dragRef.current.isDragging) return
     snapToNearest()
   }, [snapToNearest])
 
   const handleTouchCancel = useCallback(() => {
+    if (!dragRef.current.isDragging) return
     snapToNearest()
   }, [snapToNearest])
 

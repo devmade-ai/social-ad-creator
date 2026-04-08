@@ -19,6 +19,15 @@
 - **ErrorBoundary bridge** — Crashes routed to both `debugLog()` and `__debugPushError()`.
 - **Audit fixes** — Removed dead `debug-pre-error-count` badge reference from inline script, awaited `copyToClipboard` with accurate success/failure logging, fixed `clearEntries` duplicate React key bug by keeping `nextId` monotonic.
 
+### Full branch audit fixes
+
+- **BurgerMenu ArrowUp off-by-one** — When focus outside button list, ArrowUp went to `length - 2` instead of last item. Added `idx === -1` guard.
+- **BottomSheet spurious snapToNearest** — `handleTouchEnd` fired `snapToNearest` on every content tap, even non-drags. Added `isDragging` guard.
+- **Dead `getPageCount`** — Defined in `useAdState` but never called after branch changes. Removed function and export.
+- **useDarkMode double-execution** — `comboId` redundant in effect deps (already captured by `activeTheme`). Moved to ref for logging, removed from dep array.
+- **Dead `comboMapStr`** — Built but never used in `generate-theme-meta.mjs`. Removed.
+- **oklchToHex L=1% boundary bug** — `if (L > 1)` heuristic couldn't distinguish `1%` from decimal `1.0`. Regex now captures `%` sign explicitly.
+
 ### Complete BurgerMenu implementation per BURGER_MENU pattern
 
 - **useEscapeKey hook** — Extracted from inline BurgerMenu keydown handler to `src/hooks/useEscapeKey.js`. Reusable by any disclosure component.

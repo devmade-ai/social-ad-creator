@@ -142,7 +142,6 @@ html = html.replace(
 // Update inline combo map in flash-prevention script
 const comboMap = {}
 comboEntries.forEach(c => { comboMap[c.id] = { light: c.light, dark: c.dark } })
-const comboMapStr = JSON.stringify(comboMap).replace(/"/g, "'").replace(/'/g, "'")
 
 // Update meta color map
 const allColorMap = {}
