@@ -1,23 +1,26 @@
-// Requirement: Global nav menu accessible from mobile header
+// Requirement: Global nav menu accessible from mobile header.
 // Approach: Disclosure-pattern dropdown with DaisyUI menu component for list styling.
 //   WAI-ARIA disclosure (not role="menu") because this is a navigation list, not an
-//   application menu (File/Edit/View). DaisyUI menu provides consistent item styling
-//   (padding, hover, border-radius, transitions) while the disclosure pattern handles
-//   open/close, focus trap, and keyboard navigation.
+//   application menu (File/Edit/View). DaisyUI menu provides consistent item styling.
+//   Owns its own backdrop with cursor-pointer for iOS Safari click support.
+//   Close-then-act pattern: menu closes first, action executes after 150ms delay
+//   to prevent visual glitches from menu close competing with modal open.
 // Alternatives:
-//   - Hand-rolled ul/li/button styling: Replaced — DaisyUI menu gives theme-aware
-//     hover states, consistent padding, and focus indicators out of the box.
 //   - role="menu" pattern: Rejected — wrong ARIA semantics for navigation.
 //   - DaisyUI dropdown: Rejected — doesn't support children slot or disclosure pattern.
-import { useRef, useEffect, useId } from 'react'
+//   - Backdrop in parent: Rejected — menu should own its backdrop per BURGER_MENU pattern.
+//     Parent header still needs z-50 when open (backdrop-blur-sm stacking context).
+import { Fragment, useRef, useEffect, useCallback, useId } from 'react'
 import { debugLog } from '../utils/debugLog'
 import { useDisclosureFocus } from '../hooks/useDisclosureFocus'
 import { useFocusTrap } from '../hooks/useFocusTrap'
+import { useEscapeKey } from '../hooks/useEscapeKey'
 
-export default function BurgerMenu({ items, open, onToggle, onClose, children }) {
+export default function BurgerMenu({ items, open, onToggle, onClose, children, version }) {
   const menuId = useId()
   const triggerRef = useRef(null)
   const menuRef = useRef(null)
+  const timerRef = useRef(null)
   const hasLoggedRef = useRef(false)
 
   const visibleItems = items.filter((item) => item.visible !== false)
@@ -29,34 +32,62 @@ export default function BurgerMenu({ items, open, onToggle, onClose, children })
   }, [open])
 
   useDisclosureFocus(open, { triggerRef, contentRef: menuRef, selector: 'button, a' })
-
-  // Trap focus inside menu when open — Tab/Shift+Tab cycles within menu items.
   useFocusTrap(menuRef, open)
+  useEscapeKey(open, onClose)
 
-  // Keyboard navigation: Escape closes, Arrow keys move through items.
-  useEffect(() => {
-    if (!open) return
-    const handleKeyDown = (e) => {
-      if (e.key === 'Escape') { e.preventDefault(); onClose(); return }
-      if (e.key === 'ArrowDown' || e.key === 'ArrowUp' || e.key === 'Home' || e.key === 'End') {
-        e.preventDefault()
-        const buttons = Array.from(menuRef.current?.querySelectorAll('button') || [])
-        if (buttons.length === 0) return
-        const currentIndex = buttons.indexOf(document.activeElement)
-        let nextIndex
-        if (e.key === 'ArrowDown') nextIndex = currentIndex < buttons.length - 1 ? currentIndex + 1 : 0
-        else if (e.key === 'ArrowUp') nextIndex = currentIndex > 0 ? currentIndex - 1 : buttons.length - 1
-        else if (e.key === 'Home') nextIndex = 0
-        else if (e.key === 'End') nextIndex = buttons.length - 1
-        buttons[nextIndex]?.focus()
+  // Close menu first, execute action after DOM settles.
+  // Requirement: Per BURGER_MENU pattern — prevents visual glitches
+  //   from menu close animation competing with modal/action open.
+  const handleItem = useCallback((item) => {
+    if (item.disabled) return
+    onClose()
+    if (timerRef.current) clearTimeout(timerRef.current)
+    timerRef.current = setTimeout(async () => {
+      try {
+        await item.action()
+      } catch (e) {
+        if (window.__debugPushError) {
+          window.__debugPushError(`Menu action "${item.label}" failed: ${e.message}`)
+        } else {
+          console.error('Menu action failed:', e)
+        }
       }
+    }, 150)
+  }, [onClose])
+
+  // Cleanup pending action timer on unmount
+  useEffect(() => {
+    return () => { if (timerRef.current) clearTimeout(timerRef.current) }
+  }, [])
+
+  // Arrow key + Home/End navigation within menu items
+  const handleMenuKeyDown = useCallback((e) => {
+    const btns = menuRef.current?.querySelectorAll('button:not([disabled])')
+    if (!btns || btns.length === 0) return
+    const idx = Array.from(btns).indexOf(document.activeElement)
+
+    switch (e.key) {
+      case 'ArrowDown':
+        e.preventDefault()
+        btns[(idx + 1) % btns.length].focus()
+        break
+      case 'ArrowUp':
+        e.preventDefault()
+        btns[(idx - 1 + btns.length) % btns.length].focus()
+        break
+      case 'Home':
+        e.preventDefault()
+        btns[0].focus()
+        break
+      case 'End':
+        e.preventDefault()
+        btns[btns.length - 1].focus()
+        break
     }
-    document.addEventListener('keydown', handleKeyDown)
-    return () => document.removeEventListener('keydown', handleKeyDown)
-  }, [open, onClose])
+  }, [])
 
   return (
-    <>
+    <div className="relative no-print">
       <button
         ref={triggerRef}
         type="button"
@@ -72,48 +103,75 @@ export default function BurgerMenu({ items, open, onToggle, onClose, children })
         </svg>
       </button>
 
-      {/* Backdrop is rendered by the parent (MobileLayout) OUTSIDE the header
-          stacking context so it can cover the full viewport. The header's
-          backdrop-blur-sm creates a stacking context that traps fixed children. */}
-
       {open && (
-        <nav
-          ref={menuRef}
-          id={menuId}
-          aria-label="More options"
-          className="absolute right-3 top-full mt-1 z-50
-                     bg-base-100 rounded-xl shadow-lg
-                     border border-base-300
-                     max-w-[calc(100vw-2rem)] max-h-[calc(100dvh-4rem)]
-                     overflow-y-auto overscroll-contain"
-        >
-          {/* DaisyUI menu component replaces hand-rolled ul/li/button styling */}
-          <ul className="menu menu-sm min-w-[200px]">
-            {visibleItems.map((item, i) => (
-              <li key={item.label || `sep-${i}`}>
-                <button
-                  type="button"
-                  onClick={() => {
-                    try { item.action() } catch (e) { console.error('Menu action failed:', e) }
-                    onClose()
-                  }}
-                  className={`min-h-11 ${
-                    item.highlight
-                      ? item.highlightColor || 'text-primary'
-                      : ''
-                  }`}
-                >
-                  <svg className="w-4 h-4 shrink-0" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={item.icon} />
-                  </svg>
-                  {item.label}
-                </button>
-              </li>
-            ))}
-          </ul>
-          {children}
-        </nav>
+        <>
+          {/* Backdrop — z-40. cursor-pointer required for iOS Safari
+              (empty divs don't receive click events without it).
+              Parent header needs z-50 when open so this backdrop layers
+              correctly above page content but below the menu dropdown. */}
+          <div
+            className="fixed inset-0 z-40 cursor-pointer"
+            onClick={onClose}
+            aria-hidden="true"
+          />
+
+          <nav
+            ref={menuRef}
+            id={menuId}
+            aria-label="Main navigation"
+            className="absolute right-0 top-full mt-1 z-50
+                       bg-base-100 rounded-xl shadow-lg
+                       border border-base-300
+                       max-w-[calc(100vw-2rem)] max-h-[calc(100dvh-4rem)]
+                       overflow-y-auto overscroll-contain"
+            onKeyDown={handleMenuKeyDown}
+          >
+            <ul className="menu menu-sm min-w-[200px]">
+              {visibleItems.map((item, i) => (
+                <Fragment key={item.label || `item-${i}`}>
+                  {item.separator && i > 0 && (
+                    <hr className="my-1 border-base-300" />
+                  )}
+                  <li>
+                    <button
+                      type="button"
+                      disabled={item.disabled}
+                      onClick={() => handleItem(item)}
+                      className={`min-h-11 ${
+                        item.disabled
+                          ? 'opacity-40 cursor-not-allowed'
+                          : item.destructive
+                            ? 'text-error'
+                            : item.highlight
+                              ? item.highlightColor || 'text-primary'
+                              : ''
+                      }`}
+                    >
+                      {item.icon && (
+                        <svg className={`w-4 h-4 shrink-0 ${item.iconClass || ''}`} aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={item.icon} />
+                        </svg>
+                      )}
+                      <span className="truncate">{item.label}</span>
+                      {item.external && (
+                        <svg className="w-3 h-3 ml-auto opacity-40 shrink-0" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth={1.5} aria-hidden="true">
+                          <path d="M3.5 3H9v5.5M9 3L3 9" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      )}
+                    </button>
+                  </li>
+                </Fragment>
+              ))}
+            </ul>
+            {children}
+            {version && (
+              <div className="px-4 py-1.5 text-xs text-base-content/40 text-right border-t border-base-300/50">
+                v{version}
+              </div>
+            )}
+          </nav>
+        </>
       )}
-    </>
+    </div>
   )
 }

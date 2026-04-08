@@ -302,7 +302,7 @@ These footers are required on every commit. No exceptions.
 - **Modals use native `<dialog>`:** All 4 modals (TutorialModal, SaveLoadModal, InstallInstructionsModal, KeyboardShortcutsOverlay) use DaisyUI `modal` component with `<dialog>` element. Native focus trapping replaces custom `useFocusTrap` for modals. `useFocusTrap` still used by BurgerMenu. Dialog sync pattern: `useEffect` calls `showModal()`/`close()` based on React `isOpen` prop; `close` event listener syncs back to React state.
 - **DaisyUI component classes for UI chrome:** CollapsibleSection uses `collapse collapse-arrow`, SaveLoadModal uses `tabs tabs-border` + `alert alert-error alert-soft`, Toast uses `toast` (container) + `alert` (item styling), ExportButtons uses `progress progress-primary` + `join` (format selector), KeyboardShortcutsOverlay uses `kbd kbd-sm` + `divider`, DebugPill uses inline styles (separate React root, no theme context), InstallInstructionsModal uses `alert alert-warning alert-soft`, SampleImagesSection/App.jsx use `loading loading-spinner`, ThemeSelector uses `join` (connected button group), AIPromptHelper uses `join` (purpose/orientation/colors), BurgerMenu uses `menu menu-sm` (list styling), MobileNav uses `dock dock-sm` + `dock-active` + `dock-label`.
 - **DaisyUI component classes for form inputs:** All form inputs MUST use DaisyUI component classes — never hand-roll Tailwind classes for inputs. Range: `range range-primary range-sm`. Checkbox: `checkbox checkbox-primary checkbox-sm`. Select: `select select-bordered select-sm`. Input: `input input-bordered input-sm`. Textarea: `textarea textarea-bordered textarea-sm`. Custom pseudo-element CSS for form inputs is forbidden — browser pseudo-element names vary across engines. Check `node_modules/daisyui/components/` for available components before writing custom form styling.
-- **Burger menu:** `BurgerMenu.jsx` uses WAI-ARIA disclosure pattern (not `role="menu"`). DaisyUI `menu menu-sm` provides list item styling. Has `overscroll-contain`, `useId()` for `aria-controls`, Escape key handler, `max-h-[calc(100dvh-4rem)] overflow-y-auto` for short viewports. State managed in App.jsx, rendered in MobileLayout. Accepts `children` prop for the theme section (`MenuThemeSection` in MobileLayout) — dark/light toggle as plain text button + combo list (Mono/Luxe) with checkmark indicators. Menu stays open on toggle and combo selection (children don't call `onClose`).
+- **Burger menu:** `BurgerMenu.jsx` uses WAI-ARIA disclosure pattern (not `role="menu"`). DaisyUI `menu menu-sm` provides list item styling. Owns its own backdrop (z-40, `cursor-pointer` for iOS Safari). Uses `useEscapeKey` hook, `useDisclosureFocus`, `useFocusTrap`, `useId()` for `aria-controls`. Close-then-act pattern: menu closes first, action executes after 150ms delay. MenuItem interface supports `disabled`, `separator`, `destructive`, `external`, `highlight`, `highlightColor`, `iconClass`. Version footer via `version` prop. Arrow key + Home/End keyboard navigation. State managed in App.jsx, rendered in MobileLayout. Parent header needs `z-50` when open (backdrop-blur stacking context). Accepts `children` prop for the theme section (`MenuThemeSection` in MobileLayout) — dark/light toggle with sun/moon icon + combo list (Mono/Luxe) with checkmark indicators. Menu stays open on toggle and combo selection (children don't call `onClose`).
 - **Implementation patterns — always fetch from glow-props.** Never look for local copies of implementation pattern files (e.g., `docs/implementations/*.md`) in downstream repos. They do not exist locally — the single source of truth is the `docs/implementations/` folder in the glow-props repo. Fetch the latest version before every implementation task.
 
 ### REMINDER: READ AND FOLLOW THE FUCKING AI NOTES EVERY TIME
@@ -559,7 +559,7 @@ src/
 │   ├── EmptyStateGuide.jsx    # Empty canvas guidance (below canvas on mobile, overlay on desktop)
 │   ├── QuickActionsBar.jsx    # Cell quick-action shortcuts (Image, Text, Style)
 │   ├── UndoRedoButtons.jsx    # Shared undo/redo buttons (used in both mobile + desktop headers)
-│   ├── BurgerMenu.jsx         # Disclosure-pattern dropdown (WAI-ARIA, DaisyUI menu, focus trap, children slot)
+│   ├── BurgerMenu.jsx         # Disclosure-pattern dropdown (WAI-ARIA, DaisyUI menu, own backdrop, close-then-act, MenuItem interface, version footer)
 │   ├── BottomSheet.jsx        # Touch-draggable bottom sheet for mobile tab content (3 snap points, reduced-motion support)
 │   ├── MobileNav.jsx          # DaisyUI dock bottom navigation (6 tabs incl. Export, safe area insets)
 │   ├── ReaderMode.jsx         # Full-screen reader view with page navigation
@@ -576,7 +576,7 @@ src/
 │   ├── fonts.ts          # 24 Google Fonts (FontEntry interface)
 │   ├── textDefaults.ts   # Default text layer state (TextLayer, FreeformBlock interfaces)
 │   ├── daisyuiThemes.js  # DaisyUI theme combos (Mono + Luxe, meta colors, defaults)
-│   ├── menuIcons.js      # SVG path constants for burger menu and desktop header icons
+│   ├── menuIcons.js      # SVG path constants for burger menu and desktop header icons (incl. sun/moon)
 │   └── alignment.jsx     # Alignment icon components and option arrays
 ├── hooks/
 │   ├── useAdState.js     # Central state (multi-page, per-cell text, freeformText, layout)
@@ -588,7 +588,8 @@ src/
 │   ├── usePWAInstall.js  # PWA install prompt state
 │   ├── usePWAUpdate.js   # PWA update detection state
 │   ├── useDialogSync.js  # Shared <dialog> open/close sync for DaisyUI modals (4 consumers)
-│   └── useDisclosureFocus.js # Shared focus management for disclosure-pattern components
+│   ├── useDisclosureFocus.js # Shared focus management for disclosure-pattern components
+│   └── useEscapeKey.js   # Reusable Escape key handler for disclosure components
 ├── utils/
 │   ├── cellUtils.js      # Cell counting, shifting, swapping, cleanup utilities
 │   ├── designStorage.js  # IndexedDB wrapper for design persistence
