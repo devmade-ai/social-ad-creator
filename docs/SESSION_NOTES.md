@@ -41,12 +41,14 @@ Complete debug system implementation per glow-props DEBUG_SYSTEM.md pattern — 
 23. **useDarkMode double-execution** — `comboId` redundant in effect deps. Moved to ref for logging.
 24. **Dead `comboMapStr`** — Built but never used in `generate-theme-meta.mjs`. Removed.
 25. **oklchToHex L=1% boundary** — Regex now captures `%` explicitly instead of `L > 1` heuristic.
+26. **oklchToHex tests** — 4 new tests: decimal L without %, L=1 decimal (white), L=1% (near-black), L=0 decimal (black).
+27. **BottomSheet focus-stealing** — Auto-focus only on closed→open transition, not when sheet was already open during tab switch.
 
 ## Current state
 
-- **Branch:** `claude/add-console-interception-JGFQj` — 7 commits, pushed
-- Build passes, 72 tests pass, no errors
-- All 10 original task items + 4 audit rounds complete
+- **Branch:** `claude/add-console-interception-JGFQj` — 8 commits, pushed
+- Build passes, 76 tests pass (4 new), no errors
+- All 10 original task items + 5 audit rounds complete
 
 ## Key context
 

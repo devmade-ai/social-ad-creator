@@ -120,4 +120,27 @@ describe('oklchToHex', () => {
     const spaced = oklchToHex('oklch(  50%  0.1  200  )')
     expect(spaced).toBe(normal)
   })
+
+  test('decimal L without % — oklch(0.5 0 0) treated as 0.5 not 50%', () => {
+    const decimal = oklchToHex('oklch(0.5 0 0)')
+    const percent = oklchToHex('oklch(50% 0 0)')
+    // Both should produce the same mid-gray
+    expect(decimal).toBe(percent)
+  })
+
+  test('decimal L=1 without % — oklch(1 0 0) is white, not near-black', () => {
+    expect(oklchToHex('oklch(1 0 0)')).toBe('#ffffff')
+  })
+
+  test('percentage L=1% — oklch(1% 0 0) is near-black, not white', () => {
+    const hex = oklchToHex('oklch(1% 0 0)')
+    expect(hex).toMatch(/^#[0-9a-f]{6}$/)
+    // L=1% is nearly black — R channel should be very low
+    const r = parseInt(hex.slice(1, 3), 16)
+    expect(r).toBeLessThan(10)
+  })
+
+  test('decimal L=0 without % — oklch(0 0 0) is black', () => {
+    expect(oklchToHex('oklch(0 0 0)')).toBe('#000000')
+  })
 })

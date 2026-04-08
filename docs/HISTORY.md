@@ -26,7 +26,8 @@
 - **Dead `getPageCount`** — Defined in `useAdState` but never called after branch changes. Removed function and export.
 - **useDarkMode double-execution** — `comboId` redundant in effect deps (already captured by `activeTheme`). Moved to ref for logging, removed from dep array.
 - **Dead `comboMapStr`** — Built but never used in `generate-theme-meta.mjs`. Removed.
-- **oklchToHex L=1% boundary bug** — `if (L > 1)` heuristic couldn't distinguish `1%` from decimal `1.0`. Regex now captures `%` sign explicitly.
+- **oklchToHex L=1% boundary bug** — `if (L > 1)` heuristic couldn't distinguish `1%` from decimal `1.0`. Regex now captures `%` sign explicitly. Added 4 tests covering decimal path and L=1%/L=1 boundary.
+- **BottomSheet focus-stealing** — Auto-focus fired on every open, including when sheet was already open and just switching tabs. Now only fires on closed→open transition via `wasOpenRef` tracking.
 
 ### Complete BurgerMenu implementation per BURGER_MENU pattern
 

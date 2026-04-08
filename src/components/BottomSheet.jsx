@@ -96,14 +96,18 @@ export default function BottomSheet({ isOpen, onClose, children, snapPoint, onSn
   // Focus management: move focus to sheet content when it opens for screen readers.
   // Requirement: Announce sheet appearance to assistive technology.
   // Approach: Focus first interactive element inside content area after animation settles.
+  // Only on closed→open transition — not when sheet was already open and content changed
+  // (e.g. tab switch via MobileNav), to avoid stealing focus from the just-tapped nav button.
+  const wasOpenRef = useRef(isOpen)
   useEffect(() => {
-    if (!isOpen || !contentRef.current) return
+    const wasOpen = wasOpenRef.current
+    wasOpenRef.current = isOpen
+    if (!isOpen || wasOpen || !contentRef.current) return
     const timer = setTimeout(() => {
       const firstFocusable = contentRef.current?.querySelector('button, [tabindex]:not([tabindex="-1"]), input, select, textarea, a[href]')
       firstFocusable?.focus()
     }, 350) // After snap animation completes (300ms)
     return () => clearTimeout(timer)
-  // Only on open state change, not on every snap
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen])
 
