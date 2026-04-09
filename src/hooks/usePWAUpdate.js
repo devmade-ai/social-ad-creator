@@ -17,6 +17,7 @@ const CHECK_INTERVAL_MS = 60 * 60 * 1000
 let _registration = null
 let _hasUpdate = false
 let _userClickedUpdate = false
+let _isChecking = false
 const _listeners = new Set()
 
 function notifyListeners() { _listeners.forEach(fn => fn()) }
@@ -110,9 +111,13 @@ export function usePWAUpdate() {
     updateServiceWorker(true)
   }, [updateServiceWorker])
 
-  // Manual "Check for updates" — returns typed result for toast feedback
+  // Manual "Check for updates" — returns typed result for toast feedback.
+  // Module-level _isChecking guard prevents concurrent calls from overlapping
+  // (e.g., user double-taps "Check for updates" button).
   const checkForUpdate = useCallback(async () => {
     if (!_registration) return 'no-sw'
+    if (_isChecking) return 'checking'
+    _isChecking = true
     setChecking(true)
     try {
       await _registration.update()
@@ -123,6 +128,7 @@ export function usePWAUpdate() {
       debugLog('pwa', 'update-check-failed', { error: String(e) }, 'error')
       return 'error'
     } finally {
+      _isChecking = false
       setChecking(false)
     }
   }, [])

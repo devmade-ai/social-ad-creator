@@ -7,13 +7,24 @@
 //   instance has independent React state that diverges (e.g., one sets canInstall=false
 //   after install but others still show the button).
 // Alternatives:
-//   - Capture event in React only: Rejected - race condition on cached SW repeat visits
+//   - Capture event in React only: Rejected — race condition on cached SW repeat visits
 //     where the event fires before React mounts and is lost.
-//   - Skip non-Chromium browsers: Rejected - Safari/Firefox users can still install PWAs
+//   - Skip non-Chromium browsers: Rejected — Safari/Firefox users can still install PWAs
 //     manually; showing instructions is better than hiding the feature.
-//   - Per-instance React state: Rejected - multiple consumers get out of sync.
+//   - Per-instance React state: Rejected — multiple consumers get out of sync.
 import { useState, useEffect, useMemo } from 'react'
 import { debugLog } from '../utils/debugLog'
+
+// Chromium browsers that support beforeinstallprompt — single source of truth.
+// Shared by install hook, diagnostics, and analytics.
+export const CHROMIUM_BROWSERS = ['chrome', 'edge', 'brave', 'opera', 'samsung', 'vivaldi', 'arc']
+
+// Display names for UI — separate from detection logic
+const BROWSER_DISPLAY_NAMES = {
+  chrome: 'Google Chrome', edge: 'Microsoft Edge', brave: 'Brave',
+  opera: 'Opera', samsung: 'Samsung Internet', vivaldi: 'Vivaldi',
+  arc: 'Arc', safari: 'Safari', firefox: 'Firefox', unknown: 'Your Browser',
+}
 
 // Module-level state — survives remounts and shared across all consumers
 let deferredPrompt = window.__pwaInstallPrompt || null
@@ -25,35 +36,23 @@ const _listeners = new Set()
 
 function notifyListeners() { _listeners.forEach(fn => fn()) }
 
-// Detect browser type
+// Detect browser type — covers 7 Chromium browsers + Safari + Firefox.
+// Brave Mobile strips "Brave" from the UA string (confirmed 2026-03-07).
+// Use 'brave' in navigator existence check, not UA match.
 function detectBrowser() {
   const ua = navigator.userAgent
 
-  // Check for Brave (has navigator.brave)
-  if (navigator.brave) {
-    return 'brave'
-  }
-
-  // Check for Firefox
-  if (ua.includes('Firefox')) {
-    return 'firefox'
-  }
-
-  // Check for Safari (but not Chrome which also has Safari in UA)
-  if (ua.includes('Safari') && !ua.includes('Chrome') && !ua.includes('Chromium')) {
-    return 'safari'
-  }
-
-  // Check for Edge
-  if (ua.includes('Edg/')) {
-    return 'edge'
-  }
-
-  // Check for Chrome/Chromium
-  if (ua.includes('Chrome') || ua.includes('Chromium')) {
-    return 'chrome'
-  }
-
+  if ('brave' in navigator) return 'brave'
+  if (/Firefox/i.test(ua)) return 'firefox'
+  if (/Safari/i.test(ua) && !/Chrome/i.test(ua) && !/Chromium/i.test(ua)) return 'safari'
+  // Samsung must come before Chrome (UA contains both "SamsungBrowser" and "Chrome")
+  if (/SamsungBrowser/i.test(ua)) return 'samsung'
+  // Opera must come before Chrome (UA contains both "OPR" and "Chrome")
+  if (/OPR\//i.test(ua) || /Opera/i.test(ua)) return 'opera'
+  if (/Vivaldi/i.test(ua)) return 'vivaldi'
+  if (/Arc\//i.test(ua)) return 'arc'
+  if (/Edg\//i.test(ua)) return 'edge'
+  if (/Chrome/i.test(ua) || /Chromium/i.test(ua)) return 'chrome'
   return 'unknown'
 }
 
@@ -65,16 +64,25 @@ function isStandalone() {
   )
 }
 
+// Install analytics — localStorage event log, capped at 50 entries.
+// Useful for understanding install conversion without external analytics.
+function trackInstallEvent(event) {
+  try {
+    const key = 'pwa-install-events'
+    const events = JSON.parse(localStorage.getItem(key) || '[]')
+    events.push({ event, timestamp: new Date().toISOString(), browser: detectBrowser() })
+    if (events.length > 50) events.splice(0, events.length - 50)
+    localStorage.setItem(key, JSON.stringify(events))
+  } catch { /* best effort */ }
+}
+
 export function usePWAInstall() {
   const [, forceRender] = useState(0)
 
   const browser = useMemo(() => detectBrowser(), [])
   const isInstalled = useMemo(() => isStandalone(), [])
 
-  // Browsers that support beforeinstallprompt
-  const supportsAutoInstall = browser === 'chrome' || browser === 'edge' || browser === 'brave'
-
-  // Browsers where manual install is possible
+  const supportsAutoInstall = CHROMIUM_BROWSERS.includes(browser)
   const supportsManualInstall = browser === 'safari' || browser === 'firefox'
 
   // Sync module state to React — all consumers re-render on state change
@@ -85,7 +93,7 @@ export function usePWAInstall() {
   }, [])
 
   useEffect(() => {
-    // Already installed - no install option needed
+    // Already installed — no install option needed
     if (isInstalled) {
       _canInstall = false
       notifyListeners()
@@ -110,6 +118,7 @@ export function usePWAInstall() {
       _canInstall = true
       notifyListeners()
       debugLog('pwa', 'install-prompt-captured', { browser })
+      trackInstallEvent('prompted')
     }
 
     const installedHandler = () => {
@@ -117,6 +126,7 @@ export function usePWAInstall() {
       deferredPrompt = null
       notifyListeners()
       debugLog('pwa', 'app-installed', { browser })
+      trackInstallEvent('installed')
       // Track install in Google Analytics
       if (typeof gtag === 'function') {
         const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
@@ -138,11 +148,23 @@ export function usePWAInstall() {
       }
     }
 
+    // Detect installation via browser menu (not the native prompt) —
+    // catches side-loads where appinstalled doesn't fire.
+    const mediaQuery = window.matchMedia('(display-mode: standalone)')
+    const displayHandler = (e) => {
+      if (e.matches) {
+        _canInstall = false
+        notifyListeners()
+        trackInstallEvent('installed-via-browser')
+      }
+    }
+    mediaQuery.addEventListener('change', displayHandler)
+
     window.addEventListener('beforeinstallprompt', handler)
     window.addEventListener('appinstalled', installedHandler)
 
-    // For browsers that don't fire beforeinstallprompt, show manual install option
-    // Give a short delay to allow the event to fire first
+    // For browsers that don't fire beforeinstallprompt, show manual install option.
+    // Give a short delay to allow the event to fire first.
     const timeout = setTimeout(() => {
       if (!deferredPrompt && !isInstalled && supportsManualInstall) {
         _showManualInstructions = true
@@ -150,27 +172,55 @@ export function usePWAInstall() {
       }
     }, 1000)
 
+    // 5-second diagnostic timeout: on Chromium browsers, if beforeinstallprompt
+    // hasn't fired, log a warning with manifest/SW status to help debug.
+    // Chrome suppresses the prompt for 90 days after user dismissal —
+    // fall back to manual instructions so users can still install.
+    const diagnosticTimeout = setTimeout(() => {
+      if (!deferredPrompt && !isInstalled && supportsAutoInstall) {
+        const hasManifest = !!document.querySelector('link[rel="manifest"]')
+        const hasSW = !!navigator.serviceWorker?.controller
+        debugLog('pwa', 'install-prompt-missing', {
+          browser, hasManifest, hasSW, isStandalone: isStandalone(),
+        }, 'warn')
+        if (!deferredPrompt) {
+          _showManualInstructions = true
+          notifyListeners()
+        }
+      }
+    }, 5000)
+
     return () => {
       window.removeEventListener('beforeinstallprompt', handler)
       window.removeEventListener('appinstalled', installedHandler)
+      mediaQuery.removeEventListener('change', displayHandler)
       clearTimeout(timeout)
+      clearTimeout(diagnosticTimeout)
     }
-  }, [isInstalled, supportsManualInstall])
+  }, [isInstalled, supportsManualInstall, supportsAutoInstall, browser])
 
+  // Wrap prompt() in try/catch — Chrome throws DOMException if prompt() is
+  // called twice on the same event (e.g., user double-taps install button).
   const install = async () => {
     if (!deferredPrompt) return false
 
-    deferredPrompt.prompt()
-    const { outcome } = await deferredPrompt.userChoice
-    debugLog('pwa', 'install-choice', { outcome })
+    try {
+      deferredPrompt.prompt()
+      const { outcome } = await deferredPrompt.userChoice
+      debugLog('pwa', 'install-choice', { outcome })
 
-    if (outcome === 'accepted') {
-      _canInstall = false
-      deferredPrompt = null
-      notifyListeners()
-      return true
+      if (outcome === 'accepted') {
+        _canInstall = false
+        deferredPrompt = null
+        notifyListeners()
+        return true
+      }
+      trackInstallEvent('dismissed')
+      return false
+    } catch (e) {
+      debugLog('pwa', 'install-prompt-error', { error: String(e) }, 'error')
+      return false
     }
-    return false
   }
 
   // Setter for manual instructions — updates module state and notifies all consumers
@@ -179,10 +229,27 @@ export function usePWAInstall() {
     notifyListeners()
   }
 
-  // Get browser-specific install instructions
+  // Data-driven install instructions — the modal just renders whatever this returns.
+  // Covers 7 Chromium browsers + Safari (iOS/macOS) + Firefox (mobile/desktop).
   const getInstallInstructions = () => {
-    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
     const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent)
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
+
+    // iOS non-Safari browsers cannot install PWAs — redirect to Safari.
+    // Chrome/Firefox/Edge on iOS use Safari's engine but cannot trigger
+    // PWA installation. Instructions explicitly tell users to open in Safari.
+    if (isIOS && browser !== 'safari') {
+      return {
+        browser: `${BROWSER_DISPLAY_NAMES[browser]} (iOS)`,
+        steps: [
+          'Open this page in Safari (iOS requires Safari for PWA installation)',
+          'Tap the Share button (square with arrow) at the bottom of the screen',
+          'Scroll down and tap "Add to Home Screen"',
+          'Tap "Add" in the top right corner',
+        ],
+        note: 'On iOS, only Safari can install web apps to the home screen. Other browsers use Safari\'s engine but cannot trigger PWA installation.',
+      }
+    }
 
     switch (browser) {
       case 'safari':
@@ -231,19 +298,40 @@ export function usePWAInstall() {
           browser: 'Brave',
           steps: [
             'Click the install icon in the address bar (computer with down arrow)',
-            'Or click the menu (≡) → "Install CanvaGrid..."',
+            'Or click the menu (≡) → "Install App..."',
             'Click "Install" to confirm',
           ],
           note: 'If the install option doesn\'t appear, check that Brave Shields isn\'t blocking it.',
         }
 
+      case 'samsung':
+        return {
+          browser: 'Samsung Internet',
+          steps: [
+            'Tap the download icon in the address bar',
+            'Or tap the menu (≡) → "Add page to" → "Home screen"',
+            'Tap "Install" to confirm',
+          ],
+        }
+
+      case 'opera':
+        return {
+          browser: 'Opera',
+          steps: [
+            'Tap the menu (⋮) → "Add to Home screen"',
+            'Tap "Add" to confirm',
+          ],
+        }
+
+      case 'vivaldi':
+      case 'arc':
       case 'chrome':
       case 'edge':
         return {
-          browser: browser === 'edge' ? 'Microsoft Edge' : 'Google Chrome',
+          browser: BROWSER_DISPLAY_NAMES[browser],
           steps: [
             'Click the install icon in the address bar (computer with down arrow)',
-            `Or click the menu (⋮) → "Install CanvaGrid..."`,
+            'Or click the menu (⋮) → "Install App..."',
             'Click "Install" to confirm',
           ],
         }

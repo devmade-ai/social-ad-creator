@@ -4,10 +4,32 @@
 
 ### PWA visibility checks, update suppression, and install singleton
 
-- **usePWAUpdate rewrite** — Module-level singleton with pub/sub. Adds `visibilitychange` listener (checks for SW updates when tab regains focus), 30-second `sessionStorage` suppression after user clicks Update, `controllerchange` reload guard (only reloads on explicit user action), and `checkForUpdate()`/`checking` for future menu integration.
-- **needRefresh suppression fix** — `useRegisterSW` sets `needRefresh` internally regardless of `onNeedRefresh` callback. Gated `|| needRefresh` fallback with `wasJustUpdated()` to prevent 30-second suppression bypass.
-- **usePWAInstall singleton** — Lifted `canInstall` and `showManualInstructions` from per-instance React state to module-level with pub/sub. All hook consumers share state — setting `canInstall=false` after install updates every consumer immediately.
-- **Eager `_canInstall` init** — Module-scope `_canInstall` initialized from pre-captured `window.__pwaInstallPrompt` to eliminate extra render cycle on repeat visits.
+**usePWAUpdate.js — module-level singleton rewrite:**
+- Module-level state (`_registration`, `_hasUpdate`, `_userClickedUpdate`, `_isChecking`, `_listeners` pub/sub) survives React remounts
+- `visibilitychange` listener checks for SW updates when tab regains focus
+- 30-second `sessionStorage` suppression via `wasJustUpdated()` prevents false re-detection after reload
+- `needRefresh` fallback gated with `wasJustUpdated()` — library sets `needRefresh` internally regardless of `onNeedRefresh` callback
+- `controllerchange` reload guard — only reloads when user explicitly clicked "Update"
+- `checkForUpdate()`/`checking` for future "Check for updates" menu item, with `_isChecking` module-level guard against concurrent calls
+- `.catch(() => {})` on fire-and-forget `_registration.update()` calls (visibility handler, hourly interval) prevents unhandled rejections
+- `onOfflineReady` and `onRegisterError` callbacks for debug logging
+
+**usePWAInstall.js — singleton + pattern alignment:**
+- `_canInstall` and `_showManualInstructions` lifted to module scope with pub/sub `_listeners` — all hook consumers share state
+- Eager `_canInstall` init from pre-captured `window.__pwaInstallPrompt` eliminates extra render cycle
+- Browser detection expanded from 5 to 9 types: added Opera, Samsung Internet, Vivaldi, Arc (7 Chromium + Safari + Firefox)
+- `CHROMIUM_BROWSERS` constant exported — single source of truth for auto-install browser list
+- `BROWSER_DISPLAY_NAMES` map for UI rendering
+- Brave detection uses `'brave' in navigator` (Brave Mobile strips UA string)
+- Samsung/Opera detection ordered before Chrome (UA contains both identifiers)
+- Display-mode change listener catches browser-menu installs where `appinstalled` doesn't fire
+- 5-second diagnostic timeout on Chromium logs warning with manifest/SW status, falls back to manual instructions (Chrome suppresses prompt for 90 days after dismissal)
+- `trackInstallEvent()` — localStorage-based install analytics (prompted/installed/dismissed/installed-via-browser), capped at 50 entries
+- `install()` wrapped in try/catch — Chrome throws DOMException if `prompt()` called twice
+- iOS non-Safari cross-redirect in `getInstallInstructions()` — tells users to open in Safari with explanation
+- Install instructions for Samsung Internet and Opera
+- Vivaldi/Arc fall through to generic Chromium instructions
+- Effect deps corrected: `[isInstalled, supportsManualInstall, supportsAutoInstall, browser]`
 
 ## 2026-04-08
 

@@ -5,23 +5,44 @@ Compact context summary for session continuity. Rewrite at session end.
 ---
 
 ## Worked on
-PWA reliability improvements per glow-props PWA_SYSTEM.md pattern — visibility-based update checks, post-update suppression, and install prompt singleton.
+PWA reliability improvements per glow-props PWA_SYSTEM.md pattern — visibility-based update checks, post-update suppression, install prompt singleton, and full pattern alignment.
 
 ## Accomplished
 
-1. **usePWAUpdate.js rewritten** — Module-level singleton (`_registration`, `_hasUpdate`, `_userClickedUpdate`, `_listeners` pub/sub). Adds `visibilitychange` listener for update checks on tab focus, 30s `sessionStorage` suppression via `wasJustUpdated()`, `controllerchange` reload guard, `checkForUpdate()`/`checking` state for future "Check for updates" menu item.
-2. **needRefresh suppression fix** — `useRegisterSW` sets `needRefresh` internally regardless of `onNeedRefresh` callback. Gated the `|| needRefresh` fallback with `wasJustUpdated()`.
-3. **usePWAInstall.js singleton** — `_canInstall` and `_showManualInstructions` lifted to module scope with pub/sub `_listeners`. `setShowManualInstructions` wrapper updates module state and notifies consumers. Eager `_canInstall` init from pre-captured prompt eliminates extra render cycle.
+### usePWAUpdate.js — module-level singleton rewrite
+- Module-level state (`_registration`, `_hasUpdate`, `_userClickedUpdate`, `_isChecking`, `_listeners` pub/sub)
+- `visibilitychange` listener for update checks on tab focus
+- 30s `sessionStorage` suppression via `wasJustUpdated()`
+- `needRefresh` fallback gated with `wasJustUpdated()` (library sets it regardless of callback)
+- `controllerchange` reload guard (only on explicit user click)
+- `checkForUpdate()`/`checking` with `_isChecking` concurrent call guard
+- `.catch(() => {})` on fire-and-forget `.update()` calls
+- `onOfflineReady`/`onRegisterError` debug callbacks
+
+### usePWAInstall.js — singleton + full pattern alignment
+- `_canInstall`/`_showManualInstructions` at module scope with pub/sub
+- Eager `_canInstall` init from pre-captured prompt
+- Browser detection: 7 Chromium (chrome, edge, brave, opera, samsung, vivaldi, arc) + safari + firefox
+- `CHROMIUM_BROWSERS` constant exported, `BROWSER_DISPLAY_NAMES` map
+- Brave: `'brave' in navigator` (UA stripped on mobile)
+- Display-mode change listener for browser-menu installs
+- 5s diagnostic timeout with manifest/SW status logging + manual fallback
+- `trackInstallEvent()` localStorage analytics (prompted/installed/dismissed/installed-via-browser)
+- `install()` try/catch around `prompt()` (Chrome DOMException on double-call)
+- iOS non-Safari cross-redirect instructions
+- Samsung Internet and Opera install instructions
+- Effect deps corrected: `[isInstalled, supportsManualInstall, supportsAutoInstall, browser]`
 
 ## Current state
 
 - **Branch:** `claude/add-pwa-visibility-checks-9oDG8` — pushed
-- Build passes, no errors
-- All 3 task items complete
+- Build passes, 76 tests pass, no errors
+- Return signatures backward-compatible — App.jsx unchanged
 
 ## Key context
 
-- **Return signatures are backward-compatible** — App.jsx destructures `{ hasUpdate, update }` from usePWAUpdate and `{ canInstall, install, showManualInstructions, getInstallInstructions, isInstalled }` from usePWAInstall. Both still work. New exports `checkForUpdate`/`checking` are unused but available.
-- **`debugLog` signature** is `(source, event, details, severity)` — all new calls match.
-- **Function hoisting** — `isStandalone()` called at module scope before its definition; works because function declarations are hoisted.
-- **BurgerMenu/DesktopLayout/MobileLayout** only consume `hasUpdate` and `update` — no changes needed there.
+- **`debugLog` signature:** `(source, event, details, severity)` — all calls match
+- **Function hoisting:** `isStandalone()` called at module scope before definition — works because function declarations are hoisted
+- **`CHROMIUM_BROWSERS` export** available for future use by DebugPill PWA diagnostics
+- **`checkForUpdate`/`checking`** available for future "Check for updates" burger menu item
+- **No consumers changed** — App.jsx destructures same values, DesktopLayout/MobileLayout pass same props
