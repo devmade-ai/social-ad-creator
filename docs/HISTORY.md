@@ -26,7 +26,8 @@
 - 5-second diagnostic timeout on Chromium logs warning with manifest/SW status, falls back to manual instructions (Chrome suppresses prompt for 90 days after dismissal)
 - `trackInstallEvent()` — localStorage-based install analytics (prompted/installed/dismissed/installed-via-browser), capped at 50 entries
 - `install()` wrapped in try/catch — Chrome throws DOMException if `prompt()` called twice
-- iOS non-Safari cross-redirect in `getInstallInstructions()` — tells users to open in Safari with explanation
+- iOS browser variant detection (CriOS/FxiOS/EdgiOS) — iOS Chrome/Firefox/Edge use non-standard UA tokens that were falling through to 'safari', making the iOS cross-redirect dead code
+- iOS non-Safari cross-redirect in `getInstallInstructions()` — tells users to open in Safari with explanation (now functional with iOS variant detection)
 - Install instructions for Samsung Internet and Opera
 - Vivaldi/Arc fall through to generic Chromium instructions
 - Effect deps corrected: `[isInstalled, supportsManualInstall, supportsAutoInstall, browser]`

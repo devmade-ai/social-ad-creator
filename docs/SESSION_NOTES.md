@@ -29,7 +29,8 @@ PWA reliability improvements per glow-props PWA_SYSTEM.md pattern — visibility
 - 5s diagnostic timeout with manifest/SW status logging + manual fallback
 - `trackInstallEvent()` localStorage analytics (prompted/installed/dismissed/installed-via-browser)
 - `install()` try/catch around `prompt()` (Chrome DOMException on double-call)
-- iOS non-Safari cross-redirect instructions
+- iOS browser variant detection: CriOS (Chrome), FxiOS (Firefox), EdgiOS (Edge) — without these, all iOS browsers were misdetected as 'safari', making iOS cross-redirect dead code
+- iOS non-Safari cross-redirect instructions (now functional)
 - Samsung Internet and Opera install instructions
 - Effect deps corrected: `[isInstalled, supportsManualInstall, supportsAutoInstall, browser]`
 
