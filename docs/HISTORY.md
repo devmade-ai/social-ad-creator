@@ -29,6 +29,12 @@
 - **oklchToHex L=1% boundary bug** — `if (L > 1)` heuristic couldn't distinguish `1%` from decimal `1.0`. Regex now captures `%` sign explicitly. Added 4 tests covering decimal path and L=1%/L=1 boundary.
 - **BottomSheet focus-stealing** — Auto-focus fired on every open, including when sheet was already open and just switching tabs. Now only fires on closed→open transition via `wasOpenRef` tracking.
 
+### Fresh-eyes audit fixes
+
+- **debugGenerateReport crash protection** — `JSON.stringify(e.details)` in report generation could throw on circular refs. Wrapped in `safeStringify` with `[unserializable]` fallback.
+- **PWA diagnostics React keys** — Results list used array index as key. Replaced with `r.label` (unique per diagnostic check) for correct DOM reconciliation.
+- **Pre-React error stack capture** — Inline error handler passed `filename:lineno` as "stack". Now captures `e.error.stack` (full trace) when available, falls back to filename:lineno.
+
 ### Complete BurgerMenu implementation per BURGER_MENU pattern
 
 - **useEscapeKey hook** — Extracted from inline BurgerMenu keydown handler to `src/hooks/useEscapeKey.js`. Reusable by any disclosure component.

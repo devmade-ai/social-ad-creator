@@ -44,11 +44,16 @@ Complete debug system implementation per glow-props DEBUG_SYSTEM.md pattern — 
 26. **oklchToHex tests** — 4 new tests: decimal L without %, L=1 decimal (white), L=1% (near-black), L=0 decimal (black).
 27. **BottomSheet focus-stealing** — Auto-focus only on closed→open transition, not when sheet was already open during tab switch.
 
+### Fresh-eyes audit fixes (round 6)
+28. **safeStringify in debugGenerateReport** — `JSON.stringify` on entry details could throw on circular refs. Wrapped with try/catch fallback.
+29. **PWA diagnostics React keys** — Array index keys replaced with `r.label` for stable DOM reconciliation.
+30. **Pre-React stack capture** — `e.error.stack` captured when available instead of just filename:lineno.
+
 ## Current state
 
-- **Branch:** `claude/add-console-interception-JGFQj` — 8 commits, pushed
-- Build passes, 76 tests pass (4 new), no errors
-- All 10 original task items + 5 audit rounds complete
+- **Branch:** `claude/add-console-interception-JGFQj` — 10 commits, pushed
+- Build passes, 76 tests pass, no errors
+- All 10 original task items + 6 audit rounds complete
 
 ## Key context
 

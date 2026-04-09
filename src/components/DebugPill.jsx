@@ -405,8 +405,8 @@ function PWADiagnosticsTab() {
       {results.length === 0 && running && (
         <div style={{ color: '#71717a', textAlign: 'center', padding: 8 }}>Running checks...</div>
       )}
-      {results.map((r, i) => (
-        <div key={i} style={{ marginBottom: 3, display: 'flex', alignItems: 'center', gap: 6 }}>
+      {results.map((r) => (
+        <div key={r.label} style={{ marginBottom: 3, display: 'flex', alignItems: 'center', gap: 6 }}>
           <span style={{
             display: 'inline-block',
             width: 8,

@@ -92,7 +92,8 @@
       };
       // Named handlers so debugLog.js can removeEventListener after takeover
       window.__debugPreErrorHandler = function(e) {
-        window.__debugPushError(e.message || 'Unknown error', (e.filename || '') + ':' + (e.lineno || 0));
+        var stack = (e.error && e.error.stack) || ((e.filename || '') + ':' + (e.lineno || 0));
+        window.__debugPushError(e.message || 'Unknown error', stack);
       };
       window.__debugPreRejectionHandler = function(e) {
         window.__debugPushError('Unhandled rejection: ' + e.reason);

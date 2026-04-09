@@ -56,6 +56,11 @@ export function subscribe(fn) {
 // --- Report generation ---
 // Lives in the module, not the pill component — reusable by any consumer.
 // URL query params are redacted to prevent token/UTM leaking when users share reports.
+
+// JSON.stringify that can't throw — report generation must never crash.
+function safeStringify(obj) {
+  try { return JSON.stringify(obj) } catch { return '[unserializable]' }
+}
 function getEnvironmentForReport() {
   return {
     standalone: window.matchMedia('(display-mode: standalone)').matches
@@ -74,7 +79,7 @@ export function debugGenerateReport() {
   const logLines = entries.map(e => {
     const t = new Date(e.timestamp)
     const ts = `${String(t.getHours()).padStart(2, '0')}:${String(t.getMinutes()).padStart(2, '0')}:${String(t.getSeconds()).padStart(2, '0')}.${String(t.getMilliseconds()).padStart(3, '0')}`
-    const detail = e.details ? ` | ${JSON.stringify(e.details)}` : ''
+    const detail = e.details ? ` | ${safeStringify(e.details)}` : ''
     return `[${ts}] [${e.severity.toUpperCase()}] [${e.source}] ${e.event}${detail}`
   })
 
