@@ -64,17 +64,32 @@ CanvaGrid can be installed as a Progressive Web App (PWA) for offline use and a 
 | **Chrome** | ✅ Full | Click "Install" button in header, or click install icon in address bar |
 | **Edge** | ✅ Full | Click "Install" button in header, or use menu → "Install CanvaGrid" |
 | **Brave** | ✅ Full | Click "Install" button in header (ensure Shields isn't blocking) |
+| **Opera** | ✅ Full | Menu → "Add to Home screen" |
+| **Samsung Internet** | ✅ Full | Tap download icon in address bar, or menu → "Add page to" → "Home screen" |
+| **Vivaldi** | ✅ Full | Click install icon in address bar, or menu → "Install App..." |
+| **Arc** | ✅ Full | Click install icon in address bar, or menu → "Install App..." |
 | **Safari (iOS)** | ⚠️ Manual | Tap Share → "Add to Home Screen" |
 | **Safari (macOS)** | ⚠️ Manual | File → "Add to Dock..." |
 | **Firefox (Mobile)** | ⚠️ Manual | Menu → "Add to Home screen" |
 | **Firefox (Desktop)** | ❌ Not supported | Firefox removed PWA support in 2021. Use Chrome, Edge, or Brave for installation. |
 
+> **iOS users:** Chrome, Firefox, and Edge on iOS cannot install PWAs directly. If you're using one of these browsers on an iPhone or iPad, you'll be shown instructions to open the page in Safari, which is the only iOS browser that supports PWA installation.
+
 ### Installation Instructions by Browser
 
-#### Chrome / Edge / Brave (Automatic)
+#### Chrome / Edge / Brave / Vivaldi / Arc (Automatic)
 1. Look for the **Install** button in the header (appears automatically)
 2. Click "Install" and confirm in the popup
 3. The app will be added to your applications
+
+#### Samsung Internet
+1. Tap the **download icon** in the address bar
+2. Or tap the menu (≡) → **"Add page to"** → **"Home screen"**
+3. Tap **"Install"** to confirm
+
+#### Opera
+1. Tap the menu (⋮) → **"Add to Home screen"**
+2. Tap **"Add"** to confirm
 
 #### Safari (iOS)
 1. Tap the **Share** button (square with arrow) at the bottom
@@ -92,7 +107,7 @@ CanvaGrid can be installed as a Progressive Web App (PWA) for offline use and a 
 3. Tap **"Add"** to confirm
 
 ### Updates
-When a new version is available, you'll see an **Update** button in the header. Click it to refresh and get the latest features.
+When a new version is available, you'll see an **Update** button in the header or menu. Click it to refresh and get the latest features. The app checks for updates automatically when you return to the tab after switching away.
 
 ---
 

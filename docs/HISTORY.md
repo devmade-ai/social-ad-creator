@@ -1,5 +1,55 @@
 # Changelog
 
+## 2026-04-09
+
+### ThemeContext — eliminate prop drilling (from TODO)
+
+- Created `useTheme.js` — React Context wrapping `useDarkMode`. `ThemeProvider` in `AppWithProviders`.
+- ThemeSelector and MenuThemeSection consume `useTheme()` directly.
+- Removed 12 prop passes (isDark, toggleDarkMode, comboId, setCombo) across App → DesktopLayout/MobileLayout/ReaderMode → ThemeSelector.
+- All three layout components were pure forwarders — never used the values themselves.
+- App.jsx no longer calls useDarkMode or useTheme — leaf components own their theme access.
+
+### Unit test coverage expansion (from TODO)
+
+- **57 new tests** (76 → 133) across 4 new test files:
+  - `pwaHelpers.test.js` — detectBrowser (13 browsers incl. iOS variants), wasJustUpdated (4 cases), trackInstallEvent (4 cases)
+  - `layouts.test.js` — toRgba (8 cases), toTransparentRgba (2 cases)
+  - `platforms.test.js` — structure validation, unique IDs, category coverage, getAspectRatio, findFormat, findPlatformGroup
+  - `themes.test.js` — neutralColors integrity, getNeutralColor, presetThemes structure and variant validation
+- Extracted `pwaHelpers.js` from hook files — pure functions (detectBrowser, wasJustUpdated, trackInstallEvent, isStandalone, CHROMIUM_BROWSERS, BROWSER_DISPLAY_NAMES) in a standalone module with no browser-only dependencies.
+- Exported toRgba/toTransparentRgba from layouts.js for testing.
+
+### PWA visibility checks, update suppression, and install singleton
+
+**usePWAUpdate.js — module-level singleton rewrite:**
+- Module-level state (`_registration`, `_hasUpdate`, `_userClickedUpdate`, `_isChecking`, `_listeners` pub/sub) survives React remounts
+- `visibilitychange` listener checks for SW updates when tab regains focus
+- 30-second `sessionStorage` suppression via `wasJustUpdated()` prevents false re-detection after reload
+- `needRefresh` fallback gated with `wasJustUpdated()` — library sets `needRefresh` internally regardless of `onNeedRefresh` callback
+- `controllerchange` reload guard — only reloads when user explicitly clicked "Update"
+- `checkForUpdate()`/`checking` for future "Check for updates" menu item, with `_isChecking` module-level guard against concurrent calls
+- `.catch(() => {})` on fire-and-forget `_registration.update()` calls (visibility handler, hourly interval) prevents unhandled rejections
+- `onOfflineReady` and `onRegisterError` callbacks for debug logging
+
+**usePWAInstall.js — singleton + pattern alignment:**
+- `_canInstall` and `_showManualInstructions` lifted to module scope with pub/sub `_listeners` — all hook consumers share state
+- Eager `_canInstall` init from pre-captured `window.__pwaInstallPrompt` eliminates extra render cycle
+- Browser detection expanded from 5 to 9 types: added Opera, Samsung Internet, Vivaldi, Arc (7 Chromium + Safari + Firefox)
+- `CHROMIUM_BROWSERS` constant exported — single source of truth for auto-install browser list
+- `BROWSER_DISPLAY_NAMES` map for UI rendering
+- Brave detection uses `'brave' in navigator` (Brave Mobile strips UA string)
+- Samsung/Opera detection ordered before Chrome (UA contains both identifiers)
+- Display-mode change listener catches browser-menu installs where `appinstalled` doesn't fire
+- 5-second diagnostic timeout on Chromium logs warning with manifest/SW status, falls back to manual instructions (Chrome suppresses prompt for 90 days after dismissal)
+- `trackInstallEvent()` — localStorage-based install analytics (prompted/installed/dismissed/installed-via-browser), capped at 50 entries
+- `install()` wrapped in try/catch — Chrome throws DOMException if `prompt()` called twice
+- iOS browser variant detection (CriOS/FxiOS/EdgiOS) — iOS Chrome/Firefox/Edge use non-standard UA tokens that were falling through to 'safari', making the iOS cross-redirect dead code
+- iOS non-Safari cross-redirect in `getInstallInstructions()` — tells users to open in Safari with explanation (now functional with iOS variant detection)
+- Install instructions for Samsung Internet and Opera
+- Vivaldi/Arc fall through to generic Chromium instructions
+- Effect deps corrected: `[isInstalled, supportsManualInstall, supportsAutoInstall, browser]`
+
 ## 2026-04-08
 
 ### Complete debug system per DEBUG_SYSTEM pattern

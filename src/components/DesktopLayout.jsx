@@ -10,6 +10,7 @@ import ContextBar from './ContextBar'
 import EmptyStateGuide from './EmptyStateGuide'
 import QuickActionsBar from './QuickActionsBar'
 import UndoRedoButtons from './UndoRedoButtons'
+import { useToast } from './Toast'
 
 // Requirement: Consistent header button styling across desktop layout.
 // Approach: Extract repeated className pattern to a small component.
@@ -64,16 +65,14 @@ export default function DesktopLayout({
   setShowShortcuts,
   setShowInstallModal,
   setIsReaderMode,
-  isDark,
-  toggleDarkMode,
-  comboId,
-  setCombo,
   canInstall,
   install,
   showManualInstructions,
   isInstalled,
   hasUpdate,
   update,
+  checkForUpdate,
+  checking,
   isOnline,
   // Content
   tabContent,
@@ -82,6 +81,22 @@ export default function DesktopLayout({
   // Canvas overlay
   CanvasCellOverlay,
 }) {
+  const { addToast } = useToast()
+
+  // Toast says "Check complete" — if an update was found during the settle delay,
+  // the update banner appears via normal hasUpdate re-render. Don't read hasUpdate
+  // in this closure — it's a stale prop value captured at render time, not a live ref.
+  const handleCheckForUpdate = async () => {
+    const result = await checkForUpdate()
+    if (result === 'done') {
+      addToast('Check complete — you\'re on the latest version', { type: 'success' })
+    } else if (result === 'error') {
+      addToast('Could not check for updates', { type: 'warning' })
+    } else if (result === 'no-sw') {
+      addToast('Updates not available in this environment', { type: 'info' })
+    }
+  }
+
   return (
     <div className="min-h-screen" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
       {fontsToLoad.map((font) => <link key={font.id} rel="stylesheet" href={font.url} />)}
@@ -112,7 +127,7 @@ export default function DesktopLayout({
             <HeaderButton onClick={() => setShowShortcuts(true)} title="Keyboard shortcuts">
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 8a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8zm4 2h2m2 0h2m2 0h2M5 14h14" /></svg>
             </HeaderButton>
-            <ThemeSelector isDark={isDark} toggleDarkMode={toggleDarkMode} comboId={comboId} setCombo={setCombo} />
+            <ThemeSelector />
             <HeaderButton onClick={() => window.location.reload()} title="Refresh">
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
               <span className="hidden sm:inline">Refresh</span>
@@ -129,10 +144,14 @@ export default function DesktopLayout({
                 <span>Install</span>
               </HeaderButton>
             )}
-            {hasUpdate && (
+            {hasUpdate ? (
               <button onClick={update} title="Update available" className="btn btn-success btn-sm gap-1.5">
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
                 <span>Update</span>
+              </button>
+            ) : (
+              <button onClick={handleCheckForUpdate} disabled={checking} title={checking ? 'Checking...' : 'Check for updates'} className={HEADER_BTN}>
+                <svg className={`w-4 h-4 ${checking ? 'animate-spin' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
               </button>
             )}
           </div>

@@ -5,6 +5,8 @@
 //   - Responsive sidebar: Rejected — scroll-heavy, canvas hidden by controls.
 //   - Tab content above canvas: Rejected — canvas should be primary focus.
 import { useCallback } from 'react'
+import { useTheme } from '../hooks/useTheme'
+import { useToast } from './Toast'
 import ErrorBoundary from './ErrorBoundary'
 import AdCanvas from './AdCanvas'
 import ContextBar from './ContextBar'
@@ -25,7 +27,8 @@ import { version } from '../../package.json'
 // Alternatives:
 //   - Independent per-mode theme list: Rejected — simplified to combos.
 //   - Separate ThemeSelector in header: Rejected — clutters mobile header.
-function MenuThemeSection({ isDark, toggleDarkMode, comboId, setCombo }) {
+function MenuThemeSection() {
+  const { isDark, toggle: toggleDarkMode, comboId, setCombo } = useTheme()
   return (
     <>
       <hr className="my-1 border-base-300" />
@@ -123,14 +126,12 @@ export default function MobileLayout({
   setShowTutorial,
   setShowShortcuts,
   setIsReaderMode,
-  isDark,
-  toggleDarkMode,
-  comboId,
-  setCombo,
   canInstall,
   install,
   hasUpdate,
   update,
+  checkForUpdate,
+  checking,
   isOnline,
   // Content
   tabContent,
@@ -148,6 +149,21 @@ export default function MobileLayout({
   // re-attaching its listener every render while the menu is open.
   // setShowMobileMenu is a state setter (identity-stable from useState).
   const handleMenuClose = useCallback(() => setShowMobileMenu(false), [setShowMobileMenu])
+  const { addToast } = useToast()
+
+  // Toast says "Check complete" — if an update was found during the settle delay,
+  // the update banner and menu item appear via normal hasUpdate re-render. Don't
+  // read hasUpdate in this closure — it's a stale prop captured at render time.
+  const handleCheckForUpdate = useCallback(async () => {
+    const result = await checkForUpdate()
+    if (result === 'done') {
+      addToast('Check complete — you\'re on the latest version', { type: 'success' })
+    } else if (result === 'error') {
+      addToast('Could not check for updates', { type: 'warning' })
+    } else if (result === 'no-sw') {
+      addToast('Updates not available in this environment', { type: 'info' })
+    }
+  }, [checkForUpdate, addToast])
 
   return (
     <div className="h-[100dvh] flex flex-col overflow-hidden bg-base-200">
@@ -185,13 +201,14 @@ export default function MobileLayout({
               { label: 'Help & Tutorial', icon: ICON_HELP, action: () => setShowTutorial(true) },
               { label: 'Install App', icon: ICON_INSTALL, action: install, visible: canInstall, highlight: true },
               { label: 'Update Available', icon: ICON_UPDATE, action: update, visible: hasUpdate, highlight: true, highlightColor: 'text-success' },
+              { label: checking ? 'Checking...' : 'Check for Updates', icon: ICON_REFRESH, action: handleCheckForUpdate, visible: !hasUpdate, disabled: checking },
               { label: 'Refresh', icon: ICON_REFRESH, action: () => window.location.reload(), separator: true },
               { label: 'Reader Mode', icon: ICON_READER, action: () => setIsReaderMode(true) },
               { label: 'Save / Load', icon: ICON_SAVE, action: () => setShowSaveLoadModal(true) },
               { label: 'Keyboard Shortcuts', icon: ICON_KEYBOARD, action: () => setShowShortcuts(true) },
             ]}
           >
-            <MenuThemeSection isDark={isDark} toggleDarkMode={toggleDarkMode} comboId={comboId} setCombo={setCombo} />
+            <MenuThemeSection />
           </BurgerMenu>
         </div>
       </header>

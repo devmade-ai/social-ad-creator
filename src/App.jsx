@@ -9,7 +9,6 @@
 //   - React Router per tab: Rejected — tabs are panels, not routes.
 import { useRef, useMemo, useState, useEffect, useCallback } from 'react'
 import { useAdState } from './hooks/useAdState'
-import { useDarkMode } from './hooks/useDarkMode'
 import { usePWAInstall } from './hooks/usePWAInstall'
 import { usePWAUpdate } from './hooks/usePWAUpdate'
 import { useIsMobile } from './hooks/useIsMobile'
@@ -23,6 +22,7 @@ import InstallInstructionsModal from './components/InstallInstructionsModal'
 import TutorialModal from './components/TutorialModal'
 import SaveLoadModal from './components/SaveLoadModal'
 import { ToastProvider } from './components/Toast'
+import { ThemeProvider } from './hooks/useTheme'
 import KeyboardShortcutsOverlay from './components/KeyboardShortcutsOverlay'
 import ReaderMode from './components/ReaderMode'
 import MobileLayout from './components/MobileLayout'
@@ -174,9 +174,8 @@ function App() {
   const [showSaveLoadModal, setShowSaveLoadModal] = useState(false)
   const [isReaderMode, setIsReaderMode] = useState(false)
   const [selectedCell, setSelectedCell] = useState(0)
-  const { isDark, toggle: toggleDarkMode, comboId, setCombo } = useDarkMode()
   const { canInstall, install, showManualInstructions, getInstallInstructions, isInstalled } = usePWAInstall()
-  const { hasUpdate, update } = usePWAUpdate()
+  const { hasUpdate, update, checkForUpdate, checking } = usePWAUpdate()
   const isOnline = useOnlineStatus()
   const [showShortcuts, setShowShortcuts] = useState(false)
   const [allFontsLoaded, setAllFontsLoaded] = useState(false)
@@ -590,10 +589,6 @@ function App() {
         pageCount={pageCount}
         setActivePage={setActivePage}
         setIsReaderMode={setIsReaderMode}
-        isDark={isDark}
-        toggleDarkMode={toggleDarkMode}
-        comboId={comboId}
-        setCombo={setCombo}
       />
     )
   }
@@ -641,14 +636,12 @@ function App() {
         setShowTutorial={setShowTutorial}
         setShowShortcuts={setShowShortcuts}
         setIsReaderMode={setIsReaderMode}
-        isDark={isDark}
-        toggleDarkMode={toggleDarkMode}
-        comboId={comboId}
-        setCombo={setCombo}
         canInstall={canInstall}
         install={install}
         hasUpdate={hasUpdate}
         update={update}
+        checkForUpdate={checkForUpdate}
+        checking={checking}
         isOnline={isOnline}
         tabContent={tabContent}
         exportOverlay={exportOverlay}
@@ -698,16 +691,14 @@ function App() {
       setShowShortcuts={setShowShortcuts}
       setShowInstallModal={setShowInstallModal}
       setIsReaderMode={setIsReaderMode}
-      isDark={isDark}
-      toggleDarkMode={toggleDarkMode}
-      comboId={comboId}
-      setCombo={setCombo}
       canInstall={canInstall}
       install={install}
       showManualInstructions={showManualInstructions}
       isInstalled={isInstalled}
       hasUpdate={hasUpdate}
       update={update}
+      checkForUpdate={checkForUpdate}
+      checking={checking}
       isOnline={isOnline}
       tabContent={tabContent}
       exportOverlay={exportOverlay}
@@ -719,8 +710,10 @@ function App() {
 
 export default function AppWithProviders() {
   return (
-    <ToastProvider>
-      <App />
-    </ToastProvider>
+    <ThemeProvider>
+      <ToastProvider>
+        <App />
+      </ToastProvider>
+    </ThemeProvider>
   )
 }

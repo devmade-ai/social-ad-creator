@@ -6,13 +6,10 @@
 //     border-radius on first/last items, and consistent group styling.
 //   - Dropdown with theme list: Rejected — only 2 combos, inline toggle is simpler.
 import { themeCombos } from '../config/daisyuiThemes'
+import { useTheme } from '../hooks/useTheme'
 
-export default function ThemeSelector({
-  isDark,
-  toggleDarkMode,
-  comboId,
-  setCombo,
-}) {
+export default function ThemeSelector() {
+  const { isDark, toggle: toggleDarkMode, comboId, setCombo } = useTheme()
   return (
     <div className="join">
       {/* Mode toggle — min 44px touch target on mobile */}

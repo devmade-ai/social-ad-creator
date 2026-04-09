@@ -288,6 +288,8 @@ These footers are required on every commit. No exceptions.
 - **No low-opacity tinted backgrounds on interactive elements:** Never use `bg-primary/10`, `bg-error/15`, `bg-success/10` etc. on buttons, toggles, active states, or indicators — they become invisible on dark themes. Use `bg-base-200`/`bg-base-300` for backgrounds (guaranteed contrast on all themes) and colored text (`text-primary`, `text-error`) for semantic meaning. Pattern: `bg-base-200 text-primary hover:bg-base-300`. Only acceptable low-opacity uses: hover-only on large containers (`hover:bg-primary/10` on drop zones) and hover darkening on full-opacity buttons (`bg-primary hover:bg-primary/80`).
 - **Tailwind 4 CSS-first config:** No `tailwind.config.js` or `postcss.config.js`. All config lives in `src/index.css` using `@import "tailwindcss"`, `@plugin "daisyui"`, `@theme`, `@custom-variant`, and `@utility` directives. The `@tailwindcss/vite` plugin handles processing.
 - **PWA install prompt race condition:** `beforeinstallprompt` is captured by an inline script in `index.html` before React mounts. The `usePWAInstall` hook checks `window.__pwaInstallPrompt` on mount. Never remove that inline script.
+- **PWA hooks use module-level singleton pattern:** Both `usePWAUpdate.js` and `usePWAInstall.js` store state at module scope (`_hasUpdate`, `_canInstall`, etc.) with a `_listeners` Set for pub/sub. React components sync via `forceRender`. This ensures state survives remounts and all consumers share values. Pure utility functions (`detectBrowser`, `wasJustUpdated`, `trackInstallEvent`, `CHROMIUM_BROWSERS`) live in `utils/pwaHelpers.js` — extracted for testability (no browser-only imports).
+- **PWA iOS browser detection:** iOS Chrome uses `CriOS`, Firefox uses `FxiOS`, Edge uses `EdgiOS` in UA strings — not `Chrome`/`Firefox`/`Edg`. These are detected before the Safari fallback in `detectBrowser()`. Without this, all iOS non-Safari browsers are misdetected as `'safari'`, breaking the iOS cross-redirect install instructions.
 - **PWA icon purposes:** Never combine `"any maskable"` in a single icon entry. Use separate entries with individual `purpose` values. Dedicated 1024px maskable icon at `pwa-maskable-1024.png`.
 - **Debug system (alpha, all environments):** `src/utils/debugLog.js` is an in-memory 200-entry circular buffer with pub/sub, console interception (`console.error`/`console.warn` patched at module load), and `debugGenerateReport()` for clipboard reports with URL redaction. Consecutive identical messages (same source+event+severity) are deduplicated with a `count` field. `src/components/DebugPill.jsx` renders in static `#debug-root` div (separate React root, survives App crashes). Three tabs: Log, Env, PWA Diagnostics. Pre-React inline pill in `index.html` captures errors before bundle loads with 20s loading timeout. Skipped in embed mode (`?embed=`). Subscribers receive existing entries immediately on subscribe. Use `debugLog(source, event, details, severity)` to add entries (severity: info/success/warn/error).
 - **pdf-lib image handling:** pdf-lib embeds PNG directly (FlateDecode — no re-encoding). Digital PDF uses pxToPt=1 (1:1 pixel-to-point mapping). Captures at user-selected pixelRatio (1x/2x/3x), giving integer px/pt ratios (1:1/2:1/3:1). Print formats use pixelRatio:1 with 72/150 DPI conversion for correct physical page size. History: (1) pixelRatio:2 + 72/96 → 2.667:1 ratio → gradient banding. (2) 1:1 mapping + page scaled with pixelRatio → identical quality. (3) pxToPt=1 fixed page + variable pixelRatio → current approach. Diagnostic image download enabled in dev mode.
@@ -391,7 +393,7 @@ LANGUAGE=JavaScript (ES2020+)
 FRAMEWORK=React 18
 BUNDLER=Vite
 STYLING=Tailwind CSS 4 + DaisyUI 5 (utility classes in JSX, 2 theme combos: Mono + Luxe)
-TEST_RUNNER=Manual (see docs/TESTING_GUIDE.md)
+TEST_RUNNER=Jest (133 unit tests) + Manual (see docs/TESTING_GUIDE.md)
 PACKAGE_MANAGER=npm
 DEPLOY=Vercel (auto-deploy on push to main)
 NAMING=camelCase (variables/functions), PascalCase (components)
@@ -585,8 +587,9 @@ src/
 │   ├── useOnlineStatus.js # Online/offline detection
 │   ├── useFocusTrap.js   # Focus trap for BurgerMenu (modals use native <dialog> focus trap)
 │   ├── useIsMobile.js    # matchMedia hook: viewport < 1024px (Tailwind lg breakpoint)
-│   ├── usePWAInstall.js  # PWA install prompt state
-│   ├── usePWAUpdate.js   # PWA update detection state
+│   ├── usePWAInstall.js  # PWA install prompt state (singleton, imports pwaHelpers)
+│   ├── usePWAUpdate.js   # PWA update detection state (singleton, imports pwaHelpers)
+│   ├── useTheme.js       # ThemeContext wrapping useDarkMode (eliminates prop drilling)
 │   ├── useDialogSync.js  # Shared <dialog> open/close sync for DaisyUI modals (4 consumers)
 │   ├── useDisclosureFocus.js # Shared focus management for disclosure-pattern components
 │   └── useEscapeKey.js   # Reusable Escape key handler for disclosure components
@@ -596,6 +599,7 @@ src/
 │   ├── debugLog.js       # In-memory debug event store (circular buffer, console interception, report generation)
 │   ├── exportHelpers.js  # Export capture utilities (captureAsBlob, captureForPdf, waitForPaint)
 │   ├── canvasRenderers.js # Canvas rendering helpers (buildFilterStyle, getAlignItems, isDuotoneOverlay)
+│   ├── pwaHelpers.js     # Pure PWA utilities (detectBrowser, wasJustUpdated, trackInstallEvent, CHROMIUM_BROWSERS)
 │   └── layoutHelpers.ts  # Layout-structure geometry (cellToSection, getFirstCellOfSection, Section interface)
 ├── App.jsx               # State orchestrator, delegates rendering to ReaderMode/MobileLayout/DesktopLayout
 └── main.jsx
