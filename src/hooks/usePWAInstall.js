@@ -2,18 +2,26 @@
 // Approach: Capture beforeinstallprompt via inline script in index.html (fires before
 //   React mounts), then this hook reads window.__pwaInstallPrompt on mount. For browsers
 //   that don't support beforeinstallprompt (Safari, Firefox), show manual install steps.
+// Architecture: Module-level singleton — canInstall and showManualInstructions live at
+//   module scope so all hook consumers share the same state. Without this, each hook
+//   instance has independent React state that diverges (e.g., one sets canInstall=false
+//   after install but others still show the button).
 // Alternatives:
 //   - Capture event in React only: Rejected - race condition on cached SW repeat visits
 //     where the event fires before React mounts and is lost.
 //   - Skip non-Chromium browsers: Rejected - Safari/Firefox users can still install PWAs
 //     manually; showing instructions is better than hiding the feature.
+//   - Per-instance React state: Rejected - multiple consumers get out of sync.
 import { useState, useEffect, useMemo } from 'react'
 import { debugLog } from '../utils/debugLog'
 
-// Pick up beforeinstallprompt captured by inline script in index.html.
-// The inline script fires before React mounts, so on cached SW repeat visits
-// the event isn't lost. Falls back to null if the inline script hasn't fired yet.
+// Module-level state — survives remounts and shared across all consumers
 let deferredPrompt = window.__pwaInstallPrompt || null
+let _canInstall = false
+let _showManualInstructions = false
+const _listeners = new Set()
+
+function notifyListeners() { _listeners.forEach(fn => fn()) }
 
 // Detect browser type
 function detectBrowser() {
@@ -56,8 +64,7 @@ function isStandalone() {
 }
 
 export function usePWAInstall() {
-  const [canInstall, setCanInstall] = useState(false)
-  const [showManualInstructions, setShowManualInstructions] = useState(false)
+  const [, forceRender] = useState(0)
 
   const browser = useMemo(() => detectBrowser(), [])
   const isInstalled = useMemo(() => isStandalone(), [])
@@ -68,10 +75,18 @@ export function usePWAInstall() {
   // Browsers where manual install is possible
   const supportsManualInstall = browser === 'safari' || browser === 'firefox'
 
+  // Sync module state to React — all consumers re-render on state change
+  useEffect(() => {
+    const listener = () => forceRender(n => n + 1)
+    _listeners.add(listener)
+    return () => { _listeners.delete(listener) }
+  }, [])
+
   useEffect(() => {
     // Already installed - no install option needed
     if (isInstalled) {
-      setCanInstall(false)
+      _canInstall = false
+      notifyListeners()
       return
     }
 
@@ -80,8 +95,9 @@ export function usePWAInstall() {
     if (window.__pwaInstallPrompt && !deferredPrompt) {
       deferredPrompt = window.__pwaInstallPrompt
     }
-    if (deferredPrompt) {
-      setCanInstall(true)
+    if (deferredPrompt && !_canInstall) {
+      _canInstall = true
+      notifyListeners()
       debugLog('pwa', 'install-prompt-cached', { browser })
     }
 
@@ -89,13 +105,15 @@ export function usePWAInstall() {
       e.preventDefault()
       deferredPrompt = e
       window.__pwaInstallPrompt = e
-      setCanInstall(true)
+      _canInstall = true
+      notifyListeners()
       debugLog('pwa', 'install-prompt-captured', { browser })
     }
 
     const installedHandler = () => {
-      setCanInstall(false)
+      _canInstall = false
       deferredPrompt = null
+      notifyListeners()
       debugLog('pwa', 'app-installed', { browser })
       // Track install in Google Analytics
       if (typeof gtag === 'function') {
@@ -125,7 +143,8 @@ export function usePWAInstall() {
     // Give a short delay to allow the event to fire first
     const timeout = setTimeout(() => {
       if (!deferredPrompt && !isInstalled && supportsManualInstall) {
-        setShowManualInstructions(true)
+        _showManualInstructions = true
+        notifyListeners()
       }
     }, 1000)
 
@@ -144,11 +163,18 @@ export function usePWAInstall() {
     debugLog('pwa', 'install-choice', { outcome })
 
     if (outcome === 'accepted') {
-      setCanInstall(false)
+      _canInstall = false
       deferredPrompt = null
+      notifyListeners()
       return true
     }
     return false
+  }
+
+  // Setter for manual instructions — updates module state and notifies all consumers
+  const setShowManualInstructions = (value) => {
+    _showManualInstructions = value
+    notifyListeners()
   }
 
   // Get browser-specific install instructions
@@ -232,11 +258,11 @@ export function usePWAInstall() {
   }
 
   return {
-    canInstall,
+    canInstall: _canInstall,
     install,
     browser,
     isInstalled,
-    showManualInstructions,
+    showManualInstructions: _showManualInstructions,
     setShowManualInstructions,
     supportsAutoInstall,
     getInstallInstructions,
