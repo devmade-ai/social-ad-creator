@@ -4,14 +4,15 @@
 //   - Inline everywhere: Rejected — 28x duplication, hard to maintain.
 // Convert rgb() or rgba() color to rgba with specified opacity.
 // Safe for both rgb(...) and rgba(...) inputs.
-function toRgba(rgbColor, opacity) {
+// Exported for unit testing — pure color conversion functions.
+export function toRgba(rgbColor, opacity) {
   const match = rgbColor.match(/^rgba?\(([^)]+)\)/)
   if (!match) return rgbColor
   const channels = match[1].split(',').slice(0, 3).map(s => s.trim())
   return `rgba(${channels.join(', ')}, ${opacity / 100})`
 }
 
-function toTransparentRgba(rgbColor) {
+export function toTransparentRgba(rgbColor) {
   return toRgba(rgbColor, 0)
 }
 

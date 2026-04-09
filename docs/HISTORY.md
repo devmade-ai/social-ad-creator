@@ -2,6 +2,24 @@
 
 ## 2026-04-09
 
+### ThemeContext — eliminate prop drilling (from TODO)
+
+- Created `useTheme.js` — React Context wrapping `useDarkMode`. `ThemeProvider` in `AppWithProviders`.
+- ThemeSelector and MenuThemeSection consume `useTheme()` directly.
+- Removed 12 prop passes (isDark, toggleDarkMode, comboId, setCombo) across App → DesktopLayout/MobileLayout/ReaderMode → ThemeSelector.
+- All three layout components were pure forwarders — never used the values themselves.
+- App.jsx no longer calls useDarkMode or useTheme — leaf components own their theme access.
+
+### Unit test coverage expansion (from TODO)
+
+- **57 new tests** (76 → 133) across 4 new test files:
+  - `pwaHelpers.test.js` — detectBrowser (13 browsers incl. iOS variants), wasJustUpdated (4 cases), trackInstallEvent (4 cases)
+  - `layouts.test.js` — toRgba (8 cases), toTransparentRgba (2 cases)
+  - `platforms.test.js` — structure validation, unique IDs, category coverage, getAspectRatio, findFormat, findPlatformGroup
+  - `themes.test.js` — neutralColors integrity, getNeutralColor, presetThemes structure and variant validation
+- Extracted `pwaHelpers.js` from hook files — pure functions (detectBrowser, wasJustUpdated, trackInstallEvent, isStandalone, CHROMIUM_BROWSERS, BROWSER_DISPLAY_NAMES) in a standalone module with no browser-only dependencies.
+- Exported toRgba/toTransparentRgba from layouts.js for testing.
+
 ### PWA visibility checks, update suppression, and install singleton
 
 **usePWAUpdate.js — module-level singleton rewrite:**

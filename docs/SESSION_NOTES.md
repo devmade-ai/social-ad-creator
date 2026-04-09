@@ -5,45 +5,37 @@ Compact context summary for session continuity. Rewrite at session end.
 ---
 
 ## Worked on
-PWA reliability improvements per glow-props PWA_SYSTEM.md pattern — visibility-based update checks, post-update suppression, install prompt singleton, and full pattern alignment.
+PWA reliability per glow-props pattern + ThemeContext refactor + unit test expansion.
 
 ## Accomplished
 
-### usePWAUpdate.js — module-level singleton rewrite
-- Module-level state (`_registration`, `_hasUpdate`, `_userClickedUpdate`, `_isChecking`, `_listeners` pub/sub)
-- `visibilitychange` listener for update checks on tab focus
-- 30s `sessionStorage` suppression via `wasJustUpdated()`
-- `needRefresh` fallback gated with `wasJustUpdated()` (library sets it regardless of callback)
-- `controllerchange` reload guard (only on explicit user click)
-- `checkForUpdate()`/`checking` with `_isChecking` concurrent call guard
-- `.catch(() => {})` on fire-and-forget `.update()` calls
-- `onOfflineReady`/`onRegisterError` debug callbacks
+### PWA hooks (tasks 1-3 from issue)
+- usePWAUpdate.js: module-level singleton, visibilitychange listener, 30s suppression, controllerchange guard, checkForUpdate/checking wired to burger menu + desktop header
+- usePWAInstall.js: singleton state, 9 browser detection (incl. iOS CriOS/FxiOS/EdgiOS), display-mode listener, 5s diagnostic timeout, trackInstallEvent, install() try/catch, iOS cross-redirect
+- Extracted pure functions to utils/pwaHelpers.js for testability
 
-### usePWAInstall.js — singleton + full pattern alignment
-- `_canInstall`/`_showManualInstructions` at module scope with pub/sub
-- Eager `_canInstall` init from pre-captured prompt
-- Browser detection: 7 Chromium (chrome, edge, brave, opera, samsung, vivaldi, arc) + safari + firefox
-- `CHROMIUM_BROWSERS` constant exported, `BROWSER_DISPLAY_NAMES` map
-- Brave: `'brave' in navigator` (UA stripped on mobile)
-- Display-mode change listener for browser-menu installs
-- 5s diagnostic timeout with manifest/SW status logging + manual fallback
-- `trackInstallEvent()` localStorage analytics (prompted/installed/dismissed/installed-via-browser)
-- `install()` try/catch around `prompt()` (Chrome DOMException on double-call)
-- iOS browser variant detection: CriOS (Chrome), FxiOS (Firefox), EdgiOS (Edge) — without these, all iOS browsers were misdetected as 'safari', making iOS cross-redirect dead code
-- iOS non-Safari cross-redirect instructions (now functional)
-- Samsung Internet and Opera install instructions
-- Effect deps corrected: `[isInstalled, supportsManualInstall, supportsAutoInstall, browser]`
+### ThemeContext (TODO item #2 — completed)
+- Created useTheme.js — React Context wrapping useDarkMode
+- Removed 12 prop passes across App → 3 layout components → ThemeSelector/MenuThemeSection
+- All layout components were pure forwarders — now leaf components consume context directly
+
+### Unit test expansion (TODO item #3 — partial)
+- 76 → 133 tests (57 new) across 4 new test files
+- pwaHelpers: detectBrowser (13 browsers), wasJustUpdated (4), trackInstallEvent (4)
+- layouts: toRgba (8), toTransparentRgba (2)
+- platforms: structure validation, unique IDs, category coverage, lookup helpers
+- themes: neutralColors, getNeutralColor, presetThemes structure + variant hex validation
+- Still untested: designStorage.js, debugLog.js (need browser API mocks)
 
 ## Current state
 
 - **Branch:** `claude/add-pwa-visibility-checks-9oDG8` — pushed
-- Build passes, 76 tests pass, no errors
-- Return signatures backward-compatible — App.jsx unchanged
+- Build passes, 133 tests pass
+- TODO #2 (ThemeContext) complete, TODO #3 (tests) partially complete
 
 ## Key context
 
-- **`debugLog` signature:** `(source, event, details, severity)` — all calls match
-- **Function hoisting:** `isStandalone()` called at module scope before definition — works because function declarations are hoisted
-- **`CHROMIUM_BROWSERS` export** available for future use by DebugPill PWA diagnostics
-- **`checkForUpdate`/`checking`** available for future "Check for updates" burger menu item
-- **No consumers changed** — App.jsx destructures same values, DesktopLayout/MobileLayout pass same props
+- **utils/pwaHelpers.js** contains all pure PWA functions — hooks import from there
+- **useTheme.js** uses createElement (not JSX) — hooks use .js extension, Vite only parses JSX in .jsx
+- **jest.config.js** restored to minimal config — no mocks needed since pwaHelpers has no browser-only imports
+- **ThemeProvider** wraps App in AppWithProviders (main.jsx unchanged)

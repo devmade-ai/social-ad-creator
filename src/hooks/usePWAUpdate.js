@@ -10,6 +10,7 @@
 import { useEffect, useState, useCallback } from 'react'
 import { useRegisterSW } from 'virtual:pwa-register/react'
 import { debugLog } from '../utils/debugLog'
+import { wasJustUpdated } from '../utils/pwaHelpers'
 
 const CHECK_INTERVAL_MS = 60 * 60 * 1000
 // SW lifecycle events (onNeedRefresh, onOfflineReady) fire asynchronously after
@@ -24,16 +25,6 @@ let _isChecking = false
 const _listeners = new Set()
 
 function notifyListeners() { _listeners.forEach(fn => fn()) }
-
-// 30-second suppression after applying an update — prevents false re-detection
-// when the browser's SW lifecycle hasn't fully settled after reload.
-function wasJustUpdated() {
-  try {
-    const ts = sessionStorage.getItem('pwa-update-applied')
-    if (!ts) return false
-    return Date.now() - Number(ts) < 30_000
-  } catch { return false }
-}
 
 export function usePWAUpdate() {
   const [, forceRender] = useState(0)
