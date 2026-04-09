@@ -259,7 +259,7 @@ function App() {
   const closeMobileSheet = useCallback(() => {
     setMobileSheetOpen(false)
     setSheetSnap(0)
-    debugLog('ui', 'sheet-close', null, 'debug')
+    debugLog('ui', 'sheet-close')
   }, [])
 
   // Long-press on canvas cell → show context menu (mobile only)
@@ -277,7 +277,7 @@ function App() {
     if (tabId === activeSection && mobileSheetOpen) {
       closeMobileSheet()
     } else {
-      debugLog('ui', 'tab-change', { from: activeSection, to: tabId }, 'debug')
+      debugLog('ui', 'tab-change', { from: activeSection, to: tabId })
       setActiveSection(tabId)
       setMobileSheetOpen(true)
       // BottomSheet auto-open effect handles snap=0 → SNAP_HALF
@@ -303,8 +303,8 @@ function App() {
       e.preventDefault()
       // Read from ref to avoid stale closure on rapid successive swipes
       const { activePage, pageCount: pc, setActivePage: goTo } = keyboardRef.current
-      if (dx > 0 && activePage > 0) { debugLog('ui', 'page-navigate', { to: activePage - 1, source: 'swipe' }, 'debug'); goTo(activePage - 1) }
-      else if (dx < 0 && activePage < pc - 1) { debugLog('ui', 'page-navigate', { to: activePage + 1, source: 'swipe' }, 'debug'); goTo(activePage + 1) }
+      if (dx > 0 && activePage > 0) { debugLog('ui', 'page-navigate', { to: activePage - 1, source: 'swipe' }); goTo(activePage - 1) }
+      else if (dx < 0 && activePage < pc - 1) { debugLog('ui', 'page-navigate', { to: activePage + 1, source: 'swipe' }); goTo(activePage + 1) }
     }
   }, [])
 
@@ -325,7 +325,7 @@ function App() {
       if (!e.ctrlKey && !e.metaKey && !e.altKey) {
         const tabMap = { '1': 'templates', '2': 'media', '3': 'content', '4': 'layout', '5': 'style' }
         if (tabMap[e.key]) {
-          debugLog('ui', 'tab-change', { to: tabMap[e.key], source: 'keyboard' }, 'debug')
+          debugLog('ui', 'tab-change', { to: tabMap[e.key], source: 'keyboard' })
           setActiveSection(tabMap[e.key])
           if (isMobile) setMobileSheetOpen(true)
         }

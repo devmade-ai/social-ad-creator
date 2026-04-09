@@ -38,14 +38,14 @@ export default function ReaderMode({
       if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
         e.preventDefault()
         if (state.activePage > 0) {
-          debugLog('ui', 'page-navigate', { to: state.activePage - 1, source: 'keyboard' }, 'debug')
+          debugLog('ui', 'page-navigate', { to: state.activePage - 1, source: 'keyboard' })
           setActivePage(state.activePage - 1)
         }
       }
       if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
         e.preventDefault()
         if (state.activePage < pageCount - 1) {
-          debugLog('ui', 'page-navigate', { to: state.activePage + 1, source: 'keyboard' }, 'debug')
+          debugLog('ui', 'page-navigate', { to: state.activePage + 1, source: 'keyboard' })
           setActivePage(state.activePage + 1)
         }
       }

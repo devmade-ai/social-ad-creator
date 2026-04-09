@@ -51,10 +51,12 @@ export default function BottomSheet({ isOpen, onClose, children, snapPoint, onSn
   const sheetRef = useRef(null)
   const contentRef = useRef(null)
   const dragRef = useRef({ startY: 0, startTranslateVh: 0, isDragging: false })
+  const safetyTimerRef = useRef(null)
   // Current translateY in vh units during drag (avoids stale closures)
   const currentTranslateRef = useRef(snapToTranslateY(SNAP_CLOSED))
-  // Default to SNAP_HALF when snap point hasn't been set yet (e.g., during open animation)
-  const effectiveSnap = snapPoint || SNAP_HALF
+  // Default to SNAP_HALF when snap point hasn't been set yet (e.g., during open animation).
+  // Nullish coalescing (??) instead of || — SNAP_CLOSED is 0 which is falsy but valid.
+  const effectiveSnap = snapPoint ?? SNAP_HALF
 
   // Apply transform directly to DOM (no React re-render).
   // Respects prefers-reduced-motion by skipping animation when user has that preference.
@@ -69,7 +71,7 @@ export default function BottomSheet({ isOpen, onClose, children, snapPoint, onSn
   // Animate to snap point when it changes or sheet opens
   useEffect(() => {
     if (!isOpen) return
-    const target = snapToTranslateY(snapPoint || SNAP_HALF)
+    const target = snapToTranslateY(snapPoint ?? SNAP_HALF)
     // Use rAF to ensure the initial off-screen position is painted first
     requestAnimationFrame(() => {
       applyTransform(target, true)
@@ -86,6 +88,9 @@ export default function BottomSheet({ isOpen, onClose, children, snapPoint, onSn
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen])
 
+  // Clean up safety timer on unmount
+  useEffect(() => () => clearTimeout(safetyTimerRef.current), [])
+
   // Auto-open to half when opening from closed
   useEffect(() => {
     if (isOpen && (snapPoint === SNAP_CLOSED || snapPoint === undefined)) {
@@ -96,14 +101,18 @@ export default function BottomSheet({ isOpen, onClose, children, snapPoint, onSn
   // Focus management: move focus to sheet content when it opens for screen readers.
   // Requirement: Announce sheet appearance to assistive technology.
   // Approach: Focus first interactive element inside content area after animation settles.
+  // Only on closed→open transition — not when sheet was already open and content changed
+  // (e.g. tab switch via MobileNav), to avoid stealing focus from the just-tapped nav button.
+  const wasOpenRef = useRef(isOpen)
   useEffect(() => {
-    if (!isOpen || !contentRef.current) return
+    const wasOpen = wasOpenRef.current
+    wasOpenRef.current = isOpen
+    if (!isOpen || wasOpen || !contentRef.current) return
     const timer = setTimeout(() => {
       const firstFocusable = contentRef.current?.querySelector('button, [tabindex]:not([tabindex="-1"]), input, select, textarea, a[href]')
       firstFocusable?.focus()
     }, 350) // After snap animation completes (300ms)
     return () => clearTimeout(timer)
-  // Only on open state change, not on every snap
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen])
 
@@ -157,7 +166,12 @@ export default function BottomSheet({ isOpen, onClose, children, snapPoint, onSn
     // Clamp: 0 = fully visible (SNAP_FULL), SNAP_FULL = fully hidden
     const newTranslate = Math.min(SNAP_FULL, Math.max(0, drag.startTranslateVh + deltaVh))
     applyTransform(newTranslate, false)
-  }, [applyTransform])
+
+    // Safety timeout: if touchend is lost (OS gesture hijack, browser bug),
+    // auto-snap after 500ms of no touch events to prevent stuck mid-drag state.
+    clearTimeout(safetyTimerRef.current)
+    safetyTimerRef.current = setTimeout(snapToNearest, 500)
+  }, [applyTransform, snapToNearest])
 
   // Snap to nearest point based on drag direction and position.
   // Requirement: Direction-aware thresholds — 5vh past the snap you're leaving.
@@ -193,11 +207,13 @@ export default function BottomSheet({ isOpen, onClose, children, snapPoint, onSn
     }
   }, [onClose, onSnapChange, applyTransform])
 
-  const handleTouchEnd = useCallback(() => {
-    snapToNearest()
-  }, [snapToNearest])
-
-  const handleTouchCancel = useCallback(() => {
+  // Only snap if a drag actually occurred — content taps that were never promoted
+  // to a sheet drag should not trigger snap logic (avoids unnecessary transitions).
+  // Safety timer cleared here — if touchend fires normally, no safety snap needed.
+  // Shared between touchend and touchcancel (identical behavior).
+  const finishTouch = useCallback(() => {
+    clearTimeout(safetyTimerRef.current)
+    if (!dragRef.current.isDragging) return
     snapToNearest()
   }, [snapToNearest])
 
@@ -218,8 +234,8 @@ export default function BottomSheet({ isOpen, onClose, children, snapPoint, onSn
       }}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
-      onTouchEnd={handleTouchEnd}
-      onTouchCancel={handleTouchCancel}
+      onTouchEnd={finishTouch}
+      onTouchCancel={finishTouch}
     >
       {/* Drag handle — py-4 for 44px+ touch zone (handle itself is 4px tall) */}
       <div

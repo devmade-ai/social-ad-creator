@@ -10,8 +10,9 @@ createRoot(document.getElementById('root')).render(
   </StrictMode>,
 )
 
+// Clear the pre-React loading timeout now that the framework has mounted
+if (window.__debugClearLoadTimer) window.__debugClearLoadTimer()
+
 // Mount debug pill in a separate React root so it survives App crashes.
-// Only in development mode.
-if (import.meta.env.DEV) {
-  mountDebugPill()
-}
+// Available in production — alpha phase diagnostic tool.
+mountDebugPill()

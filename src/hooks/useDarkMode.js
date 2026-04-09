@@ -6,7 +6,7 @@
 // Alternatives:
 //   - Independent per-mode selection: Rejected — simplified to combos for fewer choices.
 //   - CSS-only prefers-color-scheme: Rejected — no user override possible.
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { debugLog } from '../utils/debugLog'
 import {
   themeCombos,
@@ -48,6 +48,12 @@ export function useDarkMode() {
   const combo = getCombo(comboId)
   const activeTheme = isDark ? combo.dark.id : combo.light.id
 
+  // Ref for logging inside effect without adding comboId as a dependency.
+  // activeTheme is already derived from comboId + isDark, so comboId in the dep
+  // array would cause the effect to fire twice per combo change.
+  const comboIdRef = useRef(comboId)
+  comboIdRef.current = comboId
+
   // Apply .dark class + data-theme to <html>, persist, and update meta theme-color.
   useEffect(() => {
     const root = document.documentElement
@@ -58,14 +64,14 @@ export function useDarkMode() {
     }
     root.setAttribute('data-theme', activeTheme)
     safeStorageSet('darkMode', isDark)
-    debugLog('dark-mode', 'theme-applied', { isDark, activeTheme, combo: comboId })
+    debugLog('dark-mode', 'theme-applied', { isDark, activeTheme, combo: comboIdRef.current })
 
     // Update ALL meta theme-color tags so Android Chrome address bar syncs.
     const color = getMetaColor(activeTheme)
     document.querySelectorAll('meta[name="theme-color"]').forEach(meta => {
       meta.setAttribute('content', color)
     })
-  }, [isDark, activeTheme, comboId])
+  }, [isDark, activeTheme])
 
   // Setter that validates + persists combo to localStorage.
   const setCombo = useCallback((id) => {

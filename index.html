@@ -78,6 +78,46 @@
   </head>
   <body>
     <div id="root"></div>
+    <div id="debug-root"></div>
+
+    <!-- Pre-React debug pill — captures errors before JS bundles load.
+         Requirement: React pill can't catch bundle load failures or pre-mount crashes.
+         Approach: Inline script with circular buffer, global error capture, 20s loading timeout.
+         Bridges to React app via window.__debugPushError() global. -->
+    <script>
+      window.__debugErrors = [];
+      window.__debugPushError = function(msg, stack) {
+        window.__debugErrors.push({ msg: msg, stack: stack, time: Date.now() });
+        if (window.__debugErrors.length > 200) window.__debugErrors.shift();
+      };
+      // Named handlers so debugLog.js can removeEventListener after takeover
+      window.__debugPreErrorHandler = function(e) {
+        var stack = (e.error && e.error.stack) || ((e.filename || '') + ':' + (e.lineno || 0));
+        window.__debugPushError(e.message || 'Unknown error', stack);
+      };
+      window.__debugPreRejectionHandler = function(e) {
+        window.__debugPushError('Unhandled rejection: ' + e.reason);
+      };
+      window.addEventListener('error', window.__debugPreErrorHandler);
+      window.addEventListener('unhandledrejection', window.__debugPreRejectionHandler);
+      window.__debugReactMounted = false;
+      window.__debugClearLoadTimer = function() {
+        window.__debugReactMounted = true;
+        clearTimeout(window.__debugLoadTimer);
+      };
+      window.__debugLoadTimer = setTimeout(function() {
+        if (!window.__debugReactMounted) {
+          var root = document.getElementById('root');
+          if (root) {
+            var warning = document.createElement('p');
+            warning.style.cssText = 'color:#eab308;font-size:14px;margin-top:12px;text-align:center;font-family:system-ui,sans-serif';
+            warning.textContent = 'This is taking longer than usual. Check the debug pill for errors, or try reloading.';
+            root.appendChild(warning);
+          }
+        }
+      }, 20000);
+    </script>
+
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

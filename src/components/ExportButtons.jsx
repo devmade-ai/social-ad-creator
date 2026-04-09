@@ -141,7 +141,7 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
       for (let i = 0; i < pageCount; i++) {
         if (cancelledRef.current) break
         setExportProgress({ current: i + 1, total: pageCount, name: `Page ${i + 1}` })
-        debugLog('export', 'all-pages-capture', { page: i + 1, total: pageCount }, 'debug')
+        debugLog('export', 'all-pages-capture', { page: i + 1, total: pageCount })
 
         onSetActivePage(i)
         // Wait for React state update + re-render + paint to settle.

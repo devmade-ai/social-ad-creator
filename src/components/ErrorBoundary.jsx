@@ -17,6 +17,10 @@ class ErrorBoundary extends Component {
       stack: error.stack?.split('\n').slice(0, 3).join('\n'),
       componentStack: errorInfo.componentStack?.split('\n').slice(0, 5).join('\n'),
     }, 'error')
+    // Bridge to pre-React inline pill for visibility if React debug system fails
+    if (window.__debugPushError) {
+      window.__debugPushError(error.message, error.stack?.split('\n').slice(0, 3).join('\n'))
+    }
   }
 
   handleReset = () => {

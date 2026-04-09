@@ -2,6 +2,60 @@
 
 ## 2026-04-08
 
+### Complete debug system per DEBUG_SYSTEM pattern
+
+- **Console interception** — `console.error`/`console.warn` patched at module load with HMR guard and re-entrancy guard.
+- **Static `#debug-root`** — Replaced dynamic `createElement` with static div in `index.html`.
+- **PWA Diagnostics tab** — Active health checks (HTTPS, SW state, manifest, standalone, install prompt) with stale-run cancellation.
+- **Pre-React inline pill** — `window.__debugPushError()` global, error/rejection capture before bundles load, 20s loading timeout.
+- **URL redaction** — Query params and hash redacted in reports and Env tab.
+- **Subscriber replay** — New subscribers receive existing entries immediately.
+- **DEV-only gating removed** — Debug pill now available in production (alpha phase).
+- **Success severity** — Added to severity union and `SEVERITY_COLORS`.
+- **`debugGenerateReport()`** — Report generation in module, not component.
+- **Embed mode skip** — Pill hidden when `?embed=` in URL.
+- **Duplicate listener deregistration** — Inline script handlers removed after module takeover.
+- **Pre-React error replay** — `window.__debugErrors` replayed into structured log at module load.
+- **ErrorBoundary bridge** — Crashes routed to both `debugLog()` and `__debugPushError()`.
+- **Audit fixes** — Removed dead `debug-pre-error-count` badge reference from inline script, awaited `copyToClipboard` with accurate success/failure logging, fixed `clearEntries` duplicate React key bug by keeping `nextId` monotonic.
+
+### Full branch audit fixes
+
+- **BurgerMenu ArrowUp off-by-one** — When focus outside button list, ArrowUp went to `length - 2` instead of last item. Added `idx === -1` guard.
+- **BottomSheet spurious snapToNearest** — `handleTouchEnd` fired `snapToNearest` on every content tap, even non-drags. Added `isDragging` guard.
+- **Dead `getPageCount`** — Defined in `useAdState` but never called after branch changes. Removed function and export.
+- **useDarkMode double-execution** — `comboId` redundant in effect deps (already captured by `activeTheme`). Moved to ref for logging, removed from dep array.
+- **Dead `comboMapStr`** — Built but never used in `generate-theme-meta.mjs`. Removed.
+- **oklchToHex L=1% boundary bug** — `if (L > 1)` heuristic couldn't distinguish `1%` from decimal `1.0`. Regex now captures `%` sign explicitly. Added 4 tests covering decimal path and L=1%/L=1 boundary.
+- **BottomSheet focus-stealing** — Auto-focus fired on every open, including when sheet was already open and just switching tabs. Now only fires on closed→open transition via `wasOpenRef` tracking.
+
+### Fresh-eyes audit fixes
+
+- **debugGenerateReport crash protection** — `JSON.stringify(e.details)` in report generation could throw on circular refs. Wrapped in `safeStringify` with `[unserializable]` fallback.
+- **PWA diagnostics React keys** — Results list used array index as key. Replaced with `r.label` (unique per diagnostic check) for correct DOM reconciliation.
+- **Pre-React error stack capture** — Inline error handler passed `filename:lineno` as "stack". Now captures `e.error.stack` (full trace) when available, falls back to filename:lineno.
+
+### Robustness hardening
+
+- **BottomSheet safety snap timeout** — If `touchend` is lost (OS gesture hijack, browser bug), sheet auto-snaps after 500ms of no touch events. Prevents stuck-mid-drag state. Timer cleared normally on touchend/touchcancel, cleaned up on unmount.
+- **Debug log deduplication** — Consecutive identical messages (same source + event + severity) collapsed into a single entry with `count` field and updated timestamp. Prevents third-party console spam and React strict mode double-warnings from pushing real entries out of the 200-entry buffer. Count shown as `x{n}` badge in Log tab and `(x{n})` suffix in reports.
+
+### UI/UX polish
+
+- **Debug pill mobile positioning** — Pill and expanded panel sat behind MobileNav dock at `bottom:12px`. Now detects mobile via matchMedia and offsets to `bottom:72px` (above nav). Responsive — updates on viewport change.
+- **Copy feedback** — Copy button shows "Copied!" (green) or "Failed" (red) for 1.5s after click. Previously no visual indication.
+- **Removed dead embed check** — Inner `DebugPillInner` embed guard was unreachable since `mountDebugPill` already skips mounting in embed mode.
+- **Shared `formatTime`** — Exported from `debugLog.js`, imported in `DebugPill.jsx`. Eliminated duplicate HH:MM:SS.mmm formatting logic.
+- **BottomSheet `effectiveSnap` falsy zero** — `snapPoint || SNAP_HALF` treated `SNAP_CLOSED` (0) as falsy, falling through to `SNAP_HALF`. Fixed with nullish coalescing (`??`).
+- **BottomSheet handler merge** — Identical `handleTouchEnd` and `handleTouchCancel` merged into single `finishTouch` callback.
+
+### Final fixes
+
+- **Copy timer leak** — `setTimeout` in `copyReport` not cleaned up on unmount. Added ref-based cleanup.
+- **Dedup mutation invisible to React** — Entry mutated in place; React skipped re-render. Fixed with spread copy.
+- **Env tab hash redaction** — Hash fragment now redacted to match report generation.
+- **Second `snapPoint` falsy zero** — Animation effect still used `||` after `effectiveSnap` was fixed to `??`.
+
 ### Complete BurgerMenu implementation per BURGER_MENU pattern
 
 - **useEscapeKey hook** — Extracted from inline BurgerMenu keydown handler to `src/hooks/useEscapeKey.js`. Reusable by any disclosure component.

@@ -13,15 +13,18 @@ export function oklchToHex(oklchStr) {
   //   - L as percentage (e.g. "50%") or decimal (e.g. "0.5")
   //   - Optional hue (achromatic when C=0, some implementations omit H)
   //   - Optional alpha channel (ignored — meta theme-color doesn't support alpha)
-  const match = oklchStr.match(/oklch\(\s*([\d.]+)%?\s+([\d.]+)(?:\s+([\d.]+))?\s*(?:\/\s*[\d.]+%?\s*)?\)/)
+  // The (%)? group explicitly captures the percent sign to distinguish "1%" (percentage)
+  // from "1" (decimal) — the heuristic `L > 1` fails at the L=1 boundary.
+  const match = oklchStr.match(/oklch\(\s*([\d.]+)(%?)\s+([\d.]+)(?:\s+([\d.]+))?\s*(?:\/\s*[\d.]+%?\s*)?\)/)
   if (!match) return null
 
   let L = parseFloat(match[1])
-  const C = parseFloat(match[2])
-  const H = match[3] !== undefined ? parseFloat(match[3]) : 0
+  const isPercent = match[2] === '%'
+  const C = parseFloat(match[3])
+  const H = match[4] !== undefined ? parseFloat(match[4]) : 0
 
   // Normalize L from percentage to 0–1 range
-  if (L > 1) L = L / 100
+  if (isPercent) L = L / 100
 
   // oklch → oklab
   const hRad = (H * Math.PI) / 180

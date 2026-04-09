@@ -289,7 +289,7 @@ These footers are required on every commit. No exceptions.
 - **Tailwind 4 CSS-first config:** No `tailwind.config.js` or `postcss.config.js`. All config lives in `src/index.css` using `@import "tailwindcss"`, `@plugin "daisyui"`, `@theme`, `@custom-variant`, and `@utility` directives. The `@tailwindcss/vite` plugin handles processing.
 - **PWA install prompt race condition:** `beforeinstallprompt` is captured by an inline script in `index.html` before React mounts. The `usePWAInstall` hook checks `window.__pwaInstallPrompt` on mount. Never remove that inline script.
 - **PWA icon purposes:** Never combine `"any maskable"` in a single icon entry. Use separate entries with individual `purpose` values. Dedicated 1024px maskable icon at `pwa-maskable-1024.png`.
-- **Debug system (dev only):** `src/utils/debugLog.js` is an in-memory 200-entry circular buffer with pub/sub. `src/components/DebugPill.jsx` renders in a separate React root (survives App crashes). Only mounted in `import.meta.env.DEV`. Use `debugLog(source, event, details, severity)` to add entries.
+- **Debug system (alpha, all environments):** `src/utils/debugLog.js` is an in-memory 200-entry circular buffer with pub/sub, console interception (`console.error`/`console.warn` patched at module load), and `debugGenerateReport()` for clipboard reports with URL redaction. Consecutive identical messages (same source+event+severity) are deduplicated with a `count` field. `src/components/DebugPill.jsx` renders in static `#debug-root` div (separate React root, survives App crashes). Three tabs: Log, Env, PWA Diagnostics. Pre-React inline pill in `index.html` captures errors before bundle loads with 20s loading timeout. Skipped in embed mode (`?embed=`). Subscribers receive existing entries immediately on subscribe. Use `debugLog(source, event, details, severity)` to add entries (severity: info/success/warn/error).
 - **pdf-lib image handling:** pdf-lib embeds PNG directly (FlateDecode — no re-encoding). Digital PDF uses pxToPt=1 (1:1 pixel-to-point mapping). Captures at user-selected pixelRatio (1x/2x/3x), giving integer px/pt ratios (1:1/2:1/3:1). Print formats use pixelRatio:1 with 72/150 DPI conversion for correct physical page size. History: (1) pixelRatio:2 + 72/96 → 2.667:1 ratio → gradient banding. (2) 1:1 mapping + page scaled with pixelRatio → identical quality. (3) pxToPt=1 fixed page + variable pixelRatio → current approach. Diagnostic image download enabled in dev mode.
 - **Design storage is IndexedDB:** `utils/designStorage.js` wraps IndexedDB with async save/load/list/delete. One-time migration from localStorage runs on first mount via `migrateFromLocalStorage()`. Never use localStorage for designs.
 - **Claude Code mobile/web — accessing sibling repos:**
@@ -459,7 +459,7 @@ Core features working:
   - Inline `beforeinstallprompt` capture in index.html (race condition fix)
   - Explicit manifest `id` for stable install identity
   - Dedicated 1024px maskable icon with separated icon purposes
-- **Debug system (dev only)**: In-memory event log with floating DebugPill (separate React root)
+- **Debug system (alpha, all envs)**: In-memory event log with floating DebugPill (separate React root), console interception, PWA diagnostics, pre-React inline pill
 - **Toast notifications**: Non-blocking feedback for exports, saves, deletes, warnings
 - **Inline confirmations**: ConfirmButton replaces browser confirm() for destructive actions
 - **Export progressive disclosure**: Secondary options collapse into "More export options"
@@ -565,7 +565,7 @@ src/
 │   ├── ReaderMode.jsx         # Full-screen reader view with page navigation (useEscapeKey + arrow key handler)
 │   ├── MobileLayout.jsx       # Mobile-specific layout container (header, canvas, sheet, nav)
 │   ├── DesktopLayout.jsx      # Desktop-specific layout container (header, sidebar, main)
-│   └── DebugPill.jsx          # Floating debug panel (separate React root, dev only)
+│   └── DebugPill.jsx          # Floating debug panel (separate React root, 3 tabs: Log/Env/PWA)
 ├── config/         # Configuration
 │   ├── layouts.js        # 26 overlay types (solid, gradients, radial, effects, blends, textures)
 │   ├── layoutPresets.js  # 27 layouts with SVG icons and categories
@@ -593,7 +593,7 @@ src/
 ├── utils/
 │   ├── cellUtils.js      # Cell counting, shifting, swapping, cleanup utilities
 │   ├── designStorage.js  # IndexedDB wrapper for design persistence
-│   ├── debugLog.js       # In-memory debug event store (200-entry circular buffer)
+│   ├── debugLog.js       # In-memory debug event store (circular buffer, console interception, report generation)
 │   ├── exportHelpers.js  # Export capture utilities (captureAsBlob, captureForPdf, waitForPaint)
 │   ├── canvasRenderers.js # Canvas rendering helpers (buildFilterStyle, getAlignItems, isDuotoneOverlay)
 │   └── layoutHelpers.ts  # Layout-structure geometry (cellToSection, getFirstCellOfSection, Section interface)
