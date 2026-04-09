@@ -5,6 +5,7 @@
 //   - Responsive sidebar: Rejected — scroll-heavy, canvas hidden by controls.
 //   - Tab content above canvas: Rejected — canvas should be primary focus.
 import { useCallback } from 'react'
+import { useToast } from './Toast'
 import ErrorBoundary from './ErrorBoundary'
 import AdCanvas from './AdCanvas'
 import ContextBar from './ContextBar'
@@ -131,6 +132,8 @@ export default function MobileLayout({
   install,
   hasUpdate,
   update,
+  checkForUpdate,
+  checking,
   isOnline,
   // Content
   tabContent,
@@ -148,6 +151,18 @@ export default function MobileLayout({
   // re-attaching its listener every render while the menu is open.
   // setShowMobileMenu is a state setter (identity-stable from useState).
   const handleMenuClose = useCallback(() => setShowMobileMenu(false), [setShowMobileMenu])
+  const { addToast } = useToast()
+
+  const handleCheckForUpdate = useCallback(async () => {
+    const result = await checkForUpdate()
+    if (result === 'done') {
+      addToast(hasUpdate ? 'Update available — tap Update to apply' : 'You\'re on the latest version', { type: hasUpdate ? 'info' : 'success' })
+    } else if (result === 'error') {
+      addToast('Could not check for updates', { type: 'warning' })
+    } else if (result === 'no-sw') {
+      addToast('Updates not available in this environment', { type: 'info' })
+    }
+  }, [checkForUpdate, hasUpdate, addToast])
 
   return (
     <div className="h-[100dvh] flex flex-col overflow-hidden bg-base-200">
@@ -185,6 +200,7 @@ export default function MobileLayout({
               { label: 'Help & Tutorial', icon: ICON_HELP, action: () => setShowTutorial(true) },
               { label: 'Install App', icon: ICON_INSTALL, action: install, visible: canInstall, highlight: true },
               { label: 'Update Available', icon: ICON_UPDATE, action: update, visible: hasUpdate, highlight: true, highlightColor: 'text-success' },
+              { label: checking ? 'Checking...' : 'Check for Updates', icon: ICON_REFRESH, action: handleCheckForUpdate, visible: !hasUpdate, disabled: checking },
               { label: 'Refresh', icon: ICON_REFRESH, action: () => window.location.reload(), separator: true },
               { label: 'Reader Mode', icon: ICON_READER, action: () => setIsReaderMode(true) },
               { label: 'Save / Load', icon: ICON_SAVE, action: () => setShowSaveLoadModal(true) },

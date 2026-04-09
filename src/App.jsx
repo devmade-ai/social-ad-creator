@@ -176,7 +176,7 @@ function App() {
   const [selectedCell, setSelectedCell] = useState(0)
   const { isDark, toggle: toggleDarkMode, comboId, setCombo } = useDarkMode()
   const { canInstall, install, showManualInstructions, getInstallInstructions, isInstalled } = usePWAInstall()
-  const { hasUpdate, update } = usePWAUpdate()
+  const { hasUpdate, update, checkForUpdate, checking } = usePWAUpdate()
   const isOnline = useOnlineStatus()
   const [showShortcuts, setShowShortcuts] = useState(false)
   const [allFontsLoaded, setAllFontsLoaded] = useState(false)
@@ -649,6 +649,8 @@ function App() {
         install={install}
         hasUpdate={hasUpdate}
         update={update}
+        checkForUpdate={checkForUpdate}
+        checking={checking}
         isOnline={isOnline}
         tabContent={tabContent}
         exportOverlay={exportOverlay}
@@ -708,6 +710,8 @@ function App() {
       isInstalled={isInstalled}
       hasUpdate={hasUpdate}
       update={update}
+      checkForUpdate={checkForUpdate}
+      checking={checking}
       isOnline={isOnline}
       tabContent={tabContent}
       exportOverlay={exportOverlay}

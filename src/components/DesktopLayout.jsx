@@ -10,6 +10,7 @@ import ContextBar from './ContextBar'
 import EmptyStateGuide from './EmptyStateGuide'
 import QuickActionsBar from './QuickActionsBar'
 import UndoRedoButtons from './UndoRedoButtons'
+import { useToast } from './Toast'
 
 // Requirement: Consistent header button styling across desktop layout.
 // Approach: Extract repeated className pattern to a small component.
@@ -74,6 +75,8 @@ export default function DesktopLayout({
   isInstalled,
   hasUpdate,
   update,
+  checkForUpdate,
+  checking,
   isOnline,
   // Content
   tabContent,
@@ -82,6 +85,19 @@ export default function DesktopLayout({
   // Canvas overlay
   CanvasCellOverlay,
 }) {
+  const { addToast } = useToast()
+
+  const handleCheckForUpdate = async () => {
+    const result = await checkForUpdate()
+    if (result === 'done') {
+      addToast(hasUpdate ? 'Update available — click Update to apply' : 'You\'re on the latest version', { type: hasUpdate ? 'info' : 'success' })
+    } else if (result === 'error') {
+      addToast('Could not check for updates', { type: 'warning' })
+    } else if (result === 'no-sw') {
+      addToast('Updates not available in this environment', { type: 'info' })
+    }
+  }
+
   return (
     <div className="min-h-screen" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
       {fontsToLoad.map((font) => <link key={font.id} rel="stylesheet" href={font.url} />)}
@@ -129,10 +145,14 @@ export default function DesktopLayout({
                 <span>Install</span>
               </HeaderButton>
             )}
-            {hasUpdate && (
+            {hasUpdate ? (
               <button onClick={update} title="Update available" className="btn btn-success btn-sm gap-1.5">
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
                 <span>Update</span>
+              </button>
+            ) : (
+              <button onClick={handleCheckForUpdate} disabled={checking} title={checking ? 'Checking...' : 'Check for updates'} className={HEADER_BTN}>
+                <svg className={`w-4 h-4 ${checking ? 'animate-spin' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
               </button>
             )}
           </div>

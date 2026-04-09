@@ -17,7 +17,7 @@ import { debugLog } from '../utils/debugLog'
 
 // Chromium browsers that support beforeinstallprompt — single source of truth.
 // Shared by install hook, diagnostics, and analytics.
-export const CHROMIUM_BROWSERS = ['chrome', 'edge', 'brave', 'opera', 'samsung', 'vivaldi', 'arc']
+const CHROMIUM_BROWSERS = ['chrome', 'edge', 'brave', 'opera', 'samsung', 'vivaldi', 'arc']
 
 // Display names for UI — separate from detection logic
 const BROWSER_DISPLAY_NAMES = {
@@ -76,11 +76,11 @@ function isStandalone() {
 
 // Install analytics — localStorage event log, capped at 50 entries.
 // Useful for understanding install conversion without external analytics.
-function trackInstallEvent(event) {
+function trackInstallEvent(event, browserName) {
   try {
     const key = 'pwa-install-events'
     const events = JSON.parse(localStorage.getItem(key) || '[]')
-    events.push({ event, timestamp: new Date().toISOString(), browser: detectBrowser() })
+    events.push({ event, timestamp: new Date().toISOString(), browser: browserName })
     if (events.length > 50) events.splice(0, events.length - 50)
     localStorage.setItem(key, JSON.stringify(events))
   } catch { /* best effort */ }
@@ -128,7 +128,7 @@ export function usePWAInstall() {
       _canInstall = true
       notifyListeners()
       debugLog('pwa', 'install-prompt-captured', { browser })
-      trackInstallEvent('prompted')
+      trackInstallEvent('prompted', browser)
     }
 
     const installedHandler = () => {
@@ -136,7 +136,7 @@ export function usePWAInstall() {
       deferredPrompt = null
       notifyListeners()
       debugLog('pwa', 'app-installed', { browser })
-      trackInstallEvent('installed')
+      trackInstallEvent('installed', browser)
       // Track install in Google Analytics
       if (typeof gtag === 'function') {
         const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
@@ -165,7 +165,7 @@ export function usePWAInstall() {
       if (e.matches) {
         _canInstall = false
         notifyListeners()
-        trackInstallEvent('installed-via-browser')
+        trackInstallEvent('installed-via-browser', browser)
       }
     }
     mediaQuery.addEventListener('change', displayHandler)
@@ -193,10 +193,8 @@ export function usePWAInstall() {
         debugLog('pwa', 'install-prompt-missing', {
           browser, hasManifest, hasSW, isStandalone: isStandalone(),
         }, 'warn')
-        if (!deferredPrompt) {
-          _showManualInstructions = true
-          notifyListeners()
-        }
+        _showManualInstructions = true
+        notifyListeners()
       }
     }, 5000)
 
@@ -225,7 +223,7 @@ export function usePWAInstall() {
         notifyListeners()
         return true
       }
-      trackInstallEvent('dismissed')
+      trackInstallEvent('dismissed', browser)
       return false
     } catch (e) {
       debugLog('pwa', 'install-prompt-error', { error: String(e) }, 'error')

@@ -12,6 +12,9 @@ import { useRegisterSW } from 'virtual:pwa-register/react'
 import { debugLog } from '../utils/debugLog'
 
 const CHECK_INTERVAL_MS = 60 * 60 * 1000
+// SW lifecycle events (onNeedRefresh, onOfflineReady) fire asynchronously after
+// registration.update(). No event signals "check complete", so we settle with a delay.
+const UPDATE_CHECK_SETTLE_MS = 1500
 
 // Module-level state — survives component remounts
 let _registration = null
@@ -125,8 +128,7 @@ export function usePWAUpdate() {
     setChecking(true)
     try {
       await _registration.update()
-      // 1500ms settle delay for async SW lifecycle events
-      await new Promise(r => setTimeout(r, 1500))
+      await new Promise(r => setTimeout(r, UPDATE_CHECK_SETTLE_MS))
       return 'done'
     } catch (e) {
       debugLog('pwa', 'update-check-failed', { error: String(e) }, 'error')
