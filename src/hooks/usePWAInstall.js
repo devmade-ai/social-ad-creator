@@ -39,10 +39,17 @@ function notifyListeners() { _listeners.forEach(fn => fn()) }
 // Detect browser type — covers 7 Chromium browsers + Safari + Firefox.
 // Brave Mobile strips "Brave" from the UA string (confirmed 2026-03-07).
 // Use 'brave' in navigator existence check, not UA match.
+// iOS browser variants use different UA tokens: CriOS (Chrome), FxiOS (Firefox),
+// EdgiOS (Edge) — these must be checked before general patterns, otherwise they
+// fall through to 'safari' (all iOS UAs contain "Safari" but not "Chrome").
 function detectBrowser() {
   const ua = navigator.userAgent
 
   if ('brave' in navigator) return 'brave'
+  // iOS variants — must come before general checks (UA has "Safari" but not "Chrome")
+  if (/CriOS/i.test(ua)) return 'chrome'
+  if (/FxiOS/i.test(ua)) return 'firefox'
+  if (/EdgiOS/i.test(ua)) return 'edge'
   if (/Firefox/i.test(ua)) return 'firefox'
   if (/Safari/i.test(ua) && !/Chrome/i.test(ua) && !/Chromium/i.test(ua)) return 'safari'
   // Samsung must come before Chrome (UA contains both "SamsungBrowser" and "Chrome")
