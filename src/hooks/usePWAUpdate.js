@@ -7,7 +7,7 @@
 //     causes "update available" to re-appear after navigation.
 //   - No visibility check: Rejected — users who leave tabs open for days would miss updates
 //     until the next hourly interval fires.
-import { useEffect, useRef, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useRegisterSW } from 'virtual:pwa-register/react'
 import { debugLog } from '../utils/debugLog'
 
@@ -35,7 +35,11 @@ function wasJustUpdated() {
 export function usePWAUpdate() {
   const [, forceRender] = useState(0)
   const [checking, setChecking] = useState(false)
-  const intervalRef = useRef()
+  // Requirement: Interval must survive React Strict Mode double-mount.
+  // Approach: registered state flag triggers the interval effect. useRegisterSW uses
+  //   useState lazy initializer internally — onRegistered only fires once, not on re-mount.
+  //   Without this flag, Strict Mode cleanup kills the interval and it's never recreated.
+  const [registered, setRegistered] = useState(false)
 
   const {
     needRefresh: [needRefresh],
@@ -44,13 +48,8 @@ export function usePWAUpdate() {
     onRegistered(r) {
       if (r) {
         _registration = r
+        setRegistered(true)
         debugLog('pwa', 'sw-registered', { scope: r.scope })
-
-        // Clear existing interval before setting new one (prevents leak on re-registration)
-        if (intervalRef.current) clearInterval(intervalRef.current)
-        intervalRef.current = setInterval(() => {
-          r.update().catch(() => {})
-        }, CHECK_INTERVAL_MS)
       }
     },
     onNeedRefresh() {
@@ -99,10 +98,15 @@ export function usePWAUpdate() {
     return () => navigator.serviceWorker.removeEventListener('controllerchange', handleController)
   }, [])
 
-  // Cleanup interval on unmount
+  // Hourly update check interval — depends on registered flag so it re-creates
+  // after Strict Mode cleanup/re-mount (onRegistered only fires once).
   useEffect(() => {
-    return () => { if (intervalRef.current) clearInterval(intervalRef.current) }
-  }, [])
+    if (!registered || !_registration) return
+    const id = setInterval(() => {
+      _registration.update().catch(() => {})
+    }, CHECK_INTERVAL_MS)
+    return () => clearInterval(id)
+  }, [registered])
 
   const update = useCallback(() => {
     _userClickedUpdate = true
