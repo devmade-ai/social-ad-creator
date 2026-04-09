@@ -22,10 +22,6 @@ export default function ReaderMode({
   pageCount,
   setActivePage,
   setIsReaderMode,
-  isDark,
-  toggleDarkMode,
-  comboId,
-  setCombo,
 }) {
   // Escape exits reader mode — component is only mounted when active, so always enabled.
   const exitReaderMode = useCallback(() => setIsReaderMode(false), [setIsReaderMode])
@@ -64,7 +60,7 @@ export default function ReaderMode({
             <span className="hidden sm:inline">Back to Editor</span>
           </button>
           {hasMultiplePages && <span className="text-sm font-medium text-base-content/70">{state.activePage + 1} / {pageCount}</span>}
-          <ThemeSelector isDark={isDark} toggleDarkMode={toggleDarkMode} comboId={comboId} setCombo={setCombo} />
+          <ThemeSelector />
         </div>
       </header>
       <main className="flex-1 flex flex-col items-center justify-center px-2 py-1 sm:px-4 sm:py-2 min-h-0">

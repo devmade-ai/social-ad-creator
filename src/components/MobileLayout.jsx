@@ -5,6 +5,7 @@
 //   - Responsive sidebar: Rejected — scroll-heavy, canvas hidden by controls.
 //   - Tab content above canvas: Rejected — canvas should be primary focus.
 import { useCallback } from 'react'
+import { useTheme } from '../hooks/useTheme'
 import { useToast } from './Toast'
 import ErrorBoundary from './ErrorBoundary'
 import AdCanvas from './AdCanvas'
@@ -26,7 +27,8 @@ import { version } from '../../package.json'
 // Alternatives:
 //   - Independent per-mode theme list: Rejected — simplified to combos.
 //   - Separate ThemeSelector in header: Rejected — clutters mobile header.
-function MenuThemeSection({ isDark, toggleDarkMode, comboId, setCombo }) {
+function MenuThemeSection() {
+  const { isDark, toggle: toggleDarkMode, comboId, setCombo } = useTheme()
   return (
     <>
       <hr className="my-1 border-base-300" />
@@ -124,10 +126,6 @@ export default function MobileLayout({
   setShowTutorial,
   setShowShortcuts,
   setIsReaderMode,
-  isDark,
-  toggleDarkMode,
-  comboId,
-  setCombo,
   canInstall,
   install,
   hasUpdate,
@@ -207,7 +205,7 @@ export default function MobileLayout({
               { label: 'Keyboard Shortcuts', icon: ICON_KEYBOARD, action: () => setShowShortcuts(true) },
             ]}
           >
-            <MenuThemeSection isDark={isDark} toggleDarkMode={toggleDarkMode} comboId={comboId} setCombo={setCombo} />
+            <MenuThemeSection />
           </BurgerMenu>
         </div>
       </header>
