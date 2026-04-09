@@ -550,6 +550,56 @@ Run these tests after making changes to ensure nothing is broken.
 
 ---
 
+## PWA Tests
+
+### PWA1: Update Banner on Tab Refocus
+
+**Scenario:** When a new version is deployed, returning to the tab shows an update banner.
+
+| Step | Action | Where | Expected |
+|------|--------|-------|----------|
+| 1 | Deploy a new build | Vercel / hosting | New SW generated |
+| 2 | Switch to another tab, wait a few seconds | Browser | Tab is hidden |
+| 3 | Switch back to the CanvaGrid tab | Browser | Visibility-based check triggers SW update |
+| 4 | Wait for update detection | Header / menu | "Update Available" button appears (green) |
+| 5 | Click "Update" | Header button or menu item | Page reloads with new version |
+| 6 | Immediately reopen the tab | Browser | No update banner for ~30 seconds (suppression) |
+
+### PWA2: Install Prompt (Chromium Browsers)
+
+**Scenario:** On Chromium browsers (Chrome, Edge, Brave, Opera, Samsung, Vivaldi, Arc), the install button appears automatically.
+
+| Step | Action | Where | Expected |
+|------|--------|-------|----------|
+| 1 | Open the app in Chrome (not installed) | Browser | Wait for beforeinstallprompt |
+| 2 | Check header/menu | Header (desktop) or burger menu (mobile) | "Install App" button visible |
+| 3 | Click "Install App" | Button | Native browser install dialog appears |
+| 4 | Accept or dismiss | Dialog | Accept: app installs, button disappears. Dismiss: button remains. |
+
+### PWA3: Manual Install Instructions (Safari / Firefox)
+
+**Scenario:** On browsers without beforeinstallprompt, manual instructions are shown.
+
+| Step | Action | Where | Expected |
+|------|--------|-------|----------|
+| 1 | Open the app in Safari (iOS) | Safari | Wait 1 second |
+| 2 | Check header/menu | Header (desktop) or burger menu (mobile) | "How to Install" option visible |
+| 3 | Tap "How to Install" | Button | Modal opens with Safari-specific steps |
+| 4 | Verify steps are correct | Modal | Steps match actual Safari Share → Add to Home Screen flow |
+
+### PWA4: iOS Non-Safari Cross-Redirect
+
+**Scenario:** On iOS Chrome/Firefox/Edge, users are told to open in Safari.
+
+| Step | Action | Where | Expected |
+|------|--------|-------|----------|
+| 1 | Open the app in Chrome on iOS | iOS Chrome | Wait 5 seconds (diagnostic timeout) |
+| 2 | Check for install instructions | Header/menu | "How to Install" option appears |
+| 3 | Tap "How to Install" | Button | Modal shows "Open this page in Safari" as first step |
+| 4 | Verify note text | Modal | Note explains iOS only allows Safari for PWA installation |
+
+---
+
 ## Regression Checklist
 
 Quick checks to run after any code change:
@@ -576,5 +626,7 @@ Quick checks to run after any code change:
 - [ ] Platform search filter narrows results correctly
 - [ ] Burger menu: opens/closes, Escape dismisses, backdrop click dismisses, theme toggle works
 - [ ] Long-press cell context menu works on mobile (opens Media/Content/Style)
+- [ ] PWA: Install button shows on Chromium browsers (if not already installed)
+- [ ] PWA: Update banner appears after deploying a new version and switching tabs
 - [ ] `npm test` passes (unit tests)
 - [ ] No React warnings in console
