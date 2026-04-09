@@ -47,7 +47,9 @@ export function usePWAUpdate() {
 
         // Clear existing interval before setting new one (prevents leak on re-registration)
         if (intervalRef.current) clearInterval(intervalRef.current)
-        intervalRef.current = setInterval(() => r.update(), CHECK_INTERVAL_MS)
+        intervalRef.current = setInterval(() => {
+          r.update().catch(() => {})
+        }, CHECK_INTERVAL_MS)
       }
     },
     onNeedRefresh() {
@@ -75,7 +77,7 @@ export function usePWAUpdate() {
   useEffect(() => {
     const handleVisibility = () => {
       if (document.visibilityState === 'visible' && _registration) {
-        _registration.update()
+        _registration.update().catch(() => {})
       }
     }
     document.addEventListener('visibilitychange', handleVisibility)
