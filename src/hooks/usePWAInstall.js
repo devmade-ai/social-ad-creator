@@ -39,9 +39,9 @@ function notifyListeners() { _listeners.forEach(fn => fn()) }
 // Detect browser type — covers 7 Chromium browsers + Safari + Firefox.
 // Brave Mobile strips "Brave" from the UA string (confirmed 2026-03-07).
 // Use 'brave' in navigator existence check, not UA match.
-// Caveat: 'brave' in navigator is unverified on iOS Brave (WebKit engine).
-// If absent, iOS Brave falls through to 'safari' — benign, since iOS Brave
-// can't install PWAs anyway (same as all non-Safari iOS browsers).
+// Caveat: unverified whether Brave on iOS exposes navigator.brave (WebKit
+// engine, not Chromium). If absent, falls through to 'safari' — benign,
+// since no iOS browser except Safari can install PWAs.
 // iOS browser variants use different UA tokens: CriOS (Chrome), FxiOS (Firefox),
 // EdgiOS (Edge) — these must be checked before general patterns, otherwise they
 // fall through to 'safari' (all iOS UAs contain "Safari" but not "Chrome").
