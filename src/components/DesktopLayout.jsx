@@ -83,10 +83,13 @@ export default function DesktopLayout({
 }) {
   const { addToast } = useToast()
 
+  // Toast says "Check complete" — if an update was found during the settle delay,
+  // the update banner appears via normal hasUpdate re-render. Don't read hasUpdate
+  // in this closure — it's a stale prop value captured at render time, not a live ref.
   const handleCheckForUpdate = async () => {
     const result = await checkForUpdate()
     if (result === 'done') {
-      addToast(hasUpdate ? 'Update available — click Update to apply' : 'You\'re on the latest version', { type: hasUpdate ? 'info' : 'success' })
+      addToast('Check complete — you\'re on the latest version', { type: 'success' })
     } else if (result === 'error') {
       addToast('Could not check for updates', { type: 'warning' })
     } else if (result === 'no-sw') {

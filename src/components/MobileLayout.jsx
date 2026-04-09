@@ -151,16 +151,19 @@ export default function MobileLayout({
   const handleMenuClose = useCallback(() => setShowMobileMenu(false), [setShowMobileMenu])
   const { addToast } = useToast()
 
+  // Toast says "Check complete" — if an update was found during the settle delay,
+  // the update banner and menu item appear via normal hasUpdate re-render. Don't
+  // read hasUpdate in this closure — it's a stale prop captured at render time.
   const handleCheckForUpdate = useCallback(async () => {
     const result = await checkForUpdate()
     if (result === 'done') {
-      addToast(hasUpdate ? 'Update available — tap Update to apply' : 'You\'re on the latest version', { type: hasUpdate ? 'info' : 'success' })
+      addToast('Check complete — you\'re on the latest version', { type: 'success' })
     } else if (result === 'error') {
       addToast('Could not check for updates', { type: 'warning' })
     } else if (result === 'no-sw') {
       addToast('Updates not available in this environment', { type: 'info' })
     }
-  }, [checkForUpdate, hasUpdate, addToast])
+  }, [checkForUpdate, addToast])
 
   return (
     <div className="h-[100dvh] flex flex-col overflow-hidden bg-base-200">
