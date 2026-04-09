@@ -40,6 +40,15 @@
 - **BottomSheet safety snap timeout** — If `touchend` is lost (OS gesture hijack, browser bug), sheet auto-snaps after 500ms of no touch events. Prevents stuck-mid-drag state. Timer cleared normally on touchend/touchcancel, cleaned up on unmount.
 - **Debug log deduplication** — Consecutive identical messages (same source + event + severity) collapsed into a single entry with `count` field and updated timestamp. Prevents third-party console spam and React strict mode double-warnings from pushing real entries out of the 200-entry buffer. Count shown as `x{n}` badge in Log tab and `(x{n})` suffix in reports.
 
+### UI/UX polish
+
+- **Debug pill mobile positioning** — Pill and expanded panel sat behind MobileNav dock at `bottom:12px`. Now detects mobile via matchMedia and offsets to `bottom:72px` (above nav). Responsive — updates on viewport change.
+- **Copy feedback** — Copy button shows "Copied!" (green) or "Failed" (red) for 1.5s after click. Previously no visual indication.
+- **Removed dead embed check** — Inner `DebugPillInner` embed guard was unreachable since `mountDebugPill` already skips mounting in embed mode.
+- **Shared `formatTime`** — Exported from `debugLog.js`, imported in `DebugPill.jsx`. Eliminated duplicate HH:MM:SS.mmm formatting logic.
+- **BottomSheet `effectiveSnap` falsy zero** — `snapPoint || SNAP_HALF` treated `SNAP_CLOSED` (0) as falsy, falling through to `SNAP_HALF`. Fixed with nullish coalescing (`??`).
+- **BottomSheet handler merge** — Identical `handleTouchEnd` and `handleTouchCancel` merged into single `finishTouch` callback.
+
 ### Complete BurgerMenu implementation per BURGER_MENU pattern
 
 - **useEscapeKey hook** — Extracted from inline BurgerMenu keydown handler to `src/hooks/useEscapeKey.js`. Reusable by any disclosure component.

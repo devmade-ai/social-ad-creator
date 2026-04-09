@@ -64,6 +64,12 @@ export function subscribe(fn) {
   return () => subscribers.delete(fn)
 }
 
+// Shared timestamp formatter — used by both DebugPill Log tab and report generation.
+export function formatTime(ts) {
+  const d = new Date(ts)
+  return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}:${String(d.getSeconds()).padStart(2, '0')}.${String(d.getMilliseconds()).padStart(3, '0')}`
+}
+
 // --- Report generation ---
 // Lives in the module, not the pill component — reusable by any consumer.
 // URL query params are redacted to prevent token/UTM leaking when users share reports.
@@ -88,11 +94,9 @@ export function debugGenerateReport() {
     + (window.location.hash ? '#[redacted]' : '')
 
   const logLines = entries.map(e => {
-    const t = new Date(e.timestamp)
-    const ts = `${String(t.getHours()).padStart(2, '0')}:${String(t.getMinutes()).padStart(2, '0')}:${String(t.getSeconds()).padStart(2, '0')}.${String(t.getMilliseconds()).padStart(3, '0')}`
     const detail = e.details ? ` | ${safeStringify(e.details)}` : ''
     const count = e.count > 1 ? ` (x${e.count})` : ''
-    return `[${ts}] [${e.severity.toUpperCase()}] [${e.source}] ${e.event}${detail}${count}`
+    return `[${formatTime(e.timestamp)}] [${e.severity.toUpperCase()}] [${e.source}] ${e.event}${detail}${count}`
   })
 
   const lines = [

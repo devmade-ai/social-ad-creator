@@ -54,8 +54,9 @@ export default function BottomSheet({ isOpen, onClose, children, snapPoint, onSn
   const safetyTimerRef = useRef(null)
   // Current translateY in vh units during drag (avoids stale closures)
   const currentTranslateRef = useRef(snapToTranslateY(SNAP_CLOSED))
-  // Default to SNAP_HALF when snap point hasn't been set yet (e.g., during open animation)
-  const effectiveSnap = snapPoint || SNAP_HALF
+  // Default to SNAP_HALF when snap point hasn't been set yet (e.g., during open animation).
+  // Nullish coalescing (??) instead of || — SNAP_CLOSED is 0 which is falsy but valid.
+  const effectiveSnap = snapPoint ?? SNAP_HALF
 
   // Apply transform directly to DOM (no React re-render).
   // Respects prefers-reduced-motion by skipping animation when user has that preference.
@@ -209,13 +210,8 @@ export default function BottomSheet({ isOpen, onClose, children, snapPoint, onSn
   // Only snap if a drag actually occurred — content taps that were never promoted
   // to a sheet drag should not trigger snap logic (avoids unnecessary transitions).
   // Safety timer cleared here — if touchend fires normally, no safety snap needed.
-  const handleTouchEnd = useCallback(() => {
-    clearTimeout(safetyTimerRef.current)
-    if (!dragRef.current.isDragging) return
-    snapToNearest()
-  }, [snapToNearest])
-
-  const handleTouchCancel = useCallback(() => {
+  // Shared between touchend and touchcancel (identical behavior).
+  const finishTouch = useCallback(() => {
     clearTimeout(safetyTimerRef.current)
     if (!dragRef.current.isDragging) return
     snapToNearest()
@@ -238,8 +234,8 @@ export default function BottomSheet({ isOpen, onClose, children, snapPoint, onSn
       }}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
-      onTouchEnd={handleTouchEnd}
-      onTouchCancel={handleTouchCancel}
+      onTouchEnd={finishTouch}
+      onTouchCancel={finishTouch}
     >
       {/* Drag handle — py-4 for 44px+ touch zone (handle itself is 4px tall) */}
       <div

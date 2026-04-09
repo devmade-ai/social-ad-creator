@@ -53,11 +53,19 @@ Complete debug system implementation per glow-props DEBUG_SYSTEM.md pattern — 
 31. **BottomSheet safety snap timeout** — 500ms timer on drag move, auto-snaps if touchend lost. Cleared on touchend/touchcancel, cleaned up on unmount.
 32. **Debug log deduplication** — Consecutive identical source+event+severity entries collapsed with count field. Shown as `x{n}` in Log tab and `(x{n})` in reports.
 
+### UI/UX polish (round 8)
+33. **Debug pill mobile positioning** — Offset above MobileNav via matchMedia, responsive.
+34. **Copy feedback** — "Copied!" / "Failed" label with color for 1.5s.
+35. **Dead embed check removed** — Inner guard unreachable after mount guard.
+36. **Shared `formatTime`** — Exported from module, eliminated duplicate.
+37. **BottomSheet `effectiveSnap` falsy zero** — `||` → `??` for SNAP_CLOSED (0).
+38. **BottomSheet handler merge** — `handleTouchEnd`/`handleTouchCancel` → single `finishTouch`.
+
 ## Current state
 
-- **Branch:** `claude/add-console-interception-JGFQj` — 11 commits, pushed
+- **Branch:** `claude/add-console-interception-JGFQj` — 12 commits, pushed
 - Build passes, 76 tests pass, no errors
-- All 10 original task items + 7 rounds of audit/hardening complete
+- All 10 original task items + 8 rounds of audit/hardening/polish complete
 
 ## Key context
 

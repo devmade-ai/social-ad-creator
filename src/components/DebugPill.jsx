@@ -7,22 +7,23 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { createRoot } from 'react-dom/client'
-import { clearEntries, subscribe, debugLog, debugGenerateReport } from '../utils/debugLog'
-
-function formatTime(ts) {
-  const d = new Date(ts)
-  const h = String(d.getHours()).padStart(2, '0')
-  const m = String(d.getMinutes()).padStart(2, '0')
-  const s = String(d.getSeconds()).padStart(2, '0')
-  const ms = String(d.getMilliseconds()).padStart(3, '0')
-  return `${h}:${m}:${s}.${ms}`
-}
+import { clearEntries, subscribe, debugLog, debugGenerateReport, formatTime } from '../utils/debugLog'
 
 const SEVERITY_COLORS = {
   info: '#60a5fa',
   success: '#4ade80',
   warn: '#fbbf24',
   error: '#f87171',
+}
+
+// MobileNav dock height + safe area — pill must sit above this on mobile.
+// Matches MobileNav's ~56px height + 12px breathing room.
+const MOBILE_BOTTOM = 72
+const DESKTOP_BOTTOM = 12
+const MOBILE_MQ = '(max-width: 1023px)'
+
+function getBottom() {
+  return window.matchMedia(MOBILE_MQ).matches ? MOBILE_BOTTOM : DESKTOP_BOTTOM
 }
 
 // Clipboard with multiple fallbacks — ClipboardItem Blob, writeText, textarea execCommand.
@@ -57,12 +58,22 @@ function DebugPillInner() {
   const [expanded, setExpanded] = useState(false)
   const [tab, setTab] = useState('log')
   const [entries, setEntries] = useState([])
+  const [copyLabel, setCopyLabel] = useState('Copy')
+  const [bottom, setBottom] = useState(getBottom)
   const logEndRef = useRef(null)
 
   // Hydration-safe initialization — sync in useEffect, not useState initializer.
   // Subscriber replay delivers existing entries immediately on subscribe.
   useEffect(() => {
     return subscribe((allEntries) => setEntries([...allEntries]))
+  }, [])
+
+  // Track viewport size changes to reposition pill above MobileNav on mobile.
+  useEffect(() => {
+    const mq = window.matchMedia(MOBILE_MQ)
+    const update = () => setBottom(getBottom())
+    mq.addEventListener('change', update)
+    return () => mq.removeEventListener('change', update)
   }, [])
 
   useEffect(() => {
@@ -78,10 +89,10 @@ function DebugPillInner() {
     const report = debugGenerateReport()
     const ok = await copyToClipboard(report)
     debugLog('debug-pill', ok ? 'report-copied' : 'report-copy-failed', null, ok ? 'success' : 'warn')
+    // Visual feedback on the button — resets after 1.5s
+    setCopyLabel(ok ? 'Copied!' : 'Failed')
+    setTimeout(() => setCopyLabel('Copy'), 1500)
   }, [])
-
-  // Embed mode skip — don't show pill when ?embed= is in the URL
-  if (window.location.search.includes('embed=')) return null
 
   if (!expanded) {
     return (
@@ -89,7 +100,7 @@ function DebugPillInner() {
         onClick={() => setExpanded(true)}
         style={{
           position: 'fixed',
-          bottom: 12,
+          bottom,
           left: 12,
           zIndex: 80,
           background: '#27272a',
@@ -137,7 +148,7 @@ function DebugPillInner() {
   return (
     <div style={{
       position: 'fixed',
-      bottom: 12,
+      bottom,
       left: 12,
       zIndex: 80,
       width: 380,
@@ -177,7 +188,7 @@ function DebugPillInner() {
           onClick={copyReport}
           style={{
             background: 'transparent',
-            color: '#60a5fa',
+            color: copyLabel === 'Copied!' ? '#4ade80' : copyLabel === 'Failed' ? '#f87171' : '#60a5fa',
             border: '1px solid #3f3f46',
             borderRadius: 4,
             padding: '2px 8px',
@@ -185,7 +196,7 @@ function DebugPillInner() {
             fontSize: 10,
           }}
         >
-          Copy
+          {copyLabel}
         </button>
         <button
           onClick={() => { clearEntries() }}
