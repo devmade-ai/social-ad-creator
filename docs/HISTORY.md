@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-04-09
+
+### PWA visibility checks, update suppression, and install singleton
+
+- **usePWAUpdate rewrite** — Module-level singleton with pub/sub. Adds `visibilitychange` listener (checks for SW updates when tab regains focus), 30-second `sessionStorage` suppression after user clicks Update, `controllerchange` reload guard (only reloads on explicit user action), and `checkForUpdate()`/`checking` for future menu integration.
+- **needRefresh suppression fix** — `useRegisterSW` sets `needRefresh` internally regardless of `onNeedRefresh` callback. Gated `|| needRefresh` fallback with `wasJustUpdated()` to prevent 30-second suppression bypass.
+- **usePWAInstall singleton** — Lifted `canInstall` and `showManualInstructions` from per-instance React state to module-level with pub/sub. All hook consumers share state — setting `canInstall=false` after install updates every consumer immediately.
+- **Eager `_canInstall` init** — Module-scope `_canInstall` initialized from pre-captured `window.__pwaInstallPrompt` to eliminate extra render cycle on repeat visits.
+
 ## 2026-04-08
 
 ### Complete debug system per DEBUG_SYSTEM pattern

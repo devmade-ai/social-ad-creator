@@ -17,7 +17,9 @@ import { debugLog } from '../utils/debugLog'
 
 // Module-level state — survives remounts and shared across all consumers
 let deferredPrompt = window.__pwaInstallPrompt || null
-let _canInstall = false
+// Initialize from captured prompt — avoids an extra render cycle when the
+// inline script in index.html already captured beforeinstallprompt.
+let _canInstall = !!deferredPrompt && !isStandalone()
 let _showManualInstructions = false
 const _listeners = new Set()
 
