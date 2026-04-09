@@ -266,9 +266,10 @@ function DebugPillInner() {
 
 function getEnvironmentInfo() {
   return {
-    // Redact query params to prevent token/UTM leaking
+    // Redact query params and hash to prevent token/UTM leaking — matches debugGenerateReport
     url: window.location.origin + window.location.pathname
-      + (window.location.search ? '?[redacted]' : ''),
+      + (window.location.search ? '?[redacted]' : '')
+      + (window.location.hash ? '#[redacted]' : ''),
     userAgent: navigator.userAgent,
     screen: `${screen.width}x${screen.height}`,
     viewport: `${window.innerWidth}x${window.innerHeight}`,
