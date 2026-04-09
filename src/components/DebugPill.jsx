@@ -106,7 +106,7 @@ function DebugPillInner() {
         style={{
           position: 'fixed',
           bottom,
-          left: 12,
+          right: 12,
           zIndex: 80,
           background: '#27272a',
           color: '#a1a1aa',
@@ -154,7 +154,7 @@ function DebugPillInner() {
     <div style={{
       position: 'fixed',
       bottom,
-      left: 12,
+      right: 12,
       zIndex: 80,
       width: 380,
       maxWidth: 'calc(100vw - 24px)',
