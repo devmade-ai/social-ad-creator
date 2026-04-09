@@ -51,6 +51,7 @@ export default function BottomSheet({ isOpen, onClose, children, snapPoint, onSn
   const sheetRef = useRef(null)
   const contentRef = useRef(null)
   const dragRef = useRef({ startY: 0, startTranslateVh: 0, isDragging: false })
+  const safetyTimerRef = useRef(null)
   // Current translateY in vh units during drag (avoids stale closures)
   const currentTranslateRef = useRef(snapToTranslateY(SNAP_CLOSED))
   // Default to SNAP_HALF when snap point hasn't been set yet (e.g., during open animation)
@@ -85,6 +86,9 @@ export default function BottomSheet({ isOpen, onClose, children, snapPoint, onSn
   // Only run on mount/open change — snapPoint changes handled by the other effect
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen])
+
+  // Clean up safety timer on unmount
+  useEffect(() => () => clearTimeout(safetyTimerRef.current), [])
 
   // Auto-open to half when opening from closed
   useEffect(() => {
@@ -161,7 +165,12 @@ export default function BottomSheet({ isOpen, onClose, children, snapPoint, onSn
     // Clamp: 0 = fully visible (SNAP_FULL), SNAP_FULL = fully hidden
     const newTranslate = Math.min(SNAP_FULL, Math.max(0, drag.startTranslateVh + deltaVh))
     applyTransform(newTranslate, false)
-  }, [applyTransform])
+
+    // Safety timeout: if touchend is lost (OS gesture hijack, browser bug),
+    // auto-snap after 500ms of no touch events to prevent stuck mid-drag state.
+    clearTimeout(safetyTimerRef.current)
+    safetyTimerRef.current = setTimeout(snapToNearest, 500)
+  }, [applyTransform, snapToNearest])
 
   // Snap to nearest point based on drag direction and position.
   // Requirement: Direction-aware thresholds — 5vh past the snap you're leaving.
@@ -199,12 +208,15 @@ export default function BottomSheet({ isOpen, onClose, children, snapPoint, onSn
 
   // Only snap if a drag actually occurred — content taps that were never promoted
   // to a sheet drag should not trigger snap logic (avoids unnecessary transitions).
+  // Safety timer cleared here — if touchend fires normally, no safety snap needed.
   const handleTouchEnd = useCallback(() => {
+    clearTimeout(safetyTimerRef.current)
     if (!dragRef.current.isDragging) return
     snapToNearest()
   }, [snapToNearest])
 
   const handleTouchCancel = useCallback(() => {
+    clearTimeout(safetyTimerRef.current)
     if (!dragRef.current.isDragging) return
     snapToNearest()
   }, [snapToNearest])

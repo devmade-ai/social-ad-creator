@@ -229,6 +229,9 @@ function DebugPillInner() {
                 <span style={{ color: SEVERITY_COLORS[entry.severity] || '#a1a1aa' }}>[{entry.severity}]</span>{' '}
                 <span style={{ color: '#a78bfa' }}>[{entry.source}]</span>{' '}
                 <span>{entry.event}</span>
+                {entry.count > 1 && (
+                  <span style={{ color: '#fbbf24', marginLeft: 4 }}>x{entry.count}</span>
+                )}
                 {entry.details && (
                   <span style={{ color: '#71717a' }}> {JSON.stringify(entry.details)}</span>
                 )}

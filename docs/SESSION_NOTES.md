@@ -49,11 +49,15 @@ Complete debug system implementation per glow-props DEBUG_SYSTEM.md pattern — 
 29. **PWA diagnostics React keys** — Array index keys replaced with `r.label` for stable DOM reconciliation.
 30. **Pre-React stack capture** — `e.error.stack` captured when available instead of just filename:lineno.
 
+### Robustness hardening (round 7)
+31. **BottomSheet safety snap timeout** — 500ms timer on drag move, auto-snaps if touchend lost. Cleared on touchend/touchcancel, cleaned up on unmount.
+32. **Debug log deduplication** — Consecutive identical source+event+severity entries collapsed with count field. Shown as `x{n}` in Log tab and `(x{n})` in reports.
+
 ## Current state
 
-- **Branch:** `claude/add-console-interception-JGFQj` — 10 commits, pushed
+- **Branch:** `claude/add-console-interception-JGFQj` — 11 commits, pushed
 - Build passes, 76 tests pass, no errors
-- All 10 original task items + 6 audit rounds complete
+- All 10 original task items + 7 rounds of audit/hardening complete
 
 ## Key context
 

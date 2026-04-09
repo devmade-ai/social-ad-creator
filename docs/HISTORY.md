@@ -35,6 +35,11 @@
 - **PWA diagnostics React keys** — Results list used array index as key. Replaced with `r.label` (unique per diagnostic check) for correct DOM reconciliation.
 - **Pre-React error stack capture** — Inline error handler passed `filename:lineno` as "stack". Now captures `e.error.stack` (full trace) when available, falls back to filename:lineno.
 
+### Robustness hardening
+
+- **BottomSheet safety snap timeout** — If `touchend` is lost (OS gesture hijack, browser bug), sheet auto-snaps after 500ms of no touch events. Prevents stuck-mid-drag state. Timer cleared normally on touchend/touchcancel, cleaned up on unmount.
+- **Debug log deduplication** — Consecutive identical messages (same source + event + severity) collapsed into a single entry with `count` field and updated timestamp. Prevents third-party console spam and React strict mode double-warnings from pushing real entries out of the 200-entry buffer. Count shown as `x{n}` badge in Log tab and `(x{n})` suffix in reports.
+
 ### Complete BurgerMenu implementation per BURGER_MENU pattern
 
 - **useEscapeKey hook** — Extracted from inline BurgerMenu keydown handler to `src/hooks/useEscapeKey.js`. Reusable by any disclosure component.

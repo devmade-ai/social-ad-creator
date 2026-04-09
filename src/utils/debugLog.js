@@ -17,6 +17,17 @@ function notify() {
 }
 
 export function debugLog(source, event, details = null, severity = 'info') {
+  // Deduplicate consecutive identical messages — third-party scripts and React strict
+  // mode can spam the same warning repeatedly, pushing real entries out of the buffer.
+  // Collapsed entries get a count field and updated timestamp.
+  const last = entries[entries.length - 1]
+  if (last && last.source === source && last.event === event && last.severity === severity) {
+    last.count = (last.count || 1) + 1
+    last.timestamp = Date.now()
+    notify()
+    return
+  }
+
   const entry = {
     id: nextId++,
     timestamp: Date.now(),
@@ -80,7 +91,8 @@ export function debugGenerateReport() {
     const t = new Date(e.timestamp)
     const ts = `${String(t.getHours()).padStart(2, '0')}:${String(t.getMinutes()).padStart(2, '0')}:${String(t.getSeconds()).padStart(2, '0')}.${String(t.getMilliseconds()).padStart(3, '0')}`
     const detail = e.details ? ` | ${safeStringify(e.details)}` : ''
-    return `[${ts}] [${e.severity.toUpperCase()}] [${e.source}] ${e.event}${detail}`
+    const count = e.count > 1 ? ` (x${e.count})` : ''
+    return `[${ts}] [${e.severity.toUpperCase()}] [${e.source}] ${e.event}${detail}${count}`
   })
 
   const lines = [
