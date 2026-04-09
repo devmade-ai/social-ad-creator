@@ -134,7 +134,10 @@ if (!window.__debugConsolePatched) {
     originalError.apply(console, args)
     if (!intercepting) {
       intercepting = true
-      try { debugLog('console', args.map(String).join(' '), null, 'error') } finally { intercepting = false }
+      // Capture stack trace from Error objects for easier debugging of minified crashes.
+      const errObj = args.find(a => a instanceof Error)
+      const details = errObj?.stack ? { stack: errObj.stack } : null
+      try { debugLog('console', args.map(String).join(' '), details, 'error') } finally { intercepting = false }
     }
   }
 
@@ -158,6 +161,7 @@ if (!window.__debugLogListenersAttached) {
       filename: e.filename,
       lineno: e.lineno,
       colno: e.colno,
+      stack: e.error?.stack || null,
     }, 'error')
   })
 
