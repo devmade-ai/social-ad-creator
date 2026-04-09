@@ -209,4 +209,19 @@ Each wrong assumption led to a commit that didn't solve the actual problem. Thre
 
 ---
 
+## 2026-04 | TDZ Bug in BottomSheet — useCallback Declaration Order
+
+**What went wrong:** BottomSheet.jsx had `handleTouchMove`'s `useCallback` dependency array referencing `snapToNearest` before its `const` declaration. This caused `ReferenceError: Cannot access 'm' before initialization` (minified name) on every page load. The app crashed on initial render because BottomSheet renders inside MobileLayout which is not wrapped in an ErrorBoundary.
+
+**Why it happened:** When the touch-drag logic was written, `snapToNearest` was placed after `handleTouchMove` for logical readability (move handler before snap logic). In JavaScript, `const`/`let` declarations are not hoisted like `function` declarations — accessing them before the declaration line causes a temporal dead zone (TDZ) error. The dependency array `[applyTransform, snapToNearest]` evaluates immediately, triggering TDZ.
+
+**Why it was hard to diagnose:** The error only showed the minified variable name `'m'` and the re-throw location in React DOM (not the original source). The debug system didn't capture stack traces from Error objects, making source-map tracing the only option. That pointed to React's error handler, not the user code that threw.
+
+**How to prevent:**
+- When a `useCallback` depends on another `useCallback`, declare the dependency FIRST
+- `const`/`let` dependency arrays are evaluated immediately — not lazily like the closure body
+- Always capture `e.error?.stack` in global error handlers for production crash diagnosis
+
+---
+
 *Add new entries above this line*

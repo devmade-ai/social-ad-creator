@@ -131,6 +131,43 @@ export default function BottomSheet({ isOpen, onClose, children, snapPoint, onSn
     if (!inContent && sheetRef.current) sheetRef.current.style.transition = 'none'
   }, [])
 
+  // Snap to nearest point based on drag direction and position.
+  // Requirement: Direction-aware thresholds — 5vh past the snap you're leaving.
+  // Approach: Compare current position to starting snap to determine drag direction,
+  //   then use asymmetric thresholds so a small committed gesture snaps quickly.
+  // Alternatives:
+  //   - Single midpoint thresholds: Rejected — same distance needed regardless of
+  //     intent, feels sluggish when user clearly commits to a direction.
+  // NOTE: Declared before handleTouchMove/finishTouch — they reference snapToNearest
+  //   in dependency arrays. const/let are not hoisted like function declarations,
+  //   so accessing them before their declaration causes a TDZ ReferenceError.
+  const snapToNearest = useCallback(() => {
+    dragRef.current.isDragging = false
+    const currentVh = SNAP_FULL - currentTranslateRef.current // visible height in vh
+    const startVh = dragRef.current.startSnapVh
+    const draggingUp = currentVh > startVh
+
+    let targetSnap
+    if (draggingUp) {
+      // Thresholds: 5vh past the snap you're leaving
+      if (currentVh > SNAP_HALF + SNAP_THRESHOLD) targetSnap = SNAP_FULL
+      else if (currentVh > SNAP_CLOSED + SNAP_THRESHOLD) targetSnap = SNAP_HALF
+      else targetSnap = SNAP_CLOSED
+    } else {
+      // Dragging down
+      if (currentVh < SNAP_HALF - SNAP_THRESHOLD) targetSnap = SNAP_CLOSED
+      else if (currentVh < SNAP_FULL - SNAP_THRESHOLD) targetSnap = SNAP_HALF
+      else targetSnap = SNAP_FULL
+    }
+
+    if (targetSnap === SNAP_CLOSED) {
+      onClose()
+    } else {
+      onSnapChange(targetSnap)
+      applyTransform(snapToTranslateY(targetSnap), true)
+    }
+  }, [onClose, onSnapChange, applyTransform])
+
   const handleTouchMove = useCallback((e) => {
     const drag = dragRef.current
     // Content-area touch: promote to sheet drag when at scroll boundary.
@@ -172,40 +209,6 @@ export default function BottomSheet({ isOpen, onClose, children, snapPoint, onSn
     clearTimeout(safetyTimerRef.current)
     safetyTimerRef.current = setTimeout(snapToNearest, 500)
   }, [applyTransform, snapToNearest])
-
-  // Snap to nearest point based on drag direction and position.
-  // Requirement: Direction-aware thresholds — 5vh past the snap you're leaving.
-  // Approach: Compare current position to starting snap to determine drag direction,
-  //   then use asymmetric thresholds so a small committed gesture snaps quickly.
-  // Alternatives:
-  //   - Single midpoint thresholds: Rejected — same distance needed regardless of
-  //     intent, feels sluggish when user clearly commits to a direction.
-  const snapToNearest = useCallback(() => {
-    dragRef.current.isDragging = false
-    const currentVh = SNAP_FULL - currentTranslateRef.current // visible height in vh
-    const startVh = dragRef.current.startSnapVh
-    const draggingUp = currentVh > startVh
-
-    let targetSnap
-    if (draggingUp) {
-      // Thresholds: 5vh past the snap you're leaving
-      if (currentVh > SNAP_HALF + SNAP_THRESHOLD) targetSnap = SNAP_FULL
-      else if (currentVh > SNAP_CLOSED + SNAP_THRESHOLD) targetSnap = SNAP_HALF
-      else targetSnap = SNAP_CLOSED
-    } else {
-      // Dragging down
-      if (currentVh < SNAP_HALF - SNAP_THRESHOLD) targetSnap = SNAP_CLOSED
-      else if (currentVh < SNAP_FULL - SNAP_THRESHOLD) targetSnap = SNAP_HALF
-      else targetSnap = SNAP_FULL
-    }
-
-    if (targetSnap === SNAP_CLOSED) {
-      onClose()
-    } else {
-      onSnapChange(targetSnap)
-      applyTransform(snapToTranslateY(targetSnap), true)
-    }
-  }, [onClose, onSnapChange, applyTransform])
 
   // Only snap if a drag actually occurred — content taps that were never promoted
   // to a sheet drag should not trigger snap logic (avoids unnecessary transitions).
