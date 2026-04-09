@@ -61,11 +61,17 @@ Complete debug system implementation per glow-props DEBUG_SYSTEM.md pattern — 
 37. **BottomSheet `effectiveSnap` falsy zero** — `||` → `??` for SNAP_CLOSED (0).
 38. **BottomSheet handler merge** — `handleTouchEnd`/`handleTouchCancel` → single `finishTouch`.
 
+### Final fixes (rounds 9–10)
+39. **Copy timer leak** — `setTimeout` in `copyReport` cleaned up on unmount via ref.
+40. **Dedup mutation invisible to React** — Entry replaced with spread copy instead of mutated in place.
+41. **Env tab hash redaction** — Hash fragment now redacted, matching report generation.
+42. **Second `snapPoint` falsy-zero** — Animation effect at line 74 still used `||`, missed in round 8 fix. Changed to `??`.
+
 ## Current state
 
-- **Branch:** `claude/add-console-interception-JGFQj` — 12 commits, pushed
+- **Branch:** `claude/add-console-interception-JGFQj` — 15 commits, pushed
 - Build passes, 76 tests pass, no errors
-- All 10 original task items + 8 rounds of audit/hardening/polish complete
+- All 10 original task items + 10 rounds of audit/hardening/polish complete
 
 ## Key context
 

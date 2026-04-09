@@ -49,6 +49,13 @@
 - **BottomSheet `effectiveSnap` falsy zero** — `snapPoint || SNAP_HALF` treated `SNAP_CLOSED` (0) as falsy, falling through to `SNAP_HALF`. Fixed with nullish coalescing (`??`).
 - **BottomSheet handler merge** — Identical `handleTouchEnd` and `handleTouchCancel` merged into single `finishTouch` callback.
 
+### Final fixes
+
+- **Copy timer leak** — `setTimeout` in `copyReport` not cleaned up on unmount. Added ref-based cleanup.
+- **Dedup mutation invisible to React** — Entry mutated in place; React skipped re-render. Fixed with spread copy.
+- **Env tab hash redaction** — Hash fragment now redacted to match report generation.
+- **Second `snapPoint` falsy zero** — Animation effect still used `||` after `effectiveSnap` was fixed to `??`.
+
 ### Complete BurgerMenu implementation per BURGER_MENU pattern
 
 - **useEscapeKey hook** — Extracted from inline BurgerMenu keydown handler to `src/hooks/useEscapeKey.js`. Reusable by any disclosure component.
