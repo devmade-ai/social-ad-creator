@@ -71,7 +71,7 @@ export default function BottomSheet({ isOpen, onClose, children, snapPoint, onSn
   // Animate to snap point when it changes or sheet opens
   useEffect(() => {
     if (!isOpen) return
-    const target = snapToTranslateY(snapPoint || SNAP_HALF)
+    const target = snapToTranslateY(snapPoint ?? SNAP_HALF)
     // Use rAF to ensure the initial off-screen position is painted first
     requestAnimationFrame(() => {
       applyTransform(target, true)
