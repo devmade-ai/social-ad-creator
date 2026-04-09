@@ -126,7 +126,10 @@ export function usePWAUpdate() {
   }, [])
 
   return {
-    hasUpdate: _hasUpdate || needRefresh,
+    // Gate needRefresh with wasJustUpdated() — the library sets needRefresh
+    // internally regardless of what onNeedRefresh does, so without this check
+    // the 30-second suppression could be bypassed.
+    hasUpdate: _hasUpdate || (needRefresh && !wasJustUpdated()),
     update,
     checkForUpdate,
     checking,
