@@ -10,7 +10,7 @@ Future enhancements and ideas for CanvaGrid.
 
 | Item | Effort | Description |
 |------|--------|-------------|
-| **TypeScript migration** | Medium-High | Actual state: ~30% of config (3/11: textDefaults.ts, fonts.ts, sampleImages.ts), ~11% of utils (1/9: layoutHelpers.ts), 0% hooks, 0% components. Next: finish config + utils, then hooks (useHistory, useAdState — needs generic types), then components (.jsx → .tsx, starting smallest). |
+| **TypeScript migration** | Medium-High | Actual state: ~30% of config (3/11: textDefaults.ts, fonts.ts, sampleImages.ts), ~17% of utils (1/6: layoutHelpers.ts), 0% hooks, 0% components. Next: finish config + utils, then hooks (useHistory, useAdState — needs generic types), then components (.jsx → .tsx, starting smallest). |
 | **React Context for theme values** | Medium | `useDarkMode` returns 4 values threaded through App.jsx → 3 layout components → ThemeSelector (12 prop passes). Replace with ThemeContext/ThemeProvider so ThemeSelector consumes the hook directly. Eliminates prop drilling without adding complexity. |
 
 ### Low Priority (Long-term)
