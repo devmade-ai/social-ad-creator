@@ -2,6 +2,19 @@
 
 ## 2026-04-09
 
+### BottomSheet TDZ crash fix (mobile)
+
+- `handleTouchMove`'s `useCallback` dependency array referenced `snapToNearest` before its `const` declaration — temporal dead zone `ReferenceError` on every mobile page load
+- Bug introduced in commit `89ac172` (safety snap timeout) — added `snapToNearest` to `handleTouchMove`'s deps and closure body, but `snapToNearest` was declared after `handleTouchMove`
+- Fix: moved `snapToNearest` declaration above `handleTouchMove` and `finishTouch`
+- Desktop unaffected — BottomSheet only renders in MobileLayout
+
+### Debug system: stack trace capture in error handlers
+
+- `console.error` interceptor now extracts `Error.stack` from Error objects
+- Global error handler now captures `e.error?.stack`
+- Debug reports now include full stack traces for minified crashes
+
 ### ThemeContext — eliminate prop drilling (from TODO)
 
 - Created `useTheme.js` — React Context wrapping `useDarkMode`. `ThemeProvider` in `AppWithProviders`.

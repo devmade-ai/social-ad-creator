@@ -5,37 +5,32 @@ Compact context summary for session continuity. Rewrite at session end.
 ---
 
 ## Worked on
-PWA reliability per glow-props pattern + ThemeContext refactor + unit test expansion.
+Mobile crash debugging — TDZ error in BottomSheet + debug system improvement.
 
 ## Accomplished
 
-### PWA hooks (tasks 1-3 from issue)
-- usePWAUpdate.js: module-level singleton, visibilitychange listener, 30s suppression, controllerchange guard, checkForUpdate/checking wired to burger menu + desktop header
-- usePWAInstall.js: singleton state, 9 browser detection (incl. iOS CriOS/FxiOS/EdgiOS), display-mode listener, 5s diagnostic timeout, trackInstallEvent, install() try/catch, iOS cross-redirect
-- Extracted pure functions to utils/pwaHelpers.js for testability
+### BottomSheet TDZ crash fix
+- `handleTouchMove`'s `useCallback` dependency array referenced `snapToNearest` before its `const` declaration — temporal dead zone crash
+- Bug introduced in commit `89ac172` (safety snap timeout) which added `snapToNearest` to `handleTouchMove`'s deps
+- Fix: moved `snapToNearest` declaration above `handleTouchMove` and `finishTouch`
+- Hook call order changed (positions 14-15 swapped) — safe because old order always crashed, no prior hook state exists
+- Mobile-only: BottomSheet only renders in MobileLayout, not DesktopLayout
+- Scanned entire codebase for similar TDZ patterns — none found
 
-### ThemeContext (TODO item #2 — completed)
-- Created useTheme.js — React Context wrapping useDarkMode
-- Removed 12 prop passes across App → 3 layout components → ThemeSelector/MenuThemeSection
-- All layout components were pure forwarders — now leaf components consume context directly
-
-### Unit test expansion (TODO item #3 — partial)
-- 76 → 133 tests (57 new) across 4 new test files
-- pwaHelpers: detectBrowser (13 browsers), wasJustUpdated (4), trackInstallEvent (4)
-- layouts: toRgba (8), toTransparentRgba (2)
-- platforms: structure validation, unique IDs, category coverage, lookup helpers
-- themes: neutralColors, getNeutralColor, presetThemes structure + variant hex validation
-- Still untested: designStorage.js, debugLog.js (need browser API mocks)
+### Debug system stack trace capture
+- `console.error` interceptor now extracts `Error.stack` from Error objects in args
+- Global error handler now captures `e.error?.stack`
+- Both improvements make minified crash debugging drastically easier (this crash took extensive analysis without stack traces)
 
 ## Current state
 
-- **Branch:** `claude/add-pwa-visibility-checks-9oDG8` — pushed
+- **Branch:** `claude/debug-canvagrid-mobile-0Om3w` — pushed (2 commits)
 - Build passes, 133 tests pass
-- TODO #2 (ThemeContext) complete, TODO #3 (tests) partially complete
+- No other TDZ patterns found in codebase
 
 ## Key context
 
-- **utils/pwaHelpers.js** contains all pure PWA functions — hooks import from there
-- **useTheme.js** uses createElement (not JSX) — hooks use .js extension, Vite only parses JSX in .jsx
-- **jest.config.js** restored to minimal config — no mocks needed since pwaHelpers has no browser-only imports
-- **ThemeProvider** wraps App in AppWithProviders (main.jsx unchanged)
+- The error appeared as `Cannot access 'm' before initialization` — minified variable name with no stack trace in debug report
+- Source-map tracing only pointed to React DOM's error re-throw location, not the user code that caused it
+- The fix was to reorder declarations, not change any logic
+- AI_MISTAKES.md updated with the TDZ pattern for future prevention
