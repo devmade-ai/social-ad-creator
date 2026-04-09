@@ -61,6 +61,7 @@ function DebugPillInner() {
   const [copyLabel, setCopyLabel] = useState('Copy')
   const [bottom, setBottom] = useState(getBottom)
   const logEndRef = useRef(null)
+  const copyTimerRef = useRef(null)
 
   // Hydration-safe initialization — sync in useEffect, not useState initializer.
   // Subscriber replay delivers existing entries immediately on subscribe.
@@ -85,13 +86,17 @@ function DebugPillInner() {
   const errorCount = entries.filter(e => e.severity === 'error').length
   const warnCount = entries.filter(e => e.severity === 'warn').length
 
+  // Clean up copy feedback timer on unmount
+  useEffect(() => () => clearTimeout(copyTimerRef.current), [])
+
   const copyReport = useCallback(async () => {
     const report = debugGenerateReport()
     const ok = await copyToClipboard(report)
     debugLog('debug-pill', ok ? 'report-copied' : 'report-copy-failed', null, ok ? 'success' : 'warn')
     // Visual feedback on the button — resets after 1.5s
     setCopyLabel(ok ? 'Copied!' : 'Failed')
-    setTimeout(() => setCopyLabel('Copy'), 1500)
+    clearTimeout(copyTimerRef.current)
+    copyTimerRef.current = setTimeout(() => setCopyLabel('Copy'), 1500)
   }, [])
 
   if (!expanded) {

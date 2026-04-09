@@ -20,10 +20,10 @@ export function debugLog(source, event, details = null, severity = 'info') {
   // Deduplicate consecutive identical messages — third-party scripts and React strict
   // mode can spam the same warning repeatedly, pushing real entries out of the buffer.
   // Collapsed entries get a count field and updated timestamp.
+  // Creates a new object (not mutation) so React subscribers detect the change.
   const last = entries[entries.length - 1]
   if (last && last.source === source && last.event === event && last.severity === severity) {
-    last.count = (last.count || 1) + 1
-    last.timestamp = Date.now()
+    entries[entries.length - 1] = { ...last, count: (last.count || 1) + 1, timestamp: Date.now() }
     notify()
     return
   }
