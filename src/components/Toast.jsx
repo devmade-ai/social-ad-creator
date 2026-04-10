@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 // Requirement: Non-blocking feedback notifications for user actions (save, export, errors).
 // Approach: DaisyUI toast (positioning container) + alert (styled notification) components
 //   replace hand-rolled fixed-position container and custom severity styling.

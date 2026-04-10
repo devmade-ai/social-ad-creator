@@ -39,7 +39,6 @@ const ColorInput = memo(function ColorInput({ label, value, onChange }) {
 
 // Simple look preview swatch
 function LookSwatch({ preset, isActive, theme }) {
-  const { style } = preset.preview
   const imageFilters = preset.imageFilters
   const overlay = preset.layouts?.['hero']?.imageOverlay
 

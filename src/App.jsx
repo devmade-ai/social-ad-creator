@@ -196,7 +196,7 @@ function App() {
     addImage, removeImage, updateImage, updateImageFilters, updateImagePosition, updateImageOverlay, setCellImage,
     setLogo, setLogoPosition, setLogoSize,
     setText, setLayout, setTheme, setThemePreset, setThemeVariant, setFonts,
-    setPadding, setFrame, setOuterFrame, setCellFrame,
+    setPadding, setFrame,
     setPlatform, setExportFormat,
     applyStylePreset, applyLayoutPreset,
     undo, redo, canUndo, canRedo,
@@ -212,6 +212,7 @@ function App() {
 
   const safeSelectedCell = selectedCell >= totalCells ? 0 : selectedCell
 
+  // Persist clamped cell selection when layout shrinks (safeSelectedCell handles render, this syncs state)
   useEffect(() => {
     if (selectedCell >= totalCells) setSelectedCell(0)
   }, [totalCells, selectedCell])
@@ -241,11 +242,11 @@ function App() {
     ? state.images[0].naturalWidth / state.images[0].naturalHeight
     : null
   const platformGroup = findPlatformGroup(state.platform)
-  const pages = state.pages || [null]
+  const pages = useMemo(() => state.pages || [null], [state.pages])
   const pageCount = pages.length
   const hasMultiplePages = pageCount > 1
 
-  // Clear stale mobile state when transitioning to desktop
+  // Clear stale mobile state when transitioning to desktop (syncing UI to viewport change)
   useEffect(() => {
     if (!isMobile) {
       setMobileSheetOpen(false)
@@ -287,7 +288,12 @@ function App() {
   // Reader mode keyboard handling (Escape + arrow nav) moved to ReaderMode component.
   // Escape for shortcuts/menu handled by native <dialog> and BurgerMenu's useEscapeKey.
   const keyboardRef = useRef({ undo, redo, activePage: state.activePage, pageCount, setActivePage, setActiveSection, isMobile, setMobileSheetOpen })
-  keyboardRef.current = { undo, redo, activePage: state.activePage, pageCount, setActivePage, setActiveSection, isMobile, setMobileSheetOpen }
+  // Sync ref with latest values for stable callbacks (swipe, keyboard handlers).
+  // No deps list — must update every render to prevent stale closures.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    keyboardRef.current = { undo, redo, activePage: state.activePage, pageCount, setActivePage, setActiveSection, isMobile, setMobileSheetOpen }
+  })
 
   // Swipe between pages on mobile canvas
   const handleCanvasTouchStart = useCallback((e) => {
@@ -470,7 +476,6 @@ function App() {
             platform={state.platform}
             theme={state.theme}
             selectedCell={safeSelectedCell}
-            onSelectCell={setSelectedCell}
           />
         )}
       </ErrorBoundary>
@@ -525,14 +530,12 @@ function App() {
             onFontsChange={setFonts}
             layout={state.layout}
             onLayoutChange={setLayout}
-            platform={state.platform}
             padding={state.padding}
             onPaddingChange={setPadding}
             frame={state.frame}
             onFrameChange={setFrame}
             cellImages={state.cellImages}
             selectedCell={safeSelectedCell}
-            onSelectCell={setSelectedCell}
             onLoadAllFonts={loadAllFonts}
           />
         )}
@@ -542,7 +545,7 @@ function App() {
       // Specific state slices (not `state` itself, which is a new object every render)
       state.activeStylePreset, state.layout, state.platform, state.theme, state.images, state.cellImages,
       state.logo, state.logoPosition, state.logoSize, state.text, state.fonts, state.padding, state.frame,
-      state.textMode, state.freeformText, state.activePage, state.pages,
+      state.textMode, state.freeformText, state.activePage,
       // Callbacks (stable refs from useAdState)
       applyStylePreset, applyLayoutPreset, setTheme, setThemePreset, setThemeVariant,
       addImage, removeImage, updateImage, updateImageFilters, updateImagePosition, updateImageOverlay, setCellImage,

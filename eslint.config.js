@@ -23,7 +23,13 @@ export default defineConfig([
       },
     },
     rules: {
-      'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
+      // varsIgnorePattern + argsIgnorePattern: PascalCase names are React components
+      // used in JSX (<Foo />). ESLint's scope analysis doesn't track JSX references
+      // as variable usage, so PascalCase vars/args would be false positives without this.
+      'no-unused-vars': ['error', {
+        varsIgnorePattern: '^[A-Z_]',
+        argsIgnorePattern: '^[A-Z_]',
+      }],
     },
   },
 ])

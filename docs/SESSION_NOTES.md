@@ -5,32 +5,29 @@ Compact context summary for session continuity. Rewrite at session end.
 ---
 
 ## Worked on
-Mobile crash debugging — TDZ error in BottomSheet + debug system improvement.
+Adding ESLint as a devDependency and resolving all lint errors.
 
 ## Accomplished
 
-### BottomSheet TDZ crash fix
-- `handleTouchMove`'s `useCallback` dependency array referenced `snapToNearest` before its `const` declaration — temporal dead zone crash
-- Bug introduced in commit `89ac172` (safety snap timeout) which added `snapToNearest` to `handleTouchMove`'s deps
-- Fix: moved `snapToNearest` declaration above `handleTouchMove` and `finishTouch`
-- Hook call order changed (positions 14-15 swapped) — safe because old order always crashed, no prior hook state exists
-- Mobile-only: BottomSheet only renders in MobileLayout, not DesktopLayout
-- Scanned entire codebase for similar TDZ patterns — none found
-
-### Debug system stack trace capture
-- `console.error` interceptor now extracts `Error.stack` from Error objects in args
-- Global error handler now captures `e.error?.stack`
-- Both improvements make minified crash debugging drastically easier (this crash took extensive analysis without stack traces)
+### ESLint installation and full lint pass
+- Installed eslint@9.39.4, @eslint/js@9.39.4, globals@15.15.0, eslint-plugin-react-hooks@7.0.1, eslint-plugin-react-refresh@0.4.26 as devDependencies
+- `npm run lint` previously failed (ESLint not installed despite having eslint.config.js and lint script)
+- Fixed 45 lint errors across 17 files: unused vars/imports, ref-during-render, missing deps, empty catches, stale disable directives, undefined globals
+- Updated eslint.config.js: added `argsIgnorePattern: '^[A-Z_]'` (ESLint doesn't track JSX component references as variable usage)
+- Cleaned up dead code: removed unused props from StyleTab/MediaTab and their call sites in App.jsx
+- Moved ref assignments from render to useEffect (App.jsx, SaveLoadModal.jsx, useDarkMode.js)
+- Fixed useIsMobile: use matchMedia in useState initializer instead of syncing via effect
+- `npm run lint` passes clean, build passes, 133 tests pass
 
 ## Current state
 
-- **Branch:** `claude/debug-canvagrid-mobile-0Om3w` — pushed (2 commits)
+- **Branch:** `claude/add-eslint-dev-dependency-hwxmf`
+- ESLint fully operational — `npm run lint` works and passes
 - Build passes, 133 tests pass
-- No other TDZ patterns found in codebase
+- No regressions
 
 ## Key context
 
-- The error appeared as `Cannot access 'm' before initialization` — minified variable name with no stack trace in debug report
-- Source-map tracing only pointed to React DOM's error re-throw location, not the user code that caused it
-- The fix was to reorder declarations, not change any logic
-- AI_MISTAKES.md updated with the TDZ pattern for future prevention
+- `eslint-plugin-react-hooks@7.0.1` has new rules (`react-hooks/refs`, `react-hooks/set-state-in-effect`) not present in v5.x. Some legitimate React patterns (setState in effects for syncing derived state) don't trigger errors — the rule is smarter than expected at recognizing valid patterns.
+- `eslint-plugin-react-hooks@7.x` caps at ESLint 9.x (doesn't support 10.x). When upgrading ESLint to 10.x, check react-hooks plugin compatibility first.
+- ESLint's default scope analysis doesn't track JSX references (`<Foo />`) as usage of the `Foo` variable. The `argsIgnorePattern: '^[A-Z_]'` handles PascalCase component props. A more complete fix would be adding `eslint-plugin-react` for `react/jsx-uses-vars`.

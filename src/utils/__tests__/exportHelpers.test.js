@@ -1,4 +1,4 @@
-import { describe, test, expect } from '@jest/globals'
+import { describe, test, expect, beforeAll } from '@jest/globals'
 
 // Only test pure functions that don't depend on external modules (file-saver, html-to-image).
 // captureAsBlob, captureForPdf, downloadDiagnosticImage depend on canvas/DOM APIs

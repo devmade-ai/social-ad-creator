@@ -105,7 +105,7 @@ export function usePWAUpdate() {
   const update = useCallback(() => {
     _userClickedUpdate = true
     debugLog('pwa', 'update-triggered', 'User triggered update')
-    try { sessionStorage.setItem('pwa-update-applied', String(Date.now())) } catch {}
+    try { sessionStorage.setItem('pwa-update-applied', String(Date.now())) } catch { /* sessionStorage may be unavailable in private browsing */ }
     updateServiceWorker(true)
   }, [updateServiceWorker])
 

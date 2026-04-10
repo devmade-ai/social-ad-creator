@@ -1,5 +1,25 @@
 # Changelog
 
+## 2026-04-10
+
+### ESLint added as devDependency and all lint errors resolved
+
+- Installed `eslint@^9.15.0`, `@eslint/js@^9.15.0`, `globals@^15.0.0`, `eslint-plugin-react-hooks@^7.0.0`, `eslint-plugin-react-refresh@^0.4.0` as devDependencies
+- The project had `eslint.config.js` and a `lint` script but ESLint was never installed — `npm run lint` would fail
+- Fixed 45 initial lint errors across 17 files:
+  - **no-unused-vars (9)**: Removed unused imports/destructures in App.jsx, AdCanvas.jsx, StyleTab.jsx, TemplatesTab.jsx, MediaTab.jsx, platforms.test.js, debugLog.js
+  - **react-hooks/refs (3)**: Moved ref-during-render assignments into useEffect (App.jsx, SaveLoadModal.jsx, useDarkMode.js)
+  - **react-hooks/exhaustive-deps (4)**: Fixed missing deps, unnecessary deps, wrapped logical expressions in useMemo
+  - **react-hooks/set-state-in-effect (6)**: Fixed useIsMobile (use matchMedia in initializer), suppressed legitimate patterns
+  - **react-refresh/only-export-components (8)**: Suppressed for intentional mixed-export files (alignment.jsx, Toast.jsx, DebugPill.jsx, MiniCellGrid.jsx)
+  - **no-undef (3)**: Added missing `beforeAll` imports in test files, added `/* global gtag */` for Google Analytics
+  - **no-empty (1)**: Added explanatory comment to empty catch block
+  - **unused eslint-disable (1)**: Removed stale directive in BottomSheet.jsx
+- Updated `no-unused-vars` rule config with `argsIgnorePattern: '^[A-Z_]'` to handle PascalCase component props (ESLint doesn't track JSX references as variable usage)
+- Cleaned up parent call sites: removed unused `platform`/`onSelectCell` props from StyleTab and MediaTab invocations
+- `npm run lint` now passes clean (0 errors, 0 warnings)
+- Build passes, 133 tests pass
+
 ## 2026-04-09
 
 ### BottomSheet TDZ crash fix (mobile)

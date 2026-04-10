@@ -1,5 +1,7 @@
+/* eslint-disable react-refresh/only-export-components */
 // Requirement: Shared alignment icon components and option arrays.
 // Approach: Single source of truth for alignment UI used by ContentTab (and potentially others).
+// This file intentionally exports both icon components and option arrays.
 // Alternatives:
 //   - Inline in each component: Rejected — duplicated across files, changes drift.
 

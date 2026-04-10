@@ -154,7 +154,6 @@ export default memo(function MediaTab({
   theme,
   // Global cell selection
   selectedCell,
-  onSelectCell,
 }) {
   const { addToast } = useToast()
   const fileInputRef = useRef(null)
@@ -164,7 +163,8 @@ export default memo(function MediaTab({
   // Get selected image data
   const selectedImage = images.find((img) => img.id === selectedImageId) || null
 
-  // Auto-select first image when images are added
+  // Auto-select first image when images are added (syncing selection to library changes)
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (images.length > 0 && !selectedImage) {
       setSelectedImageId(images[0].id)
@@ -173,7 +173,7 @@ export default memo(function MediaTab({
     }
   }, [images, selectedImage])
 
-  // Auto-select image based on global selectedCell
+  // Auto-select image based on global selectedCell (syncing to external cell selection)
   useEffect(() => {
     if (selectedCell != null && cellImages[selectedCell]) {
       const imageId = cellImages[selectedCell]
@@ -183,16 +183,7 @@ export default memo(function MediaTab({
       }
     }
   }, [selectedCell, cellImages, images])
-
-  // Get total cell count
-  const totalCells = useMemo(() => {
-    const structure = layout?.structure || [{ size: 100, subdivisions: 1, subSizes: [100] }]
-    let count = 0
-    structure.forEach((section) => {
-      count += section.subdivisions || 1
-    })
-    return count
-  }, [layout])
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   // Find which cells this image is assigned to
   const getImageCells = useCallback((imageId) => {

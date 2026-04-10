@@ -42,7 +42,7 @@ export default function SampleImagesSection({ images, onAddImage, selectedCell, 
       if (!response.ok) throw new Error(`HTTP ${response.status}`)
       const data = await response.json()
       setManifest(data)
-    } catch (error) {
+    } catch {
       setManifestError('Could not load sample images. Check your connection.')
     } finally {
       setManifestLoading(false)
@@ -54,7 +54,7 @@ export default function SampleImagesSection({ images, onAddImage, selectedCell, 
   }, [loadManifest])
 
   const sampleCategories = manifest?.categories || []
-  const sampleImages = manifest?.images || []
+  const sampleImages = useMemo(() => manifest?.images || [], [manifest])
   const cdnBase = manifest?.cdnBase || ''
 
   const filteredImages = useMemo(() => {
@@ -122,7 +122,7 @@ export default function SampleImagesSection({ images, onAddImage, selectedCell, 
         setLoadingSample(null)
       }
     },
-    [onAddImage, cdnBase]
+    [onAddImage, cdnBase, addToast]
   )
 
   if (manifestLoading) {

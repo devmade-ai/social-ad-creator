@@ -177,7 +177,7 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
       setExportOp(null)
       exportLockRef.current = false
     }
-  }, [canvasRef, state.platform, state.activePage, exportFormat, ext, pageCount, onSetActivePage, updateExporting, addToast])
+  }, [canvasRef, state.platform, state.activePage, exportFormat, ext, pageCount, onSetActivePage, updateExporting, addToast, cancelledRef])
 
   // Requirement: PDF export for LinkedIn carousel documents and general print-to-PDF
   // Approach: Capture pages as lossless PNG at pixelRatio:2 (digital) or 1 (print),
@@ -294,7 +294,7 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
       setExportOp(null)
       exportLockRef.current = false
     }
-  }, [canvasRef, state.platform, state.activePage, pageCount, onSetActivePage, updateExporting, pdfQuality, addToast])
+  }, [canvasRef, state.platform, state.activePage, pageCount, onSetActivePage, updateExporting, pdfQuality, addToast, cancelledRef])
 
   const handleExportMultiple = useCallback(async () => {
     if (!canvasRef.current || exportLockRef.current) return

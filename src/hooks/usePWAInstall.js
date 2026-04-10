@@ -1,3 +1,4 @@
+/* global gtag */
 // Requirement: PWA install prompt with browser-specific fallback instructions.
 // Approach: Capture beforeinstallprompt via inline script in index.html (fires before
 //   React mounts), then this hook reads window.__pwaInstallPrompt on mount. For browsers
