@@ -164,7 +164,7 @@ export default memo(function MediaTab({
   const selectedImage = images.find((img) => img.id === selectedImageId) || null
 
   // Auto-select first image when images are added (syncing selection to library changes)
-  /* eslint-disable react-hooks/set-state-in-effect */
+  /* eslint-disable react-hooks/set-state-in-effect -- auto-selecting images in response to library/cell changes */
   useEffect(() => {
     if (images.length > 0 && !selectedImage) {
       setSelectedImageId(images[0].id)

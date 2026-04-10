@@ -39,7 +39,7 @@ export default memo(function PlatformPreview({ selectedPlatform, onPlatformChang
   const [searchQuery, setSearchQuery] = useState('')
 
   // Reset tips panel when switching platforms — prevents showing stale tips
-  /* eslint-disable react-hooks/set-state-in-effect */
+  /* eslint-disable react-hooks/set-state-in-effect -- resetting UI state on prop change, key-remount would lose all local state */
   useEffect(() => {
     setShowTips(false)
   }, [selectedPlatform])

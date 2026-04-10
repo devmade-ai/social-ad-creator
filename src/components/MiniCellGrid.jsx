@@ -1,4 +1,4 @@
-/* eslint-disable react-refresh/only-export-components */
+/* eslint-disable react-refresh/only-export-components -- FIXED_HEIGHTS constant exported alongside component */
 // Requirement: Unified mini cell grid used by StyleTab and ContentTab.
 // Approach: Single component with flexible cell rendering via mode or content callbacks.
 //   Pre-computes cell mapping via useMemo to avoid mutable cellIndex during render.
