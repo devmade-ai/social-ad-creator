@@ -52,7 +52,7 @@ export function useDarkMode() {
   // activeTheme is already derived from comboId + isDark, so comboId in the dep
   // array would cause the effect to fire twice per combo change.
   const comboIdRef = useRef(comboId)
-  comboIdRef.current = comboId
+  useEffect(() => { comboIdRef.current = comboId }, [comboId])
 
   // Apply .dark class + data-theme to <html>, persist, and update meta theme-color.
   useEffect(() => {

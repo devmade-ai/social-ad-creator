@@ -4,7 +4,6 @@ import {
   platforms,
   categoryOrder,
   platformsByCategory,
-  platformGroupsByCategory,
   getAspectRatio,
   findFormat,
   findPlatformGroup,

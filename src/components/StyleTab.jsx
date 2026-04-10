@@ -33,14 +33,12 @@ export default memo(function StyleTab({
   onFontsChange,
   layout,
   onLayoutChange,
-  platform,
   padding = { global: 5, cellOverrides: {} },
   onPaddingChange,
   frame = { outer: { percent: 0, color: 'primary' }, cellFrames: {} },
   onFrameChange,
   cellImages = {},
   selectedCell: selectedCellProp = 0,
-  onSelectCell,
   onLoadAllFonts,
 }) {
   const { cellOverlays = {} } = layout

@@ -113,7 +113,6 @@ export default function BottomSheet({ isOpen, onClose, children, snapPoint, onSn
       firstFocusable?.focus()
     }, 350) // After snap animation completes (300ms)
     return () => clearTimeout(timer)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen])
 
   // Determine if a touch started inside scrollable content (vs drag handle).

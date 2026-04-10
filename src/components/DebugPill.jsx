@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components -- mountDebugPill initializer exported alongside internal component */
 // Requirement: Floating debug pill for production diagnostics (alpha phase).
 // Approach: Separate React root in #debug-root (survives App crashes), inline styles (survives
 //   stylesheet failures), 3 tabs (Log, Env, PWA), embed mode skip, report generation via module.
@@ -400,6 +401,7 @@ function PWADiagnosticsTab() {
   }, [])
 
   // Run diagnostics on mount
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- async initialization on mount
   useEffect(() => { runDiagnostics() }, [runDiagnostics])
 
   return (

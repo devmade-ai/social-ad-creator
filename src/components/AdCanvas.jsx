@@ -8,8 +8,8 @@ const SANITIZE_CONFIG = {
   ALLOWED_TAGS: ['p', 'strong', 'em', 'b', 'i', 'br', 'ul', 'ol', 'li', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'code', 'pre', 'a', 'hr', 'del', 'sup', 'sub'],
   ALLOWED_ATTR: ['href', 'target', 'rel'],
 }
-import { overlayTypes, hexToRgb, getOverlayType } from '../config/layouts'
-import { buildFilterStyle, getAlignItems, getJustifyContent, getFrameDimensions, isDuotoneOverlay } from '../utils/canvasRenderers'
+import { hexToRgb, getOverlayType } from '../config/layouts'
+import { buildFilterStyle, getAlignItems, getJustifyContent, isDuotoneOverlay } from '../utils/canvasRenderers'
 import { platforms } from '../config/platforms'
 import { fonts } from '../config/fonts'
 import { getNeutralColor } from '../config/themes'

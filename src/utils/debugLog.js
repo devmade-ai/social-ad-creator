@@ -12,7 +12,7 @@ const subscribers = new Set()
 
 function notify() {
   for (const fn of subscribers) {
-    try { fn(entries) } catch (_) { /* subscriber errors shouldn't break logging */ }
+    try { fn(entries) } catch { /* subscriber errors shouldn't break logging */ }
   }
 }
 
@@ -59,7 +59,7 @@ export function clearEntries() {
 export function subscribe(fn) {
   subscribers.add(fn)
   if (entries.length > 0) {
-    try { fn(entries) } catch (_) { /* ignore replay errors */ }
+    try { fn(entries) } catch { /* ignore replay errors */ }
   }
   return () => subscribers.delete(fn)
 }

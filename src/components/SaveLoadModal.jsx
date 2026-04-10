@@ -42,7 +42,9 @@ export default function SaveLoadModal({ isOpen, onClose, onSave, onLoad, onDelet
   const { handleBackdropClick } = useDialogSync(dialogRef, isOpen, onClose, handleOpen)
 
   // Cleanup activeRef when modal closes to prevent stale IDB query updates
-  if (!isOpen) activeRef.current = false
+  useEffect(() => {
+    if (!isOpen) activeRef.current = false
+  }, [isOpen])
 
   const handleSave = async () => {
     setLoading(true)
