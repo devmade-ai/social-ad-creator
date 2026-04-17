@@ -1,4 +1,4 @@
-# READ AND FOLLOW THE FUCKING PROCESS, PRINCIPLES, CODE STANDARDS, DOCUMENTATION, AI NOTES, TRIGGERS, AND PROHIBITIONS EVERY TIME
+# READ AND FOLLOW THE FUCKING PROCESS, PRINCIPLES, COMMUNICATION, CODE STANDARDS, DOCUMENTATION, AI NOTES, TRIGGERS, AND PROHIBITIONS EVERY TIME
 
 ## Fetching External CLAUDE.md
 
@@ -30,6 +30,22 @@ When fetching updates, merge changes into the shared sections while preserving c
 7. **Repeatable process** - Follow consistent steps to ensure all the above
 
 ### REMINDER: READ AND FOLLOW THE FUCKING PRINCIPLES EVERY TIME
+
+## Communication
+
+Respond as if talking to yourself. Peer-to-peer, no servility.
+
+- **Direct.** No filler, no preamble, no conversational padding. State facts and actions.
+- **No sycophancy.** No "great question", "you're absolutely right", "excellent point". Acknowledge errors briefly and move on.
+- **No hedging.** Commit to a position. "I think" / "perhaps" only when genuinely uncertain.
+- **Proper solutions only.** Always suggest the right fix, not a quick hack. If the proper solution is complex, explain why the shortcut is wrong and lay out the real approach.
+- **Ask before assuming.** When a user reports a bug or makes a request, ask clarifying questions until you are certain you understand the requirement. Don't guess the cause and build a fix on an assumption — one wrong assumption wastes multiple commits.
+- **Always ask at least one question before starting work.** This is the minimum bar. Even when the request seems clear, verify scope, constraints, or intent before writing code.
+- **Concrete options.** When clarification is needed, list numbered options — never open-ended questions.
+- **Assume competence.** The reader is a developer. Don't over-explain basics.
+- **Push back.** Disagree when warranted. State your view first, then ask if they want to proceed differently.
+
+### REMINDER: READ AND FOLLOW THE COMMUNICATION RULES EVERY TIME
 
 ## Code Standards
 
@@ -155,29 +171,15 @@ These footers are required on every commit. No exceptions.
 
 **Purpose:** AI-managed backlog of ideas and potential improvements.
 **When to read:** When looking for work to do, or when the user asks about pending tasks.
-**When to update:** When noticing potential improvements. Move completed items to HISTORY.md.
+**When to update:** When noticing potential improvements. Delete completed items (git history tracks them).
 **What to include:**
 
 - Group by category (Features, UX, Technical, etc.)
 - Use `- [ ]` for pending items only
 - Brief description of what and why
-- When complete, move to HISTORY.md (don't keep in TODO)
-- Declined/rejected ideas go to HISTORY.md as decision records, not TODO
+- When complete, delete completed items (git history tracks them)
 
 **Why:** User reviews this to prioritize work. Keeps TODO focused on pending items only.
-
-### `docs/HISTORY.md`
-
-**Purpose:** Changelog and record of completed work.
-**When to read:** When you need historical context about why something was built a certain way.
-**When to update:** When completing TODO items or making significant changes.
-**What to include:**
-
-- Completed TODO items (organized by category)
-- Bug fixes and changes (organized by date)
-- Brief description of what was done
-
-**Why:** Historical context separate from active TODO. Tracks what's been accomplished.
 
 ### `docs/USER_ACTIONS.md`
 
@@ -278,10 +280,8 @@ These footers are required on every commit. No exceptions.
 - Clean up completed or obsolete docs/files and remove references to them
 - **CRITICAL: Keep `TutorialModal.jsx` up to date** - This is USER-FACING help content shown in-app. When tabs, sections, or features change, update the tutorial steps to match. Outdated tutorial content confuses users.
 - **NEVER use the AskUserQuestion tool.** It breaks the session UI — the input selector covers context, gets stuck awaiting input, and provides zero value. Instead, list options as numbered text in your response and let the user reply with a number or text. This is absolute and applies to every session, every project, no exceptions.
-- **ASK before assuming.** When a user reports a bug, ask clarifying questions (which mode? what did you type? what do you see?) BEFORE writing code. Don't guess the cause and build a fix on an assumption - you'll waste time fixing the wrong thing. One clarifying question saves multiple wrong commits.
 - **Always read files before editing.** Use the Read tool on every file before attempting to Edit it. Editing without reading first will fail.
 - **Check build tools before building.** Run `npm install` or verify `node_modules/.bin/vite` exists before attempting `npm run build`. The `sharp` package may not be installed (used by prebuild icon generation), so use `./node_modules/.bin/vite build` directly to skip the prebuild step.
-- **Communication style:** Direct, concise responses. No filler phrases or conversational padding. State facts and actions. Ask specific questions with concrete options when clarification is needed.
 - **ESLint setup:** ESLint 9 flat config (`eslint.config.js`) with `eslint-plugin-react-hooks@7.x` and `eslint-plugin-react-refresh` (vite preset). Run `npm run lint` before committing. The `no-unused-vars` rule has `argsIgnorePattern: '^[A-Z_]'` because ESLint's scope analysis doesn't track JSX component references (`<Foo />`) as variable usage — PascalCase function args would be false positives without this. `eslint-plugin-react-hooks@7.x` caps at ESLint 9 (doesn't support 10). When adding new `eslint-disable` comments, always include a `--` reason suffix explaining WHY the suppression is needed. Test files import Jest globals explicitly from `@jest/globals` (no ESLint global env needed).
 - **Dark mode + DaisyUI dual-layer theming:** `useDarkMode.js` manages both `.dark` class (Tailwind `dark:` utilities) and `data-theme` attribute (DaisyUI component colors) on `<html>`. Users pick a theme combo (Mono or Luxe) that pairs a light + dark theme; dark/light toggle switches between them. Two combos: Mono (lofi/black), Luxe (fantasy/luxury). Two localStorage keys: `darkMode` (bool), `themeCombo` (id). Default combo: `luxe`. Cross-tab sync via `storage` event, OS preference fallback, dynamic meta theme-color per active theme. Two inline scripts in `index.html` run before React mounts: (1) flash prevention (applies `.dark` + `data-theme` + meta theme-color from localStorage before first paint), (2) PWA `beforeinstallprompt` capture. Never remove either inline script. `index.css` has `html.dark { color-scheme: dark; }` for native form inputs/scrollbars. Meta theme-color hex values and combo maps in both `daisyuiThemes.js` and the inline script are auto-generated by `scripts/generate-theme-meta.mjs` from DaisyUI's oklch definitions. Run `npm run generate-theme-meta` after DaisyUI version updates or combo changes.
 - **DaisyUI color tokens:** UI chrome uses DaisyUI semantic tokens, NOT hardcoded colors. Use `bg-base-100/200/300`, `text-base-content`, `border-base-300`, `bg-primary`, `text-primary-content`, `bg-error`, `text-success`, etc. The old custom semantic tokens (`text-ui-text`, `bg-ui-surface`, `border-ui-border`) are gone — replaced by DaisyUI equivalents. Canvas design themes (19 presets in `themes.js`) still use inline styles and are unrelated to DaisyUI.
