@@ -16,4 +16,4 @@ Future enhancements and ideas for CanvaGrid.
 
 | Item | Effort | Description |
 |------|--------|-------------|
-| **Expand unit test coverage** | Low-Medium | Current: 133 tests across 10 files (cellUtils, layoutPresets, stylePresets, canvasRenderers, exportHelpers, oklchToHex, pwaHelpers, layouts, platforms, themes). Untested: designStorage.js (IndexedDB ops — needs mock), debugLog.js (circular buffer, pub/sub, console interception, subscriber replay, report generation, URL redaction). PWA hook integration tests (singleton state, visibility handler, install prompt flow) would need browser API mocks. |
+| **Expand unit test coverage** | Low-Medium | Current: 142 tests across 11 files (cellUtils, layoutPresets, stylePresets, canvasRenderers, exportHelpers, oklchToHex, pwaHelpers, layouts, platforms, themes, iconCacheBust). Untested: designStorage.js (IndexedDB ops — needs mock), debugLog.js (circular buffer, pub/sub, console interception, subscriber replay, report generation, URL redaction). PWA hook integration tests (singleton state, visibility handler, install prompt flow) would need browser API mocks. |
