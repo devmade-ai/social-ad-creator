@@ -7,6 +7,48 @@
 import { memo, useRef } from 'react'
 import { useDialogSync } from '../hooks/useDialogSync'
 
+// Requirement: Users who installed CanvaGrid before icon cache-busting shipped
+// (or before a later icon change) see a stale icon on their home screen because
+// the OS launcher caches icons by installed-app identity, not URL. No web-side
+// change refreshes it — only reinstall does.
+// Approach: Platform-tailored reinstall steps keyed off navigator.userAgent.
+// Mobile uses long-press → remove; desktop uses the app's own menu → uninstall.
+// Alternatives:
+//   - Match on instructions.browser display string: Rejected — the string
+//     doesn't carry mobile-vs-desktop for Chrome/Edge/Brave/Opera (returns bare
+//     "Chrome" for both), so Android Chromium users would get desktop steps.
+//   - Plumb isMobile/isIOS through the hook's instructions object: Rejected —
+//     forces editing 8 return branches in getInstallInstructions for data the
+//     modal can read directly.
+function getReinstallSteps() {
+  const ua = typeof navigator !== 'undefined' ? navigator.userAgent : ''
+  const isIOS = /iPhone|iPad|iPod/i.test(ua)
+  const isAndroid = /Android/i.test(ua)
+
+  if (isIOS) {
+    return [
+      'On your home screen, press and hold the CanvaGrid icon.',
+      'Tap "Remove App", then "Delete App" to confirm.',
+      'Open this page in Safari.',
+      'Tap the Share button, then "Add to Home Screen".',
+    ]
+  }
+  if (isAndroid) {
+    return [
+      'On your home screen, press and hold the CanvaGrid icon.',
+      'Tap "App info" (or drag the icon to "Uninstall").',
+      'Confirm the uninstall.',
+      'Reopen this page and use "Install app" in your browser menu.',
+    ]
+  }
+  return [
+    'Open the installed CanvaGrid app.',
+    'Click the menu button (⋮ or …) in the top-right corner.',
+    'Choose "Uninstall CanvaGrid" and confirm.',
+    'Return to this page and click the install icon in your browser\'s address bar.',
+  ]
+}
+
 export default memo(function InstallInstructionsModal({ isOpen, onClose, instructions }) {
   const dialogRef = useRef(null)
 
@@ -71,6 +113,29 @@ export default memo(function InstallInstructionsModal({ isOpen, onClose, instruc
             <span><strong>Note:</strong> {instructions.note}</span>
           </div>
         )}
+
+        {/* Already-installed reinstall guidance — addresses stale OS icon cache.
+            DaisyUI collapse (checkbox-controlled, arrow indicator) matches the
+            rest of the app's collapsible UI. Closed by default — first-time
+            installers stay focused on the install flow. */}
+        <div className="collapse collapse-arrow border-t border-base-300 rounded-none mb-4">
+          <input type="checkbox" aria-label="Show reinstall instructions" />
+          <div className="collapse-title text-xs text-base-content/70 px-0 min-h-0 py-3">
+            Already installed and the icon looks outdated?
+          </div>
+          <div className="collapse-content text-xs text-base-content/70 px-0">
+            <p className="mb-2 leading-relaxed">
+              Your phone or computer stores app icons separately from your
+              browser, so clearing site data won&apos;t refresh them. Remove
+              the app first, then install it again:
+            </p>
+            <ol className="space-y-1.5 list-decimal pl-4 leading-relaxed">
+              {getReinstallSteps().map((step, i) => (
+                <li key={i}>{step}</li>
+              ))}
+            </ol>
+          </div>
+        </div>
 
         {/* Benefits */}
         <div className="border-t border-base-300 pt-4">
