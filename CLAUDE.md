@@ -509,7 +509,7 @@ FRAMEWORK=React 18
 BUNDLER=Vite
 STYLING=Tailwind CSS 4 + DaisyUI 5 (utility classes in JSX, 2 theme combos: Mono + Luxe)
 LINTER=ESLint 9 (flat config) + eslint-plugin-react-hooks 7.x + eslint-plugin-react-refresh
-TEST_RUNNER=Jest (142 unit tests) + Manual (see docs/TESTING_GUIDE.md)
+TEST_RUNNER=Jest (141 unit tests) + Manual (see docs/TESTING_GUIDE.md)
 PACKAGE_MANAGER=npm
 DEPLOY=Vercel (auto-deploy on push to main)
 NAMING=camelCase (variables/functions), PascalCase (components)
@@ -689,7 +689,7 @@ src/
 │   ├── layouts.js        # 26 overlay types (solid, gradients, radial, effects, blends, textures)
 │   ├── layoutPresets.js  # 27 layouts with SVG icons and categories
 │   ├── stylePresets.js   # Look presets (fonts + filters + overlay effects per layout + text styles)
-│   ├── platforms.js      # 40 formats across 18 platform groups (nested: platformGroups + flat: platforms)
+│   ├── platforms.js      # 40 formats across 18 platform groups (nested: platformGroups + flat: platforms) — spec data sourced from docs/SOCIAL_MEDIA_SPECS.md
 │   ├── sampleImages.ts   # CDN manifest URL for sample images (fetched at runtime)
 │   ├── themes.js         # 19 color themes with light/dark variants
 │   ├── fonts.ts          # 24 Google Fonts (FontEntry interface)

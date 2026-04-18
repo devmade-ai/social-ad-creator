@@ -223,7 +223,7 @@ Fine-tune the selected image:
 
 Write and configure your text. A top-level toggle switches between two modes:
 
-#### Structured Mode (default)
+#### Guided Mode (default)
 
 Text elements organized into collapsible groups:
 
@@ -284,16 +284,16 @@ Fine-tune your grid structure and manage pages.
 
 ### Style Tab
 
-Fine-tune typography, overlays, and spacing.
+Fine-tune visual styling — backgrounds, tints, frames, spacing, and typography.
 
-#### Typography
-- **Title Font:** Choose from 24 Google Fonts for headlines
-- **Body Font:** Choose a font for body text and smaller elements
-- **Preview:** See how fonts look before selecting
+#### Background
+Override the theme background color for individual cells. Useful when a particular cell needs to stand out or contrast with the rest of the canvas.
+- **Override theme color:** Toggle to enable per-cell background
+- **Color picker:** Choose from theme colors (primary, secondary, accent) or neutrals
 
-#### Overlay
-Controls per-cell overlays that help text stand out. Select a cell to configure:
-- **Enable/Disable:** Toggle overlay for each cell (defaults to on for image cells)
+#### Color Tint
+Controls per-cell overlays that help text stand out on top of images. Select a cell to configure:
+- **Enable/Disable:** Toggle overlay for each cell (defaults to on for cells with images)
 - **Custom Settings:** Enable to override with your own type, color, and opacity
 - **Type:** Choose from 26 overlay effects:
   - Basic & Gradients: Solid, 8 gradient directions
@@ -302,14 +302,21 @@ Controls per-cell overlays that help text stand out. Select a cell to configure:
   - Blend Modes: Multiply, Screen, Overlay, Color Burn
   - Textures: Noise, Film Grain
 - **Color:** Theme colors (Primary, Secondary, Accent) or neutrals
-- **Opacity:** Adjust transparency (0-100%)
+- **Transparency:** Adjust opacity (0-100%)
+
+#### Frames
+Colored borders using a percentage of the cell's padding as border width.
+- **Outer Frame:** Border around the entire canvas with adjustable percentage and color
+- **Per-cell frame:** Toggle a custom frame on an individual cell with its own percentage and color
 
 #### Spacing
-- **Global Padding:** Set consistent padding for all cells
-- **Outer Frame:** Add a colored border around the entire canvas (% of padding)
-- **Per-Cell Settings:** Select a cell to customize:
-  - Custom padding override
-  - Custom cell frame (colored border)
+- **Overall Spacing:** Global padding between cells and at the canvas edge
+- **Per-cell spacing:** Select a cell to override the global padding
+
+#### Fonts
+- **Title Font:** Choose from 24 Google Fonts for headlines
+- **Body Font:** Choose a font for body text and smaller elements
+- **Preview:** See how fonts look before selecting
 
 ---
 
@@ -381,7 +388,6 @@ A two-level selector organized by category → platform → format. Use the **se
 
 **Other:**
 - Email Header (800×400)
-- Zoom Background (1920×1080)
 - Zoom Background (1920×1080)
 
 ### File Format
