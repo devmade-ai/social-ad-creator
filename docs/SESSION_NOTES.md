@@ -46,15 +46,19 @@ Adopted the glow-props fleet Triggers section in CLAUDE.md, then ran the full `t
 - Test script: added `--no-warnings` alongside `--experimental-vm-modules` — removes 11 lines of `ExperimentalWarning: VM Modules` noise from every `npm test`.
 - README.md Commands: added `npm run lint` and `npm test` (were only in CLAUDE.md).
 
+### `cold branch` audit (5daaf54)
+- Fresh-eyes re-read of the full 9-commit diff against origin/main. Surfaced two stale references `doc-cleanup` missed: `TESTING_GUIDE.md` S3/S4 still said "Typography" and "Style → Overlay" instead of the UI-matching "Fonts" and "Style → Color Tint". Fixed in one commit.
+- Everything else on the branch passed fresh-eyes review. Notes kept (not fixed): BottomSheet suppression reason wording is slightly imprecise but correct; SaveLoadModal rAF may be defensive overkill but the doc-comment is accurate; CLAUDE.md Triggers reminder style intentionally diverges from surrounding sections (glow-props verbatim).
+
 ## Current state
 
-- **Branch:** `claude/replace-triggers-glow-props-j0m6j` (pushed, 7 commits ahead of main)
+- **Branch:** `claude/replace-triggers-glow-props-j0m6j` (pushed, 10 commits ahead of main)
 - `npm run lint` clean, `npm test` 141/141 green (no warnings), `vite build` succeeds
 - Ready for review / merge
 
 ## Key context
 
-- **Full tidy sweep done this session.** Next natural pass: `session` meta sweep (`surface` + `wrap` + `undone` + `skipped`) or merge the branch.
+- **Full tidy sweep + cold-branch audit done this session.** Branch is ready to merge.
 - **UI label vs state value convention:** Content tab UI labels are "Guided"/"Freeform"; state value remains `'structured'`. User-facing docs use UI labels; code/state discussions use state values.
 - **Reference docs pattern:** `docs/SOCIAL_MEDIA_SPECS.md` is external reference (not auto-maintained) and is discoverable from the `platforms.js` architecture line in CLAUDE.md, not from the Documentation section.
 - **Trigger-name collisions:** Bare word alone = Triggers invocation; in-prose reference = folder/concept. See the collisions AI note in CLAUDE.md.
