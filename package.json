@@ -11,7 +11,10 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test": "node --experimental-vm-modules node_modules/.bin/jest"
+    "test": "node --no-warnings --experimental-vm-modules node_modules/.bin/jest"
+  },
+  "engines": {
+    "node": ">=18.18.0"
   },
   "dependencies": {
     "dompurify": "^3.3.3",

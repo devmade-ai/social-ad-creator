@@ -98,6 +98,8 @@ npm run dev
 npm run dev      # Start dev server
 npm run build    # Production build
 npm run preview  # Preview production build
+npm run lint     # Run ESLint
+npm test         # Run unit tests (Jest)
 ```
 
 ## Tech Stack
