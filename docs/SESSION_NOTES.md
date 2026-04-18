@@ -5,38 +5,61 @@ Compact context summary for session continuity. Rewrite at session end.
 ---
 
 ## Worked on
-Retire `docs/HISTORY.md`, add Communication section to CLAUDE.md, implement PWA icon cache busting with tripwire test and reinstall guidance.
+
+Adopted the glow-props fleet Triggers section in CLAUDE.md, then ran the full `tidy` meta sweep: `clean` → `doc-cleanup` → `hacks` → `deps` → `undone` → `dx`.
 
 ## Accomplished
 
-### Docs scaffolding (commit 4a1d02c)
-- Deleted `docs/HISTORY.md` — git history is the source of truth for completed work, parallel changelog was redundant
-- Removed `### docs/HISTORY.md` subsection from CLAUDE.md Documentation rules
-- Updated `### docs/TODO.md` subsection: "move completed items to HISTORY.md" → "delete completed items (git history tracks them)"
-- Added top-level `## Communication` section between Principles and Code Standards (peer-to-peer tone, no sycophancy, ask before assuming, concrete options)
-- Added `COMMUNICATION` to the top-of-file reminder line
-- Removed two AI Notes bullets ("ASK before assuming", "Communication style") now covered by the top-level section
+### CLAUDE.md — Triggers rewrite (1c15967)
+- Replaced the 10-trigger single-word list with the cross-fleet 2026-04-17 redesign: 48 triggers across 8 groups, 6 cadence meta sweeps, 7 reflective passes, scope modifiers (`branch` / `staged` / `file <path>`).
+- Added AI note clarifying trigger-name collisions with repo folders/concepts (`docs/`, `src/config/`, `__tests__/`, `mobile`, `pwa`, `state`, `ci`).
 
-### PWA icon cache busting (commit 7c25c37 + follow-up)
-- `vite.config.js`: added `iconVersion()` helper (sha256 prefix of `public/<icon>`), `versioned()` helper, `iconCacheBustHtml()` Vite plugin that rewrites the four icon `<link>` literals in `index.html` to `?v=<hash>`, manifest icons use `versioned()`, workbox adds `cleanupOutdatedCaches: true` and `/^v$/` to `ignoreURLParametersMatching`. Plugin runs before `VitePWA()` to lock the contract.
-- `src/__tests__/iconCacheBust.test.js`: 9 Jest assertions (source-level + dist-level, dist tests skip if no `dist/`). Tripwire verified — breaking `/^v$/` regex fails the test, restoring passes.
-- `InstallInstructionsModal.jsx`: added DaisyUI `collapse collapse-arrow` collapsible ("Already installed and the icon looks outdated?") with platform-tailored reinstall steps keyed off `navigator.userAgent` (iOS long-press → Remove App, Android long-press → Uninstall, Desktop → app menu → Uninstall). UA-driven because `instructions.browser` display string doesn't carry mobile-vs-desktop for bare "Chrome"/"Edge"/"Brave"/"Opera".
-- Updated CLAUDE.md Quick Reference test count 133 → 142 and added AI note describing the cache-bust invariants.
-- Updated docs/TODO.md test coverage line 133 → 142 and added `iconCacheBust` to the file list.
+### `clean` (abfa57a)
+- Inlined `downloadDiagnosticImage` into its sole DEV-gated call site; removed the export from `exportHelpers.js` along with the `saveAs` import.
+- Dropped `export` from `MIME_TYPES` (was imported-but-unused); removed its direct unit test.
+- Extracted `updateCellBackground` + `updateCellFrame` helpers in `StyleTab.jsx`, replacing 5 inline duplications.
+- Pushed back on the `pruneOrphanedKeys` finding — 5 call sites, already private, inlining would duplicate the NaN-guarded loop.
+
+### `doc-cleanup` (74e296b)
+- Deleted stale `plan.md` (imageCells → cellImages refactor complete).
+- `README.md`: "Structured" → "Guided"; Structure section = Grid + Pages (removed stale Text Alignment); Style section lists all 5 subsections in UI order.
+- `docs/USER_GUIDE.md`: "Structured Mode" → "Guided Mode"; added Background section; renamed Overlay → Color Tint, Typography → Fonts to match UI; split Frames out of Spacing; removed duplicated Zoom Background line.
+- Test counts 142 → 141 in CLAUDE.md + TODO.md (post-MIME_TYPES test removal).
+- Added `platforms.js → SOCIAL_MEDIA_SPECS.md` cross-reference in CLAUDE.md.
+
+### `hacks` (cdebbc4)
+- `SaveLoadModal.jsx`: `setTimeout(50)` → `requestAnimationFrame` for post-modal focus (proper API, not a timing guess).
+- `App.jsx` + `BottomSheet.jsx`: added `--` reason suffixes to two `eslint-disable-next-line react-hooks/exhaustive-deps` comments per CLAUDE.md mandate.
+
+### `deps` (f75bda2)
+- Within-range bumps: dompurify 3.3.3 → 3.4.0, eslint-plugin-react-hooks 7.0.1 → 7.1.1, marked 17.0.1 → 17.0.6 (lockfile-only).
+- Fixed 4 lint regressions from the stricter react-hooks 7.1.1 rule:
+  - `SampleImagesSection.jsx`: moved ref mutation out of render into a no-deps useEffect (real concurrent-mode fix, not a suppression).
+  - Three legitimate setState-in-effect patterns: suppressed with `-- reason` suffixes on the exact setState lines (plugin 7.1.1 reports at the setState site, not the useEffect).
+- Deferred: eslint 10, react 19, vite 8 majors; 13 build-toolchain advisories whose "fix" is a regressive downgrade.
+
+### `undone`
+- Scan clean. No WIP/stub/experimental markers, no `if (false)` dead branches. The two `import.meta.env.DEV` uses are intentional (deepEqual depth warning, PDF diagnostic). TS migration (30% config, 17% utils, 0% hooks/components) is tracked in TODO.md as planned backlog, not undone work.
+
+### `dx` (d826dc4)
+- `package.json` engines: `{"node": ">=18.18.0"}` (ESLint 9's minimum).
+- Test script: added `--no-warnings` alongside `--experimental-vm-modules` — removes 11 lines of `ExperimentalWarning: VM Modules` noise from every `npm test`.
+- README.md Commands: added `npm run lint` and `npm test` (were only in CLAUDE.md).
+
+### `cold branch` audit (5daaf54)
+- Fresh-eyes re-read of the full 9-commit diff against origin/main. Surfaced two stale references `doc-cleanup` missed: `TESTING_GUIDE.md` S3/S4 still said "Typography" and "Style → Overlay" instead of the UI-matching "Fonts" and "Style → Color Tint". Fixed in one commit.
+- Everything else on the branch passed fresh-eyes review. Notes kept (not fixed): BottomSheet suppression reason wording is slightly imprecise but correct; SaveLoadModal rAF may be defensive overkill but the doc-comment is accurate; CLAUDE.md Triggers reminder style intentionally diverges from surrounding sections (glow-props verbatim).
 
 ## Current state
 
-- **Branch:** `claude/delete-history-file-IbP5C` (pushed)
-- Two commits: `4a1d02c` (docs), `7c25c37` (cache-bust + modal)
-- `npm run lint` clean, `vite build` green, `npm test` 142/142 pass
-- `dist/manifest.webmanifest` icons carry `?v=<hash>`, `dist/index.html` has four versioned icon `<link>` tags, `dist/sw.js` has `cleanupOutdatedCaches()` + `/^utm_/,/^v$/` ignore params
-- Verified `sharp` generate-icons output is byte-deterministic — hashes only bump when `public/icon.svg` changes, not on every build
+- **Branch:** `claude/replace-triggers-glow-props-j0m6j` (pushed, 10 commits ahead of main)
+- `npm run lint` clean, `npm test` 141/141 green (no warnings), `vite build` succeeds
+- Ready for review / merge
 
 ## Key context
 
-- **Pattern source:** `glow-props/docs/implementations/PWA_ICON_CACHE_BUST.md`. Always fetch the latest before modifying the cache-bust flow.
-- **Five cache layers the pattern covers:** browser HTTP cache, CDN edge (Vercel), Workbox precache, Chrome WebAPK shadow, OS icon cache. The first four bust via `?v=<hash>`; the OS layer is surfaced to users via the reinstall collapsible because no web-side change refreshes it.
-- **Why the `/^v$/` workbox entry is non-optional:** without it, Workbox precache only matches the un-versioned URL — versioned icon requests fall through to network every time, breaking offline. The tripwire asserts this at both source and dist levels.
-- **Why `iconCacheBustHtml()` throws on missing literal:** a subtle reformatting of a `<link>` tag (attribute reorder, single-quoted attrs, pre-existing query) would make the substring replacement a silent no-op and ship un-versioned URLs. Throwing at build time catches it immediately.
-- **Why UA detection in the modal:** `instructions.browser` is the hook's human-readable display string; it includes `(iOS)`/`(Mobile)`/`(Desktop)` for Safari/Firefox but NOT for Chrome/Edge/Brave/Opera (bare display names). Keying off the string would misclassify Android Chromium users as desktop. `navigator.userAgent` in the modal avoids duplicating hook logic and covers all cases.
-- **Deterministic icon generation:** `scripts/generate-icons.mjs` uses `sharp` with a fixed SVG density (400). Re-running produces byte-identical PNGs, so hashes only change when `public/icon.svg` changes — exactly what the pattern requires.
+- **Full tidy sweep + cold-branch audit done this session.** Branch is ready to merge.
+- **UI label vs state value convention:** Content tab UI labels are "Guided"/"Freeform"; state value remains `'structured'`. User-facing docs use UI labels; code/state discussions use state values.
+- **Reference docs pattern:** `docs/SOCIAL_MEDIA_SPECS.md` is external reference (not auto-maintained) and is discoverable from the `platforms.js` architecture line in CLAUDE.md, not from the Documentation section.
+- **Trigger-name collisions:** Bare word alone = Triggers invocation; in-prose reference = folder/concept. See the collisions AI note in CLAUDE.md.
+- **Deferred work needing user call:** Major version bumps (eslint 9→10, react 18→19, vite 5→8, etc.) and 13 build-toolchain advisories. See the `deps` commit body for rationale.

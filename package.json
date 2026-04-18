@@ -11,7 +11,10 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test": "node --experimental-vm-modules node_modules/.bin/jest"
+    "test": "node --no-warnings --experimental-vm-modules node_modules/.bin/jest"
+  },
+  "engines": {
+    "node": ">=18.18.0"
   },
   "dependencies": {
     "dompurify": "^3.3.3",
@@ -31,8 +34,8 @@
     "daisyui": "^5.5.19",
     "eslint": "^9.39.4",
     "eslint-plugin-react-hooks": "^7.0.1",
-    "eslint-plugin-react-refresh": "^0.4.26",
-    "globals": "^15.15.0",
+    "eslint-plugin-react-refresh": "^0.5.2",
+    "globals": "^17.5.0",
     "jest": "^30.3.0",
     "sharp": "^0.34.5",
     "tailwindcss": "^4.2.2",

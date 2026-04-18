@@ -91,12 +91,16 @@ export default function SaveLoadModal({ isOpen, onClose, onSave, onLoad, onDelet
     return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
   }
 
-  // Focus the save name input when the save tab is active
+  // Focus the save name input when the save tab is active.
+  // Requirement: Input focused after the dialog settles so the user can type immediately.
+  // Approach: requestAnimationFrame — runs after the browser's next layout/paint, which
+  //   is after <dialog>.showModal()'s native auto-focus resolves. Previously used
+  //   setTimeout(50) as a timing guess; rAF is the semantic browser API for "after DOM settles".
   const saveInputRef = useRef(null)
   useEffect(() => {
     if (isOpen && activeTab === 'save') {
-      const timer = setTimeout(() => saveInputRef.current?.focus(), 50)
-      return () => clearTimeout(timer)
+      const raf = requestAnimationFrame(() => saveInputRef.current?.focus())
+      return () => cancelAnimationFrame(raf)
     }
   }, [isOpen, activeTab])
 

@@ -85,7 +85,7 @@ export default function BottomSheet({ isOpen, onClose, children, snapPoint, onSn
       applyTransform(snapToTranslateY(SNAP_CLOSED), false)
     }
   // Only run on mount/open change — snapPoint changes handled by the other effect
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- applyTransform/snapToTranslateY are stable helpers; only isOpen should retrigger this effect
   }, [isOpen])
 
   // Clean up safety timer on unmount

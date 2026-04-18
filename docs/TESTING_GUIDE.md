@@ -317,7 +317,7 @@ Run these tests after making changes to ensure nothing is broken.
 
 | Step | Action | Where | Expected |
 |------|--------|-------|----------|
-| 1 | Expand "Typography" section | Style tab | Font selectors visible |
+| 1 | Expand "Fonts" section | Style tab | Font selectors visible |
 | 2 | Change Title font | Title font dropdown | Title text font changes |
 | 3 | Change Body font | Body font dropdown | Body text, tagline, etc. font changes |
 
@@ -328,7 +328,7 @@ Run these tests after making changes to ensure nothing is broken.
 | Step | Action | Where | Expected |
 |------|--------|-------|----------|
 | 1 | Apply a 2-cell layout | Structure tab | 2 cells visible |
-| 2 | Go to Style → Overlay | Style tab | Per-cell overlay controls visible |
+| 2 | Go to Style → Color Tint | Style tab | Per-cell overlay controls visible |
 | 3 | Enable overlay for Cell 1 | Cell 1 toggle | Overlay appears on cell 1 only |
 | 4 | Change overlay type to "Gradient Bottom" | Cell 1 type dropdown | Gradient appears from bottom |
 | 5 | Adjust opacity to 80% | Cell 1 opacity slider | Overlay becomes more opaque |

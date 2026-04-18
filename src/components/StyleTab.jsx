@@ -90,6 +90,34 @@ export default memo(function StyleTab({
     }
   }
 
+  // Requirement: Background and Frame sections duplicated the same "spread cell-keyed
+  //   object, either delete or set/merge, then notify parent" pattern 5 times inline.
+  // Approach: Two thin helpers mirroring updateCellOverlay/updateCellPadding — one for
+  //   scalar cell-keyed values (backgrounds), one for object-merged values (frames).
+  // Alternatives:
+  //   - Single generic helper covering backgrounds/frames/overlays: Rejected — each
+  //     field has its own parent callback (onLayoutChange vs onFrameChange) and merge
+  //     semantics; unifying them needs a config bag that obscures intent at call sites.
+  const updateCellBackground = (cellIndex, value) => {
+    const newBgs = { ...(layout.cellBackgrounds || {}) }
+    if (value === null) {
+      delete newBgs[cellIndex]
+    } else {
+      newBgs[cellIndex] = value
+    }
+    onLayoutChange({ cellBackgrounds: newBgs })
+  }
+
+  const updateCellFrame = (cellIndex, updates) => {
+    const newCellFrames = { ...(frame.cellFrames || {}) }
+    if (updates === null) {
+      delete newCellFrames[cellIndex]
+    } else {
+      newCellFrames[cellIndex] = { ...(frame.cellFrames?.[cellIndex] || {}), ...updates }
+    }
+    onFrameChange?.({ cellFrames: newCellFrames })
+  }
+
   return (
     <div className="space-y-3">
       <h3 className="text-sm font-semibold text-base-content">Style</h3>
@@ -109,15 +137,7 @@ export default memo(function StyleTab({
                 type="checkbox"
                 id={`bg-custom-${clampedCell}`}
                 checked={layout.cellBackgrounds?.[clampedCell] !== undefined}
-                onChange={(e) => {
-                  const newBgs = { ...(layout.cellBackgrounds || {}) }
-                  if (e.target.checked) {
-                    newBgs[clampedCell] = 'secondary'
-                  } else {
-                    delete newBgs[clampedCell]
-                  }
-                  onLayoutChange({ cellBackgrounds: newBgs })
-                }}
+                onChange={(e) => updateCellBackground(clampedCell, e.target.checked ? 'secondary' : null)}
                 className="checkbox checkbox-primary checkbox-sm"
               />
               <label
@@ -132,10 +152,7 @@ export default memo(function StyleTab({
               <div className="pl-6">
                 <ThemeColorPicker
                   value={layout.cellBackgrounds[clampedCell]}
-                  onChange={(id) => {
-                    const newBgs = { ...(layout.cellBackgrounds || {}), [clampedCell]: id }
-                    onLayoutChange({ cellBackgrounds: newBgs })
-                  }}
+                  onChange={(id) => updateCellBackground(clampedCell, id)}
                   theme={theme}
                 />
               </div>
@@ -352,16 +369,12 @@ export default memo(function StyleTab({
                   type="checkbox"
                   id={`frame-custom-${clampedCell}`}
                   checked={frame.cellFrames?.[clampedCell] !== undefined}
-                  onChange={(e) => {
-                    if (e.target.checked) {
-                      const newCellFrames = { ...frame.cellFrames, [clampedCell]: { percent: 50, color: 'primary' } }
-                      onFrameChange?.({ cellFrames: newCellFrames })
-                    } else {
-                      const newCellFrames = { ...frame.cellFrames }
-                      delete newCellFrames[clampedCell]
-                      onFrameChange?.({ cellFrames: newCellFrames })
-                    }
-                  }}
+                  onChange={(e) =>
+                    updateCellFrame(
+                      clampedCell,
+                      e.target.checked ? { percent: 50, color: 'primary' } : null,
+                    )
+                  }
                   className="checkbox checkbox-primary checkbox-sm"
                 />
                 <label
@@ -389,16 +402,7 @@ export default memo(function StyleTab({
                         max="100"
                         step="10"
                         value={frame.cellFrames[clampedCell]?.percent || 0}
-                        onChange={(e) => {
-                          const newCellFrames = {
-                            ...frame.cellFrames,
-                            [clampedCell]: {
-                              ...frame.cellFrames[clampedCell],
-                              percent: parseInt(e.target.value, 10),
-                            },
-                          }
-                          onFrameChange?.({ cellFrames: newCellFrames })
-                        }}
+                        onChange={(e) => updateCellFrame(clampedCell, { percent: parseInt(e.target.value, 10) })}
                         className="range range-primary range-sm flex-1"
                       />
                       <span className="text-[10px] text-base-content/50 w-6 text-right">Full</span>
@@ -409,16 +413,7 @@ export default memo(function StyleTab({
                     <label className="text-xs text-base-content/60">Color</label>
                     <ThemeColorPicker
                       value={frame.cellFrames[clampedCell]?.color}
-                      onChange={(id) => {
-                        const newCellFrames = {
-                          ...frame.cellFrames,
-                          [clampedCell]: {
-                            ...frame.cellFrames[clampedCell],
-                            color: id,
-                          },
-                        }
-                        onFrameChange?.({ cellFrames: newCellFrames })
-                      }}
+                      onChange={(id) => updateCellFrame(clampedCell, { color: id })}
                       theme={theme}
                     />
                   </div>

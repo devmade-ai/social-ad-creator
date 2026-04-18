@@ -214,6 +214,7 @@ function App() {
 
   // Persist clamped cell selection when layout shrinks (safeSelectedCell handles render, this syncs state)
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- syncing persisted selection when layout shrinks invalidates the stored index
     if (selectedCell >= totalCells) setSelectedCell(0)
   }, [totalCells, selectedCell])
 
@@ -249,6 +250,7 @@ function App() {
   // Clear stale mobile state when transitioning to desktop (syncing UI to viewport change)
   useEffect(() => {
     if (!isMobile) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- resetting mobile-only UI in response to external viewport change
       setMobileSheetOpen(false)
       setSheetSnap(0)
       setShowMobileMenu(false)
@@ -290,7 +292,7 @@ function App() {
   const keyboardRef = useRef({ undo, redo, activePage: state.activePage, pageCount, setActivePage, setActiveSection, isMobile, setMobileSheetOpen })
   // Sync ref with latest values for stable callbacks (swipe, keyboard handlers).
   // No deps list — must update every render to prevent stale closures.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional: ref sync must run every render, listing deps would re-trigger on unrelated state changes
   useEffect(() => {
     keyboardRef.current = { undo, redo, activePage: state.activePage, pageCount, setActivePage, setActiveSection, isMobile, setMobileSheetOpen }
   })

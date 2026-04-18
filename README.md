@@ -21,26 +21,28 @@ A browser-based visual design tool. Upload images, add text overlays, choose lay
 - **Logo upload** - Add your brand logo with position (corners/center) and size controls
 
 ### Content
-Two modes: **Structured** and **Freeform**
+Two modes: **Guided** and **Freeform**
 
-**Structured mode** - Six text elements organized into groups:
+**Guided mode** - Six text elements organized into groups:
 - **Title & Tagline** - Main headline and supporting text (paired)
 - **Body Heading & Body Text** - Section content (paired)
 - **CTA** - Call to action button text
 - **Footnote** - Fine print or disclaimers
 
-Each text element supports: visibility toggle, cell placement, alignment, color, size, bold/italic, letter spacing.
+Each text element supports: visibility toggle, cell placement, alignment, color, size, bold/italic, letter spacing. Per-cell horizontal and vertical alignment controls are available below the text groups.
 
 **Freeform mode** - Per-cell text editors with independent content, automatic markdown rendering.
 
 ### Structure
-- **Layout Type** - Choose Full Bleed, Rows, or Columns with adjustable sizes
-- **Text Alignment** - Per-cell or global horizontal and vertical alignment
+- **Grid** - Choose Full Bleed, Rows, or Columns; edit section sizes, subdivisions, and reorder
+- **Pages** - Add, duplicate, reorder, and delete pages for multi-page documents
 
 ### Style
-- **Typography** - 24 Google Fonts (sans-serif, serif, display categories) with separate title and body font selection
-- **Overlay** - Per-cell overlay with 26 effects (solid, 8 gradient directions, radial variants, blend modes, textures) with adjustable opacity
-- **Spacing** - Global padding plus per-cell custom padding, outer frame and cell frames
+- **Background** - Override the theme background color per cell
+- **Color Tint** - Per-cell overlay with 26 effects (solid, 8 gradient directions, radial variants, blend modes, textures) with adjustable opacity
+- **Frames** - Outer canvas frame and per-cell frames (colored borders using a percentage of the padding)
+- **Spacing** - Global padding plus per-cell custom padding
+- **Fonts** - 24 Google Fonts (sans-serif, serif, display categories) with separate title and body font selection
 
 ### Multi-Page
 - Create multi-page documents (books, stories, presentations)
@@ -96,6 +98,8 @@ npm run dev
 npm run dev      # Start dev server
 npm run build    # Production build
 npm run preview  # Preview production build
+npm run lint     # Run ESLint
+npm test         # Run unit tests (Jest)
 ```
 
 ## Tech Stack
