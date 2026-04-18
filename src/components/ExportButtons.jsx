@@ -5,7 +5,7 @@ import { saveAs } from 'file-saver'
 import { platforms, categoryLabels, categoryOrder, platformsByCategory, findFormat } from '../config/platforms'
 import { debugLog } from '../utils/debugLog'
 import { useToast } from './Toast'
-import { getTimestamp, waitForPaint, hideCanvas, setFullScale, captureAsBlob, captureForPdf, downloadDiagnosticImage, FORMAT_OPTIONS, FILE_EXTENSIONS, MIME_TYPES } from '../utils/exportHelpers'
+import { getTimestamp, waitForPaint, hideCanvas, setFullScale, captureAsBlob, captureForPdf, FORMAT_OPTIONS, FILE_EXTENSIONS } from '../utils/exportHelpers'
 
 export default memo(function ExportButtons({ canvasRef, state, onPlatformChange, onExportFormatChange, onExportingChange, cancelExportRef, pageCount = 1, onSetActivePage }) {
   const { addToast } = useToast()
@@ -242,9 +242,11 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
       }
 
       // Diagnostic: download raw captured image for first page to compare vs PDF output.
-      // This isolates whether quality loss is in capture or PDF embedding.
+      // Isolates whether quality loss is in capture or PDF embedding. DEV-only so the
+      // block is stripped from prod builds (Vite inlines `import.meta.env.DEV` as false).
       if (import.meta.env.DEV && pageImages.length > 0) {
-        downloadDiagnosticImage(pageImages[0], platform.id)
+        const diagBlob = new Blob([pageImages[0].data], { type: 'image/png' })
+        saveAs(diagBlob, `pdf-diagnostic-${platform.id}.png`)
       }
 
       // Digital: 1:1 px-to-pt preserves full platform resolution in the PDF.

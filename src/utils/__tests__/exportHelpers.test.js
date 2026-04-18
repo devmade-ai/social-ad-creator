@@ -1,11 +1,12 @@
 import { describe, test, expect, beforeAll } from '@jest/globals'
 
-// Only test pure functions that don't depend on external modules (file-saver, html-to-image).
-// captureAsBlob, captureForPdf, downloadDiagnosticImage depend on canvas/DOM APIs
-// and can't be unit-tested without browser environment.
+// Only test pure functions that don't depend on external modules (html-to-image).
+// captureAsBlob and captureForPdf depend on canvas/DOM APIs and can't be unit-tested
+// without a browser environment — their format/MIME mapping is covered end-to-end
+// by manual export tests in docs/TESTING_GUIDE.md.
 
 describe('exportHelpers constants', () => {
-  let FORMAT_OPTIONS, FILE_EXTENSIONS, MIME_TYPES, getTimestamp
+  let FORMAT_OPTIONS, FILE_EXTENSIONS, getTimestamp
 
   beforeAll(async () => {
     // Dynamic import to handle ESM module resolution
@@ -13,10 +14,9 @@ describe('exportHelpers constants', () => {
       const mod = await import('../exportHelpers.js')
       FORMAT_OPTIONS = mod.FORMAT_OPTIONS
       FILE_EXTENSIONS = mod.FILE_EXTENSIONS
-      MIME_TYPES = mod.MIME_TYPES
       getTimestamp = mod.getTimestamp
     } catch {
-      // file-saver CJS import may fail in Jest ESM — skip these tests
+      // ESM import may fail in Jest — skip these tests
     }
   })
 
@@ -34,13 +34,6 @@ describe('exportHelpers constants', () => {
     expect(FILE_EXTENSIONS.jpg).toBe('jpg')
     expect(FILE_EXTENSIONS.webp).toBe('webp')
     expect(FILE_EXTENSIONS.png).toBe('png')
-  })
-
-  test('MIME_TYPES maps formats to correct MIME types', () => {
-    if (!MIME_TYPES) return
-    expect(MIME_TYPES.jpg).toBe('image/jpeg')
-    expect(MIME_TYPES.webp).toBe('image/webp')
-    expect(MIME_TYPES.png).toBe('image/png')
   })
 
   test('getTimestamp returns YYMMdd-HHmmss format', () => {

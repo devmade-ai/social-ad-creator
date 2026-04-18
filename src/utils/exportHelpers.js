@@ -2,7 +2,6 @@
 // Extracted to keep the component focused on UI and to enable reuse/testing.
 
 import { toCanvas } from 'html-to-image'
-import { saveAs } from 'file-saver'
 
 // Requirement: Export in multiple image formats (PNG, JPG, WebP)
 // Approach: Format toggle above export buttons, shared captureElement helper
@@ -23,7 +22,7 @@ export const FILE_EXTENSIONS = { jpg: 'jpg', webp: 'webp', png: 'png' }
 // Capture element as blob in the selected format.
 // Uses toCanvas → canvas.toBlob for all formats to avoid the wasteful
 // fetch(dataUrl) round-trip that the toJpeg/toPng → fetch pattern requires.
-export const MIME_TYPES = { jpg: 'image/jpeg', webp: 'image/webp', png: 'image/png' }
+const MIME_TYPES = { jpg: 'image/jpeg', webp: 'image/webp', png: 'image/png' }
 
 // Requirement: Timestamp-first filenames for chronological sort in downloads folder
 // Approach: YYMMdd-HHmm prefix ensures newest files sort first alphabetically.
@@ -117,11 +116,4 @@ export async function captureForPdf(element, width, height, pixelRatio = 2) {
     )
   )
   return { data: new Uint8Array(await blob.arrayBuffer()), format: 'png' }
-}
-
-// Diagnostic: download the raw captured image to compare quality vs the PDF output.
-// Kept for future debugging — confirms capture quality matches PDF output.
-export function downloadDiagnosticImage(imageResult, platformId) {
-  const blob = new Blob([imageResult.data], { type: 'image/png' })
-  saveAs(blob, `pdf-diagnostic-${platformId}.png`)
 }
