@@ -290,7 +290,7 @@ function App() {
   const keyboardRef = useRef({ undo, redo, activePage: state.activePage, pageCount, setActivePage, setActiveSection, isMobile, setMobileSheetOpen })
   // Sync ref with latest values for stable callbacks (swipe, keyboard handlers).
   // No deps list — must update every render to prevent stale closures.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional: ref sync must run every render, listing deps would re-trigger on unrelated state changes
   useEffect(() => {
     keyboardRef.current = { undo, redo, activePage: state.activePage, pageCount, setActivePage, setActiveSection, isMobile, setMobileSheetOpen }
   })
