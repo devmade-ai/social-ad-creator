@@ -214,6 +214,7 @@ function App() {
 
   // Persist clamped cell selection when layout shrinks (safeSelectedCell handles render, this syncs state)
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- syncing persisted selection when layout shrinks invalidates the stored index
     if (selectedCell >= totalCells) setSelectedCell(0)
   }, [totalCells, selectedCell])
 
@@ -249,6 +250,7 @@ function App() {
   // Clear stale mobile state when transitioning to desktop (syncing UI to viewport change)
   useEffect(() => {
     if (!isMobile) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- resetting mobile-only UI in response to external viewport change
       setMobileSheetOpen(false)
       setSheetSnap(0)
       setShowMobileMenu(false)

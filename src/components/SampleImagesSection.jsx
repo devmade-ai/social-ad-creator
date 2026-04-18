@@ -20,8 +20,17 @@ export default function SampleImagesSection({ images, onAddImage, selectedCell, 
 
   // Race condition fix: use ref for selectedCell so async image load callbacks
   // always read the latest value instead of a stale closure capture.
+  // Requirement: Ref must track latest prop without violating concurrent-render safety.
+  // Approach: useEffect (no deps) updates the ref after every committed render —
+  //   safe because the update happens after React has committed, not during a render
+  //   that may be discarded.
+  // Alternatives:
+  //   - Assign during render (`ref.current = prop`): Rejected — flagged by
+  //     react-hooks/refs because concurrent mode can discard a render and desync the ref.
   const selectedCellRef = useRef(selectedCell)
-  selectedCellRef.current = selectedCell
+  useEffect(() => {
+    selectedCellRef.current = selectedCell
+  })
 
   // Unmount guard: prevent state updates after component unmounts
   const mountedRef = useRef(true)
@@ -50,6 +59,7 @@ export default function SampleImagesSection({ images, onAddImage, selectedCell, 
   }, [])
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- fetch-on-mount pattern: loadManifest toggles loading state as part of the async flow
     loadManifest()
   }, [loadManifest])
 
