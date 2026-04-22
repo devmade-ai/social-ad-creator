@@ -8,7 +8,7 @@
 //   - Hand-rolled px-2 py-1 rounded-lg styling: Replaced — DaisyUI btn provides
 //     consistent sizing, focus states, and theme-aware colors.
 //   - Inline in MediaTab: Rejected — adds ~230 lines to an already large file.
-import { useState, useMemo, useCallback } from 'react'
+import { useState, useMemo, useCallback, useEffect, useRef } from 'react'
 
 const styleOptions = [
   { id: 'photorealistic', name: 'Photo', description: 'photorealistic photograph' },
@@ -51,6 +51,13 @@ export default function AIPromptHelper({ theme }) {
   const [customColors, setCustomColors] = useState('')
   const [context, setContext] = useState('')
   const [copied, setCopied] = useState(false)
+  const copyResetTimerRef = useRef(null)
+
+  useEffect(() => {
+    return () => {
+      if (copyResetTimerRef.current) clearTimeout(copyResetTimerRef.current)
+    }
+  }, [])
 
   // Generate the prompt
   const generatedPrompt = useMemo(() => {
@@ -94,7 +101,8 @@ export default function AIPromptHelper({ theme }) {
   const handleCopy = useCallback(() => {
     navigator.clipboard.writeText(generatedPrompt)
     setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
+    if (copyResetTimerRef.current) clearTimeout(copyResetTimerRef.current)
+    copyResetTimerRef.current = setTimeout(() => setCopied(false), 2000)
   }, [generatedPrompt])
 
   return (
