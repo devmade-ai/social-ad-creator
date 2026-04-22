@@ -39,6 +39,7 @@ Respond as if talking to yourself. Peer-to-peer, no servility.
 - **No sycophancy.** No "great question", "you're absolutely right", "excellent point". Acknowledge errors briefly and move on.
 - **No hedging.** Commit to a position. "I think" / "perhaps" only when genuinely uncertain.
 - **Proper solutions only.** Always suggest the right fix, not a quick hack. If the proper solution is complex, explain why the shortcut is wrong and lay out the real approach.
+- **Work, not process.** Only discuss work that can be done and work that is done. Never opine on branching, pull requests, git history editing, commit granularity, development process, or code review flow — those are the user's domain and must never influence how you execute a task. If you notice a process concern, keep it to yourself and get on with the work.
 - **Ask before assuming.** When a user reports a bug or makes a request, ask clarifying questions until you are certain you understand the requirement. Don't guess the cause and build a fix on an assumption — one wrong assumption wastes multiple commits.
 - **Always ask at least one question before starting work.** This is the minimum bar. Even when the request seems clear, verify scope, constraints, or intent before writing code.
 - **Concrete options.** When clarification is needed, list numbered options — never open-ended questions.
@@ -78,6 +79,14 @@ Non-trivial code changes must include comments explaining:
 - Delete unused imports, variables, and dead code immediately
 - Remove commented-out code unless explicitly marked `// KEEP:` with reason
 - Remove temporary/scratch files after implementation is complete
+
+### Timer and Subscription Cleanup
+
+- Every `setTimeout`/`setInterval`/`addEventListener`/`subscribe` needs a matching cleanup (`clearTimeout`/`clearInterval`/`removeEventListener`/unsubscribe handle).
+- Store timer ids in a scope the cleanup can reach. Nested timeouts → array; single-shot → local const or ref.
+- In React: return cleanup from `useEffect`. In plain modules: export a `dispose()` or use `AbortController`.
+- HMR-safe: guard global listener attachment behind a `window.__<featureName>Attached` flag so hot-reload doesn't double-subscribe. For frameworks exposing `import.meta.hot`, also release listeners via `import.meta.hot.dispose()`.
+- See the `TIMER_LEAKS.md` implementation pattern in glow-props for concrete patterns (nested-timeout array, AbortController, per-effect dispose, HMR guard).
 
 ### Quality Checks
 
@@ -274,6 +283,8 @@ These footers are required on every commit. No exceptions.
 
 <!-- Reminders and learnings for AI assistants - add to this as needed -->
 
+- **All code is yours.** Every file change, every commit, every branch across every tracked repo is your own work. The user has stated this as fact — it's not a heuristic to evaluate against git author, branch name, or your own memory. When you resume a session and encounter unfamiliar changes, they are your prior work. Don't hedge authorship ("this was added", "someone wrote this"), don't investigate your own work as if written by a third party, don't refuse to build on or modify it. If you need to understand a change, read the diff. That's all.
+- **Discontinued repos — skip entirely:** `plant-fur` and `coin-zapp` are discontinued. Do not check, audit, align, or include them in cross-project operations.
 - Always read a file before attempting to edit it
 - Check for existing patterns in the codebase before creating new ones
 - Commit and push changes before ending a session
@@ -304,7 +315,6 @@ These footers are required on every commit. No exceptions.
 - **Z-index scale:** Canvas internals 0-10, sticky headers 20, sheets/drawers 30, mobile nav 40, menu backdrop 40, menu dropdown 50, modals use native `<dialog>` top layer (no z-index needed), toasts `z-[70]`, debug 80. DebugPill uses inline `zIndex: 80`.
 - **Modals use native `<dialog>`:** All 4 modals (TutorialModal, SaveLoadModal, InstallInstructionsModal, KeyboardShortcutsOverlay) use DaisyUI `modal` component with `<dialog>` element. Native focus trapping replaces custom `useFocusTrap` for modals. `useFocusTrap` still used by BurgerMenu. Dialog sync pattern: `useEffect` calls `showModal()`/`close()` based on React `isOpen` prop; `close` event listener syncs back to React state.
 - **DaisyUI component classes for UI chrome:** CollapsibleSection uses `collapse collapse-arrow`, SaveLoadModal uses `tabs tabs-border` + `alert alert-error alert-soft`, Toast uses `toast` (container) + `alert` (item styling), ExportButtons uses `progress progress-primary` + `join` (format selector), KeyboardShortcutsOverlay uses `kbd kbd-sm` + `divider`, DebugPill uses inline styles (separate React root, no theme context), InstallInstructionsModal uses `alert alert-warning alert-soft`, SampleImagesSection/App.jsx use `loading loading-spinner`, ThemeSelector uses `join` (connected button group), AIPromptHelper uses `join` (purpose/orientation/colors), BurgerMenu uses `menu menu-sm` (list styling), MobileNav uses `dock dock-sm` + `dock-active` + `dock-label`.
-- **DaisyUI component classes for form inputs:** All form inputs MUST use DaisyUI component classes — never hand-roll Tailwind classes for inputs. Range: `range range-primary range-sm`. Checkbox: `checkbox checkbox-primary checkbox-sm`. Select: `select select-bordered select-sm`. Input: `input input-bordered input-sm`. Textarea: `textarea textarea-bordered textarea-sm`. Custom pseudo-element CSS for form inputs is forbidden — browser pseudo-element names vary across engines. Check `node_modules/daisyui/components/` for available components before writing custom form styling.
 - **Burger menu:** `BurgerMenu.jsx` uses WAI-ARIA disclosure pattern (not `role="menu"`). DaisyUI `menu menu-sm` provides list item styling. Owns its own backdrop (z-40, `cursor-pointer` for iOS Safari). Uses `useEscapeKey` hook, `useDisclosureFocus`, `useFocusTrap`, `useId()` for `aria-controls`. Close-then-act pattern: menu closes first, action executes after 150ms delay. MenuItem interface supports `disabled`, `separator`, `destructive`, `external`, `highlight`, `highlightColor`, `iconClass`. Version footer via `version` prop. Arrow key + Home/End keyboard navigation. State managed in App.jsx, rendered in MobileLayout. Parent header needs `z-50` when open (backdrop-blur stacking context). Accepts `children` prop for the theme section (`MenuThemeSection` in MobileLayout) — dark/light toggle with sun/moon icon + combo list (Mono/Luxe) with checkmark indicators. Menu stays open on toggle and combo selection (children don't call `onClose`).
 - **Implementation patterns — always fetch from glow-props.** Never look for local copies of implementation pattern files (e.g., `docs/implementations/*.md`) in downstream repos. They do not exist locally — the single source of truth is the `docs/implementations/` folder in the glow-props repo. Fetch the latest version before every implementation task.
 - **PWA icon cache busting:** `vite.config.js` defines `iconVersion()` (sha256 prefix of each icon file in `public/`) and `iconCacheBustHtml()` (Vite plugin that rewrites the four icon `<link>` tags in `index.html` to `?v=<hash>`). Manifest icons use the same `versioned()` helper. Workbox config has `cleanupOutdatedCaches: true` + `ignoreURLParametersMatching: [/^utm_/, /^v$/]` — the `/^v$/` entry is required, without it Workbox precache misses versioned icon URLs and offline breaks. Plugin order: `iconCacheBustHtml()` must run before `VitePWA()`. Tripwire: `src/__tests__/iconCacheBust.test.js` asserts source and dist-level invariants. OS icon cache is the one layer no web-side change refreshes — `InstallInstructionsModal.jsx` surfaces a collapsible with platform-tailored reinstall steps (iOS long-press → Remove App, Android long-press → Uninstall, Desktop app menu → Uninstall). Pattern source: `glow-props/docs/implementations/PWA_ICON_CACHE_BUST.md`.
@@ -326,6 +336,9 @@ Never:
 - Create local copies of implementation pattern files in any repo — always fetch from glow-props
 - Proceed with assumptions when a single clarifying question would prevent a wrong commit
 - Use interactive input prompts or selection UIs — list options as numbered text instead
+- Mention branches, pull requests, squashing, rebasing, merging, or force-pushing unless the user raises the topic first. When the user does raise one, answer the specific question and stop — do not volunteer opinions on what they should do process-wise.
+- Frame any work as "out of scope" or "deferred as out of scope". Work is either doable (do it) or blocked on missing user input (say exactly what input is needed). "Scope" is a process concept, not a reason to skip work.
+- Offer opinions on git history editing, branch strategy, PR size or shape, review flow, or commit structure. Follow instructions; don't editorialize on how the work should be organized.
 
 ### REMINDER: READ AND FOLLOW THE FUCKING PROHIBITIONS EVERY TIME
 
