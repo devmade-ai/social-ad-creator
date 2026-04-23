@@ -48,10 +48,27 @@ async function blobToDataURL(blob) {
   })
 }
 
+// Defensive wrapper — a buggy caller-supplied onWarning that throws must NOT
+// break the export pipeline. Without this, a throw from onWarning inside the
+// woff2 loop would reject the inflight CSS fetch, drop the cache entry, then
+// re-throw inside getEmbeddedFontCSS's per-font .catch (which itself calls
+// onWarning), producing an unhandled rejection that aborts the entire export.
+function safeWarn(onWarning, msg) {
+  if (!onWarning) return
+  try { onWarning(msg) } catch { /* swallow — caller-supplied callback bugs must not break the export */ }
+}
+
 // Fetch one Google Fonts CSS URL and return a self-contained CSS string
 // where every successfully-fetched url(...) has been replaced with a data:
 // URL. Uses CORS so the browser response is readable (Google Fonts returns
 // ACAO: *).
+//
+// External assumption: Google Fonts continues to serve `Access-Control-
+// Allow-Origin: *` on both the CSS endpoint and the gstatic woff2 files. If
+// they ever stop, every fetch here rejects with a CORS error and the export
+// falls back to system fonts via the warn-and-degrade path below. The SW
+// runtime cache (cache-first, 1 year) buffers existing entries so removal
+// would only affect new fonts users haven't loaded yet.
 //
 // Failure model: a failed individual woff2 fetch (one weight, one subset)
 // must NOT abort the whole font. The original url(...) ref is left in the
@@ -100,7 +117,7 @@ async function fetchInlinedCSS(cssUrl, { onWarning } = {}) {
       if (r.status === 'fulfilled') {
         replacements.push(r.value)
       } else {
-        onWarning?.(`woff2 fetch failed for ${resolvedUrls[i].resolved}: ${r.reason?.message || r.reason}`)
+        safeWarn(onWarning, `woff2 fetch failed for ${resolvedUrls[i].resolved}: ${r.reason?.message || r.reason}`)
       }
     }
 
@@ -132,7 +149,7 @@ export async function getEmbeddedFontCSS(fontIds, { onWarning } = {}) {
   const results = await Promise.all(
     active.map((f) =>
       fetchInlinedCSS(f.url, { onWarning }).catch((e) => {
-        onWarning?.(`Font CSS failed for ${f.id}: ${e?.message || e}`)
+        safeWarn(onWarning, `Font CSS failed for ${f.id}: ${e?.message || e}`)
         return ''
       })
     )
@@ -140,9 +157,3 @@ export async function getEmbeddedFontCSS(fontIds, { onWarning } = {}) {
   return results.filter(Boolean).join('\n')
 }
 
-// Test hook — clears the in-memory cache so tests can run independently.
-// Not used in production paths.
-export function _resetFontEmbedCache() {
-  cssCache.clear()
-  inflight.clear()
-}

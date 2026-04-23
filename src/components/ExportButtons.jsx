@@ -41,6 +41,12 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
   // Google Fonts stylesheets (which throws SecurityError on cssRules).
   // useMemo so the array reference is stable across renders, keeping the
   // export useCallbacks memoized when font selection hasn't changed.
+  // Assumption: title + body are the only fonts that ever appear in the
+  // canvas DOM. Verified: structured-text elements share the title/body
+  // fallback chain; freeform blocks carry color/size/bold/italic but no
+  // per-block font. If a future feature adds per-element font selection,
+  // this derivation must collect those font IDs too — otherwise exports
+  // will silently fall back to system fonts for the new selections.
   const activeFontIds = useMemo(
     () => [state.fonts?.title, state.fonts?.body].filter(Boolean),
     [state.fonts?.title, state.fonts?.body],

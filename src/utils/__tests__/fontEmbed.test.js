@@ -19,7 +19,11 @@ jest.unstable_mockModule('../../config/fonts', () => ({
 let originalFetch
 let originalFileReader
 let getEmbeddedFontCSS
-let _resetFontEmbedCache
+
+// Reference-keyed lookup so the FileReader mock can recover the source text
+// from a Blob without monkey-patching a fake field onto the Blob itself.
+// WeakMap entries vanish when the Blob is GC'd, mirroring real lifetimes.
+const blobSource = new WeakMap()
 
 const INTER_CSS = `
 /* latin */
@@ -51,15 +55,14 @@ function mockFetch(impl) {
 }
 
 function setupFileReader() {
-  // Simulate FileReader: blob carries `_text` (a URL or marker string) which
-  // we encode via btoa to look like real data URL output. Avoids needing
-  // Node's Buffer (which isn't a browser global) so the test stays portable.
+  // Simulate FileReader: looks up the blob's source text in the WeakMap and
+  // base64-encodes it via btoa to look like real data URL output. Avoids
+  // needing Node's Buffer (not a browser global) so the test stays portable.
   globalThis.FileReader = class {
     readAsDataURL(blob) {
       // queueMicrotask so the load fires asynchronously like the real API.
       queueMicrotask(() => {
-        const text = blob._text ?? 'mock-bytes'
-        // btoa requires latin-1; URLs are safe.
+        const text = blobSource.get(blob) ?? 'mock-bytes'
         this.result = `data:font/woff2;base64,${btoa(text)}`
         this.onload?.()
       })
@@ -67,8 +70,12 @@ function setupFileReader() {
   }
 }
 
+// Build a real Blob (Node 18+ has it as a global) and remember its source
+// text in the WeakMap for the FileReader mock to read back.
 function makeBlob(text) {
-  return { _text: text }
+  const blob = new Blob([text])
+  blobSource.set(blob, text)
+  return blob
 }
 
 beforeEach(async () => {
@@ -76,12 +83,11 @@ beforeEach(async () => {
   originalFileReader = globalThis.FileReader
   setupFileReader()
 
-  // Re-import the module fresh each test so module-scoped caches are clean.
+  // jest.resetModules() gives us a fresh module instance with empty caches
+  // — no separate _reset call needed.
   jest.resetModules()
   const mod = await import('../fontEmbed.js')
   getEmbeddedFontCSS = mod.getEmbeddedFontCSS
-  _resetFontEmbedCache = mod._resetFontEmbedCache
-  _resetFontEmbedCache()
 })
 
 afterEach(() => {
@@ -296,5 +302,31 @@ describe('getEmbeddedFontCSS', () => {
     mockFetch(async () => { throw new Error('boom') })
     // No onWarning passed — failure path must not blow up the call.
     await expect(getEmbeddedFontCSS(['inter'])).resolves.toBe('')
+  })
+
+  test('a throwing onWarning does not break the export', async () => {
+    // Force both per-font failure (CSS fetch fails) AND a throwing callback.
+    // Without safeWarn() this rejects unhandled and aborts the whole export.
+    mockFetch(async () => { throw new Error('network down') })
+    const buggyCallback = () => { throw new Error('callback bug') }
+    await expect(getEmbeddedFontCSS(['inter'], { onWarning: buggyCallback })).resolves.toBe('')
+  })
+
+  test('a throwing onWarning during partial-weight failure still embeds surviving weights', async () => {
+    // Same scenario as the partial-weight test but with a buggy callback —
+    // the throw must be swallowed and the surviving weight must still inline.
+    mockFetch(async (url) => {
+      if (url.includes('fonts.googleapis.com')) {
+        return { ok: true, status: 200, text: async () => INTER_CSS }
+      }
+      if (url.includes('inter-bold.woff2')) {
+        return { ok: false, status: 503, blob: async () => makeBlob(url) }
+      }
+      return { ok: true, status: 200, blob: async () => makeBlob(url) }
+    })
+    const buggyCallback = () => { throw new Error('callback bug') }
+    const result = await getEmbeddedFontCSS(['inter'], { onWarning: buggyCallback })
+    expect(result).toContain('data:font/woff2;base64,')
+    expect(result).toContain("font-family: 'Inter'")
   })
 })

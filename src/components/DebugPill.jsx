@@ -397,6 +397,31 @@ function PWADiagnosticsTab() {
 
     if (isStale()) { setRunning(false); return }
     setResults([...diags])
+
+    // Async: SW runtime cache list. Surfaces both the live `*-v2` caches and
+    // any stale pre-rename caches still present (the `pwaCleanup.js` sunset
+    // signal — when no install reports the un-versioned `google-fonts-cache`
+    // / `gstatic-fonts-cache` names, the cleanup module can be removed).
+    if (typeof caches !== 'undefined') {
+      try {
+        const names = (await caches.keys()).sort()
+        const stale = names.filter((n) => n === 'google-fonts-cache' || n === 'gstatic-fonts-cache')
+        diags.push({
+          label: 'SW Caches',
+          status: stale.length === 0 ? 'pass' : 'warn',
+          detail: names.length === 0
+            ? 'none'
+            : stale.length > 0
+              ? `${names.length} (stale: ${stale.join(', ')})`
+              : `${names.length} (all current)`,
+        })
+      } catch (e) {
+        diags.push({ label: 'SW Caches', status: 'fail', detail: String(e) })
+      }
+    }
+
+    if (isStale()) { setRunning(false); return }
+    setResults([...diags])
     setRunning(false)
   }, [])
 
