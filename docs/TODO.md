@@ -10,7 +10,8 @@ Future enhancements and ideas for CanvaGrid.
 
 | Item | Effort | Description |
 |------|--------|-------------|
-| **TypeScript migration** | Medium-High | Actual state: ~30% of config (3/11: textDefaults.ts, fonts.ts, sampleImages.ts), ~14% of utils (1/8: layoutHelpers.ts), 0% hooks, 0% components. Next: finish config + utils, then hooks (useHistory, useAdState — needs generic types), then components (.jsx → .tsx, starting smallest). |
+| **TypeScript migration** | Medium-High | Actual state: ~30% of config (3/11: textDefaults.ts, fonts.ts, sampleImages.ts), ~13% of utils (1/9: layoutHelpers.ts), 0% hooks, 0% components. Next: finish config + utils, then hooks (useHistory, useAdState — needs generic types), then components (.jsx → .tsx, starting smallest). |
+| **Sunset `utils/pwaCleanup.js`** | Trivial | One-shot cleanup added 2026-04-23 to drop pre-rename SW caches (`google-fonts-cache`, `gstatic-fonts-cache`). After ~6 months of all installs running the new SW (~Oct 2026), every existing install will have already deleted those caches once. At that point: delete `utils/pwaCleanup.js`, drop the call from `main.jsx`, remove the architecture line from CLAUDE.md. Confirm via debug-pill cache list before removing if any users are still on very old installs. |
 
 ### Low Priority (Long-term)
 

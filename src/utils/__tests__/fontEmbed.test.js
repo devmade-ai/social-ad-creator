@@ -211,6 +211,11 @@ describe('getEmbeddedFontCSS', () => {
   })
 
   test('aborts fetch that takes longer than the timeout', async () => {
+    // Fake timers let us advance past FETCH_TIMEOUT_MS without burning real
+    // wall-clock seconds. doNotFake list keeps queueMicrotask + Promise
+    // scheduling on the real loop so awaits still resolve naturally.
+    jest.useFakeTimers({ doNotFake: ['queueMicrotask'] })
+
     mockFetch((url, { signal }) => {
       return new Promise((_resolve, reject) => {
         // Hang forever; only the abort signal can resolve us.
@@ -222,8 +227,74 @@ describe('getEmbeddedFontCSS', () => {
       })
     })
 
-    const result = await getEmbeddedFontCSS(['inter'])
-    // The hung fetch is aborted; failure swallowed → empty CSS for that font.
-    expect(result).toBe('')
-  }, 12000)
+    try {
+      const pending = getEmbeddedFontCSS(['inter'])
+      // Let the fetch start, then advance past the 8s timeout.
+      await Promise.resolve()
+      jest.advanceTimersByTime(8001)
+      const result = await pending
+      // The hung fetch is aborted; failure swallowed → empty CSS for that font.
+      expect(result).toBe('')
+    } finally {
+      jest.useRealTimers()
+    }
+  })
+
+  test('partial woff2 failure: surviving weights inline, failed weight stays as-is', async () => {
+    // One weight succeeds, the other returns 503. Promise.allSettled inside
+    // fetchInlinedCSS keeps the surviving weight while the failed URL stays
+    // unmodified in the CSS — better than dropping the whole font.
+    mockFetch(async (url) => {
+      if (url.includes('fonts.googleapis.com')) {
+        return { ok: true, status: 200, text: async () => INTER_CSS }
+      }
+      if (url.includes('inter-bold.woff2')) {
+        return { ok: false, status: 503, blob: async () => makeBlob(url) }
+      }
+      return { ok: true, status: 200, blob: async () => makeBlob(url) }
+    })
+
+    const warnings = []
+    const result = await getEmbeddedFontCSS(['inter'], {
+      onWarning: (msg) => warnings.push(msg),
+    })
+
+    // Regular weight inlined as data URL; bold weight URL kept verbatim
+    // (browser will retry at SVG-rasterize time, falls back to system font
+    // if that also fails).
+    expect(result).toContain('data:font/woff2;base64,')
+    expect(result).toContain('https://fonts.gstatic.com/s/inter/inter-bold.woff2')
+    expect(result).not.toContain('https://fonts.gstatic.com/s/inter/inter-regular.woff2')
+    // Exactly one warning, naming the failed URL.
+    expect(warnings).toHaveLength(1)
+    expect(warnings[0]).toContain('inter-bold.woff2')
+    expect(warnings[0]).toContain('503')
+  })
+
+  test('per-font failure: onWarning called with font ID and underlying message', async () => {
+    mockFetch(async (url) => {
+      if (url.includes('Inter')) {
+        return { ok: true, status: 200, text: async () => INTER_CSS }
+      }
+      if (url.includes('Merriweather')) {
+        throw new Error('network down')
+      }
+      return { ok: true, status: 200, blob: async () => makeBlob(url) }
+    })
+
+    const warnings = []
+    const result = await getEmbeddedFontCSS(['inter', 'merriweather'], {
+      onWarning: (msg) => warnings.push(msg),
+    })
+
+    // Inter still embedded; Merriweather omitted but reported.
+    expect(result).toContain("font-family: 'Inter'")
+    expect(warnings.some((w) => w.includes('merriweather') && w.includes('network down'))).toBe(true)
+  })
+
+  test('onWarning is optional — its absence does not throw', async () => {
+    mockFetch(async () => { throw new Error('boom') })
+    // No onWarning passed — failure path must not blow up the call.
+    await expect(getEmbeddedFontCSS(['inter'])).resolves.toBe('')
+  })
 })

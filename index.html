@@ -71,12 +71,8 @@
       window._pageLoadTime = Date.now();
     </script>
 
-    <!-- Fonts -->
-    <!-- crossorigin="anonymous": forces a CORS-mode fetch so the stylesheet's
-         cssRules are JS-readable (Google Fonts returns ACAO: *). Required so
-         CSSOM consumers (devtools, html-to-image, etc.) can walk @font-face
-         rules without sheet.cssRules throwing SecurityError. The export path
-         also passes fontEmbedCSS explicitly to belt-and-brace this. -->
+    <!-- Fonts. crossorigin="anonymous" makes the stylesheet's cssRules
+         JS-readable — see CLAUDE.md "Font embedding for export". -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" crossorigin="anonymous" />

@@ -146,18 +146,28 @@ export default defineConfig({
         // major versions (defense-in-depth across SW upgrades).
         cleanupOutdatedCaches: true,
         ignoreURLParametersMatching: [/^utm_/, /^v$/],
+        // Why these runtime caches at all when the browser HTTP cache already
+        // covers Google Fonts? Two reasons:
+        //   1. Offline support — HTTP cache obeys server Cache-Control and may
+        //      evict; SW cache is durable until our maxAgeSeconds. Without
+        //      this, going offline mid-session loses chosen fonts.
+        //   2. PWA standalone mode — some browsers treat installed PWAs as a
+        //      separate context with its own (often colder) HTTP cache.
+        // Cache names bumped to *-v2 to abandon opaque (status 0) responses
+        // captured under the old name. Those came from no-cors <link> tags;
+        // returning them to the new crossorigin="anonymous" requests fails
+        // CORS and breaks both display and html-to-image's font reads.
+        // `statuses: [200]` refuses opaque entries going forward.
         runtimeCaching: [
-          // Cache name bumped to *-v2 to abandon opaque (status 0) responses
-          // captured under the old name. Those came from no-cors <link> tags;
-          // returning them to the new crossorigin="anonymous" requests fails
-          // CORS and breaks both display and html-to-image's font reads.
-          // statuses tightened to [200] only — no more opaque caching.
           {
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
             handler: 'CacheFirst',
             options: {
               cacheName: 'google-fonts-cache-v2',
               expiration: {
+                // 24 font families in fonts.ts, each one CSS file. 10 entries
+                // suffices for typical use (1–2 active + recent picks) since
+                // Workbox evicts least-recently-used.
                 maxEntries: 10,
                 maxAgeSeconds: 60 * 60 * 24 * 365 // 1 year
               },
@@ -172,6 +182,9 @@ export default defineConfig({
             options: {
               cacheName: 'gstatic-fonts-cache-v2',
               expiration: {
+                // Each font family pulls multiple woff2 files (≈3 weights ×
+                // multiple subsets) — 10 was too tight, anyone using 2-3
+                // families would thrash. 30 covers the realistic working set.
                 maxEntries: 30,
                 maxAgeSeconds: 60 * 60 * 24 * 365 // 1 year
               },
@@ -213,4 +226,35 @@ export default defineConfig({
       }
     })
   ],
+  build: {
+    // Requirement: Pre-fix, the entire app + 600KB of heavy export deps
+    // (pdf-lib, jszip, html-to-image) shipped in one 1.1MB chunk, exceeding
+    // Vite's 500KB warning threshold. Even though everything still loads on
+    // first paint, splitting into long-lived vendor chunks improves cache
+    // hit rate on app updates: only the small `index-*.js` chunk re-downloads
+    // when our code changes; vendor chunks stay cached for as long as their
+    // version is in package.json.
+    // Approach: manualChunks groups deps by stability and size band.
+    //   - vendor-react: rarely changes, foundational
+    //   - vendor-pdf:   pdf-lib (~400KB) — only re-downloaded on lib bumps
+    //   - vendor-export: zip + image rendering (~150KB) — same
+    //   - vendor-text:  marked + dompurify (~70KB) — same
+    // Alternatives:
+    //   - React.lazy(ExportButtons): Rejected — ExportButtons is always
+    //     visible in the desktop sidebar; lazy loading would show a Suspense
+    //     fallback on every cold load, a real UX regression.
+    //   - Single vendor chunk: Rejected — pdf-lib alone is bigger than every
+    //     other dep combined; bumping it would invalidate the whole vendor
+    //     chunk for users.
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'vendor-react': ['react', 'react-dom'],
+          'vendor-pdf': ['pdf-lib'],
+          'vendor-export': ['html-to-image', 'jszip', 'file-saver'],
+          'vendor-text': ['marked', 'dompurify'],
+        },
+      },
+    },
+  },
 })

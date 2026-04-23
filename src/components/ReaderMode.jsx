@@ -52,10 +52,7 @@ export default function ReaderMode({
 
   return (
     <div className="h-[100dvh] flex flex-col bg-base-200">
-      {/* crossOrigin: forces a CORS-mode fetch so the stylesheet's cssRules
-          are JS-readable (Google Fonts returns ACAO: *). Required so
-          html-to-image and other CSSOM consumers can walk @font-face rules
-          without throwing SecurityError. */}
+      {/* crossOrigin makes cssRules JS-readable — see CLAUDE.md "Font embedding for export". */}
       {fontsToLoad.map((font) => <link key={font.id} rel="stylesheet" href={font.url} crossOrigin="anonymous" />)}
       <header className="bg-base-100/80 backdrop-blur-sm border-b border-base-300/60 px-3 py-2 shrink-0" style={{ paddingTop: 'max(0.5rem, env(safe-area-inset-top, 0.5rem))' }}>
         <div className="flex items-center justify-between">
