@@ -99,7 +99,8 @@ export default function DesktopLayout({
 
   return (
     <div className="min-h-screen" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
-      {fontsToLoad.map((font) => <link key={font.id} rel="stylesheet" href={font.url} />)}
+      {/* crossOrigin makes Google Fonts cssRules JS-readable — see index.html note. */}
+      {fontsToLoad.map((font) => <link key={font.id} rel="stylesheet" href={font.url} crossOrigin="anonymous" />)}
 
       {/* Header */}
       <header className="bg-base-100/80 backdrop-blur-sm border-b border-base-300/60 px-4 py-3">

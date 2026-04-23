@@ -2,6 +2,7 @@
 // Extracted to keep the component focused on UI and to enable reuse/testing.
 
 import { toCanvas } from 'html-to-image'
+import { getEmbeddedFontCSS } from './fontEmbed'
 
 // Requirement: Export in multiple image formats (PNG, JPG, WebP)
 // Approach: Format toggle above export buttons, shared captureElement helper
@@ -66,12 +67,18 @@ export function setFullScale(element) {
   return () => { element.style.transform = originalTransform }
 }
 
-export async function captureAsBlob(element, width, height, format) {
+// Requirement: Pass active fonts (title + body IDs) so capture embeds them
+// directly into the SVG via fontEmbedCSS, bypassing html-to-image's
+// stylesheet walker (which fails on cross-origin Google Fonts CSS).
+// fontIds default to [] for safety — empty CSS is harmless, just falls back.
+export async function captureAsBlob(element, width, height, format, fontIds = []) {
+  const fontEmbedCSS = await getEmbeddedFontCSS(fontIds).catch(() => '')
   const canvas = await toCanvas(element, {
     width,
     height,
     pixelRatio: 1,
     style: { opacity: '1', transform: 'scale(1)' },
+    fontEmbedCSS,
   })
   const mime = MIME_TYPES[format] || 'image/png'
   // PNG is lossless (no quality param). WebP needs higher quality than JPG because
@@ -101,12 +108,14 @@ export async function captureAsBlob(element, width, height, format) {
 //   - JPEG capture: Rejected — DCT 8x8 blocks cause banding on smooth gradients.
 //     PNG is lossless and pdf-lib embeds via FlateDecode (no re-encoding).
 
-export async function captureForPdf(element, width, height, pixelRatio = 2) {
+export async function captureForPdf(element, width, height, pixelRatio = 2, fontIds = []) {
+  const fontEmbedCSS = await getEmbeddedFontCSS(fontIds).catch(() => '')
   const canvas = await toCanvas(element, {
     width,
     height,
     pixelRatio,
     style: { opacity: '1', transform: 'scale(1)' },
+    fontEmbedCSS,
   })
   // PNG: lossless capture — pdf-lib embeds directly with FlateDecode (no re-encoding).
   const blob = await new Promise((resolve, reject) =>

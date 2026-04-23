@@ -147,17 +147,22 @@ export default defineConfig({
         cleanupOutdatedCaches: true,
         ignoreURLParametersMatching: [/^utm_/, /^v$/],
         runtimeCaching: [
+          // Cache name bumped to *-v2 to abandon opaque (status 0) responses
+          // captured under the old name. Those came from no-cors <link> tags;
+          // returning them to the new crossorigin="anonymous" requests fails
+          // CORS and breaks both display and html-to-image's font reads.
+          // statuses tightened to [200] only — no more opaque caching.
           {
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
             handler: 'CacheFirst',
             options: {
-              cacheName: 'google-fonts-cache',
+              cacheName: 'google-fonts-cache-v2',
               expiration: {
                 maxEntries: 10,
                 maxAgeSeconds: 60 * 60 * 24 * 365 // 1 year
               },
               cacheableResponse: {
-                statuses: [0, 200]
+                statuses: [200]
               }
             }
           },
@@ -165,13 +170,13 @@ export default defineConfig({
             urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
             handler: 'CacheFirst',
             options: {
-              cacheName: 'gstatic-fonts-cache',
+              cacheName: 'gstatic-fonts-cache-v2',
               expiration: {
-                maxEntries: 10,
+                maxEntries: 30,
                 maxAgeSeconds: 60 * 60 * 24 * 365 // 1 year
               },
               cacheableResponse: {
-                statuses: [0, 200]
+                statuses: [200]
               }
             }
           },
