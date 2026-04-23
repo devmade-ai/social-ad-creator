@@ -17,8 +17,23 @@
 
 import { fonts } from '../config/fonts'
 
+const FETCH_TIMEOUT_MS = 8000
+
 const cssCache = new Map() // url -> resolved CSS with data: woff2 inlined
 const inflight = new Map() // url -> Promise<string>
+
+// Wrap fetch with an AbortController so a hung gstatic.com response can't
+// block the export indefinitely. On timeout the export silently falls back to
+// system fonts — preferable to a frozen UI.
+async function fetchWithTimeout(url, init = {}) {
+  const controller = new AbortController()
+  const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS)
+  try {
+    return await fetch(url, { ...init, signal: controller.signal })
+  } finally {
+    clearTimeout(timer)
+  }
+}
 
 async function blobToDataURL(blob) {
   return new Promise((resolve, reject) => {
@@ -39,25 +54,34 @@ async function fetchInlinedCSS(cssUrl) {
   const promise = (async () => {
     // Google Fonts serves different woff2 URLs based on the User-Agent string.
     // The browser's User-Agent gets us the modern woff2 variant — perfect.
-    const cssRes = await fetch(cssUrl, { mode: 'cors', credentials: 'omit' })
+    const cssRes = await fetchWithTimeout(cssUrl, { mode: 'cors', credentials: 'omit' })
     if (!cssRes.ok) throw new Error(`Font CSS HTTP ${cssRes.status}`)
     const cssText = await cssRes.text()
 
-    // Match every url(...) — Google Fonts CSS uses unquoted https:// URLs.
-    const urlRegex = /url\((?:["']?)(https:\/\/[^)"']+)(?:["']?)\)/g
-    const uniqueUrls = [...new Set([...cssText.matchAll(urlRegex)].map((m) => m[1]))]
+    // Match every url(...). Google Fonts CSS uses absolute https URLs today,
+    // but resolve relative refs against the CSS URL so a future format change
+    // (or a non-Google CDN with relative refs) doesn't break embedding.
+    const urlRegex = /url\((["']?)([^)"']+)\1\)/g
+    const rawUrls = [...new Set([...cssText.matchAll(urlRegex)].map((m) => m[2]))]
+    const resolvedUrls = rawUrls.map((raw) => {
+      try {
+        return { raw, resolved: new URL(raw, cssUrl).href }
+      } catch {
+        return { raw, resolved: raw }
+      }
+    })
 
-    const dataUrls = await Promise.all(
-      uniqueUrls.map(async (u) => {
-        const res = await fetch(u, { mode: 'cors', credentials: 'omit' })
-        if (!res.ok) throw new Error(`Font file HTTP ${res.status} for ${u}`)
+    const replacements = await Promise.all(
+      resolvedUrls.map(async ({ raw, resolved }) => {
+        const res = await fetchWithTimeout(resolved, { mode: 'cors', credentials: 'omit' })
+        if (!res.ok) throw new Error(`Font file HTTP ${res.status} for ${resolved}`)
         const data = await blobToDataURL(await res.blob())
-        return [u, data]
+        return [raw, data]
       })
     )
 
     let inlined = cssText
-    for (const [orig, data] of dataUrls) {
+    for (const [orig, data] of replacements) {
       // Replace every occurrence of the original URL token with its data URL.
       // String.split/join is safe for arbitrary URL contents (no regex escaping).
       inlined = inlined.split(orig).join(data)

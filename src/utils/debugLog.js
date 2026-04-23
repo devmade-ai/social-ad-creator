@@ -124,26 +124,6 @@ export function debugGenerateReport() {
 // Runs at module load time to catch early console calls.
 // HMR guard prevents double-patching during Vite hot reloads.
 // Re-entrancy guard prevents infinite loops if debugLog itself triggers console.error.
-
-// Known third-party noise patterns that html-to-image emits during font embedding.
-// We pass `fontEmbedCSS` explicitly to bypass its stylesheet walker, but the
-// library may still hit these paths for other stylesheets. They are non-fatal
-// (caught internally) and only pollute the debug report. Keep the original
-// console output intact — only suppress capture into the structured log.
-const NOISE_PATTERNS = [
-  'Error inlining remote css file',
-  'Error loading remote stylesheet',
-  'Error while reading CSS rules from',
-  'Error inserting rule from remote css',
-]
-
-function isNoise(message) {
-  for (const pat of NOISE_PATTERNS) {
-    if (message.includes(pat)) return true
-  }
-  return false
-}
-
 if (!window.__debugConsolePatched) {
   window.__debugConsolePatched = true
   const originalError = console.error
@@ -154,15 +134,10 @@ if (!window.__debugConsolePatched) {
     originalError.apply(console, args)
     if (!intercepting) {
       intercepting = true
-      const message = args.map(String).join(' ')
-      try {
-        if (!isNoise(message)) {
-          // Capture stack trace from Error objects for easier debugging of minified crashes.
-          const errObj = args.find(a => a instanceof Error)
-          const details = errObj?.stack ? { stack: errObj.stack } : null
-          debugLog('console', message, details, 'error')
-        }
-      } finally { intercepting = false }
+      // Capture stack trace from Error objects for easier debugging of minified crashes.
+      const errObj = args.find(a => a instanceof Error)
+      const details = errObj?.stack ? { stack: errObj.stack } : null
+      try { debugLog('console', args.map(String).join(' '), details, 'error') } finally { intercepting = false }
     }
   }
 
@@ -170,12 +145,7 @@ if (!window.__debugConsolePatched) {
     originalWarn.apply(console, args)
     if (!intercepting) {
       intercepting = true
-      const message = args.map(String).join(' ')
-      try {
-        if (!isNoise(message)) {
-          debugLog('console', message, null, 'warn')
-        }
-      } finally { intercepting = false }
+      try { debugLog('console', args.map(String).join(' '), null, 'warn') } finally { intercepting = false }
     }
   }
 }

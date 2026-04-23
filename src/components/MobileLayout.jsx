@@ -167,7 +167,11 @@ export default function MobileLayout({
 
   return (
     <div className="h-[100dvh] flex flex-col overflow-hidden bg-base-200">
-      {/* crossOrigin makes Google Fonts cssRules JS-readable — see index.html note. */}
+      {/* crossOrigin: forces a CORS-mode fetch so the stylesheet's cssRules
+          are JS-readable. Without it, sheet.cssRules throws SecurityError
+          for cross-origin sheets. Google Fonts returns ACAO: *, so CORS
+          succeeds. Required so html-to-image and other CSSOM consumers can
+          walk @font-face rules. */}
       {fontsToLoad.map((font) => <link key={font.id} rel="stylesheet" href={font.url} crossOrigin="anonymous" />)}
 
       {/* Mobile header — compact with app name + burger menu only.

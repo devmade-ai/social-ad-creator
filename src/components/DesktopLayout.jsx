@@ -99,7 +99,10 @@ export default function DesktopLayout({
 
   return (
     <div className="min-h-screen" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
-      {/* crossOrigin makes Google Fonts cssRules JS-readable — see index.html note. */}
+      {/* crossOrigin: forces a CORS-mode fetch so the stylesheet's cssRules
+          are JS-readable (Google Fonts returns ACAO: *). Required so
+          html-to-image and other CSSOM consumers can walk @font-face rules
+          without throwing SecurityError. */}
       {fontsToLoad.map((font) => <link key={font.id} rel="stylesheet" href={font.url} crossOrigin="anonymous" />)}
 
       {/* Header */}

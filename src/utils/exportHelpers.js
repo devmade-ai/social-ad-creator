@@ -3,6 +3,20 @@
 
 import { toCanvas } from 'html-to-image'
 import { getEmbeddedFontCSS } from './fontEmbed'
+import { debugLog } from './debugLog'
+
+// Pre-fetch the active fonts as inlined CSS. Failures degrade silently to
+// system-font fallback (better than aborting the export), but they're logged
+// so we don't lose visibility — silent degradation in the field is what got us
+// the original CORS noise in the first place.
+async function getFontEmbedCSSWithLogging(fontIds) {
+  try {
+    return await getEmbeddedFontCSS(fontIds)
+  } catch (e) {
+    debugLog('export', 'font-embed-failed', { error: e?.message || String(e) }, 'warn')
+    return ''
+  }
+}
 
 // Requirement: Export in multiple image formats (PNG, JPG, WebP)
 // Approach: Format toggle above export buttons, shared captureElement helper
@@ -72,7 +86,7 @@ export function setFullScale(element) {
 // stylesheet walker (which fails on cross-origin Google Fonts CSS).
 // fontIds default to [] for safety — empty CSS is harmless, just falls back.
 export async function captureAsBlob(element, width, height, format, fontIds = []) {
-  const fontEmbedCSS = await getEmbeddedFontCSS(fontIds).catch(() => '')
+  const fontEmbedCSS = await getFontEmbedCSSWithLogging(fontIds)
   const canvas = await toCanvas(element, {
     width,
     height,
@@ -109,7 +123,7 @@ export async function captureAsBlob(element, width, height, format, fontIds = []
 //     PNG is lossless and pdf-lib embeds via FlateDecode (no re-encoding).
 
 export async function captureForPdf(element, width, height, pixelRatio = 2, fontIds = []) {
-  const fontEmbedCSS = await getEmbeddedFontCSS(fontIds).catch(() => '')
+  const fontEmbedCSS = await getFontEmbedCSSWithLogging(fontIds)
   const canvas = await toCanvas(element, {
     width,
     height,

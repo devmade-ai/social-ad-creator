@@ -72,12 +72,11 @@
     </script>
 
     <!-- Fonts -->
-    <!-- crossorigin="anonymous" makes the stylesheet's cssRules accessible
-         from JS (Google Fonts returns ACAO: *), which html-to-image's font
-         embedder needs to walk @font-face rules during export. Without it,
-         sheet.cssRules throws SecurityError. The export path also passes
-         fontEmbedCSS explicitly, but this keeps any other CSSOM consumer
-         (devtools, future libraries) on the working path. -->
+    <!-- crossorigin="anonymous": forces a CORS-mode fetch so the stylesheet's
+         cssRules are JS-readable (Google Fonts returns ACAO: *). Required so
+         CSSOM consumers (devtools, html-to-image, etc.) can walk @font-face
+         rules without sheet.cssRules throwing SecurityError. The export path
+         also passes fontEmbedCSS explicitly to belt-and-brace this. -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" crossorigin="anonymous" />
