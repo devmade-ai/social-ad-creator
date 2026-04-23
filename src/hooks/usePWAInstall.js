@@ -120,20 +120,24 @@ export function usePWAInstall() {
     window.addEventListener('beforeinstallprompt', handler)
     window.addEventListener('appinstalled', installedHandler)
 
+    // Timer cleanup uses array-drain shape per glow-props TIMER_LEAKS.md §1:
+    // scales without cleanup rewrite if nested or additional timers land here.
+    const timeouts = []
+
     // For browsers that don't fire beforeinstallprompt, show manual install option.
     // Give a short delay to allow the event to fire first.
-    const timeout = setTimeout(() => {
+    timeouts.push(setTimeout(() => {
       if (!deferredPrompt && !isInstalled && supportsManualInstall) {
         _showManualInstructions = true
         notifyListeners()
       }
-    }, 1000)
+    }, 1000))
 
     // 5-second diagnostic timeout: on Chromium browsers, if beforeinstallprompt
     // hasn't fired, log a warning with manifest/SW status to help debug.
     // Chrome suppresses the prompt for 90 days after user dismissal —
     // fall back to manual instructions so users can still install.
-    const diagnosticTimeout = setTimeout(() => {
+    timeouts.push(setTimeout(() => {
       if (!deferredPrompt && !isInstalled && supportsAutoInstall) {
         const hasManifest = !!document.querySelector('link[rel="manifest"]')
         const hasSW = !!navigator.serviceWorker?.controller
@@ -143,14 +147,13 @@ export function usePWAInstall() {
         _showManualInstructions = true
         notifyListeners()
       }
-    }, 5000)
+    }, 5000))
 
     return () => {
       window.removeEventListener('beforeinstallprompt', handler)
       window.removeEventListener('appinstalled', installedHandler)
       mediaQuery.removeEventListener('change', displayHandler)
-      clearTimeout(timeout)
-      clearTimeout(diagnosticTimeout)
+      timeouts.forEach(clearTimeout)
     }
   }, [isInstalled, supportsManualInstall, supportsAutoInstall, browser])
 
