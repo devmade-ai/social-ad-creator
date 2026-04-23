@@ -10,7 +10,11 @@
 //   - Leave caches to expire naturally: Rejected — that's a year of wasted
 //     storage budget on every PWA install that updates from the old SW.
 
-const OLD_CACHES = ['google-fonts-cache', 'gstatic-fonts-cache']
+// Single source of truth for the pre-rename cache names. DebugPill's PWA
+// Diagnostics tab imports this list to flag any still-present entry as
+// stale (the sunset signal). Adding a third rename here automatically
+// surfaces it in the diagnostic — no lockstep update needed.
+export const OLD_CACHES = ['google-fonts-cache', 'gstatic-fonts-cache']
 
 export function cleanupOldCaches() {
   if (typeof caches === 'undefined') return

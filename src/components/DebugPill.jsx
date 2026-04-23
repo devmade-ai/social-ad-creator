@@ -9,6 +9,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { createRoot } from 'react-dom/client'
 import { clearEntries, subscribe, debugLog, debugGenerateReport, formatTime } from '../utils/debugLog'
+import { OLD_CACHES } from '../utils/pwaCleanup'
 
 const SEVERITY_COLORS = {
   info: '#60a5fa',
@@ -398,14 +399,22 @@ function PWADiagnosticsTab() {
     if (isStale()) { setRunning(false); return }
     setResults([...diags])
 
-    // Async: SW runtime cache list. Surfaces both the live `*-v2` caches and
-    // any stale pre-rename caches still present (the `pwaCleanup.js` sunset
-    // signal — when no install reports the un-versioned `google-fonts-cache`
-    // / `gstatic-fonts-cache` names, the cleanup module can be removed).
+    // Async: SW runtime cache list. Surfaces the live `*-v2` caches and
+    // flags any stale pre-rename caches still present (the `pwaCleanup.js`
+    // sunset signal — when no install reports a stale name here for ~30
+    // days, the cleanup module can be removed). OLD_CACHES is imported
+    // from pwaCleanup so adding a future rename there automatically
+    // propagates here — no lockstep update needed.
+    //
+    // Race window: main.jsx calls cleanupOldCaches() fire-and-forget at
+    // startup; if a user opens this diagnostic inside the same microtask
+    // flush as app boot, the stale names can appear transiently before
+    // the deletes resolve. The "Re-run" button reads fresh state; a
+    // genuine persistent stale entry is the signal that matters.
     if (typeof caches !== 'undefined') {
       try {
         const names = (await caches.keys()).sort()
-        const stale = names.filter((n) => n === 'google-fonts-cache' || n === 'gstatic-fonts-cache')
+        const stale = names.filter((n) => OLD_CACHES.includes(n))
         diags.push({
           label: 'SW Caches',
           status: stale.length === 0 ? 'pass' : 'warn',

@@ -456,7 +456,7 @@ pre-fetches CSS + woff2 over CORS and passes them to html-to-image as
 | 7 | Open the downloaded PNG | File browser / Preview | Title text renders in the chosen Title font (not Times/Arial); body text renders in the chosen Body font |
 | 8 | Repeat for JPG and WebP | Format selector → Single Download | Same — chosen fonts visible in each format |
 | 9 | Open DebugPill → Log tab | Floating debug button | No `font-embed-warning` entries; no `console`-source errors mentioning `cssRules`, `Failed to fetch` for `fonts.googleapis.com`, or `Error inlining remote css` |
-| 10 | Open DebugPill → PWA tab | Floating debug button | `SW Caches` row shows status `pass` (no stale `google-fonts-cache` / `gstatic-fonts-cache` names) once the user has loaded the new SW at least once |
+| 10 | Open DebugPill → PWA tab | Floating debug button | `SW Caches` row shows status `pass` after a full reload (F5 or close + reopen tab) following the deploy. That reload activates the new SW, which then uses the `*-v2` cache names and lets `pwaCleanup` delete the pre-rename names on the next app boot. Before the reload the row may legitimately show `warn` with stale entries — expected, not a regression. Click `Re-run` to confirm it's not transient. |
 
 **If step 7 fails (exported image uses system fonts):** the `fontEmbedCSS`
 pipeline is broken. Check (in order): (a) `activeFontIds` derivation in

@@ -25,6 +25,14 @@ const DIST_ASSETS = join(REPO_ROOT, 'dist', 'assets')
 const DIST_AVAILABLE = existsSync(DIST_ASSETS)
 
 const APP_CHUNK_MAX_KB = 500
+// Hard ceiling used only in the pdf-lib-leak test below — if pdf-lib ever
+// ends up in the app chunk, the chunk grows to ~750KB+; this threshold
+// distinguishes "normal growth" from "pdf-lib escaped vendor-pdf".
+const APP_CHUNK_HARD_MAX_KB = 750
+// Lower bound for the pdf-lib chunk itself. pdf-lib is ~430KB; a chunk
+// smaller than 100KB means the lib was tree-shaken into app code or split
+// incorrectly.
+const VENDOR_PDF_MIN_KB = 100
 const VENDOR_CHUNKS_REQUIRED = ['vendor-react', 'vendor-pdf', 'vendor-export', 'vendor-text']
 
 const describeDist = DIST_AVAILABLE ? describe : describe.skip
@@ -57,11 +65,11 @@ describeDist('Bundle layout — dist-level (run `vite build` first)', () => {
     const indexChunk = findChunk('index')
     const pdfChunk = findChunk('vendor-pdf')
     expect(pdfChunk).toBeDefined()
-    const indexSize = statSync(join(DIST_ASSETS, indexChunk)).size
-    const pdfSize = statSync(join(DIST_ASSETS, pdfChunk)).size
-    // pdf-lib is ~430KB. If it ends up in the app chunk, app would exceed
-    // ~750KB; vendor-pdf would shrink to near-zero (just its bootstrap).
-    expect(pdfSize).toBeGreaterThan(100 * 1024)
-    expect(indexSize).toBeLessThan(750 * 1024)
+    const indexSizeKB = Math.round(statSync(join(DIST_ASSETS, indexChunk)).size / 1024)
+    const pdfSizeKB = Math.round(statSync(join(DIST_ASSETS, pdfChunk)).size / 1024)
+    // If pdf-lib escapes vendor-pdf: pdfSize drops near zero (just the
+    // chunk bootstrap) AND indexSize grows past APP_CHUNK_HARD_MAX_KB.
+    expect(pdfSizeKB).toBeGreaterThan(VENDOR_PDF_MIN_KB)
+    expect(indexSizeKB).toBeLessThan(APP_CHUNK_HARD_MAX_KB)
   })
 })
