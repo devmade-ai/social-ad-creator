@@ -305,6 +305,7 @@ These footers are required on every commit. No exceptions.
 - **PWA icon purposes:** Never combine `"any maskable"` in a single icon entry. Use separate entries with individual `purpose` values. Dedicated 1024px maskable icon at `pwa-maskable-1024.png`.
 - **Debug system (alpha, all environments):** `src/utils/debugLog.js` is an in-memory 200-entry circular buffer with pub/sub, console interception (`console.error`/`console.warn` patched at module load), and `debugGenerateReport()` for clipboard reports with URL redaction. Consecutive identical messages (same source+event+severity) are deduplicated with a `count` field. Error handlers capture `Error.stack` from Error objects (`console.error` interceptor) and `e.error?.stack` (global error listener) — stack traces appear in debug report details for diagnosing minified crashes. `src/components/DebugPill.jsx` renders in static `#debug-root` div (separate React root, survives App crashes). Three tabs: Log, Env, PWA Diagnostics. Pre-React inline pill in `index.html` captures errors before bundle loads with 20s loading timeout. Skipped in embed mode (`?embed=`). Subscribers receive existing entries immediately on subscribe. Use `debugLog(source, event, details, severity)` to add entries (severity: info/success/warn/error).
 - **pdf-lib image handling:** pdf-lib embeds PNG directly (FlateDecode — no re-encoding). Digital PDF uses pxToPt=1 (1:1 pixel-to-point mapping). Captures at user-selected pixelRatio (1x/2x/3x), giving integer px/pt ratios (1:1/2:1/3:1). Print formats use pixelRatio:1 with 72/150 DPI conversion for correct physical page size. History: (1) pixelRatio:2 + 72/96 → 2.667:1 ratio → gradient banding. (2) 1:1 mapping + page scaled with pixelRatio → identical quality. (3) pxToPt=1 fixed page + variable pixelRatio → current approach. Diagnostic image download enabled in dev mode.
+- **Font embedding for export — `utils/fontEmbed.js`:** html-to-image's built-in font embedder (and its exported `getFontEmbedCSS`) walks `document.styleSheets` and reads `cssRules`, which throws SecurityError on cross-origin sheets without `crossorigin`. Even with `crossorigin="anonymous"` on the `<link>` tags, the SW runtime cache historically held opaque (status 0) responses that failed the new CORS-mode requests. Solution: pre-fetch each Google Fonts CSS URL ourselves via `getEmbeddedFontCSS(fontIds, { onWarning })`, inline every woff2 `url(...)` as a data URL (using `Promise.allSettled` so one bad weight doesn't drop the whole font), pass the result to `toCanvas` as `fontEmbedCSS`. With that option set, html-to-image short-circuits the broken stylesheet walker (verified at `embed-webfonts.js:188-192`). Cache is per-CSS-URL, lifetime = page session, with inflight dedup. Failures call `onWarning` so `exportHelpers.js` can surface partial degradation via `debugLog('export', 'font-embed-warning', ...)`. Companion changes: `crossorigin="anonymous"` on every Google Fonts `<link>` (index.html + 3 layouts) for any other CSSOM consumer; SW caches renamed `*-cache` → `*-cache-v2` with `cacheableResponse.statuses: [200]` to abandon opaque entries; `utils/pwaCleanup.js` drops the old cache names on app load.
 - **Design storage is IndexedDB:** `utils/designStorage.js` wraps IndexedDB with async save/load/list/delete. One-time migration from localStorage runs on first mount via `migrateFromLocalStorage()`. Never use localStorage for designs.
 - **Claude Code mobile/web — accessing sibling repos:**
   - Use `GITHUB_ALL_REPO_TOKEN` with the GitHub API (`api.github.com/repos/devmade-ai/{repo}/contents/{path}`) to read files from other devmade-ai repos
@@ -522,7 +523,7 @@ FRAMEWORK=React 18
 BUNDLER=Vite
 STYLING=Tailwind CSS 4 + DaisyUI 5 (utility classes in JSX, 2 theme combos: Mono + Luxe)
 LINTER=ESLint 9 (flat config) + eslint-plugin-react-hooks 7.x + eslint-plugin-react-refresh
-TEST_RUNNER=Jest (141 unit tests) + Manual (see docs/TESTING_GUIDE.md)
+TEST_RUNNER=Jest (164 unit tests) + Manual (see docs/TESTING_GUIDE.md)
 PACKAGE_MANAGER=npm
 DEPLOY=Vercel (auto-deploy on push to main)
 NAMING=camelCase (variables/functions), PascalCase (components)
@@ -729,7 +730,9 @@ src/
 │   ├── debugLog.js       # In-memory debug event store (circular buffer, console interception, report generation)
 │   ├── exportHelpers.js  # Export capture utilities (captureAsBlob, captureForPdf, waitForPaint)
 │   ├── canvasRenderers.js # Canvas rendering helpers (buildFilterStyle, getAlignItems, isDuotoneOverlay)
+│   ├── fontEmbed.js      # Pre-fetches Google Fonts CSS + woff2 as data URLs for html-to-image's fontEmbedCSS option (CORS-safe, cached, per-weight failure tolerant)
 │   ├── pwaHelpers.js     # Pure PWA utilities (detectBrowser, wasJustUpdated, trackInstallEvent, CHROMIUM_BROWSERS)
+│   ├── pwaCleanup.js     # One-shot caches.delete for pre-rename SW runtime caches (sunset target: ~Oct 2026 — see TODO.md)
 │   └── layoutHelpers.ts  # Layout-structure geometry (cellToSection, getFirstCellOfSection, Section interface)
 ├── App.jsx               # State orchestrator, delegates rendering to ReaderMode/MobileLayout/DesktopLayout
 └── main.jsx

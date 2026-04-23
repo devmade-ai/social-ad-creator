@@ -52,7 +52,8 @@ export default function ReaderMode({
 
   return (
     <div className="h-[100dvh] flex flex-col bg-base-200">
-      {fontsToLoad.map((font) => <link key={font.id} rel="stylesheet" href={font.url} />)}
+      {/* crossOrigin makes cssRules JS-readable — see CLAUDE.md "Font embedding for export". */}
+      {fontsToLoad.map((font) => <link key={font.id} rel="stylesheet" href={font.url} crossOrigin="anonymous" />)}
       <header className="bg-base-100/80 backdrop-blur-sm border-b border-base-300/60 px-3 py-2 shrink-0" style={{ paddingTop: 'max(0.5rem, env(safe-area-inset-top, 0.5rem))' }}>
         <div className="flex items-center justify-between">
           <button onClick={() => setIsReaderMode(false)} aria-label="Back to Editor" className="btn btn-ghost btn-sm gap-1.5">

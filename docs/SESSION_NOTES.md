@@ -6,60 +6,37 @@ Compact context summary for session continuity. Rewrite at session end.
 
 ## Worked on
 
-Adopted the glow-props fleet Triggers section in CLAUDE.md, then ran the full `tidy` meta sweep: `clean` → `doc-cleanup` → `hacks` → `deps` → `undone` → `dx`.
+Fixed mobile-PWA export bug: `SecurityError` / `TypeError: Failed to fetch` from html-to-image on Google Fonts, producing exports with system-font fallback. Fix is end-to-end — util + glue + SW + docs + tripwires.
 
 ## Accomplished
 
-### CLAUDE.md — Triggers rewrite (1c15967)
-- Replaced the 10-trigger single-word list with the cross-fleet 2026-04-17 redesign: 48 triggers across 8 groups, 6 cadence meta sweeps, 7 reflective passes, scope modifiers (`branch` / `staged` / `file <path>`).
-- Added AI note clarifying trigger-name collisions with repo folders/concepts (`docs/`, `src/config/`, `__tests__/`, `mobile`, `pwa`, `state`, `ci`).
-
-### `clean` (abfa57a)
-- Inlined `downloadDiagnosticImage` into its sole DEV-gated call site; removed the export from `exportHelpers.js` along with the `saveAs` import.
-- Dropped `export` from `MIME_TYPES` (was imported-but-unused); removed its direct unit test.
-- Extracted `updateCellBackground` + `updateCellFrame` helpers in `StyleTab.jsx`, replacing 5 inline duplications.
-- Pushed back on the `pruneOrphanedKeys` finding — 5 call sites, already private, inlining would duplicate the NaN-guarded loop.
-
-### `doc-cleanup` (74e296b)
-- Deleted stale `plan.md` (imageCells → cellImages refactor complete).
-- `README.md`: "Structured" → "Guided"; Structure section = Grid + Pages (removed stale Text Alignment); Style section lists all 5 subsections in UI order.
-- `docs/USER_GUIDE.md`: "Structured Mode" → "Guided Mode"; added Background section; renamed Overlay → Color Tint, Typography → Fonts to match UI; split Frames out of Spacing; removed duplicated Zoom Background line.
-- Test counts 142 → 141 in CLAUDE.md + TODO.md (post-MIME_TYPES test removal).
-- Added `platforms.js → SOCIAL_MEDIA_SPECS.md` cross-reference in CLAUDE.md.
-
-### `hacks` (cdebbc4)
-- `SaveLoadModal.jsx`: `setTimeout(50)` → `requestAnimationFrame` for post-modal focus (proper API, not a timing guess).
-- `App.jsx` + `BottomSheet.jsx`: added `--` reason suffixes to two `eslint-disable-next-line react-hooks/exhaustive-deps` comments per CLAUDE.md mandate.
-
-### `deps` (f75bda2)
-- Within-range bumps: dompurify 3.3.3 → 3.4.0, eslint-plugin-react-hooks 7.0.1 → 7.1.1, marked 17.0.1 → 17.0.6 (lockfile-only).
-- Fixed 4 lint regressions from the stricter react-hooks 7.1.1 rule:
-  - `SampleImagesSection.jsx`: moved ref mutation out of render into a no-deps useEffect (real concurrent-mode fix, not a suppression).
-  - Three legitimate setState-in-effect patterns: suppressed with `-- reason` suffixes on the exact setState lines (plugin 7.1.1 reports at the setState site, not the useEffect).
-- Deferred: eslint 10, react 19, vite 8 majors; 13 build-toolchain advisories whose "fix" is a regressive downgrade.
-
-### `undone`
-- Scan clean. No WIP/stub/experimental markers, no `if (false)` dead branches. The two `import.meta.env.DEV` uses are intentional (deepEqual depth warning, PDF diagnostic). TS migration (30% config, 17% utils, 0% hooks/components) is tracked in TODO.md as planned backlog, not undone work.
-
-### `dx` (d826dc4)
-- `package.json` engines: `{"node": ">=18.18.0"}` (ESLint 9's minimum).
-- Test script: added `--no-warnings` alongside `--experimental-vm-modules` — removes 11 lines of `ExperimentalWarning: VM Modules` noise from every `npm test`.
-- README.md Commands: added `npm run lint` and `npm test` (were only in CLAUDE.md).
-
-### `cold branch` audit (5daaf54)
-- Fresh-eyes re-read of the full 9-commit diff against origin/main. Surfaced two stale references `doc-cleanup` missed: `TESTING_GUIDE.md` S3/S4 still said "Typography" and "Style → Overlay" instead of the UI-matching "Fonts" and "Style → Color Tint". Fixed in one commit.
-- Everything else on the branch passed fresh-eyes review. Notes kept (not fixed): BottomSheet suppression reason wording is slightly imprecise but correct; SaveLoadModal rAF may be defensive overkill but the doc-comment is accurate; CLAUDE.md Triggers reminder style intentionally diverges from surrounding sections (glow-props verbatim).
+- **`utils/fontEmbed.js`** — pre-fetches Google Fonts CSS over CORS, inlines woff2 as data URLs, hands result to `toCanvas` via `fontEmbedCSS`. Bypasses html-to-image's broken `getCSSRules` walker (short-circuit at `embed-webfonts.js:188-192`). `Promise.allSettled` for woff2 so one bad weight doesn't drop the whole font. `AbortController` 8s timeout per fetch. Per-CSS-URL cache with inflight dedup. Optional `onWarning(msg)` callback; all invocations wrapped in `safeWarn` so a throwing caller can't break the export.
+- **`utils/exportHelpers.js`** — `captureAsBlob` / `captureForPdf` accept `fontIds`; pass `fontEmbedCSS` + `onWarning: debugLog('export','font-embed-warning',...)` bridge.
+- **`components/ExportButtons.jsx`** — `activeFontIds = useMemo([title, body])` threaded through all 4 capture call sites + deps.
+- **`crossorigin="anonymous"` on every Google Fonts `<link>`** (index.html + MobileLayout + DesktopLayout + ReaderMode). Defense-in-depth: makes any CSSOM consumer work, not just our custom path.
+- **SW runtime cache rename** in `vite.config.js` — `*-cache → *-cache-v2`, `cacheableResponse.statuses: [0,200] → [200]`. Abandons opaque entries from the old no-cors link era.
+- **`utils/pwaCleanup.js`** — one-shot `caches.delete` on app load for the pre-rename names. `OLD_CACHES` exported so DebugPill imports the same list (single source of truth).
+- **Bundle splitting** via `manualChunks` — vendor-react / vendor-pdf / vendor-export / vendor-text. App chunk 1099KB → 349KB. No UX change (no `React.lazy` — ExportButtons always visible on desktop).
+- **Tripwires** — `src/__tests__/bundleSize.test.js` asserts chunk layout + app-chunk ceiling; `DebugPill` PWA tab shows `SW Caches` row that flags stale `OLD_CACHES` entries (the `pwaCleanup` sunset signal).
+- **Tests** — new `fontEmbed.test.js` (14), new `pwaCleanup.test.js` (3), new `bundleSize.test.js` (6). Suite: 164/164 green in ~1.3s (abort-timeout test uses `jest.useFakeTimers({ doNotFake: ['queueMicrotask'] })`, not real wall-clock).
+- **Docs** — CLAUDE.md architecture lists `fontEmbed.js` + `pwaCleanup.js`; new AI Note "Font embedding for export" explains the architecture; TESTING_GUIDE.md E8 documents the manual regression scenario; TODO.md sunset entry for `pwaCleanup.js` with 5-step removal plan + concrete signal (DebugPill SW Caches row).
 
 ## Current state
 
-- **Branch:** `claude/replace-triggers-glow-props-j0m6j` (pushed, 10 commits ahead of main)
-- `npm run lint` clean, `npm test` 141/141 green (no warnings), `vite build` succeeds
-- Ready for review / merge
+- **Branch:** `claude/debug-canvagrid-mobile-gbW1o`, ahead of main, pushed
+- `npm run lint` clean
+- `npm test` 164/164 green (~1.3s)
+- `vite build` succeeds, no chunk-size warning
+- `dist/sw.js` carries `*-v2` cache names with `statuses:[200]`
+- Production minified bundle verified to contain `font-embed-warning` bridge, `getEmbeddedFontCSS({onWarning:...})` call, `fontEmbedCSS:o` in `toCanvas` options
 
 ## Key context
 
-- **Full tidy sweep + cold-branch audit done this session.** Branch is ready to merge.
-- **UI label vs state value convention:** Content tab UI labels are "Guided"/"Freeform"; state value remains `'structured'`. User-facing docs use UI labels; code/state discussions use state values.
-- **Reference docs pattern:** `docs/SOCIAL_MEDIA_SPECS.md` is external reference (not auto-maintained) and is discoverable from the `platforms.js` architecture line in CLAUDE.md, not from the Documentation section.
-- **Trigger-name collisions:** Bare word alone = Triggers invocation; in-prose reference = folder/concept. See the collisions AI note in CLAUDE.md.
-- **Deferred work needing user call:** Major version bumps (eslint 9→10, react 18→19, vite 5→8, etc.) and 13 build-toolchain advisories. See the `deps` commit body for rationale.
+- **Pre-fetch vs `skipFonts:true`:** SVG `<foreignObject>` rasterized via `Image` loses document context; `document.fonts` isn't consulted, result is system-font.
+- **Pre-fetch vs html-to-image's `getFontEmbedCSS()`:** that helper internally calls the same broken `getCSSRules` walker. Full rationale in CLAUDE.md AI Note.
+- **Why bump SW cache names + `statuses:[200]`:** existing PWA installs cached opaque (status 0) entries from no-cors links. Serving those to the new CORS-mode requests fails CORS. `pwaCleanup.js` is the belt to this brace.
+- **Why `Promise.allSettled`:** one transient 503 on `inter-bold.woff2` shouldn't drop the whole Inter family.
+- **Why `safeWarn`:** an `onWarning` that throws during partial-weight handling would cascade into the per-font `.catch` (which calls `onWarning` again) → unhandled rejection → export abort.
+- **Why manualChunks not `React.lazy`:** ExportButtons is always visible in the desktop sidebar; a Suspense fallback on every cold load is a UX regression. manualChunks is build-only.
+- **pwaCleanup sunset signal:** DebugPill → PWA tab → `SW Caches` row. When no incoming debug report shows `warn` for ~30 days (~Oct 2026), remove per TODO.md plan.
+- **Known browser-visual test:** verifying the exported image actually renders with the chosen font is a user step, documented as TESTING_GUIDE.md E8.

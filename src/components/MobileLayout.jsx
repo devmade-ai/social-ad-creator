@@ -167,7 +167,8 @@ export default function MobileLayout({
 
   return (
     <div className="h-[100dvh] flex flex-col overflow-hidden bg-base-200">
-      {fontsToLoad.map((font) => <link key={font.id} rel="stylesheet" href={font.url} />)}
+      {/* crossOrigin makes cssRules JS-readable — see CLAUDE.md "Font embedding for export". */}
+      {fontsToLoad.map((font) => <link key={font.id} rel="stylesheet" href={font.url} crossOrigin="anonymous" />)}
 
       {/* Mobile header — compact with app name + burger menu only.
           Backdrop is now owned by BurgerMenu (rendered inside its component).

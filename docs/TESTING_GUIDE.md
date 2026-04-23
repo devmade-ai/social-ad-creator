@@ -436,6 +436,34 @@ Run these tests after making changes to ensure nothing is broken.
 | 6 | Click the saved design to load it | Load tab | Original design restored |
 | 7 | Delete the design | Load tab → delete button | Confirm dialog, design removed from list |
 
+### E8: Exported Image Uses Selected Google Font (regression guard)
+
+**Scenario:** The exported PNG/JPG/PDF must render with the user-selected
+Google Fonts, not system fallbacks. Pre-2026-04-23 the exported image
+silently used system fonts because html-to-image's CSS-rule walker hit
+SecurityError on cross-origin Google Fonts stylesheets. Fix: `utils/fontEmbed.js`
+pre-fetches CSS + woff2 over CORS and passes them to html-to-image as
+`fontEmbedCSS`. This test catches any regression in that pipeline.
+
+| Step | Action | Where | Expected |
+|------|--------|-------|----------|
+| 1 | Open Style → Fonts | Style tab | Font picker visible |
+| 2 | Pick a visually-distinct font for Title (e.g. **Playfair Display**, **Bebas Neue**, or **Archivo Black**) | Style → Fonts → Title | Canvas updates immediately, title renders in chosen font |
+| 3 | Pick a visually-distinct body font (e.g. **Lora** or **Merriweather**) | Style → Fonts → Body | Canvas updates immediately, body renders in chosen font |
+| 4 | Add visible title + body text via Content tab | Content → Title / Body | Both texts appear on canvas |
+| 5 | Open Export tab (mobile) or Export panel (desktop) | Export | Single Download visible |
+| 6 | Format: PNG. Click Single Download | Export | File saved with timestamp prefix |
+| 7 | Open the downloaded PNG | File browser / Preview | Title text renders in the chosen Title font (not Times/Arial); body text renders in the chosen Body font |
+| 8 | Repeat for JPG and WebP | Format selector → Single Download | Same — chosen fonts visible in each format |
+| 9 | Open DebugPill → Log tab | Floating debug button | No `font-embed-warning` entries; no `console`-source errors mentioning `cssRules`, `Failed to fetch` for `fonts.googleapis.com`, or `Error inlining remote css` |
+| 10 | Open DebugPill → PWA tab | Floating debug button | `SW Caches` row shows status `pass` after a full reload (F5 or close + reopen tab) following the deploy. That reload activates the new SW, which then uses the `*-v2` cache names and lets `pwaCleanup` delete the pre-rename names on the next app boot. Before the reload the row may legitimately show `warn` with stale entries — expected, not a regression. Click `Re-run` to confirm it's not transient. |
+
+**If step 7 fails (exported image uses system fonts):** the `fontEmbedCSS`
+pipeline is broken. Check (in order): (a) `activeFontIds` derivation in
+`ExportButtons.jsx` includes the chosen font's `id`; (b) `getEmbeddedFontCSS`
+returns non-empty for that ID (mock the call site or inspect via DebugPill log
+entries); (c) `toCanvas` in `exportHelpers.js` is being passed `fontEmbedCSS`.
+
 ---
 
 ## Error Handling Tests

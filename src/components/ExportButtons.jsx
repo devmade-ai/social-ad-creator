@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, memo } from 'react'
+import { useState, useCallback, useRef, useMemo, memo } from 'react'
 import { PDFDocument } from 'pdf-lib'
 import JSZip from 'jszip'
 import { saveAs } from 'file-saver'
@@ -36,6 +36,21 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
   const exportFormat = state.exportFormat || 'png'
   const ext = FILE_EXTENSIONS[exportFormat] || 'png'
   const currentFormat = findFormat(state.platform)
+  // Active title + body font IDs — passed to capture helpers so html-to-image
+  // embeds them via fontEmbedCSS instead of trying to read cross-origin
+  // Google Fonts stylesheets (which throws SecurityError on cssRules).
+  // useMemo so the array reference is stable across renders, keeping the
+  // export useCallbacks memoized when font selection hasn't changed.
+  // Assumption: title + body are the only fonts that ever appear in the
+  // canvas DOM. Verified: structured-text elements share the title/body
+  // fallback chain; freeform blocks carry color/size/bold/italic but no
+  // per-block font. If a future feature adds per-element font selection,
+  // this derivation must collect those font IDs too — otherwise exports
+  // will silently fall back to system fonts for the new selections.
+  const activeFontIds = useMemo(
+    () => [state.fonts?.title, state.fonts?.body].filter(Boolean),
+    [state.fonts?.title, state.fonts?.body],
+  )
 
   const togglePlatform = useCallback((platformId) => {
     setSelectedPlatforms((prev) => {
@@ -103,7 +118,7 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
       const restoreTransform = setFullScale(canvasRef.current)
       await waitForPaint()
 
-      const blob = await captureAsBlob(canvasRef.current, platform.width, platform.height, exportFormat)
+      const blob = await captureAsBlob(canvasRef.current, platform.width, platform.height, exportFormat, activeFontIds)
       restoreTransform()
 
       const ts = getTimestamp()
@@ -120,7 +135,7 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
       setExportOp(null)
       exportLockRef.current = false
     }
-  }, [canvasRef, state.platform, state.activePage, exportFormat, ext, pageCount, updateExporting, addToast])
+  }, [canvasRef, state.platform, state.activePage, exportFormat, ext, pageCount, updateExporting, addToast, activeFontIds])
 
   const handleExportAllPages = useCallback(async () => {
     if (!canvasRef.current || pageCount <= 1 || exportLockRef.current) return
@@ -152,7 +167,7 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
         const restoreTransform = setFullScale(canvasRef.current)
         await waitForPaint()
 
-        const blob = await captureAsBlob(canvasRef.current, platform.width, platform.height, exportFormat)
+        const blob = await captureAsBlob(canvasRef.current, platform.width, platform.height, exportFormat, activeFontIds)
         restoreTransform()
 
         const pageNum = String(i + 1).padStart(2, '0')
@@ -177,7 +192,7 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
       setExportOp(null)
       exportLockRef.current = false
     }
-  }, [canvasRef, state.platform, state.activePage, exportFormat, ext, pageCount, onSetActivePage, updateExporting, addToast, cancelledRef])
+  }, [canvasRef, state.platform, state.activePage, exportFormat, ext, pageCount, onSetActivePage, updateExporting, addToast, cancelledRef, activeFontIds])
 
   // Requirement: PDF export for LinkedIn carousel documents and general print-to-PDF
   // Approach: Capture pages as lossless PNG at pixelRatio:2 (digital) or 1 (print),
@@ -232,7 +247,7 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
         const restoreTransform = setFullScale(canvasRef.current)
         await waitForPaint()
 
-        const imageResult = await captureForPdf(canvasRef.current, platform.width, platform.height, pdfPixelRatio)
+        const imageResult = await captureForPdf(canvasRef.current, platform.width, platform.height, pdfPixelRatio, activeFontIds)
         restoreTransform()
         pageImages.push(imageResult)
       }
@@ -296,7 +311,7 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
       setExportOp(null)
       exportLockRef.current = false
     }
-  }, [canvasRef, state.platform, state.activePage, pageCount, onSetActivePage, updateExporting, pdfQuality, addToast, cancelledRef])
+  }, [canvasRef, state.platform, state.activePage, pageCount, onSetActivePage, updateExporting, pdfQuality, addToast, cancelledRef, activeFontIds])
 
   const handleExportMultiple = useCallback(async () => {
     if (!canvasRef.current || exportLockRef.current) return
@@ -328,7 +343,7 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
           const restoreTransform = setFullScale(canvasRef.current)
           await waitForPaint()
 
-          const blob = await captureAsBlob(canvasRef.current, platform.width, platform.height, exportFormat)
+          const blob = await captureAsBlob(canvasRef.current, platform.width, platform.height, exportFormat, activeFontIds)
           restoreTransform()
 
           zip.file(`${platform.id}-${platform.width}x${platform.height}.${ext}`, blob)
@@ -365,7 +380,7 @@ export default memo(function ExportButtons({ canvasRef, state, onPlatformChange,
       setExportOp(null)
       exportLockRef.current = false
     }
-  }, [canvasRef, state.platform, exportFormat, ext, onPlatformChange, updateExporting, selectedPlatforms, addToast])
+  }, [canvasRef, state.platform, exportFormat, ext, onPlatformChange, updateExporting, selectedPlatforms, addToast, activeFontIds])
 
   return (
     <div className="space-y-3">
