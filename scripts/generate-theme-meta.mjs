@@ -124,19 +124,28 @@ writeFileSync(resolve(rootDir, 'src/config/daisyuiThemes.js'), themeFileContent)
 console.log('\n✓ Updated src/config/daisyuiThemes.js')
 
 // ---------------------------------------------------------------------------
-// 5. Update index.html — meta tags and inline flash-prevention script
+// 5. Update index.html — meta tag and inline flash-prevention script
 // ---------------------------------------------------------------------------
 
 let html = readFileSync(resolve(rootDir, 'index.html'), 'utf-8')
 
-// Update meta theme-color tags — use default combo's light/dark meta colors
+// Single light-mode meta theme-color tag — first-visit default is light, so
+// the pre-JS fallback is also light regardless of OS prefers-color-scheme.
+// The inline script below overrides this when a user has stored darkMode='true'.
+// Once JS runs, useDarkMode keeps this tag in sync with the active theme.
+//
+// Match one or two consecutive <meta name="theme-color" ...> tags (with
+// optional surrounding whitespace and an optional media= attribute) and
+// collapse them to a single bare tag. The `g` flag is intentionally absent —
+// we only want to rewrite the first contiguous block; any later theme-color
+// tag elsewhere in the document would be unexpected and worth surfacing.
+const metaBlockRe = /<meta name="theme-color"[^>]*\/>(\s*<meta name="theme-color"[^>]*\/>)?/
+if (!metaBlockRe.test(html)) {
+  throw new Error('No <meta name="theme-color"> tag found in index.html — cannot rewrite.')
+}
 html = html.replace(
-  /(<meta name="theme-color" content=")([^"]+)(" media="\(prefers-color-scheme: light\)")/,
-  `$1${defaultCombo.lightMeta}$3`
-)
-html = html.replace(
-  /(<meta name="theme-color" content=")([^"]+)(" media="\(prefers-color-scheme: dark\)")/,
-  `$1${defaultCombo.darkMeta}$3`
+  metaBlockRe,
+  `<meta name="theme-color" content="${defaultCombo.lightMeta}" />`
 )
 
 // Update inline combo map in flash-prevention script
@@ -168,6 +177,78 @@ if (html.includes('var metaColors =')) {
 }
 
 writeFileSync(resolve(rootDir, 'index.html'), html)
-console.log('✓ Updated index.html (meta tags + inline script)')
+console.log('✓ Updated index.html (meta tag + inline script)')
 
-console.log('\nDone. All theme-color values are now in sync.')
+// ---------------------------------------------------------------------------
+// 6. Rewrite icon.svg gradient stops from default-combo light theme primary
+// ---------------------------------------------------------------------------
+//
+// The PWA icon (public/icon.svg → 5 PNG variants) uses a four-stop gradient
+// derived from the default light theme's primary color (currently fantasy).
+// Hardcoding hex values here would let the icon drift out of sync the moment
+// DaisyUI nudges the primary's oklch — auto-generation keeps them locked.
+//
+// Design intent (encoded as L/C deltas on top of the primary's oklch):
+//   bg gradient: a slightly lighter primary → primary itself
+//   accent gradient: even lighter, less-saturated tints used at low opacity
+// Hue is preserved across all four. Chroma is preserved except for the
+// accent-start, which drops slightly so the lightest tint reads as a tint
+// (not a fully-saturated lighter color).
+
+const ICON_DELTAS = [
+  { name: 'bg.start',     dL:  12.55, dC:  0      },
+  { name: 'bg.end',       dL:   0,    dC:  0      },
+  { name: 'accent.start', dL:  32.55, dC: -0.039 },
+  { name: 'accent.end',   dL:  22.55, dC:  0      },
+]
+
+function deriveIconColors(primaryOklch) {
+  const m = primaryOklch.match(/oklch\(\s*([\d.]+)%\s+([\d.]+)\s+([\d.]+)/)
+  if (!m) throw new Error(`Cannot parse primary oklch: ${primaryOklch}`)
+  const L = parseFloat(m[1])
+  const C = parseFloat(m[2])
+  const H = parseFloat(m[3])
+
+  return ICON_DELTAS.map(({ name, dL, dC }) => {
+    const newL = Math.max(0, Math.min(100, L + dL))
+    const newC = Math.max(0, C + dC)
+    const oklch = `oklch(${newL}% ${newC} ${H})`
+    const hex = oklchToHex(oklch)
+    if (!hex) throw new Error(`Failed to convert ${oklch} for ${name}`)
+    return { name, hex }
+  })
+}
+
+const lightThemeId = defaultCombo.light
+const lightTheme = daisyuiThemes[lightThemeId]
+const primaryOklch = lightTheme['--color-primary']
+const iconColors = deriveIconColors(primaryOklch)
+
+console.log(`\nDerived icon colors from ${lightThemeId} primary (${primaryOklch}):`)
+iconColors.forEach(c => console.log(`  ${c.name.padEnd(14)} ${c.hex}`))
+
+const iconPath = resolve(rootDir, 'public/icon.svg')
+let svg = readFileSync(iconPath, 'utf-8')
+
+// Replace all four stop-color values positionally. The icon's <defs> contains
+// exactly four <stop> elements in the order: bg.start, bg.end, accent.start,
+// accent.end. A counter-based replacer assigns the new colors in that order.
+// Pre-flight check: confirm there are exactly four stops so a structural
+// regression in icon.svg fails loudly rather than silently corrupting colors.
+const stopMatches = svg.match(/stop-color="#[0-9a-f]{6}"/gi) || []
+if (stopMatches.length !== ICON_DELTAS.length) {
+  throw new Error(
+    `Expected ${ICON_DELTAS.length} <stop> elements in icon.svg, found ${stopMatches.length}. ` +
+    `Update generate-theme-meta.mjs ICON_DELTAS or fix icon.svg structure.`
+  )
+}
+
+let stopIdx = 0
+svg = svg.replace(/stop-color="#[0-9a-f]{6}"/gi, () => {
+  return `stop-color="${iconColors[stopIdx++].hex}"`
+})
+writeFileSync(iconPath, svg)
+console.log('✓ Updated public/icon.svg gradient stops')
+
+console.log('\nDone. All theme-color and icon values are now in sync.')
+console.log('Run `npm run generate-icons` to rasterize the new SVG to PNG variants.')

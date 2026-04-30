@@ -7,12 +7,13 @@
     <meta name="description" content="CanvaGrid - Create social media ads for LinkedIn, Facebook, Instagram, Twitter/X, and TikTok" />
 
     <!-- PWA -->
-    <!-- Two meta theme-color tags with media queries cover both OS preferences
-         before JS loads. A single tag can't adapt. The useDarkMode hook
-         dynamically updates both on manual toggle via querySelectorAll.
-         Light = fantasy (#6d0076), Dark = luxury (#09090b). -->
-    <meta name="theme-color" content="#6d0076" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#09090b" media="(prefers-color-scheme: dark)" />
+    <!-- Single meta theme-color tag — first-visit default is light (fantasy),
+         so the pre-JS fallback is also light regardless of OS prefers-color-scheme.
+         The inline flash-prevention script below overrides this when the user
+         has stored darkMode='true'. Once React mounts, useDarkMode keeps the
+         tag in sync with the active theme via querySelectorAll.
+         Auto-rewritten by scripts/generate-theme-meta.mjs from default combo. -->
+    <meta name="theme-color" content="#6d0076" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="CanvaGrid" />
@@ -25,14 +26,13 @@
          The useDarkMode hook runs after React mounts, too late to prevent a flash.
          This inline classic (non-module) script reads localStorage and applies both
          .dark (Tailwind) and data-theme (DaisyUI) during HTML parse.
-         Keys: 'darkMode', 'themeCombo'. Combos: mono (lofi/black), luxe (fantasy/luxury). -->
+         Keys: 'darkMode', 'themeCombo'. Combos: mono (lofi/black), luxe (fantasy/luxury).
+         First-visit default is light (no stored value → false). Brand-aligned with PWA icon. -->
     <script>
       (function() {
         try {
           var stored = localStorage.getItem('darkMode');
-          var isDark = stored !== null
-            ? stored === 'true'
-            : window.matchMedia('(prefers-color-scheme: dark)').matches;
+          var isDark = stored === 'true';
           var root = document.documentElement;
           if (isDark) root.classList.add('dark');
           // Combo-based theme resolution (with migration from old lightTheme/darkTheme keys)
@@ -62,12 +62,12 @@
     </script>
 
     <!-- Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-NHF1F61E55"></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-1K77DCFXNM"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
-      gtag('config', 'G-NHF1F61E55');
+      gtag('config', 'G-1K77DCFXNM');
       window._pageLoadTime = Date.now();
     </script>
 
