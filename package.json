@@ -7,6 +7,7 @@
     "dev": "vite",
     "generate-icons": "node scripts/generate-icons.mjs",
     "generate-theme-meta": "node scripts/generate-theme-meta.mjs",
+    "postgenerate-theme-meta": "npm run generate-icons",
     "prebuild": "npm run generate-icons",
     "build": "vite build",
     "lint": "eslint .",

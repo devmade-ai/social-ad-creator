@@ -11,6 +11,7 @@
 //     impression outweighs OS signal; users can still toggle and the preference persists.
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { debugLog } from '../utils/debugLog'
+import { computeInitialDarkMode } from '../utils/darkModeHelpers'
 import {
   themeCombos,
   DEFAULT_COMBO,
@@ -36,11 +37,7 @@ function validCombo(id) {
 }
 
 export function useDarkMode() {
-  const [isDark, setIsDark] = useState(() => {
-    const stored = safeStorageGet('darkMode')
-    if (stored !== null) return stored === 'true'
-    return false
-  })
+  const [isDark, setIsDark] = useState(() => computeInitialDarkMode(safeStorageGet('darkMode')))
 
   // Combo selection — one choice controls both light and dark themes.
   // localStorage key: 'themeCombo'. Validated on init.
@@ -90,7 +87,7 @@ export function useDarkMode() {
   useEffect(() => {
     const handleStorage = (e) => {
       if (e.key === 'darkMode') {
-        const newDark = e.newValue !== null ? e.newValue === 'true' : false
+        const newDark = computeInitialDarkMode(e.newValue)
         setIsDark(newDark)
         debugLog('dark-mode', 'cross-tab-sync', { key: 'darkMode', value: newDark })
       } else if (e.key === 'themeCombo' && e.newValue) {

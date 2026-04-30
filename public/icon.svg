@@ -1,7 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" shape-rendering="geometricPrecision">
-  <!-- Colors derived from DaisyUI fantasy theme primary (oklch hue 325.02).
-       Brand-aligned with the app's default light theme (Luxe combo → fantasy).
-       bg: lighter primary → primary | accent: even lighter primary tints. -->
+  <!-- Gradient stop colors are auto-rewritten by scripts/generate-theme-meta.mjs
+       from DaisyUI's fantasy theme primary (oklch). Run `npm run generate-theme-meta`
+       after DaisyUI updates or default-combo changes. The four stop-color values
+       below are replaced positionally (in order: bg start, bg end, accent start,
+       accent end), so don't reorder the gradients without updating the script. -->
   <defs>
     <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#952e9d"/>
