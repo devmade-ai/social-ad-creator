@@ -1,12 +1,15 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" shape-rendering="geometricPrecision">
+  <!-- Colors derived from DaisyUI fantasy theme primary (oklch hue 325.02).
+       Brand-aligned with the app's default light theme (Luxe combo → fantasy).
+       bg: lighter primary → primary | accent: even lighter primary tints. -->
   <defs>
     <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#7c3aed"/>
-      <stop offset="100%" stop-color="#4f46e5"/>
+      <stop offset="0%" stop-color="#952e9d"/>
+      <stop offset="100%" stop-color="#6d0076"/>
     </linearGradient>
     <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#a78bfa"/>
-      <stop offset="100%" stop-color="#818cf8"/>
+      <stop offset="0%" stop-color="#cc7bd1"/>
+      <stop offset="100%" stop-color="#b64fbd"/>
     </linearGradient>
   </defs>
 

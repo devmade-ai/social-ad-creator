@@ -1,11 +1,14 @@
 // Requirement: Combo-based DaisyUI theme selection with dark/light toggle,
-//   system fallback, cross-tab sync, safe storage, and dynamic meta theme-color.
+//   light-mode default, cross-tab sync, safe storage, and dynamic meta theme-color.
 // Approach: User picks a combo (e.g. Mono, Luxe); each combo pairs a light + dark theme.
 //   Dark/light toggle switches between the combo's themes. Dual-layer theming:
 //   .dark class on <html> for Tailwind dark: utilities, data-theme for DaisyUI.
+//   First-visit default is light (fantasy) — brand-aligned with PWA icon palette.
 // Alternatives:
 //   - Independent per-mode selection: Rejected — simplified to combos for fewer choices.
 //   - CSS-only prefers-color-scheme: Rejected — no user override possible.
+//   - Honor prefers-color-scheme on first visit: Rejected — brand consistency on first
+//     impression outweighs OS signal; users can still toggle and the preference persists.
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { debugLog } from '../utils/debugLog'
 import {
@@ -36,7 +39,7 @@ export function useDarkMode() {
   const [isDark, setIsDark] = useState(() => {
     const stored = safeStorageGet('darkMode')
     if (stored !== null) return stored === 'true'
-    return window.matchMedia('(prefers-color-scheme: dark)').matches
+    return false
   })
 
   // Combo selection — one choice controls both light and dark themes.
@@ -87,7 +90,7 @@ export function useDarkMode() {
   useEffect(() => {
     const handleStorage = (e) => {
       if (e.key === 'darkMode') {
-        const newDark = e.newValue !== null ? e.newValue === 'true' : window.matchMedia('(prefers-color-scheme: dark)').matches
+        const newDark = e.newValue !== null ? e.newValue === 'true' : false
         setIsDark(newDark)
         debugLog('dark-mode', 'cross-tab-sync', { key: 'darkMode', value: newDark })
       } else if (e.key === 'themeCombo' && e.newValue) {
@@ -98,16 +101,6 @@ export function useDarkMode() {
     }
     window.addEventListener('storage', handleStorage)
     return () => window.removeEventListener('storage', handleStorage)
-  }, [])
-
-  // Track OS preference changes — only when user hasn't made an explicit choice
-  useEffect(() => {
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
-    const handleChange = (e) => {
-      if (safeStorageGet('darkMode') === null) setIsDark(e.matches)
-    }
-    mediaQuery.addEventListener('change', handleChange)
-    return () => mediaQuery.removeEventListener('change', handleChange)
   }, [])
 
   const toggle = () => setIsDark((prev) => !prev)

@@ -25,14 +25,13 @@
          The useDarkMode hook runs after React mounts, too late to prevent a flash.
          This inline classic (non-module) script reads localStorage and applies both
          .dark (Tailwind) and data-theme (DaisyUI) during HTML parse.
-         Keys: 'darkMode', 'themeCombo'. Combos: mono (lofi/black), luxe (fantasy/luxury). -->
+         Keys: 'darkMode', 'themeCombo'. Combos: mono (lofi/black), luxe (fantasy/luxury).
+         First-visit default is light (no stored value → false). Brand-aligned with PWA icon. -->
     <script>
       (function() {
         try {
           var stored = localStorage.getItem('darkMode');
-          var isDark = stored !== null
-            ? stored === 'true'
-            : window.matchMedia('(prefers-color-scheme: dark)').matches;
+          var isDark = stored === 'true';
           var root = document.documentElement;
           if (isDark) root.classList.add('dark');
           // Combo-based theme resolution (with migration from old lightTheme/darkTheme keys)
