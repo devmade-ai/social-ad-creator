@@ -124,49 +124,79 @@ export function debugGenerateReport() {
 // Runs at module load time to catch early console calls.
 // HMR guard prevents double-patching during Vite hot reloads.
 // Re-entrancy guard prevents infinite loops if debugLog itself triggers console.error.
+//
+// Handlers and original-fn refs are lifted to module scope so the HMR dispose
+// hook below can restore originals and remove listeners when the module is
+// replaced. Without dispose, the old module's patch closures stay alive across
+// HMR cycles while the new module's guards short-circuit re-patching — which
+// silently breaks console interception after the first hot reload.
+let originalConsoleError = null
+let originalConsoleWarn = null
+let intercepting = false
+
+function patchedConsoleError(...args) {
+  originalConsoleError.apply(console, args)
+  if (!intercepting) {
+    intercepting = true
+    // Capture stack trace from Error objects for easier debugging of minified crashes.
+    const errObj = args.find(a => a instanceof Error)
+    const details = errObj?.stack ? { stack: errObj.stack } : null
+    try { debugLog('console', args.map(String).join(' '), details, 'error') } finally { intercepting = false }
+  }
+}
+
+function patchedConsoleWarn(...args) {
+  originalConsoleWarn.apply(console, args)
+  if (!intercepting) {
+    intercepting = true
+    try { debugLog('console', args.map(String).join(' '), null, 'warn') } finally { intercepting = false }
+  }
+}
+
 if (!window.__debugConsolePatched) {
   window.__debugConsolePatched = true
-  const originalError = console.error
-  const originalWarn = console.warn
-  let intercepting = false
-
-  console.error = (...args) => {
-    originalError.apply(console, args)
-    if (!intercepting) {
-      intercepting = true
-      // Capture stack trace from Error objects for easier debugging of minified crashes.
-      const errObj = args.find(a => a instanceof Error)
-      const details = errObj?.stack ? { stack: errObj.stack } : null
-      try { debugLog('console', args.map(String).join(' '), details, 'error') } finally { intercepting = false }
-    }
-  }
-
-  console.warn = (...args) => {
-    originalWarn.apply(console, args)
-    if (!intercepting) {
-      intercepting = true
-      try { debugLog('console', args.map(String).join(' '), null, 'warn') } finally { intercepting = false }
-    }
-  }
+  originalConsoleError = console.error
+  originalConsoleWarn = console.warn
+  console.error = patchedConsoleError
+  console.warn = patchedConsoleWarn
 }
 
 // --- Global error capture ---
 // Installed at module load time — captures crashes before React mounts.
 // HMR guard prevents duplicate listeners during development.
+function globalErrorHandler(e) {
+  debugLog('global', e.message || 'Unknown error', {
+    filename: e.filename,
+    lineno: e.lineno,
+    colno: e.colno,
+    stack: e.error?.stack || null,
+  }, 'error')
+}
+
+function globalRejectionHandler(e) {
+  debugLog('global', `Unhandled rejection: ${e.reason}`, null, 'error')
+}
+
 if (!window.__debugLogListenersAttached) {
   window.__debugLogListenersAttached = true
+  window.addEventListener('error', globalErrorHandler)
+  window.addEventListener('unhandledrejection', globalRejectionHandler)
+}
 
-  window.addEventListener('error', (e) => {
-    debugLog('global', e.message || 'Unknown error', {
-      filename: e.filename,
-      lineno: e.lineno,
-      colno: e.colno,
-      stack: e.error?.stack || null,
-    }, 'error')
-  })
-
-  window.addEventListener('unhandledrejection', (e) => {
-    debugLog('global', `Unhandled rejection: ${e.reason}`, null, 'error')
+// --- HMR teardown (TIMER_LEAKS pattern variant 5) ---
+// Vite fires dispose() BEFORE the new module loads, so the new module sees
+// cleared window flags and re-installs patches with its own handler closures.
+// In production builds, import.meta.hot is undefined and this block is stripped.
+if (import.meta.hot) {
+  import.meta.hot.dispose(() => {
+    if (originalConsoleError) {
+      console.error = originalConsoleError
+      console.warn = originalConsoleWarn
+    }
+    window.removeEventListener('error', globalErrorHandler)
+    window.removeEventListener('unhandledrejection', globalRejectionHandler)
+    delete window.__debugConsolePatched
+    delete window.__debugLogListenersAttached
   })
 }
 
