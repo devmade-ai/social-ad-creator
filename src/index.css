@@ -22,7 +22,6 @@
   --font-display: 'Space Grotesk', 'Inter', system-ui, sans-serif;
 
   --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.06), 0 4px 12px rgba(0, 0, 0, 0.04);
-  --shadow-glow: 0 0 20px oklch(var(--p) / 0.3);
 }
 
 /* Native form inputs, selects, scrollbars must match theme.
