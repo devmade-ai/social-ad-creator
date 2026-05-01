@@ -226,7 +226,7 @@ export default function BottomSheet({ isOpen, onClose, children, snapPoint, onSn
       ref={sheetRef}
       role="region"
       aria-label="Tab controls"
-      className="fixed bottom-0 left-0 right-0 z-30 bg-base-100 rounded-t-2xl shadow-[0_-4px_20px_rgba(0,0,0,0.12)] flex flex-col will-change-transform"
+      className="fixed bottom-0 left-0 right-0 z-30 bg-base-100 rounded-t-2xl shadow-2xl flex flex-col will-change-transform"
       style={{
         height: `${SNAP_FULL}vh`,
         maxHeight: 'calc(100dvh - 6rem)',

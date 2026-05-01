@@ -233,8 +233,8 @@ export default function SampleImagesSection({ images, onAddImage, selectedCell, 
               {sample.name}
             </div>
             {loadingSample === sample.id && (
-              <div className="absolute inset-0 flex items-center justify-center bg-black/30 rounded-lg">
-                <span className="loading loading-spinner loading-sm text-white" />
+              <div className="absolute inset-0 flex items-center justify-center bg-neutral/60 rounded-lg">
+                <span className="loading loading-spinner loading-sm text-neutral-content" />
               </div>
             )}
           </button>
