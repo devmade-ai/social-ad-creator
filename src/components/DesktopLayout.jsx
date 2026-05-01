@@ -188,17 +188,17 @@ export default function DesktopLayout({
       {/* Desktop-only path: always >= 1024px, no responsive prefixes needed */}
       <div className="flex flex-row items-stretch">
         <aside className="w-96 p-5 pr-0 pb-5">
-          <div className="bg-base-100 rounded-xl border border-base-300/80 shadow-card p-5">
+          <div className="card card-border bg-base-100 border-base-300/80 card-body p-5">
             {tabContent}
           </div>
         </aside>
 
         <main className="flex-1 p-5 space-y-4">
-          <div className="bg-base-100 rounded-xl border border-base-300/80 shadow-card p-5">
+          <div className="card card-border bg-base-100 border-base-300/80 card-body p-5">
             <PlatformPreview selectedPlatform={state.platform} onPlatformChange={setPlatform} />
           </div>
 
-          <div className="bg-base-100 rounded-xl border border-base-300/80 shadow-card p-6">
+          <div className="card card-border bg-base-100 border-base-300/80 card-body p-6">
             <div
               ref={previewContainerRef}
               className="relative bg-gradient-to-br from-base-200 to-base-100 rounded-xl overflow-hidden flex items-center justify-center border border-base-300/50"

@@ -586,7 +586,7 @@ function App() {
       <div className="text-center">
         <span className="loading loading-spinner loading-md text-primary mb-3" />
         <p className="text-neutral-content font-medium">Exporting...</p>
-        <button onClick={() => { cancelExportRef.current = true; setIsExporting(false) }} className="mt-3 px-4 py-1.5 text-sm text-neutral-content/70 hover:text-neutral-content rounded-lg hover:bg-neutral-content/10 transition-colors">Cancel</button>
+        <button onClick={() => { cancelExportRef.current = true; setIsExporting(false) }} className="btn btn-ghost btn-sm mt-3 text-neutral-content/70 hover:text-neutral-content">Cancel</button>
       </div>
     </div>
   )

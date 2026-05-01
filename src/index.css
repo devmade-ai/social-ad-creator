@@ -21,7 +21,6 @@
   --font-sans: 'Inter', system-ui, -apple-system, 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', sans-serif;
   --font-display: 'Space Grotesk', 'Inter', system-ui, sans-serif;
 
-  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.06), 0 4px 12px rgba(0, 0, 0, 0.04);
 }
 
 /* Native form inputs, selects, scrollbars must match theme.
