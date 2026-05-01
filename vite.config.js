@@ -227,6 +227,21 @@ export default defineConfig({
     })
   ],
   build: {
+    // Requirement: DebugPill captures Error.stack strings so users can submit
+    //   bug reports — without sourcemaps those stacks reference minified
+    //   positions like `index-DFv4rwEW.js:24:12345` and are useless for
+    //   debugging. Vite's default is `false`; enabling them is the only way
+    //   the existing debug-report flow produces actionable traces.
+    // Approach: `true` emits .map files alongside .js with sourceMappingURL
+    //   references. Adds modest dist size but the .map files are not
+    //   precached by VitePWA (glob pattern is *.{js,css,html,svg,woff2})
+    //   so SW cache size is unaffected.
+    // Alternatives:
+    //   - 'hidden': Rejected — saves the auto-fetch cost in browsers but
+    //     requires manual .map loading or an external symbolicator. Not
+    //     worth the friction for a small public client app.
+    //   - false (default): Rejected — defeats the DebugPill report flow.
+    sourcemap: true,
     // Requirement: Pre-fix, the entire app + 600KB of heavy export deps
     // (pdf-lib, jszip, html-to-image) shipped in one 1.1MB chunk, exceeding
     // Vite's 500KB warning threshold. Even though everything still loads on

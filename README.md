@@ -92,15 +92,27 @@ npm install
 npm run dev
 ```
 
+Requires Node 18.18+ (see `.nvmrc`).
+
 ## Commands
 
 ```bash
 npm run dev      # Start dev server
-npm run build    # Production build
+npm run build    # Production build (runs `prebuild` → icon generation → vite build)
 npm run preview  # Preview production build
 npm run lint     # Run ESLint
 npm test         # Run unit tests (Jest)
 ```
+
+### Build gotcha: `sharp`
+
+`npm run build` invokes a `prebuild` step that regenerates PWA icons via [`sharp`](https://github.com/lovell/sharp). On some systems `sharp`'s native binary fails to install (private registries, restricted networks, certain CI environments). If you only need to test a build and the icons in `public/` are already up to date, skip prebuild:
+
+```bash
+./node_modules/.bin/vite build
+```
+
+This produces an identical `dist/` minus the icon refresh step.
 
 ## Tech Stack
 
