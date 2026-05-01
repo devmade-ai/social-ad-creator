@@ -162,7 +162,7 @@ function App() {
   const canvasRef = useRef(null)
   const previewContainerRef = useRef(null)
   const tabNavRef = useRef(null)
-  const [activeSection, setActiveSection] = useState('templates')
+  const [activeSection, setActiveSection] = useState('presets')
 
   const [containerWidth, setContainerWidth] = useState(600)
   const [containerHeight, setContainerHeight] = useState(400)
@@ -330,7 +330,7 @@ function App() {
       if ((e.ctrlKey || e.metaKey) && e.key === 'y') { e.preventDefault(); redo() }
 
       if (!e.ctrlKey && !e.metaKey && !e.altKey) {
-        const tabMap = { '1': 'templates', '2': 'media', '3': 'content', '4': 'layout', '5': 'style' }
+        const tabMap = { '1': 'presets', '2': 'media', '3': 'content', '4': 'structure', '5': 'style' }
         if (tabMap[e.key]) {
           debugLog('ui', 'tab-change', { to: tabMap[e.key], source: 'keyboard' })
           setActiveSection(tabMap[e.key])
@@ -440,10 +440,10 @@ function App() {
   }, [isCanvasEmpty])
 
   const sections = [
-    { id: 'templates', label: 'Presets' },
+    { id: 'presets', label: 'Presets' },
     { id: 'media', label: 'Media' },
     { id: 'content', label: 'Content' },
-    { id: 'layout', label: 'Structure' },
+    { id: 'structure', label: 'Structure' },
     { id: 'style', label: 'Style' },
   ]
 
@@ -451,8 +451,8 @@ function App() {
   // Memoized to avoid recreating unused ErrorBoundary wrappers on every render.
   const tabContent = useMemo(() => (
     <div className="space-y-5">
-      <ErrorBoundary title="Templates error" message="Failed to load templates.">
-        {activeSection === 'templates' && (
+      <ErrorBoundary title="Presets error" message="Failed to load presets.">
+        {activeSection === 'presets' && (
           <TemplatesTab
             activeStylePreset={state.activeStylePreset}
             onSelectStylePreset={applyStylePreset}
@@ -514,8 +514,8 @@ function App() {
           />
         )}
       </ErrorBoundary>
-      <ErrorBoundary title="Layout error" message="Failed to load layout controls.">
-        {activeSection === 'layout' && (
+      <ErrorBoundary title="Structure error" message="Failed to load structure controls.">
+        {activeSection === 'structure' && (
           <LayoutTab
             layout={state.layout}
             onLayoutChange={setLayout}

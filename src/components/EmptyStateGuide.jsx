@@ -17,7 +17,7 @@ export default function EmptyStateGuide({ onNavigate }) {
       <p className="text-xs text-base-content/60 mb-3">Start by choosing a preset or uploading images</p>
       <div className="flex gap-2 justify-center">
         <button
-          onClick={() => onNavigate('templates')}
+          onClick={() => onNavigate('presets')}
           className="btn btn-primary btn-xs"
         >
           Browse Presets
