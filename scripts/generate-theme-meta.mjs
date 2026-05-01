@@ -129,24 +129,29 @@ console.log('\n✓ Updated src/config/daisyuiThemes.js')
 
 let html = readFileSync(resolve(rootDir, 'index.html'), 'utf-8')
 
-// Single light-mode meta theme-color tag — first-visit default is light, so
-// the pre-JS fallback is also light regardless of OS prefers-color-scheme.
-// The inline script below overrides this when a user has stored darkMode='true'.
-// Once JS runs, useDarkMode keeps this tag in sync with the active theme.
-//
-// Match one or two consecutive <meta name="theme-color" ...> tags (with
-// optional surrounding whitespace and an optional media= attribute) and
-// collapse them to a single bare tag. The `g` flag is intentionally absent —
-// we only want to rewrite the first contiguous block; any later theme-color
-// tag elsewhere in the document would be unexpected and worth surfacing.
-const metaBlockRe = /<meta name="theme-color"[^>]*\/>(\s*<meta name="theme-color"[^>]*\/>)?/
-if (!metaBlockRe.test(html)) {
-  throw new Error('No <meta name="theme-color"> tag found in index.html — cannot rewrite.')
+// Three regions in index.html are auto-generated, delimited by GEN: sentinels.
+// Matching between sentinels (rather than against literal JS shapes like
+// `var combos = ...`) keeps the generator robust to refactors of surrounding
+// code and signals to readers that the region is owned by this script.
+// The pre-React inline flash-prevention script and meta tag live in
+// <head> and must stay byte-stable for first-paint correctness — sentinels
+// also make it impossible for an unrelated edit to accidentally clobber
+// generated output.
+
+function replaceBetweenSentinels(input, name, replacement) {
+  // Sentinel pairs: HTML form (<!-- GEN:name --> ... <!-- GEN:end -->) and
+  // JS-comment form (/* GEN:name */ ... /* GEN:end */). Both are matched here
+  // because the generated regions live in different syntax contexts within
+  // index.html (HTML body vs inline <script>).
+  const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  const htmlRe = new RegExp(`(<!-- GEN:${escaped} -->)([\\s\\S]*?)(<!-- GEN:end -->)`)
+  const jsRe = new RegExp(`(/\\* GEN:${escaped} \\*/)([\\s\\S]*?)(/\\* GEN:end \\*/)`)
+  if (htmlRe.test(input)) return input.replace(htmlRe, `$1\n    ${replacement}\n    $3`)
+  if (jsRe.test(input)) return input.replace(jsRe, `$1 ${replacement} $3`)
+  throw new Error(`GEN sentinel "${name}" not found in index.html — cannot rewrite. Add <!-- GEN:${name} --> ... <!-- GEN:end --> or /* GEN:${name} */ ... /* GEN:end */ around the target region.`)
 }
-html = html.replace(
-  metaBlockRe,
-  `<meta name="theme-color" content="${defaultCombo.lightMeta}" />`
-)
+
+html = replaceBetweenSentinels(html, 'theme-color-meta', `<meta name="theme-color" content="${defaultCombo.lightMeta}" />`)
 
 // Update inline combo map in flash-prevention script
 const comboMap = {}
@@ -160,21 +165,8 @@ comboEntries.forEach(c => {
 })
 const colorMapStr = JSON.stringify(allColorMap)
 
-// Replace the combo map line
-if (html.includes('var combos =')) {
-  html = html.replace(
-    /var combos = [^;]+;/,
-    `var combos = ${JSON.stringify(comboMap)};`
-  )
-}
-
-// Replace the meta color map
-if (html.includes('var metaColors =')) {
-  html = html.replace(
-    /var metaColors = [^;]+;/,
-    `var metaColors = ${colorMapStr};`
-  )
-}
+html = replaceBetweenSentinels(html, 'combo-map', `var combos = ${JSON.stringify(comboMap)};`)
+html = replaceBetweenSentinels(html, 'meta-colors', `var metaColors = ${colorMapStr};`)
 
 writeFileSync(resolve(rootDir, 'index.html'), html)
 console.log('✓ Updated index.html (meta tag + inline script)')

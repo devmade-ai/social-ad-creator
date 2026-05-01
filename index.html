@@ -13,7 +13,10 @@
          has stored darkMode='true'. Once React mounts, useDarkMode keeps the
          tag in sync with the active theme via querySelectorAll.
          Auto-rewritten by scripts/generate-theme-meta.mjs from default combo. -->
+    <!-- GEN:theme-color-meta -->
     <meta name="theme-color" content="#6d0076" />
+    <!-- GEN:end -->
+
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="CanvaGrid" />
@@ -36,12 +39,12 @@
           var root = document.documentElement;
           if (isDark) root.classList.add('dark');
           // Combo-based theme resolution (with migration from old lightTheme/darkTheme keys)
-          var combos = {"mono":{"light":"lofi","dark":"black"},"luxe":{"light":"fantasy","dark":"luxury"}};
+          /* GEN:combo-map */ var combos = {"mono":{"light":"lofi","dark":"black"},"luxe":{"light":"fantasy","dark":"luxury"}}; /* GEN:end */
           var comboId = localStorage.getItem('themeCombo') || 'luxe';
           var combo = combos[comboId] || combos.mono;
           var theme = isDark ? combo.dark : combo.light;
           root.setAttribute('data-theme', theme);
-          var metaColors = {"lofi":"#ebebeb","black":"#000000","fantasy":"#6d0076","luxury":"#09090b"};
+          /* GEN:meta-colors */ var metaColors = {"lofi":"#ebebeb","black":"#000000","fantasy":"#6d0076","luxury":"#09090b"}; /* GEN:end */
           var mc = metaColors[theme] || '#808080';
           document.querySelectorAll('meta[name="theme-color"]').forEach(function(m) { m.setAttribute('content', mc); });
         } catch(e) {}
