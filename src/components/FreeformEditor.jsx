@@ -143,7 +143,13 @@ function FreeformBlockEditor({
 
   const textareaRows = Math.min(10, Math.max(3, (block.content || '').split('\n').length + 1))
 
-  // Track scroll timeout for cleanup on unmount
+  // Requirement: When a freeform block gains focus on mobile, scroll it into
+  //   view so the on-screen keyboard doesn't cover the editor.
+  // Approach: 100ms delay after focus gives the OS keyboard time to slide up
+  //   and the browser to apply its viewport adjustment, so scrollIntoView lands
+  //   on the right final position. Same delay used in ContentTab.jsx for
+  //   guided-mode text inputs.
+  // Track timeout in a ref and clear on unmount to satisfy the TIMER_LEAKS rule.
   const scrollTimerRef = useRef(null)
   const handleFocus = useCallback((e) => {
     clearTimeout(blurTimerRef.current)

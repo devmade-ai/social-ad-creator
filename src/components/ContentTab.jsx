@@ -80,8 +80,17 @@ function TextElementEditor({
   // Auto-grow textarea rows based on content (#9)
   const textareaRows = Math.min(8, Math.max(2, (layerState.content || '').split('\n').length + 1))
 
-  // Scroll into view on mobile keyboard (#12)
-  // Track timeout for cleanup on unmount to prevent stale DOM operations.
+  // Requirement: When a text input gains focus on mobile, scroll it into view
+  //   so the on-screen keyboard doesn't cover the field.
+  // Approach: 100ms delay after focus gives the OS keyboard time to slide up
+  //   and the browser to apply its viewport adjustment, so scrollIntoView lands
+  //   on the right final position rather than the pre-keyboard layout.
+  // Alternatives:
+  //   - scrollIntoView immediately on focus: Rejected — fires before keyboard
+  //     is up, layout shifts immediately after, target ends up offscreen.
+  //   - VisualViewport API: Rejected — adds complexity for a working pattern;
+  //     would still need a settle delay because viewport resize lags keyboard.
+  // Track timeout in a ref and clear on unmount to satisfy the TIMER_LEAKS rule.
   const scrollTimerRef = useRef(null)
   useEffect(() => {
     return () => clearTimeout(scrollTimerRef.current)

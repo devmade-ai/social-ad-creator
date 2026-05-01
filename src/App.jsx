@@ -358,11 +358,23 @@ function App() {
   }, [isMobile])
 
   useEffect(() => {
+    // Requirement: keep windowHeight synced with the viewport for responsive layout.
+    // Approach: listen on `resize` (the canonical signal) plus a deferred read after
+    //   `orientationchange`, because some mobile browsers fire `orientationchange`
+    //   before the new viewport dimensions are settled — `resize` may not follow,
+    //   or follows with stale values. The 100ms delay is the empirically reliable
+    //   settle window. The pending timeout is tracked in a ref and cleared on
+    //   unmount per the TIMER_LEAKS rule (every setTimeout needs a cleanup path).
+    let orientationTimer = null
     const handleResize = () => setWindowHeight(window.innerHeight)
-    const handleOrientation = () => setTimeout(handleResize, 100)
+    const handleOrientation = () => {
+      clearTimeout(orientationTimer)
+      orientationTimer = setTimeout(handleResize, 100)
+    }
     window.addEventListener('resize', handleResize)
     window.addEventListener('orientationchange', handleOrientation)
     return () => {
+      clearTimeout(orientationTimer)
       window.removeEventListener('resize', handleResize)
       window.removeEventListener('orientationchange', handleOrientation)
     }
