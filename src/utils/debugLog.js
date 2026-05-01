@@ -43,10 +43,6 @@ export function debugLog(source, event, details = null, severity = 'info') {
   notify()
 }
 
-export function getEntries() {
-  return entries
-}
-
 // nextId intentionally NOT reset — IDs must be monotonically increasing for the
 // lifetime of the page to guarantee unique React keys in the log list.
 export function clearEntries() {
