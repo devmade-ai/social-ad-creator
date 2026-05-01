@@ -1,6 +1,6 @@
-# CanvaGrid Style Guide 🎨
+# CanvaGrid Style Guide
 
-A vibrant, creative design system for makers who want their ads to *pop*.
+A vibrant, creative design system for makers who want their work to *pop*. The styling system is **DaisyUI 5** — there are no escape hatches. This guide covers the brand voice, type scale, and accessibility requirements that complement DaisyUI's primitives. Anything not covered here defers to DaisyUI defaults.
 
 ---
 
@@ -13,54 +13,69 @@ A vibrant, creative design system for makers who want their ads to *pop*.
 - **Playful** — Delightful details, not sterile interfaces
 - **Approachable** — Friendly, not intimidating
 
-> "If your design tool looks boring, your ads will be boring." — Nobody, but it's true
+> "If your design tool looks boring, your work will be boring."
+
+---
+
+## DaisyUI Discipline
+
+Every UI surface in this app uses DaisyUI components and semantic tokens. The rules:
+
+- **Components.** Buttons → `btn` + variant. Form controls → `input input-bordered` / `select select-bordered` / `textarea textarea-bordered` / `checkbox` / `radio` / `range` / `file-input`. Panels → `card` + `card-body`. Status → `badge` / `alert` / `toast`. Overlays → `modal` / `drawer` / `dropdown`. Tabs → `tabs` + `tab`. Tooltips → `tooltip`.
+- **Colors.** DaisyUI semantic tokens only — see the table below. No raw `bg-gray-*`, `text-blue-*`, `bg-white`, etc. No `dark:` color pairs — DaisyUI's `data-theme` switches both layers automatically.
+- **Borders.** `border-base-300` or `border-base-content/20`. No `border-gray-*` / `border-zinc-*` / `border-slate-*`.
+- **Radii.** `rounded-box` / `rounded-field` / `rounded-selector` — never arbitrary `rounded-[Xpx]`, never inline `style={{ borderRadius }}`.
+- **Shadows.** DaisyUI shadows only. No arbitrary `shadow-[...]` values.
+- **Inline hex.** None. No `style={{ color: '#...' }}` or `style={{ background: '#...' }}`.
+- **Tinted backgrounds.** No static `bg-primary/10`, `bg-error/15`, etc. on buttons, toggles, or active-state indicators — they vanish on dark themes. Use `bg-base-200`/`bg-base-300` for backgrounds and colored text (`text-primary`, `text-error`) for semantic meaning. Hover-only low-opacity (`hover:bg-primary/10` on large drop zones, `hover:bg-primary/80` to darken a full-opacity primary button) is the only acceptable use.
+
+If DaisyUI seems insufficient for something: stop and ask. Don't roll custom. Don't write a "we rolled custom because…" comment. See CLAUDE.md "DaisyUI is the styling system" for the full rule and rationale.
 
 ---
 
 ## Color System
 
-### DaisyUI Themes
+The UI uses 2 theme combos — **Mono** (lofi/black) and **Luxe** (fantasy/luxury). Users pick a combo; the dark/light toggle switches between the paired themes. Combos are defined in `src/config/daisyuiThemes.js`. Registered in `src/index.css` via `@plugin "daisyui"`.
 
-The UI chrome uses **DaisyUI 5** with 2 theme combos. Users pick a combo (Mono or Luxe) that pairs a light + dark theme; the dark/light toggle switches between them. Colors adapt automatically via `data-theme` attribute on `<html>`.
+The 19 content themes in `src/config/themes.js` apply to the **design canvas only** — they use inline styles and are completely separate from DaisyUI UI chrome.
 
-**Combos:**
-- **Mono** — Lo-Fi (light) + Black (dark) — clean & minimal
-- **Luxe** — Fantasy (light) + Luxury (dark) — rich & elegant
-
-Theme combos are defined in `src/config/daisyuiThemes.js`. Registered in `src/index.css` via `@plugin "daisyui"`.
-
-The 19 content themes in `src/config/themes.js` are for the **design canvas** — they use inline styles and are completely separate from the DaisyUI UI chrome.
-
-### DaisyUI Token Usage
+### Semantic Tokens
 
 | Token | Tailwind Class | Usage |
-|-------|---------------|-------|
-| `base-100` | `bg-base-100` | Page/card backgrounds |
-| `base-200` | `bg-base-200` | Elevated surfaces, insets |
-| `base-300` | `bg-base-300` | Hover states, borders |
+|-------|----------------|-------|
+| `base-100` | `bg-base-100` | Page and primary card backgrounds |
+| `base-200` | `bg-base-200` | Insets, elevated surfaces, hover targets |
+| `base-300` | `bg-base-300` | Stronger hover states, borders |
 | `base-content` | `text-base-content` | Default text |
-| `primary` | `bg-primary` | Primary actions, active states |
-| `primary-content` | `text-primary-content` | Text on primary background |
-| `secondary` | `bg-secondary` | Secondary accents (layout grid) |
-| `neutral` | `bg-neutral` | Neutral info toasts |
-| `error` | `bg-error`, `text-error` | Destructive actions, errors |
-| `success` | `bg-success`, `text-success` | Success feedback |
-| `warning` | `bg-warning`, `text-warning` | Warnings, caution states |
+| `primary` / `primary-content` | `bg-primary` / `text-primary-content` | Primary actions, active states |
+| `secondary` / `secondary-content` | `bg-secondary` / `text-secondary-content` | Secondary accents |
+| `accent` / `accent-content` | `bg-accent` / `text-accent-content` | Highlights |
+| `success` | `bg-success` / `text-success` | Success feedback |
+| `warning` | `bg-warning` / `text-warning` | Warnings, caution states |
+| `error` | `bg-error` / `text-error` | Destructive actions, errors |
 
-### Opacity Modifiers
+Actual hex values vary per active theme — never hardcode.
 
-Use opacity modifiers on DaisyUI tokens instead of hardcoded colors:
+### Text Opacity Modifiers
 
-```html
-<!-- Muted text -->
-<span class="text-base-content/70">Secondary text</span>
-<span class="text-base-content/60">Subtle text</span>
-<span class="text-base-content/40">Faint text</span>
+For muted-text hierarchy, layer opacity on `text-base-content`:
 
-<!-- Light backgrounds -->
-<div class="bg-primary/10">Tinted primary background</div>
-<div class="bg-error/10">Light error background</div>
+```jsx
+<p className="text-base-content">Default</p>
+<p className="text-base-content/70">Secondary</p>
+<p className="text-base-content/60">Subtle</p>
+<p className="text-base-content/40">Faint</p>
 ```
+
+These read correctly across both themes. **Do not** apply the same trick to background colors of interactive elements — see the rule above.
+
+### Background Hierarchy
+
+| Level | Token | Usage |
+|-------|-------|-------|
+| Page | `bg-base-100` | Page and primary card backgrounds |
+| Elevated | `bg-base-200` | Inset areas, secondary surfaces, hover backgrounds |
+| Strong | `bg-base-300` | Stronger hover, dividers, borders |
 
 ---
 
@@ -68,32 +83,28 @@ Use opacity modifiers on DaisyUI tokens instead of hardcoded colors:
 
 ### Font Stack
 
-**Headlines:** Space Grotesk or Poppins
-**Body:** Inter or DM Sans
+**Headlines:** Space Grotesk
+**Body:** Inter
 
-```css
---font-display: 'Space Grotesk', 'Poppins', system-ui, sans-serif;
---font-body: 'Inter', 'DM Sans', system-ui, sans-serif;
-```
+Both via Google Fonts. The `<link>` tags carry `crossorigin="anonymous"` so the export pipeline can read CSS rules — see CLAUDE.md "Font embedding for export."
 
 *Why these?*
 - **Space Grotesk** — Geometric with personality, great for headlines
 - **Inter** — Designed for screens, excellent readability
-- Both are Google Fonts (free & fast)
 
 ### Type Scale
 
-| Style | Size | Weight | Line Height | Letter Spacing | Usage |
-|-------|------|--------|-------------|----------------|-------|
-| **Display** | 48px | 700 | 1.1 | -0.02em | Hero headlines |
-| **H1** | 36px | 700 | 1.2 | -0.02em | Page titles |
-| **H2** | 28px | 600 | 1.3 | -0.01em | Section headers |
-| **H3** | 22px | 600 | 1.4 | 0 | Card headers |
-| **H4** | 18px | 600 | 1.4 | 0 | Subsections |
-| **Body** | 15px | 400 | 1.6 | 0 | Main content |
-| **Body SM** | 14px | 400 | 1.5 | 0 | Secondary text |
-| **Caption** | 12px | 500 | 1.4 | 0.01em | Labels, hints |
-| **Overline** | 11px | 600 | 1.3 | 0.08em | Category labels (UPPERCASE) |
+| Style | Tailwind | Weight | Usage |
+|-------|----------|--------|-------|
+| Display | `text-5xl` | 700 | Hero headlines |
+| H1 | `text-4xl` | 700 | Page titles |
+| H2 | `text-2xl` | 600 | Section headers |
+| H3 | `text-xl` | 600 | Card headers |
+| H4 | `text-lg` | 600 | Subsections |
+| Body | `text-base` | 400 | Main content |
+| Body SM | `text-sm` | 400 | Secondary text |
+| Caption | `text-xs` | 500 | Labels, hints |
+| Overline | `text-xs uppercase tracking-wider` | 600 | Category labels |
 
 ### Font Weights
 
@@ -101,180 +112,82 @@ Use opacity modifiers on DaisyUI tokens instead of hardcoded colors:
 |--------|-------|-------|
 | Regular | 400 | Body text |
 | Medium | 500 | Emphasized body, labels |
-| Semibold | 600 | Subheadings, buttons |
-| Bold | 700 | Headlines, important actions |
-
-### Tailwind Classes
-
-```html
-<!-- Headlines (use display font) -->
-<h1 class="text-4xl font-bold tracking-tight text-base-content">Make Ads That Pop</h1>
-<h2 class="text-2xl font-semibold text-base-content">Your Templates</h2>
-
-<!-- Body -->
-<p class="text-base text-base-content/70">Create stunning social ads...</p>
-
-<!-- Captions & Labels -->
-<span class="text-xs font-medium text-base-content/60 uppercase tracking-wide">Platform</span>
-```
+| Semibold | 600 | Subheadings, button labels |
+| Bold | 700 | Headlines, primary actions |
 
 ---
 
 ## Spacing
 
-### Base Unit: 4px
+DaisyUI inherits Tailwind's 4px-base spacing scale. Common patterns:
 
-We use a 4px base unit for tighter control (vs 8px). This lets us be more precise with small UI elements.
-
-| Token | Value | Tailwind | Usage |
-|-------|-------|----------|-------|
-| `xs` | 4px | `p-1` | Tiny gaps, icon padding |
-| `sm` | 8px | `p-2` | Small gaps, inline spacing |
-| `md` | 12px | `p-3` | Default padding |
-| `lg` | 16px | `p-4` | Card padding, comfortable gaps |
-| `xl` | 24px | `p-6` | Section padding |
-| `2xl` | 32px | `p-8` | Large section gaps |
-| `3xl` | 48px | `p-12` | Page margins |
-| `4xl` | 64px | `p-16` | Hero spacing |
-
-### Common Patterns
-
-```css
-/* Card padding */
-padding: 20px 24px;  /* p-5 px-6 */
-
-/* Section gaps */
-gap: 24px;  /* gap-6 */
-
-/* Inline element spacing */
-gap: 8px;  /* gap-2 */
-
-/* Form field spacing */
-margin-bottom: 16px;  /* mb-4 */
-```
+| Tier | Tailwind | Usage |
+|------|----------|-------|
+| Tiny | `p-1` (4px) | Icon padding, micro gaps |
+| Small | `p-2` (8px) | Inline spacing |
+| Default | `p-3` (12px) | Standard padding |
+| Comfortable | `p-4` (16px) | Card padding |
+| Section | `p-6` (24px) | Section gaps |
+| Large | `p-8` (32px) | Hero spacing |
+| Page | `p-12` (48px) | Page margins |
 
 ---
 
 ## Border Radius
 
-Keep it friendly with generous rounding.
+Use DaisyUI's semantic radius tokens. They scale together when a theme adjusts roundness:
 
-| Token | Value | Tailwind | Usage |
-|-------|-------|----------|-------|
-| `sm` | 6px | `rounded-md` | Small buttons, badges |
-| `md` | 8px | `rounded-lg` | Inputs, standard elements |
-| `lg` | 12px | `rounded-xl` | Cards, modals |
-| `xl` | 16px | `rounded-2xl` | Large cards, hero elements |
-| `full` | 9999px | `rounded-full` | Pills, avatars, toggles |
+| Token | Usage |
+|-------|-------|
+| `rounded-selector` | Pills, badges, small toggles |
+| `rounded-field` | Inputs, buttons (DaisyUI components apply this automatically) |
+| `rounded-box` | Cards, modals, panels (DaisyUI components apply this automatically) |
+| `rounded-full` | Avatars, full-circle pills |
 
-**Pro tip:** Our cards use `rounded-xl` (12px) — it's the sweet spot between modern and not-too-bubbly.
+Don't override DaisyUI component radii. Don't introduce arbitrary `rounded-[Xpx]`. Don't set `borderRadius` inline.
 
 ---
 
 ## Shadows
 
-### Light Mode
+Use DaisyUI's component-default shadows. `card`, `dropdown`, `modal`, `toast`, etc. ship sensible elevation. Don't introduce arbitrary `shadow-[...]` values. If a surface needs more emphasis than DaisyUI provides out of the box, it probably needs a different component (e.g., `card` instead of a bare `div`), or it needs DaisyUI's `shadow-md`/`shadow-lg` utilities.
 
-| Name | Value | Usage |
-|------|-------|-------|
-| `sm` | `0 1px 2px rgba(0,0,0,0.04)` | Subtle lift |
-| `md` | `0 2px 8px rgba(0,0,0,0.08)` | Cards, dropdowns |
-| `lg` | `0 8px 24px rgba(0,0,0,0.12)` | Modals, popovers |
-| `glow` | `0 0 20px rgba(139,92,246,0.3)` | Focused elements, CTAs |
-
-### Dark Mode
-
-In dark mode (DaisyUI `night` theme), we rely more on:
-- Border highlights (`border-base-300`)
-- Subtle background differences (`bg-base-200`, `bg-base-300`)
-- Glow effects for emphasis (`shadow-glow`)
-
-DaisyUI handles light/dark automatically via `data-theme` — no need for manual `dark:` class pairs.
+In dark mode the visual weight comes from DaisyUI's themed background steps (`base-100` → `base-200` → `base-300`) and `border-base-300` highlights, not from heavier shadows.
 
 ---
 
 ## Components
 
-### Buttons
+Use DaisyUI components directly. Don't hand-roll equivalents.
 
-| Variant | Background | Text | Border | Usage |
-|---------|------------|------|--------|-------|
-| **Primary** | `bg-primary` | `text-primary-content` | None | Main actions |
-| **Secondary** | Transparent | `text-base-content` | `border-base-300` | Secondary actions |
-| **Ghost** | Transparent | `text-base-content/70` | None | Tertiary actions |
-| **Danger** | `bg-error` | `text-error-content` | None | Destructive actions |
+| Need | Use |
+|------|-----|
+| Button | `btn btn-primary` / `btn btn-outline` / `btn btn-ghost` / `btn btn-error` etc. |
+| Form input | `input input-bordered input-sm` |
+| Select | `select select-bordered select-sm` |
+| Textarea | `textarea textarea-bordered textarea-sm` |
+| Checkbox | `checkbox checkbox-primary checkbox-sm` |
+| Radio | `radio radio-primary radio-sm` |
+| Range slider | `range range-primary range-sm` |
+| Card / panel | `card` + `card-body` |
+| Tabs | `tabs tabs-border` + `tab` |
+| Modal | `<dialog className="modal">` + `modal-box` (use native `<dialog>` for top-layer + focus trap) |
+| Drawer | `drawer` + `drawer-content` + `drawer-side` |
+| Dropdown | `dropdown` + `dropdown-content` |
+| Toast | `toast` (container) + `alert` (item) |
+| Tooltip | `tooltip` (or `Tooltip.jsx` portal-based for clipping-safe placement) |
+| Badge | `badge` + variant |
+| Alert | `alert alert-error alert-soft` (etc.) |
+| Spinner | `loading loading-spinner` |
+| Progress | `progress progress-primary` |
+| KBD chip | `kbd kbd-sm` |
+| Divider | `divider` |
+| Connected button group | `join` + `join-item` |
+| Bottom nav | `dock dock-sm` + `dock-active` + `dock-label` |
+| Menu list | `menu menu-sm` |
+| Collapsible section | `collapse collapse-arrow` |
 
-**Sizes:**
-
-| Size | Height | Padding | Font Size | Radius |
-|------|--------|---------|-----------|--------|
-| `sm` | 32px | 0 12px | 13px | 6px |
-| `md` | 40px | 0 16px | 14px | 8px |
-| `lg` | 48px | 0 24px | 15px | 8px |
-
-**Hover States:**
-- Primary: Darken + subtle scale (1.02)
-- Secondary: Light background fill
-- Ghost: Background appears
-
-```html
-<!-- Primary Button -->
-<button class="h-10 px-4 bg-primary hover:bg-primary/80 text-primary-content font-medium rounded-lg
-               transition-all hover:scale-[1.02] active:scale-[0.98]">
-  Create Ad
-</button>
-
-<!-- Secondary Button -->
-<button class="h-10 px-4 border border-base-300 hover:bg-base-200 rounded-lg transition-colors">
-  Cancel
-</button>
-```
-
-### Inputs
-
-| Property | Value |
-|----------|-------|
-| Height | 40px |
-| Padding | 0 12px |
-| Border | 1px solid `border-base-300` |
-| Border Radius | 8px |
-| Focus Ring | 2px `primary` with 2px offset |
-
-```html
-<input
-  class="h-10 w-full px-3 border border-base-300 rounded-lg
-         bg-base-100
-         focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2
-         placeholder:text-base-content/50"
-  placeholder="Enter your headline..."
-/>
-```
-
-### Cards
-
-```html
-<div class="bg-base-100 rounded-xl border border-base-300 p-5 shadow-sm hover:shadow-md transition-shadow">
-  <!-- Content -->
-</div>
-```
-
-### Tabs
-
-Active tab should feel *selected*, not just different.
-
-```html
-<!-- Tab container -->
-<div class="flex gap-1 p-1 bg-base-200 rounded-lg">
-  <!-- Active tab -->
-  <button class="px-4 py-2 bg-base-100 rounded-md font-medium shadow-sm">
-    Templates
-  </button>
-  <!-- Inactive tab -->
-  <button class="px-4 py-2 text-base-content/60 hover:text-base-content">
-    Media
-  </button>
-</div>
-```
+When picking a size, prefer the small variant (`*-sm`) for desktop UI density and bump up only when touch surfaces require it.
 
 ---
 
@@ -282,8 +195,8 @@ Active tab should feel *selected*, not just different.
 
 ### Transitions
 
-**Default timing:** `150ms ease` for micro-interactions
-**Emphasis timing:** `200ms ease-out` for larger movements
+- **Default timing:** `150ms ease` for micro-interactions
+- **Emphasis timing:** `200ms ease-out` for larger movements
 
 ```css
 /* Standard transition */
@@ -291,53 +204,31 @@ transition: all 150ms ease;
 
 /* Color/opacity only (smoother) */
 transition: color 150ms ease, background-color 150ms ease, opacity 150ms ease;
-
-/* Transform (playful) */
-transition: transform 200ms cubic-bezier(0.34, 1.56, 0.64, 1);
 ```
 
 ### Hover Effects
 
-| Element | Effect |
-|---------|--------|
-| Buttons | Slight scale (1.02) + color shift |
-| Cards | Lift shadow + slight translate Y (-2px) |
-| Icons | Color change + subtle rotate or scale |
-| Images | Subtle zoom (1.05) with overflow hidden |
+Lean on DaisyUI's built-in hover states. Most components handle this for you. For card-like surfaces, an additional subtle shadow lift is fine. Avoid heavy scale/translate transforms on small UI elements — they fight DaisyUI's default feel.
 
-### Micro-animations to Consider
+### Reduced Motion
 
-- **Export button:** Pulse or shimmer when export is ready
-- **Template cards:** Gentle hover lift
-- **Success states:** Quick checkmark animation
-- **Loading:** Gradient shimmer, not boring spinner
-- **Tab switch:** Smooth background slide
+Honor `prefers-reduced-motion`. `src/index.css` and the BottomSheet component already collapse animation/transition durations when the user has reduced motion enabled — match that pattern for any new animation you add.
 
 ---
 
 ## Iconography
 
-**Primary:** Lucide React
-**Style:** Rounded, friendly, consistent 1.5px stroke
+**Source:** Inline SVG path constants in `src/config/menuIcons.js`.
 
-| Size | Dimensions | Usage |
-|------|------------|-------|
-| `xs` | 14px | Inline with small text |
-| `sm` | 16px | Buttons, inline actions |
-| `md` | 20px | Standard UI icons |
-| `lg` | 24px | Section headers, emphasis |
-| `xl` | 32px | Empty states, features |
+We don't ship an icon library — every icon is a hand-curated SVG path bundled into the config so we don't add a dependency for a small icon set. New icons go into `menuIcons.js` and inherit color via `currentColor` (set the `text-*` class on the parent button or link).
 
-```jsx
-// Standard usage — always use DaisyUI semantic tokens
-<svg className="w-5 h-5 text-primary" />
-
-// In button
-<button className="flex items-center gap-2">
-  <svg className="w-4 h-4" />
-  Export
-</button>
-```
+| Size | Tailwind | Usage |
+|------|----------|-------|
+| Inline | `w-3.5 h-3.5` | Inline with small text |
+| Small | `w-4 h-4` | Buttons, inline actions |
+| Default | `w-5 h-5` | Standard UI icons |
+| Large | `w-6 h-6` | Section headers, emphasis |
+| Empty state | `w-8 h-8` | Empty states, feature highlights |
 
 ---
 
@@ -347,19 +238,12 @@ DaisyUI handles light/dark automatically via `data-theme`. Users pick a combo (M
 
 ### Key Principles
 
-1. **DaisyUI themes handle colors** — no manual dark: class pairs needed
-2. **Dual-layer theming** — `.dark` class for Tailwind utilities + `data-theme` for DaisyUI
-3. **2 theme combos** — Mono (lofi/black) and Luxe (fantasy/luxury)
+1. **DaisyUI tokens adapt automatically** — no manual `dark:` class pairs needed for color.
+2. **Dual-layer theming** — `.dark` class for any non-DaisyUI utilities that need the legacy hook (e.g., `color-scheme: dark` for native form inputs and scrollbars), plus `data-theme` for DaisyUI component colors. Both managed by `useDarkMode.js`.
+3. **First-visit default is light** — brand-aligned with the PWA icon palette. `prefers-color-scheme` is intentionally not honored; users toggle explicitly.
+4. **Flash-prevention inline script in `index.html`** applies the active theme before React mounts. Don't remove it.
 
-### Background Hierarchy
-
-All backgrounds use DaisyUI tokens that adapt per theme:
-
-| Level | Token | Usage |
-|-------|-------|-------|
-| Page | `bg-base-100` | Page and card backgrounds |
-| Elevated | `bg-base-200` | Inset areas, elevated surfaces |
-| Hover | `bg-base-300` | Hover states, stronger borders |
+See `src/hooks/useDarkMode.js` for the implementation and `src/config/daisyuiThemes.js` for the combo definitions and meta colors.
 
 ---
 
@@ -369,20 +253,17 @@ Even fun design needs to be usable.
 
 ### Contrast Ratios
 
-| Text Type | Minimum | Target |
-|-----------|---------|--------|
-| Body text | 4.5:1 | 7:1 |
-| Large text (18px+) | 3:1 | 4.5:1 |
-| UI components | 3:1 | 4.5:1 |
+DaisyUI's default themes meet WCAG AA on text. Verify with browser tools when introducing custom theme tweaks or low-opacity text.
+
+| Text Type | Minimum |
+|-----------|---------|
+| Body text | 4.5:1 |
+| Large text (18px+) | 3:1 |
+| UI components | 3:1 |
 
 ### Focus States
 
-All interactive elements must have visible focus states.
-
-```html
-<!-- Focus ring uses DaisyUI primary token -->
-<button class="outline-none focus-visible:ring-2 focus-visible:ring-primary">
-```
+DaisyUI components provide visible focus rings via the active theme's `--color-primary`. Don't override unless you're verifying contrast on every theme. For non-DaisyUI custom controls, use `focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2`.
 
 ### Motion Sensitivity
 
@@ -395,50 +276,14 @@ All interactive elements must have visible focus states.
 }
 ```
 
----
+This override is in `src/index.css`. Match the spirit when introducing new transitions: respect the user's preference rather than relying on a global hammer.
 
-## Quick Reference
+### Keyboard Navigation
 
-### Common Class Combos
-
-```html
-<!-- Primary action button -->
-<button class="h-10 px-4 bg-primary hover:bg-primary/80 text-primary-content font-medium rounded-lg
-               shadow-sm hover:shadow transition-all hover:scale-[1.02]">
-
-<!-- Card container -->
-<div class="bg-base-100 rounded-xl border border-base-300 p-5 shadow-sm">
-
-<!-- Section header -->
-<h2 class="text-xl font-semibold text-base-content">
-
-<!-- Secondary text -->
-<p class="text-sm text-base-content/60">
-
-<!-- Input field -->
-<input class="h-10 w-full px-3 border border-base-300 rounded-lg
-              focus:ring-2 focus:ring-primary focus:ring-offset-2">
-
-<!-- Badge/pill -->
-<span class="px-2 py-0.5 text-xs font-medium bg-primary/15 text-primary rounded-full">
-```
-
-### DaisyUI Semantic Tokens at a Glance
-
-```
-Primary actions:    bg-primary / text-primary-content
-Secondary accents:  bg-secondary / text-secondary-content
-Accent highlights:  bg-accent / text-accent-content
-Success:            bg-success / text-success
-Warning:            bg-warning / text-warning
-Error:              bg-error / text-error
-
-Backgrounds:        bg-base-100 → bg-base-200 → bg-base-300
-Text:               text-base-content (full) → /70 → /60 → /40
-Borders:            border-base-300
-
-Actual hex values vary per selected DaisyUI theme.
-```
+- All interactive elements must be keyboard reachable.
+- Modals (`<dialog>`) provide a focus trap natively.
+- The burger menu uses `useFocusTrap` for the same purpose.
+- Disclosure components use `useDisclosureFocus` to return focus to the trigger on close.
 
 ---
 
@@ -450,6 +295,4 @@ Actual hex values vary per selected DaisyUI theme.
 4. **Delight is in the details** — The small animations matter
 5. **Fun ≠ unprofessional** — Vibrant can still be polished
 
----
-
-*Last updated: January 2026*
+When in doubt: defer to DaisyUI defaults. They're already considered.
